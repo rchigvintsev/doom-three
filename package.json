@@ -1,0 +1,43 @@
+{
+  "name": "doom-three",
+  "description": "WebGL with three.js port of Doom 3 game",
+  "version": "1.0.0",
+  "author": "Roman Chigvintsev",
+  "license": "ISC",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rchigvintsev/doom-three.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rchigvintsev/doom-three/issues"
+  },
+  "homepage": "https://github.com/rchigvintsev/doom-three#readme",
+  "dependencies": {
+    "@tweenjs/tween.js": "17.2.0",
+    "body-parser": "^1.18.3",
+    "cannon": "0.6.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.0",
+    "express": "^4.16.3",
+    "jade": "~1.11.0",
+    "jquery": "~3.1.1",
+    "mathjs": "3.10.0",
+    "morgan": "^1.9.1",
+    "serve-favicon": "^2.5.0",
+    "stats.js": "0.17.0",
+    "three": "0.92.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.3",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-cssmin": "^1.0.2",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.1.0"
+  }
+}

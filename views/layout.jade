@@ -1,0 +1,28 @@
+doctype html
+html
+    head
+        title= title
+
+        if env === 'production'
+            link(rel='stylesheet', href='/stylesheets/doom-three.min.css')
+        else
+            link(rel='stylesheet', href='/stylesheets/doom-three.css')
+            link(rel='stylesheet', href='/stylesheets/error-message.css')
+
+    body
+        block content
+
+        script(type='text/javascript', src='/jquery/jquery.min.js')
+        script(type='text/javascript', src='/three/build/three.min.js')
+        script(type='text/javascript', src='/three/examples/js/utils/SceneUtils.js')
+        script(type='text/javascript', src='/three/examples/js/loaders/TGALoader.js')
+        script(type='text/javascript', src='/stats.js/stats.min.js')
+        script(type='text/javascript', src='/cannon/cannon.min.js')
+        script(type='text/javascript', src='/mathjs/math.min.js')
+        script(type='text/javascript', src='/tweenjs/Tween.js')
+        script(type='text/javascript', src='/javascripts/dat.gui.min.js')
+
+        if env === 'production'
+            script(type='text/javascript', src='/javascripts/doom-three.min.js')
+        else
+            script(type='module', src='/javascripts/game.js')

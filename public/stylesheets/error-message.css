@@ -1,0 +1,21 @@
+.error-message {
+    width: 450px;
+    height: 150px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -75px;
+    margin-left: -225px;
+    background-color: #000;
+    color: #fff;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    text-align: center;
+    border: 4px double #fff;
+}
+
+.error-message span {
+    display: block;
+    margin-top: 50px;
+}
