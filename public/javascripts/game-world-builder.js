@@ -49,27 +49,29 @@ export class GameWorldBuilder {
             flashlight: weapons[Flashlight.definition.name]
         }).build(map.areas);
 
-        for (let ai = 0; ai < areas.length; ai++) {
-            const area = areas[ai];
+        for (let i = 0; i < areas.length; i++) {
+            const area = areas[i];
 
-            for (let si = 0; si < area.surfaces.length; si++) {
-                const surface = area.surfaces[si];
+            for (let i = 0; i < area.surfaces.length; i++) {
+                const surface = area.surfaces[i];
                 this.addObjectToScene(surface);
                 gameWorld.currentArea.add(surface);
                 if (surface.body)
                     this.systems[Game.SystemType.PHYSICS_SYSTEM].registerBody(surface.body);
             }
 
-            for (let li = 0; li < area.lights.length; li++) {
-                const light = area.lights[li];
+            for (let i = 0; i < area.lights.length; i++) {
+                const light = area.lights[i];
                 this.addObjectToScene(light.light);
                 if (light.lightSphere)
                     this.addObjectToScene(light.lightSphere);
             }
 
-            for (let mi = 0; mi < area.models.length; mi++) {
-                const model = area.models[mi];
+            for (let i = 0; i < area.models.length; i++) {
+                const model = area.models[i];
                 this.addObjectToScene(model);
+                if (model.body)
+                    this.systems[Game.SystemType.PHYSICS_SYSTEM].registerBody(model.body);
                 gameWorld.currentArea.add(model);
             }
 
@@ -276,12 +278,12 @@ class AreaBuilder {
             if (area.models)
                 result[ai].models = new ModelBuilder(this.context).build(area.models);
             if (area.boundingBox && Settings.renderBoundingBoxes)
-                result[ai].boundingBox = this.createBoundingBox(area.boundingBox);
+                result[ai].boundingBox = AreaBuilder.createBoundingBox(area.boundingBox);
         }
         return result;
     }
 
-    createBoundingBox(bbDef) {
+    static createBoundingBox(bbDef) {
         const vertices = [];
         vertices.push(new THREE.Vector3(bbDef[0], bbDef[2], bbDef[4]).multiplyScalar(GameConstants.WORLD_SCALE));
         vertices.push(new THREE.Vector3(bbDef[1], bbDef[2], bbDef[4]).multiplyScalar(GameConstants.WORLD_SCALE));
@@ -358,7 +360,7 @@ class LightBuilder {
 class ModelBuilder {
     constructor(context) {
         this.md5ModelFactory = new MD5ModelFactory(context.assets, context.flashlight);
-        this.lwoModelFactory = new LWOModelFactory(context.assets, context.flashlight);
+        this.lwoModelFactory = new LWOModelFactory(context.systems, context.assets, context.flashlight);
     }
 
     build(models) {

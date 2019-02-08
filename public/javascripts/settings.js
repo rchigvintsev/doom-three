@@ -1,123 +1,115 @@
-var DOOM_THREE = DOOM_THREE || {};
+const SETTINGS_KEY = 'doom-three-settings';
 
-(function (DT) {
-    var SETTINGS_KEY = 'doom-three-settings';
+const settings = {
+    antialias: false,
+    cameraFov: 75,
+    cameraNear: 0.01,
+    cameraFar: 1000,
+    showLightSphere: false,
+    showWireframe: false,
+    wireframeOnly: false,
+    showCollisionModel: false,
+    ghostMode: false,
+    renderBoundingBoxes: false
+};
 
-    DT.Settings = function () {
-        var settings = {
-            antialias: false,
-            cameraFov: 75,
-            cameraNear: 0.01,
-            cameraFar: 1000,
-            showLightSphere: false,
-            showWireframe: false,
-            wireframeOnly: false,
-            showCollisionModel: false,
-            ghostMode: true,
-            renderBoundingBoxes: false
-        };
-
-        return {
-            load: function () {
-                var settingsJson = localStorage[SETTINGS_KEY];
-                if (settingsJson !== undefined) {
-                    var loadedSettings = JSON.parse(settingsJson);
-                    for (var key in loadedSettings) {
-                        if (loadedSettings.hasOwnProperty(key) && key in settings)
-                            settings[key] = loadedSettings[key];
-                    }
-                }
-            },
-
-            save: function () {
-                localStorage[SETTINGS_KEY] = JSON.stringify(settings);
-            },
-
-            get antialias() {
-                return settings.antialias;
-            },
-
-            set antialias(value) {
-                settings.antialias = value;
-            },
-
-            get cameraFov() {
-                return settings.cameraFov;
-            },
-
-            set cameraFov(value) {
-                settings.cameraFov = value;
-            },
-
-            get cameraNear() {
-                return settings.cameraNear;
-            },
-
-            set cameraNear(value) {
-                settings.cameraNear = value;
-            },
-
-            get cameraFar() {
-                return settings.cameraFar;
-            },
-
-            set cameraFar(value) {
-                settings.cameraFar = value;
-            },
-
-            get showLightSphere() {
-                return settings.showLightSphere;
-            },
-
-            set showLightSphere(value) {
-                settings.showLightSphere = value;
-            },
-
-            get showWireframe() {
-                return settings.showWireframe;
-            },
-
-            set showWireframe(value) {
-                settings.showWireframe = value;
-            },
-
-            get wireframeOnly() {
-                return settings.wireframeOnly;
-            },
-
-            set wireframeOnly(value) {
-                settings.wireframeOnly = value;
-            },
-
-            get showCollisionModel() {
-                return settings.showCollisionModel;
-            },
-
-            set showCollisionModel(value) {
-                settings.showCollisionModel = value;
-            },
-
-            get ghostMode() {
-                return settings.ghostMode;
-            },
-
-            set ghostMode(value) {
-                if (settings.ghostMode !== value)
-                    this.dispatchEvent({type: 'ghostModeChange', value: value});
-                settings.ghostMode = value;
-            },
-
-            get renderBoundingBoxes() {
-                return settings.renderBoundingBoxes;
-            },
-
-            set renderBoundingBoxes(value) {
-                settings.renderBoundingBoxes = value;
+export class Settings {
+    static load() {
+        const settingsJson = localStorage[SETTINGS_KEY];
+        if (settingsJson !== undefined) {
+            const loadedSettings = JSON.parse(settingsJson);
+            for (let key in loadedSettings) {
+                if (loadedSettings.hasOwnProperty(key) && key in settings)
+                    settings[key] = loadedSettings[key];
             }
         }
-    }();
+    }
 
-    Object.assign(DT.Settings, THREE.EventDispatcher.prototype);
-})(DOOM_THREE);
+    static save() {
+        localStorage[SETTINGS_KEY] = JSON.stringify(settings);
+    }
 
-export const Settings = DOOM_THREE.Settings;
+    static get antialias() {
+        return settings.antialias;
+    }
+
+    static set antialias(value) {
+        settings.antialias = value;
+    }
+
+    static get cameraFov() {
+        return settings.cameraFov;
+    }
+
+    static set cameraFov(value) {
+        settings.cameraFov = value;
+    }
+
+    static get cameraNear() {
+        return settings.cameraNear;
+    }
+
+    static set cameraNear(value) {
+        settings.cameraNear = value;
+    }
+
+    static get cameraFar() {
+        return settings.cameraFar;
+    }
+
+    static set cameraFar(value) {
+        settings.cameraFar = value;
+    }
+
+    static get showLightSphere() {
+        return settings.showLightSphere;
+    }
+
+    static set showLightSphere(value) {
+        settings.showLightSphere = value;
+    }
+
+    static get showWireframe() {
+        return settings.showWireframe;
+    }
+
+    static set showWireframe(value) {
+        settings.showWireframe = value;
+    }
+
+    static get wireframeOnly() {
+        return settings.wireframeOnly;
+    }
+
+    static set wireframeOnly(value) {
+        settings.wireframeOnly = value;
+    }
+
+    static get showCollisionModel() {
+        return settings.showCollisionModel;
+    }
+
+    static set showCollisionModel(value) {
+        settings.showCollisionModel = value;
+    }
+
+    static get ghostMode() {
+        return settings.ghostMode;
+    }
+
+    static set ghostMode(value) {
+        if (settings.ghostMode !== value)
+            this.dispatchEvent({type: 'ghostModeChange', value: value});
+        settings.ghostMode = value;
+    }
+
+    static get renderBoundingBoxes() {
+        return settings.renderBoundingBoxes;
+    }
+
+    static set renderBoundingBoxes(value) {
+        settings.renderBoundingBoxes = value;
+    }
+}
+
+Object.assign(Settings, THREE.EventDispatcher.prototype);
