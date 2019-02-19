@@ -37,18 +37,34 @@ const _DEFINITION = Object.freeze({
                     },
                     { // Left wall
                         type: 'box',
-                        width: 125,
+                        width: 121,
                         height: 150,
                         depth: 10,
-                        offset: [57.5, -62.5, -75],
+                        offset: [57.5, -64.5, -75],
                         rotation: [90, 90, 0]
                     },
                     { // Right wall
                         type: 'box',
-                        width: 125,
+                        width: 121,
                         height: 150,
                         depth: 10,
-                        offset: [-57.5, -62.5, -75],
+                        offset: [-57.5, -64.5, -75],
+                        rotation: [90, 90, 0]
+                    },
+                    { // Left front wall
+                        type: 'box',
+                        width: 10,
+                        height: 150,
+                        depth: 13,
+                        offset: [46, -9, -75],
+                        rotation: [90, 90, 0]
+                    },
+                    { // Right front wall
+                        type: 'box',
+                        width: 10,
+                        height: 150,
+                        depth: 13,
+                        offset: [-46, -9, -75],
                         rotation: [90, 90, 0]
                     }
                 ]
