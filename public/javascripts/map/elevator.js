@@ -1,6 +1,13 @@
 import {GUIFactory} from './factory/gui-factory.js';
+import {Settings} from '../settings.js';
+import {LightFactory} from './factory/light-factory.js';
 
 const _DEFINITION = Object.freeze({
+    lights: [
+        {type: 'point', color: 0xffffff, distance: 120, position: [0, -65, -88]},
+        {type: 'point', color: 0xffffff, distance: 100, position: [0, -65, -44]},
+        {type: 'point', color: 0xffffff, distance: 30, position: [0, -65, -125]}
+    ],
     cm: {
         bodies: [
             {
@@ -76,20 +83,31 @@ const _DEFINITION = Object.freeze({
 export class Elevator extends THREE.Group {
     constructor(geometry, materials, guiMaterials, assets, body) {
         super();
-        this.add(new THREE.SkinnedMesh(geometry, materials));
 
+        this._body = body;
         this._gui = [];
 
-        if (guiMaterials) { // GUI is not enabled when only wireframe should be rendered
+        this.add(new THREE.SkinnedMesh(geometry, materials));
+
+        if (!Settings.wireframeOnly) {
             const guiFactory = new GUIFactory(assets);
             for (let guiMaterial of guiMaterials) {
                 const gui = guiFactory.createGui(guiMaterial.definition.guiClass, geometry, guiMaterial.index);
                 this.add(gui);
                 this._gui.push(gui);
             }
-        }
 
-        this._body = body;
+            const lightFactory = new LightFactory();
+            for (let i = 0; i < _DEFINITION.lights.length; i++) {
+                const lightDef = _DEFINITION.lights[i];
+                const light = lightFactory.createLight(lightDef, false);
+                this.add(light);
+                if (Settings.showLightSphere) {
+                    const lightSphere = lightFactory.createLightSphere(lightDef, false);
+                    this.add(lightSphere);
+                }
+            }
+        }
     }
 
     static get DEFINITION() {

@@ -1093,7 +1093,8 @@ var DOOM_THREE = DOOM_THREE || {};
         'models/mapobjects/elevators/elevator': {
             diffuseMap: 'models/mapobjects/elevators/elevator_cop',
             normalMap: 'models/mapobjects/elevators/elevator_local',
-            specularMap: 'models/mapobjects/elevators/elevator_cop_s'
+            specularMap: 'models/mapobjects/elevators/elevator_cop_s',
+            specular: 0x808080
         },
         'textures/base_wall/skpanel1a': {
             diffuseMap: 'textures/base_wall/skpanel1a',

@@ -1,36 +1,33 @@
 import {GameWorld} from '../../game-world.js';
 
-var DOOM_THREE = DOOM_THREE || {};
-
-(function (DT) {
-    DT.LightFactory = function () {
-    };
-
-    DT.LightFactory.prototype = {
-        constructor: DT.LightFactory,
-
-        createLight: function (lightDef) {
-            var light;
-            if (lightDef.type === 'point')
-                light = new THREE.PointLight(lightDef.color, lightDef.intensity,
-                    lightDef.distance * GameWorld.WORLD_SCALE);
-            else
-                throw 'Unsupported light type: ' + lightDef.type;
-            light.position.fromArray(lightDef.position);
+export class LightFactory {
+    createLight(lightDef, scale=true) {
+        let light;
+        if (lightDef.type === 'point')
+            // Light distance should be scaled anyway
+            light = new THREE.PointLight(lightDef.color, lightDef.intensity, lightDef.distance * GameWorld.WORLD_SCALE);
+        else if (lightDef.type === 'spot')
+            light = new THREE.SpotLight(lightDef.color, lightDef.intensity, lightDef.distance * GameWorld.WORLD_SCALE,
+                lightDef.angle);
+        else
+            throw 'Unsupported light type: ' + lightDef.type;
+        light.position.fromArray(lightDef.position);
+        if (scale)
             light.position.multiplyScalar(GameWorld.WORLD_SCALE);
-            return light;
-        },
-
-        createLightSphere: function (lightDef) {
-            var lightSphereGeometry = new THREE.SphereGeometry(5 * GameWorld.WORLD_SCALE);
-            var lightSphereMaterial = new THREE.MeshBasicMaterial();
-            lightSphereMaterial.color.set(lightDef.color);
-            var lightSphereMesh = new THREE.Mesh(lightSphereGeometry, lightSphereMaterial);
-            lightSphereMesh.position.fromArray(lightDef.position);
-            lightSphereMesh.position.multiplyScalar(GameWorld.WORLD_SCALE);
-            return lightSphereMesh;
-        }
+        return light;
     }
-})(DOOM_THREE);
 
-export const LightFactory = DOOM_THREE.LightFactory;
+    createLightSphere(lightDef, scale=true) {
+        let sphereRadius = 5;
+        if (scale)
+            sphereRadius *= GameWorld.WORLD_SCALE;
+        const lightSphereGeometry = new THREE.SphereGeometry(sphereRadius);
+        const lightSphereMaterial = new THREE.MeshBasicMaterial();
+        lightSphereMaterial.color.set(lightDef.color);
+        const lightSphereMesh = new THREE.Mesh(lightSphereGeometry, lightSphereMaterial);
+        lightSphereMesh.position.fromArray(lightDef.position);
+        if (scale)
+            lightSphereMesh.position.multiplyScalar(GameWorld.WORLD_SCALE);
+        return lightSphereMesh;
+    }
+}
