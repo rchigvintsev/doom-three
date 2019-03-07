@@ -81,7 +81,7 @@ export class LWOModelFactory extends AbstractModelFactory {
 
         mesh.scale.setScalar(GameWorld.WORLD_SCALE);
         this._positionMesh(mesh, modelDef.position);
-        this._rotateMesh(mesh);
+        this._rotateMesh(mesh, modelDef.rotation);
 
         return mesh;
     }
@@ -107,8 +107,14 @@ export class LWOModelFactory extends AbstractModelFactory {
             mesh.body.position = mesh.position;
     }
 
-    _rotateMesh(mesh) {
-        mesh.rotation.set(THREE.Math.degToRad(90), 0, 0);
+    _rotateMesh(mesh, rotation) {
+        const ninetyDegrees = THREE.Math.degToRad(90);
+        mesh.rotation.set(ninetyDegrees, 0, ninetyDegrees);
+
+        mesh.rotation.x -= rotation[0];
+        mesh.rotation.y -= rotation[1];
+        mesh.rotation.z -= rotation[2];
+
         if (mesh.body)
             mesh.body.rotation = mesh.rotation;
     }

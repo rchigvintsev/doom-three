@@ -369,11 +369,9 @@ class ModelBuilder {
             const modelDef = models[i];
             if (ModelBuilder.isMD5Model(modelDef.name))
                 result.push(this.md5ModelFactory.createModel(modelDef));
-            else if (ModelBuilder.isLWOModel(modelDef.name)) {
-                const model = this.lwoModelFactory.createModel(modelDef);
-                if (model)
-                    result.push(model);
-            } else
+            else if (ModelBuilder.isLWOModel(modelDef.name))
+                result.push(this.lwoModelFactory.createModel(modelDef));
+            else
                 console.error("Model " + modelDef.name + " is not supported");
         }
         return result;

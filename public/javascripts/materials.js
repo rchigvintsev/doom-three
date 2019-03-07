@@ -1327,6 +1327,11 @@ var DOOM_THREE = DOOM_THREE || {};
             },
             transparent: true,
             opacity: 0.1
+        },
+        'textures/base_door/smdoor1a': {
+            normalMap: 'textures/base_door/smdoor1a_local',
+            diffuseMap: 'textures/base_door/smdoor1a',
+            specularMap: 'textures/base_door/smdoor1a_s'
         }
     };
 
