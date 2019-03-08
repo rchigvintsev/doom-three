@@ -2,14 +2,16 @@ import {AbstractModelFactory} from './abstract-model-factory.js';
 import {LWOLoader} from '../../loader/lwo-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../materials.js';
+import {Materials} from '../materials.js';
 import {GameWorld} from '../../game-world.js';
 import {Elevator} from '../elevator.js';
 import {ModelMaterialBuilder} from '../material/model-material-builder.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {Game} from '../../game.js';
 import {ElevatorBody} from '../../physics/elevator-body.js';
+import {ElevatorDoor} from '../elevator-door.js';
 
+import {SKINS} from '../skins.js';
 
 export class LWOModelFactory extends AbstractModelFactory {
     constructor(systems, assets, flashlight) {
@@ -42,11 +44,21 @@ export class LWOModelFactory extends AbstractModelFactory {
             const guiMaterials = [];
 
             const declaredMaterials = modelDef.materials || model.materials;
-            if (declaredMaterials)
+            if (declaredMaterials) {
+                let skin = null;
+                if (modelDef.skin) {
+                    skin = SKINS[modelDef.skin];
+                    if (!skin)
+                        console.error('Skin "' + modelDef.skin + '" is not found');
+                }
+
                 for (let i = 0; i < declaredMaterials.length; i++) {
                     let declaredMaterial = declaredMaterials[i];
-                    const materialName = typeof declaredMaterial === 'string' ? declaredMaterial
+                    let materialName = typeof declaredMaterial === 'string' ? declaredMaterial
                         : declaredMaterial.name;
+                    if (skin && skin[materialName])
+                        // Override material
+                        materialName = skin[materialName];
                     let materialDef = Materials.definition[materialName];
                     if (!materialDef) {
                         console.error('Definition for material ' + materialName + ' is not found');
@@ -64,6 +76,7 @@ export class LWOModelFactory extends AbstractModelFactory {
                         }
                     }
                 }
+            }
 
             if (materials.length === 0) {
                 console.warn('Materials are not defined for ' + this._type + ' model ' + modelDef.name);
@@ -87,9 +100,10 @@ export class LWOModelFactory extends AbstractModelFactory {
     }
 
     createModelMesh(modelName, geometry, materials, guiMaterials) {
+        const physicsSystem = this._systems[Game.SystemType.PHYSICS_SYSTEM];
+        const cmFactory = new CollisionModelFactory(physicsSystem.materials);
+
         if (modelName === 'models/mapobjects/elevators/elevator.lwo') {
-            const physicsSystem = this._systems[Game.SystemType.PHYSICS_SYSTEM];
-            const cmFactory = new CollisionModelFactory(physicsSystem.materials);
             const collisionModel = cmFactory.createCollisionModel(Elevator.DEFINITION);
             const body = new ElevatorBody(collisionModel);
             return new Elevator(geometry, materials, guiMaterials, this._assets, body);

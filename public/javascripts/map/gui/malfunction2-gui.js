@@ -1,4 +1,4 @@
-import {materials} from '../../materials.js';
+import {materials} from '../materials.js';
 import {Faces} from '../../util/face-utils.js';
 import {currentTime} from '../../util/common-utils.js';
 

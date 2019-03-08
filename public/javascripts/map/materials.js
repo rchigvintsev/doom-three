@@ -1,7 +1,5 @@
-var DOOM_THREE = DOOM_THREE || {};
-
-(function (DT) {
-    const materialsDefinition = {
+export const Materials = {
+    definition: Object.freeze({
         'lights/flashlight5': {
             diffuseMap: 'lights/flashlight5'
         },
@@ -1091,6 +1089,12 @@ var DOOM_THREE = DOOM_THREE || {};
             specularMap: 'textures/base_wall/skpanelT_s'
         },
         'models/mapobjects/elevators/elevator': {
+            diffuseMap: 'models/mapobjects/elevators/elevator',
+            normalMap: 'models/mapobjects/elevators/elevator_local',
+            specularMap: 'models/mapobjects/elevators/elevator_s2',
+            specular: 0x808080
+        },
+        'models/mapobjects/elevators/elevator_cop': {
             diffuseMap: 'models/mapobjects/elevators/elevator_cop',
             normalMap: 'models/mapobjects/elevators/elevator_local',
             specularMap: 'models/mapobjects/elevators/elevator_cop_s',
@@ -1332,10 +1336,15 @@ var DOOM_THREE = DOOM_THREE || {};
             normalMap: 'textures/base_door/smdoor1a_local',
             diffuseMap: 'textures/base_door/smdoor1a',
             specularMap: 'textures/base_door/smdoor1a_s'
+        },
+        'textures/base_door/smdoor1b': {
+            normalMap: 'textures/base_door/smdoor1a_local',
+            diffuseMap: 'textures/base_door/smdoor1b',
+            specularMap	: 'textures/base_door/smdoor1b_s',
+            specular: 0x808080
         }
-    };
-
-    const table = {
+    }),
+    table: Object.freeze({
         pdStarTable: {snap: false, values: [0.70, 0.40, 1.00, 0.05, 0.50, 0.20, 1.00, 0.20, 0.80, 0.10, 0.40, 0.20]},
         pdhalffade: {snap: false, values: [.3, .2]},
         pdfullfade: {snap: false, values: [1.0, 0.3]},
@@ -1346,14 +1355,8 @@ var DOOM_THREE = DOOM_THREE || {};
         flickertable: {snap: false, values: [1, .75]},
         pdflick: {snap: false, values: [1, .85]},
         subtleflick: {snap: false, values: [1, .92]}
-    };
+    })
+};
 
-    DT.Materials = {
-        definition: Object.freeze(materialsDefinition),
-        table: Object.freeze(table)
-    }
-})(DOOM_THREE);
-
-export const Materials = DOOM_THREE.Materials;
-export const materials = DOOM_THREE.Materials.definition;
-export const tables = DOOM_THREE.Materials.table;
+export const materials = Materials.definition;
+export const tables = Materials.table;

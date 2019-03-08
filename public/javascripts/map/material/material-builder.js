@@ -1,5 +1,5 @@
 import {AssetLoader} from '../../asset-loader.js';
-import {tables} from '../../materials.js';
+import {tables} from '../materials.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };

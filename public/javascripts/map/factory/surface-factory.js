@@ -4,7 +4,7 @@ import {Surface} from '../surface.js';
 import {SurfaceBody} from '../../physics/surface-body.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../materials.js';
+import {Materials} from '../materials.js';
 import {ProjectiveTextureMaterialBuilder} from '../material/projective-texture-material-builder.js';
 
 var DOOM_THREE = DOOM_THREE || {};

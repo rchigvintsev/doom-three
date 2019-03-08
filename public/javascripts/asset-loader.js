@@ -1,7 +1,7 @@
 import {Settings} from './settings.js';
 import {Player} from './player/player.js';
 import {Weapons} from './player/weapon/weapons.js';
-import {Materials} from './materials.js';
+import {Materials} from './map/materials.js';
 
 
 const AssetType = {

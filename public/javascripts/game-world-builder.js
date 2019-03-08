@@ -6,7 +6,7 @@ import {SurfaceFactory} from './map/factory/surface-factory.js';
 import {MD5ModelFactory} from './map/factory/md5-model-factory.js';
 import {LWOModelFactory} from './map/factory/lwo-model-factory.js';
 import {LightFactory} from './map/factory/light-factory.js';
-import {Materials} from './materials.js';
+import {Materials} from './map/materials.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {Flashlight} from './player/weapon/flashlight.js';
 import {Player} from './player/player.js';

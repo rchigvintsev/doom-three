@@ -1,6 +1,6 @@
 import {AbstractMeshFactory} from './abstract-mesh-factory.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../materials.js';
+import {Materials} from '../materials.js';
 import {GameWorld} from '../../game-world.js';
 
 export class AbstractModelFactory extends AbstractMeshFactory {
