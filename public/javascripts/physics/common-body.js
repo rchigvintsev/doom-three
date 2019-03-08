@@ -1,4 +1,4 @@
-export class ElevatorBody {
+export class CommonBody {
     constructor(collisionModel) {
         this._collisionModel = collisionModel;
         this._position = new THREE.Vector3();

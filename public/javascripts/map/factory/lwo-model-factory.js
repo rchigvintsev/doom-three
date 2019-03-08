@@ -8,10 +8,9 @@ import {Elevator} from '../elevator.js';
 import {ModelMaterialBuilder} from '../material/model-material-builder.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {Game} from '../../game.js';
-import {ElevatorBody} from '../../physics/elevator-body.js';
 import {ElevatorDoor} from '../elevator-door.js';
-
 import {SKINS} from '../skins.js';
+import {CommonBody} from '../../physics/common-body.js';
 
 export class LWOModelFactory extends AbstractModelFactory {
     constructor(systems, assets, flashlight) {
@@ -105,8 +104,14 @@ export class LWOModelFactory extends AbstractModelFactory {
 
         if (modelName === 'models/mapobjects/elevators/elevator.lwo') {
             const collisionModel = cmFactory.createCollisionModel(Elevator.DEFINITION);
-            const body = new ElevatorBody(collisionModel);
+            const body = new CommonBody(collisionModel);
             return new Elevator(geometry, materials, guiMaterials, this._assets, body);
+        }
+
+        if (modelName === 'models/mapobjects/elevators/elevator_door.lwo') {
+            const collisionModel = cmFactory.createCollisionModel(ElevatorDoor.DEFINITION);
+            const body = new CommonBody(collisionModel);
+            return new ElevatorDoor(geometry, materials, body);
         }
 
         const group = new THREE.Group();
