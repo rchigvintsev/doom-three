@@ -13,6 +13,7 @@ import {Player} from './player/player.js';
 import {PlayerBody} from './physics/player-body.js';
 import {CollisionModelFactory} from './physics/collision-model-factory.js';
 import {Settings} from './settings.js';
+import {TriggerFactory} from './map/factory/trigger-factory.js';
 
 export class GameWorldBuilder {
     constructor(camera, scene, systems) {
@@ -83,12 +84,18 @@ export class GameWorldBuilder {
 
         if (map.lights && !Settings.wireframeOnly) {
             const lights = new LightBuilder().build(map.lights);
-            for (let li = 0; li < lights.length; li++) {
-                const light = lights[li];
+            for (let i = 0; i < lights.length; i++) {
+                const light = lights[i];
                 this.addObjectToScene(light.light);
                 if (light.lightSphere)
                     this.addObjectToScene(light.lightSphere);
             }
+        }
+
+        if (map.triggers) {
+            const triggers = new TriggerBuilder().build(map.triggers);
+            for (let i = 0; i < triggers.length; i++)
+                gameWorld.addTrigger(triggers[i])
         }
 
         this.createTestBoxes(gameWorld);
@@ -221,7 +228,7 @@ class WeaponBuilder {
         for (let wi = 0; wi < Weapons.length; wi++) {
             const weaponClass = Weapons[wi];
             const weaponDef = weaponClass.definition;
-            const weaponModel = this.md5ModelFactory.createModel(weaponDef.model);
+            const weaponModel = this.md5ModelFactory.createModel(weaponDef);
             const animationMixer = new THREE.AnimationMixer(weaponModel);
             animationSystem.registerAnimationMixer(animationMixer);
             const sounds = this.context.assets[AssetLoader.AssetType.SOUNDS];
@@ -367,12 +374,12 @@ class ModelBuilder {
         const result = [];
         for (let i = 0; i < models.length; i++) {
             const modelDef = models[i];
-            if (ModelBuilder.isMD5Model(modelDef.name))
+            if (ModelBuilder.isMD5Model(modelDef.model))
                 result.push(this.md5ModelFactory.createModel(modelDef));
-            else if (ModelBuilder.isLWOModel(modelDef.name))
+            else if (ModelBuilder.isLWOModel(modelDef.model))
                 result.push(this.lwoModelFactory.createModel(modelDef));
             else
-                console.error("Model " + modelDef.name + " is not supported");
+                console.error("Model " + modelDef.model + " is not supported");
         }
         return result;
     }
@@ -383,5 +390,18 @@ class ModelBuilder {
 
     static isMD5Model(modelName) {
         return modelName.toLowerCase().indexOf('.md5mesh') > 0;
+    }
+}
+
+class TriggerBuilder {
+    constructor() {
+        this._triggerFactory = new TriggerFactory();
+    }
+
+    build(triggers) {
+        const result = [];
+        for (let i = 0; i < triggers.length; i++)
+            result.push(this._triggerFactory.createTrigger(triggers[i]));
+        return result;
     }
 }

@@ -81,9 +81,10 @@ const _DEFINITION = Object.freeze({
 });
 
 export class Elevator extends THREE.Group {
-    constructor(geometry, materials, guiMaterials, assets, body) {
+    constructor(name, geometry, materials, guiMaterials, assets, body) {
         super();
 
+        this._name = name;
         this._body = body;
         this._gui = [];
 
@@ -112,6 +113,10 @@ export class Elevator extends THREE.Group {
 
     static get DEFINITION() {
         return _DEFINITION;
+    }
+
+    get name() {
+        return this._name;
     }
 
     get body() {

@@ -55,15 +55,15 @@ export class AssetLoader {
         Weapons.forEach(function (weaponClass) {
             const weaponDef = weaponClass.definition;
 
-            scope.modelsToLoad.push(weaponDef.model.name);
+            scope.modelsToLoad.push(weaponDef.model);
 
-            weaponDef.model.animations.forEach(function (animationName) {
+            weaponDef.animations.forEach(function (animationName) {
                 if (scope.animationsToLoad.indexOf(animationName) < 0)
                     scope.animationsToLoad.push(animationName);
             });
 
             if (!Settings.wireframeOnly)
-                weaponDef.model.materials.forEach(function (materialName) {
+                weaponDef.materials.forEach(function (materialName) {
                     scope.countTextures(materialName);
                     scope.countShaders(materialName);
                 });

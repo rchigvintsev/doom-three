@@ -21,7 +21,7 @@ export class LWOModelFactory extends AbstractModelFactory {
     }
 
     loadModel(modelDef) {
-        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.name];
+        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
         if (model)
             return this._lwoLoader.load(model);
         return null;
@@ -30,13 +30,13 @@ export class LWOModelFactory extends AbstractModelFactory {
     createModel(modelDef) {
         const model = this.loadModel(modelDef);
         if (!model) {
-            console.error('LWO model "' + modelDef.name + '" is not found');
+            console.error('LWO model "' + modelDef.model + '" is not found for entity "' + modelDef.name + '"');
             return null;
         }
 
         let mesh;
         if (Settings.wireframeOnly)
-            mesh = this.createModelMesh(modelDef.name, model.geometry, this.createWireframeMaterial());
+            mesh = this.createModelMesh(modelDef, model.geometry, this.createWireframeMaterial());
         else {
             const materials = [];
             const additionalMaterials = [];
@@ -78,11 +78,11 @@ export class LWOModelFactory extends AbstractModelFactory {
             }
 
             if (materials.length === 0) {
-                console.warn('Materials are not defined for ' + this._type + ' model ' + modelDef.name);
+                console.warn('Materials are not defined for ' + this._type + ' model ' + modelDef.model);
                 materials.push(new THREE.MeshPhongMaterial());
             }
 
-            mesh = this.createModelMesh(modelDef.name, model.geometry, materials, guiMaterials);
+            mesh = this.createModelMesh(modelDef, model.geometry, materials, guiMaterials);
             if (additionalMaterials.length > 0 || Settings.showWireframe) {
                 if (additionalMaterials.length > 0)
                     mesh.add(new THREE.SkinnedMesh(model.geometry, additionalMaterials));
@@ -98,23 +98,29 @@ export class LWOModelFactory extends AbstractModelFactory {
         return mesh;
     }
 
-    createModelMesh(modelName, geometry, materials, guiMaterials) {
+    createModelMesh(modelDef, geometry, materials, guiMaterials) {
         const physicsSystem = this._systems[Game.SystemType.PHYSICS_SYSTEM];
         const cmFactory = new CollisionModelFactory(physicsSystem.materials);
 
-        if (modelName === 'models/mapobjects/elevators/elevator.lwo') {
+        if (modelDef.model === 'models/mapobjects/elevators/elevator.lwo') {
             const collisionModel = cmFactory.createCollisionModel(Elevator.DEFINITION);
             const body = new CommonBody(collisionModel);
-            return new Elevator(geometry, materials, guiMaterials, this._assets, body);
+            return new Elevator(modelDef.name, geometry, materials, guiMaterials, this._assets, body);
         }
 
-        if (modelName === 'models/mapobjects/elevators/elevator_door.lwo') {
+        if (modelDef.model === 'models/mapobjects/elevators/elevator_door.lwo') {
             const collisionModel = cmFactory.createCollisionModel(ElevatorDoor.DEFINITION);
-            const body = new CommonBody(collisionModel);
-            return new ElevatorDoor(geometry, materials, body);
+            // TODO: Apply this pattern to Elevator model too.
+            return ElevatorDoor.newBuilder(geometry, materials)
+                .withName(modelDef.name)
+                .withBody(new CommonBody(collisionModel))
+                .withMoveDirection(modelDef.moveDirection)
+                .withTime(modelDef.time)
+                .build();
         }
 
         const group = new THREE.Group();
+        group.name = modelDef.name;
         group.add(new THREE.SkinnedMesh(geometry, materials));
         return group;
     }

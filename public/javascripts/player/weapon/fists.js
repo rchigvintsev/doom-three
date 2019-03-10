@@ -7,20 +7,18 @@ var DOOM_THREE = DOOM_THREE || {};
 (function (DT) {
     var definition = {
         name: 'fists',
-        model: {
-            name: 'models/md5/weapons/fists_view/fists.md5mesh',
-            materials: ['models/weapons/berserk/fist'],
-            animations: [
-                'models/md5/weapons/fists_view/idle.md5anim',
-                'models/md5/weapons/fists_view/lower.md5anim',
-                'models/md5/weapons/fists_view/raise.md5anim',
-                'models/md5/weapons/fists_view/berserk_punch1.md5anim',
-                'models/md5/weapons/fists_view/berserk_punch2.md5anim',
-                'models/md5/weapons/fists_view/berserk_punch3.md5anim',
-                'models/md5/weapons/fists_view/berserk_punch4.md5anim'
-            ],
-            position: [0, -6.5, 10]
-        },
+        model: 'models/md5/weapons/fists_view/fists.md5mesh',
+        materials: ['models/weapons/berserk/fist'],
+        animations: [
+            'models/md5/weapons/fists_view/idle.md5anim',
+            'models/md5/weapons/fists_view/lower.md5anim',
+            'models/md5/weapons/fists_view/raise.md5anim',
+            'models/md5/weapons/fists_view/berserk_punch1.md5anim',
+            'models/md5/weapons/fists_view/berserk_punch2.md5anim',
+            'models/md5/weapons/fists_view/berserk_punch3.md5anim',
+            'models/md5/weapons/fists_view/berserk_punch4.md5anim'
+        ],
+        position: [0, -6.5, 10],
         sounds: {
             raise: ['sound/weapons/fists/raise_fists_01.wav'],
             woosh: [

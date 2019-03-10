@@ -22,7 +22,7 @@ export class MD5ModelFactory extends AbstractModelFactory {
     }
 
     loadModel(modelDef) {
-        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.name];
+        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
         const animations = [];
         for (let i = 0; i < modelDef.animations.length; i++)
             animations.push(this._assets[AssetLoader.AssetType.ANIMATIONS][modelDef.animations[i]]);

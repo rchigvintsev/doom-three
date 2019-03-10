@@ -208,6 +208,7 @@ export class Game {
     doPostloading() {
         this.gameWorld = this.worldBuilder.build(this.mapName, this.assetLoader.assets);
         this.controls = new FPSControls(this.camera, this.gameWorld.player);
+        this.gameWorld.activateTriggers();
         this.state = GameState.RUNNING;
     }
 

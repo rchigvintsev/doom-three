@@ -7,25 +7,23 @@ var DOOM_THREE = DOOM_THREE || {};
 (function (DT) {
     var definition = {
         name: 'flashlight',
-        model: {
-            name: 'models/md5/items/flashlight_view/viewflashlight.md5mesh',
-            materials: [
-                'models/characters/player/arm2',
-                'models/items/flashlight/flashlight2',
-                'models/items/flashlight/bulb',
-                'models/items/flashlight/beam1',
-                'models/items/flashlight/flare',
-                'lights/flashlight5'
-            ],
-            animations: [
-                'models/md5/items/flashlight_view/idle.md5anim',
-                'models/md5/items/flashlight_view/lower.md5anim',
-                'models/md5/items/flashlight_view/raise.md5anim',
-                'models/md5/items/flashlight_view/swing1.md5anim',
-                'models/md5/items/flashlight_view/swing2.md5anim'
-            ],
-            position: [-2, 16, 7]
-        },
+        model: 'models/md5/items/flashlight_view/viewflashlight.md5mesh',
+        materials: [
+            'models/characters/player/arm2',
+            'models/items/flashlight/flashlight2',
+            'models/items/flashlight/bulb',
+            'models/items/flashlight/beam1',
+            'models/items/flashlight/flare',
+            'lights/flashlight5'
+        ],
+        animations: [
+            'models/md5/items/flashlight_view/idle.md5anim',
+            'models/md5/items/flashlight_view/lower.md5anim',
+            'models/md5/items/flashlight_view/raise.md5anim',
+            'models/md5/items/flashlight_view/swing1.md5anim',
+            'models/md5/items/flashlight_view/swing2.md5anim'
+        ],
+        position: [-2, 16, 7],
         sounds: {
             raise: ['sound/weapons/fists/raise_fists_01.wav'],
             woosh: [

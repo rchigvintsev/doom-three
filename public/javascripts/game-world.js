@@ -9,6 +9,7 @@ export class GameWorld {
         this._playerOrigin = playerOrigin;
         this._playerRotation = playerRotation;
         this._currentArea = new MapArea();
+        this._triggers = [];
     }
 
     get currentArea() {
@@ -41,5 +42,14 @@ export class GameWorld {
 
     updatePlayerRotation() {
         this._player.rotation.fromArray(this._playerRotation);
+    }
+
+    addTrigger(trigger) {
+        this._triggers.push(trigger);
+    }
+
+    activateTriggers() {
+        for (let i = 0; i < this._triggers.length; i++)
+            this._triggers[i].activate(this);
     }
 }
