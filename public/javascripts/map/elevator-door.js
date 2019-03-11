@@ -1,3 +1,5 @@
+import {GameWorld} from '../game-world.js';
+
 const _DEFINITION = Object.freeze({
     cm: {
         bodies: [
@@ -18,11 +20,14 @@ const _DEFINITION = Object.freeze({
     }
 });
 
+const MOVE_SPEED = 40 * GameWorld.WORLD_SCALE;
+
 export class ElevatorDoor extends THREE.Group {
     constructor(builder) {
         super();
         this._name = builder._name;
         this._body = builder._body;
+        this._opened = false;
         this._moveDirection = builder._moveDirection;
         this._time = builder._time;
         this.add(new THREE.SkinnedMesh(builder._geometry, builder._materials));
@@ -44,23 +49,36 @@ export class ElevatorDoor extends THREE.Group {
         return this._body;
     }
 
+    open() {
+        if (this._opened)
+            return;
+        const scope = this;
+        // TODO: Move physics body too.
+        // TODO: Moving is a bit twitchy. Perhaps I should revise update calling mechanism.
+        const zAxis = new THREE.Vector3(0, 0, 1);
+        const yAxis = new THREE.Vector3(0, 1, 0);
+        // To get a movement direction we are going to rotate vector looking in Z-axis direction around Y-axis
+        // by a specified number of degrees.
+        const direction = zAxis.clone().applyAxisAngle(yAxis, THREE.Math.degToRad(this._moveDirection));
+        const speedVector = new THREE.Vector3().setScalar(MOVE_SPEED).multiply(direction);
+        const targetPosition = this.position.clone().add(speedVector);
+        this._animation = new TWEEN.Tween({x: this.position.x, y: this.position.y, z: this.position.z})
+            .to({x: targetPosition.x, y: targetPosition.y, z: targetPosition.z}, this._time * 1000)
+            .onUpdate(function (params) {
+                scope.position.set(params.x, params.y, params.z);
+            }).onComplete(function () {
+                scope._opened = true;
+            });
+        this._animation.start();
+    }
+
     update(time) {
         if (this._animation)
             this._animation.update(time);
     }
 
     onTrigger() {
-        const scope = this;
-        // TODO: Take into account move direction.
-        // TODO: Move physics body too.
-        // TODO: Moving is a bit twitchy. Perhaps I should revise update calling mechanism.
-        this._animation = new TWEEN.Tween({position: this.position.x})
-            .to({position: this.position.x + 0.4}, this._time * 1000)
-            .onUpdate(function (params) {
-                console.log(params.position);
-                scope.position.x = params.position;
-            });
-        this._animation.start();
+        this.open();
     }
 }
 
