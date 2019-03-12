@@ -12,7 +12,7 @@ const _DEFINITION = Object.freeze({
                         width: 40,
                         height: 10,
                         depth: 128,
-                        offset: [20, -2, -64]
+                        offset: [-20, -2, -64]
                     }
                 ]
             }
@@ -53,7 +53,6 @@ export class ElevatorDoor extends THREE.Group {
         if (this._opened)
             return;
         const scope = this;
-        // TODO: Move physics body too.
         // TODO: Moving is a bit twitchy. Perhaps I should revise update calling mechanism.
         const zAxis = new THREE.Vector3(0, 0, 1);
         const yAxis = new THREE.Vector3(0, 1, 0);
@@ -66,6 +65,7 @@ export class ElevatorDoor extends THREE.Group {
             .to({x: targetPosition.x, y: targetPosition.y, z: targetPosition.z}, this._time * 1000)
             .onUpdate(function (params) {
                 scope.position.set(params.x, params.y, params.z);
+                scope._body.position = scope.position;
             }).onComplete(function () {
                 scope._opened = true;
             });
