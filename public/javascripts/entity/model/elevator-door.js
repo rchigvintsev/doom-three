@@ -87,6 +87,14 @@ export class ElevatorDoor extends THREE.Group {
         this._name = name;
     }
 
+    get team() {
+        return this._team;
+    }
+
+    set team(team) {
+        this._team = team;
+    }
+
     get body() {
         return this._body;
     }

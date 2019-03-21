@@ -144,6 +144,7 @@ export class LwoModelFactory extends MeshFactory {
             elevatorDoor.body = new CommonBody(collisionModel);
             elevatorDoor.moveDirection = modelDef.moveDirection;
             elevatorDoor.time = modelDef.time;
+            elevatorDoor.team = modelDef.team;
             elevatorDoor.sounds = this._soundFactory.createSounds(modelDef);
             elevatorDoor.init();
             return elevatorDoor;

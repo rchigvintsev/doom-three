@@ -3,6 +3,7 @@ export class MapArea {
         this._objects = [];
         this._updatableObjects = [];
         this._namedObjects = {};
+        this._teams = {};
     }
 
     get objects() {
@@ -15,6 +16,12 @@ export class MapArea {
             this._updatableObjects.push(object);
         if (object.name)
             this._namedObjects[object.name] = object;
+        if (object.team) {
+            let team = this._teams[object.team];
+            if (!team)
+                this._teams[object.team] = team = [];
+            team.push(object);
+        }
     }
 
     update(time) {
@@ -26,5 +33,9 @@ export class MapArea {
 
     objectByName(name) {
         return this._namedObjects[name];
+    }
+
+    teamForObject(object) {
+        return object.team ? this._teams[object.team] : null;
     }
 }
