@@ -1,4 +1,4 @@
-import {DelayedTrigger} from '../../map/delayed-trigger.js';
+import {DelayedTrigger} from './delayed-trigger.js';
 import {EntityFactory} from '../entity-factory.js';
 
 export class TriggerFactory extends EntityFactory {

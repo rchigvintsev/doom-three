@@ -1,6 +1,6 @@
 import {GuiMaterialBuilder} from '../../map/material/gui-material-builder.js';
-import {Malfunction2Gui} from '../../map/gui/malfunction2-gui.js';
-import {EnterSite3Gui} from '../../map/gui/enter-site3-gui.js';
+import {Malfunction2Gui} from './malfunction2-gui.js';
+import {EnterSite3Gui} from './enter-site3-gui.js';
 import {MeshFactory} from '../mesh-factory.js';
 
 export class GuiFactory extends MeshFactory {

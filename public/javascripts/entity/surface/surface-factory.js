@@ -1,4 +1,4 @@
-import {Surface} from '../../map/surface.js';
+import {Surface} from './surface.js';
 import {SurfaceBody} from '../../physics/surface-body.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';

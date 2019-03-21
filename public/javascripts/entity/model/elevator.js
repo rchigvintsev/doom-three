@@ -1,7 +1,3 @@
-import {GuiFactory} from '../entity/gui/gui-factory.js';
-import {Settings} from '../settings.js';
-import {LightFactory} from '../entity/light/light-factory.js';
-
 const _DEFINITION = Object.freeze({
     lights: [
         {type: 'point', color: 0xffffff, distance: 120, position: [0, -65, -88]},
@@ -81,46 +77,40 @@ const _DEFINITION = Object.freeze({
 });
 
 export class Elevator extends THREE.Group {
-    constructor(name, geometry, materials, guiMaterials, assets, body) {
+    constructor(geometry, materials) {
         super();
-
-        this._name = name;
-        this._body = body;
+        this._geometry = geometry;
+        this._materials = materials;
         this._gui = [];
-
-        this.add(new THREE.SkinnedMesh(geometry, materials));
-
-        if (!Settings.wireframeOnly) {
-            const guiFactory = new GuiFactory(assets);
-            for (let guiMaterial of guiMaterials) {
-                const gui = guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index);
-                this.add(gui);
-                this._gui.push(gui);
-            }
-
-            const lightFactory = new LightFactory(assets);
-            for (let i = 0; i < _DEFINITION.lights.length; i++) {
-                const lightDef = _DEFINITION.lights[i];
-                const light = lightFactory.create(lightDef, false);
-                this.add(light);
-                if (Settings.showLightSphere) {
-                    const lightSphere = lightFactory.createLightSphere(lightDef, false);
-                    this.add(lightSphere);
-                }
-            }
-        }
     }
 
     static get DEFINITION() {
         return _DEFINITION;
     }
 
+    init() {
+        this.add(new THREE.SkinnedMesh(this._geometry, this._materials));
+    }
+
+    addGui(gui) {
+        this.add(gui);
+        this._gui.push(gui);
+    }
+
     get name() {
         return this._name;
     }
 
+    set name(name) {
+        this._name = name;
+    }
+
     get body() {
         return this._body;
+    }
+
+    set body(body) {
+        this._body = body;
     }
 
     update(time) {

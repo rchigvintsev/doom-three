@@ -1,4 +1,4 @@
-import {GameWorld} from '../game-world.js';
+import {GameWorld} from '../../game-world.js';
 
 const _DEFINITION = Object.freeze({
     cm: {

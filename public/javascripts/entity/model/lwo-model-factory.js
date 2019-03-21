@@ -3,15 +3,17 @@ import {AssetLoader} from '../../asset-loader.js';
 import {Settings} from '../../settings.js';
 import {Materials} from '../../map/materials.js';
 import {GameWorld} from '../../game-world.js';
-import {Elevator} from '../../map/elevator.js';
+import {Elevator} from './elevator.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {Game} from '../../game.js';
-import {ElevatorDoor} from '../../map/elevator-door.js';
+import {ElevatorDoor} from './elevator-door.js';
 import {SKINS} from '../../map/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
 import {MeshFactory} from '../mesh-factory.js';
 import {SoundFactory} from '../../audio/sound-factory.js';
+import {GuiFactory} from '../gui/gui-factory.js';
+import {LightFactory} from '../light/light-factory.js';
 
 export class LwoModelFactory extends MeshFactory {
     constructor(assets, flashlight, systems) {
@@ -108,12 +110,35 @@ export class LwoModelFactory extends MeshFactory {
         if (modelDef.model === 'models/mapobjects/elevators/elevator.lwo') {
             const collisionModel = this._collisionModelFactory.createCollisionModel(Elevator.DEFINITION);
             const body = new CommonBody(collisionModel);
-            return new Elevator(modelDef.name, geometry, materials, guiMaterials, this._assets, body);
+            const elevator = new Elevator(geometry, materials, guiMaterials, this._assets, body);
+            elevator.name = modelDef.name;
+            elevator.body = body;
+
+            if (guiMaterials) {
+                const guiFactory = new GuiFactory(this._assets);
+                for (let guiMaterial of guiMaterials)
+                    elevator.addGui(guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index));
+            }
+
+            if (!Settings.wireframeOnly) {
+                const lightFactory = new LightFactory(this._assets);
+                for (let i = 0; i < Elevator.DEFINITION.lights.length; i++) {
+                    const lightDef = Elevator.DEFINITION.lights[i];
+                    const light = lightFactory.create(lightDef, false);
+                    elevator.add(light);
+                    if (Settings.showLightSphere) {
+                        const lightSphere = lightFactory.createLightSphere(lightDef, false);
+                        elevator.add(lightSphere);
+                    }
+                }
+            }
+
+            elevator.init();
+            return elevator;
         }
 
         if (modelDef.model === 'models/mapobjects/elevators/elevator_door.lwo') {
             const collisionModel = this._collisionModelFactory.createCollisionModel(ElevatorDoor.DEFINITION);
-            // TODO: Apply this pattern to Elevator model too.
             const elevatorDoor = new ElevatorDoor(geometry, materials);
             elevatorDoor.name = modelDef.name;
             elevatorDoor.body = new CommonBody(collisionModel);

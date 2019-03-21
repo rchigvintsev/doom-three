@@ -1,4 +1,4 @@
-import {inherit} from '../util/oop-utils.js';
+import {inherit} from '../../util/oop-utils.js';
 
 var DOOM_THREE = DOOM_THREE || {};
 
