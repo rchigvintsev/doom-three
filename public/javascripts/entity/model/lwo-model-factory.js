@@ -1,54 +1,53 @@
-import {AbstractModelFactory} from './abstract-model-factory.js';
 import {LWOLoader} from '../../loader/lwo-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../materials.js';
+import {Materials} from '../../map/materials.js';
 import {GameWorld} from '../../game-world.js';
-import {Elevator} from '../elevator.js';
-import {ModelMaterialBuilder} from '../material/model-material-builder.js';
+import {Elevator} from '../../map/elevator.js';
+import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {Game} from '../../game.js';
-import {ElevatorDoor} from '../elevator-door.js';
-import {SKINS} from '../skins.js';
+import {ElevatorDoor} from '../../map/elevator-door.js';
+import {SKINS} from '../../map/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
+import {MeshFactory} from '../mesh-factory.js';
+import {SoundFactory} from '../../audio/sound-factory.js';
 
-export class LWOModelFactory extends AbstractModelFactory {
-    constructor(systems, assets, flashlight) {
-        super(new ModelMaterialBuilder(assets, flashlight), 'LWO');
-        this._systems = systems;
-        this._assets = assets;
+export class LwoModelFactory extends MeshFactory {
+    constructor(assets, flashlight, systems) {
+        super(assets, new ModelMaterialBuilder(assets, flashlight));
+        const physicsSystem = systems[Game.SystemType.PHYSICS_SYSTEM];
+        this._collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
+        this._soundFactory = new SoundFactory(this._assets);
         this._lwoLoader = new LWOLoader();
     }
 
-    loadModel(modelDef) {
-        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
-        if (model)
-            return this._lwoLoader.load(model);
-        return null;
+    static isLWOModel(modelName) {
+        return modelName.toLowerCase().indexOf('.lwo') > 0;
     }
 
-    createModel(modelDef) {
-        const model = this.loadModel(modelDef);
+    create(entityDef) {
+        const model = this._loadModel(entityDef);
         if (!model) {
-            console.error('LWO model "' + modelDef.model + '" is not found for entity "' + modelDef.name + '"');
+            console.error('LWO model "' + entityDef.model + '" is not found for entity "' + entityDef.name + '"');
             return null;
         }
 
         let mesh;
         if (Settings.wireframeOnly)
-            mesh = this.createModelMesh(modelDef, model.geometry, this.createWireframeMaterial());
+            mesh = this._createModelMesh(entityDef, model.geometry, this._createWireframeMaterial());
         else {
             const materials = [];
             const additionalMaterials = [];
             const guiMaterials = [];
 
-            const declaredMaterials = modelDef.materials || model.materials;
+            const declaredMaterials = entityDef.materials || model.materials;
             if (declaredMaterials) {
                 let skin = null;
-                if (modelDef.skin) {
-                    skin = SKINS[modelDef.skin];
+                if (entityDef.skin) {
+                    skin = SKINS[entityDef.skin];
                     if (!skin)
-                        console.error('Skin "' + modelDef.skin + '" is not found');
+                        console.error('Skin "' + entityDef.skin + '" is not found');
                 }
 
                 for (let i = 0; i < declaredMaterials.length; i++) {
@@ -66,7 +65,7 @@ export class LWOModelFactory extends AbstractModelFactory {
                         if (materialDef.type === 'gui')
                             guiMaterials.push({index: i, definition: materialDef});
                         else {
-                            const regularMaterial = this.createRegularMaterial(materialName, materialDef);
+                            const regularMaterial = this._createRegularMaterial(materialName, materialDef);
                             if (Array.isArray(regularMaterial)) {
                                 materials.push(regularMaterial[0]);
                                 additionalMaterials[i] = regularMaterial[1];
@@ -78,45 +77,51 @@ export class LWOModelFactory extends AbstractModelFactory {
             }
 
             if (materials.length === 0) {
-                console.warn('Materials are not defined for ' + this._type + ' model ' + modelDef.model);
+                console.warn('Materials are not defined for LWO model ' + entityDef.model);
                 materials.push(new THREE.MeshPhongMaterial());
             }
 
-            mesh = this.createModelMesh(modelDef, model.geometry, materials, guiMaterials);
+            mesh = this._createModelMesh(entityDef, model.geometry, materials, guiMaterials);
             if (additionalMaterials.length > 0 || Settings.showWireframe) {
                 if (additionalMaterials.length > 0)
                     mesh.add(new THREE.SkinnedMesh(model.geometry, additionalMaterials));
                 if (Settings.showWireframe)
-                    mesh.add(new THREE.SkinnedMesh(model.geometry, this.createWireframeMaterial()));
+                    mesh.add(new THREE.SkinnedMesh(model.geometry, this._createWireframeMaterial()));
             }
         }
 
         mesh.scale.setScalar(GameWorld.WORLD_SCALE);
-        this._positionMesh(mesh, modelDef.position);
-        this._rotateMesh(mesh, modelDef.rotation);
+        this._positionMesh(mesh, entityDef.position);
+        this._rotateMesh(mesh, entityDef.rotation);
 
         return mesh;
     }
 
-    createModelMesh(modelDef, geometry, materials, guiMaterials) {
-        const physicsSystem = this._systems[Game.SystemType.PHYSICS_SYSTEM];
-        const cmFactory = new CollisionModelFactory(physicsSystem.materials);
+    _loadModel(modelDef) {
+        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
+        if (model)
+            return this._lwoLoader.load(model);
+        return null;
+    }
 
+    _createModelMesh(modelDef, geometry, materials, guiMaterials) {
         if (modelDef.model === 'models/mapobjects/elevators/elevator.lwo') {
-            const collisionModel = cmFactory.createCollisionModel(Elevator.DEFINITION);
+            const collisionModel = this._collisionModelFactory.createCollisionModel(Elevator.DEFINITION);
             const body = new CommonBody(collisionModel);
             return new Elevator(modelDef.name, geometry, materials, guiMaterials, this._assets, body);
         }
 
         if (modelDef.model === 'models/mapobjects/elevators/elevator_door.lwo') {
-            const collisionModel = cmFactory.createCollisionModel(ElevatorDoor.DEFINITION);
+            const collisionModel = this._collisionModelFactory.createCollisionModel(ElevatorDoor.DEFINITION);
             // TODO: Apply this pattern to Elevator model too.
-            return ElevatorDoor.newBuilder(geometry, materials)
-                .withName(modelDef.name)
-                .withBody(new CommonBody(collisionModel))
-                .withMoveDirection(modelDef.moveDirection)
-                .withTime(modelDef.time)
-                .build();
+            const elevatorDoor = new ElevatorDoor(geometry, materials);
+            elevatorDoor.name = modelDef.name;
+            elevatorDoor.body = new CommonBody(collisionModel);
+            elevatorDoor.moveDirection = modelDef.moveDirection;
+            elevatorDoor.time = modelDef.time;
+            elevatorDoor.sounds = this._soundFactory.createSounds(modelDef);
+            elevatorDoor.init();
+            return elevatorDoor;
         }
 
         const group = new THREE.Group();
@@ -132,6 +137,7 @@ export class LWOModelFactory extends AbstractModelFactory {
             mesh.body.position = mesh.position;
     }
 
+    // noinspection JSMethodCanBeStatic
     _rotateMesh(mesh, rotation) {
         const ninetyDegrees = THREE.Math.degToRad(90);
         mesh.rotation.set(ninetyDegrees, 0, ninetyDegrees);

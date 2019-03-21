@@ -1,6 +1,7 @@
 import {KeyboardState} from './keyboard-state.js';
 import {MouseState} from './mouse-state.js';
 import {Settings} from '../settings.js';
+import {PointerLock} from './pointer-lock.js';
 
 const LOOK_SPEED = 0.002;
 const MOVE_SPEED = 1.8;
@@ -8,80 +9,20 @@ const MOVE_SPEED_IN_GHOST_MODE = 0.05;
 const JUMP_SPEED = 3.2;
 
 export class FPSControls {
-    constructor(camera, player) {
+    constructor(camera, player, canvas) {
         this.enabled = false;
-        this.pointerLockEnabled = false;
 
         this.player = player; // Player itself will be a yaw object
         player.pitchObject.add(camera);
 
         this.keyboardState = new KeyboardState();
         this.mouseState = new MouseState();
-        this.canvas = $(document).find('#game_canvas')[0];
 
-        this.attachMouseEventHandlers();
-    }
-
-    attachMouseEventHandlers() {
         $(document).on('mousemove.doom-three.fps-controls', $.proxy(this.onMouseMove, this));
-        $(this.canvas).mousedown($.proxy(this.onMouseDown, this));
-    }
-
-    requestPointerLock() {
-        if (this.pointerLockEnabled)
-            return;
-        this.attachPointerLockEventHandlers();
-        this.canvas.requestPointerLock = this.canvas.requestPointerLock ||
-            this.canvas.msRequestPointerLock ||
-            this.canvas.mozRequestPointerLock ||
-            this.canvas.webkitRequestPointerLock;
-        this.canvas.requestPointerLock();
-    }
-
-    attachPointerLockEventHandlers() {
-        const pointerlockchangeHandler = $.proxy(this.onPointerLockChange, this);
-        const pointerlockerrorHandler = $.proxy(this.onPointerLockError, this);
-
-        const $document = $(document);
-
-        $document.on('pointerlockchange.doom-three.fps-controls', pointerlockchangeHandler);
-        $document.on('mozpointerlockchange.doom-three.fps-controls', pointerlockchangeHandler);
-        $document.on('webkitpointerlockchange.doom-three.fps-controls', pointerlockchangeHandler);
-
-        $document.on('pointerlockerror.doom-three.fps-controls', pointerlockerrorHandler);
-        $document.on('mozpointerlockerror.doom-three.fps-controls', pointerlockerrorHandler);
-        $document.on('webkitpointerlockerror.doom-three.fps-controls', pointerlockerrorHandler);
-    }
-
-    // noinspection JSMethodCanBeStatic
-    detachPointerLockEventHandlers() {
-        const $document = $(document);
-
-        $document.off('pointerlockchange.doom-three.fps-controls');
-        $document.off('mozpointerlockchange.doom-three.fps-controls');
-        $document.off('webkitpointerlockchange.doom-three.fps-controls');
-
-        $document.off('pointerlockerror.doom-three.fps-controls');
-        $document.off('mozpointerlockerror.doom-three.fps-controls');
-        $document.off('webkitpointerlockerror.doom-three.fps-controls');
-    }
-
-    onPointerLockChange() {
-        if (document.pointerLockElement === this.canvas ||
-            document.msPointerLockElement === this.canvas ||
-            document.mozPointerLockElement === this.canvas ||
-            document.webkitPointerLockElement === this.canvas) {
-            this.enabled = true;
-            this.pointerLockEnabled = true;
-        } else {
-            this.pointerLockEnabled = false;
-            this.enabled = false;
-            this.detachPointerLockEventHandlers();
-        }
-    }
-
-    onPointerLockError(e) {
-        // Do nothing
+        const pointerLock = new PointerLock(canvas);
+        pointerLock.addEventListener('pointerLock', $.proxy(this._onPointerLock, this));
+        pointerLock.addEventListener('pointerUnlock', $.proxy(this._onPointerUnlock, this));
+        pointerLock.init();
     }
 
     onMouseMove(e) {
@@ -100,9 +41,12 @@ export class FPSControls {
             Math.min(Math.PI / 2, this.player.pitchObject.rotation.x));
     }
 
-    onMouseDown(e) {
-        if (e.which === MouseState.MouseButton.RIGHT)
-            this.requestPointerLock();
+    _onPointerLock() {
+        this.enabled = true;
+    }
+
+    _onPointerUnlock() {
+        this.enabled = false;
     }
 }
 

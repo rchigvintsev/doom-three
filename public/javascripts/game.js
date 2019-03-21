@@ -4,10 +4,10 @@ import {FeatureDetector} from './feature-detector.js';
 import {Settings} from './settings.js';
 import {AnimationSystem} from './animation/animation-system.js';
 import {PhysicsSystem} from './physics/physics-system.js';
-import {SoundManager} from './sound/sound-manager.js';
 import {AssetLoader} from './asset-loader.js';
 import {GameWorldBuilder} from './game-world-builder.js'
 import {FPSControls} from './control/fps-controls.js';
+import {AudioListener} from './audio/audio-listener.js';
 
 const GameState = {
     PRELOADING: 0,
@@ -35,16 +35,11 @@ export class Game {
         this.initCamera();
         this.initScene();
         this.initSystems();
-        this.initSoundManager();
         this.initAssetLoader();
         this.initWorldBuilder();
 
-        Game.disableContextMenu();
-
         $(window).on('resize', $.proxy(this.onWindowResize, this));
-
         this.requestAnimationFrameId = null;
-        this.state = GameState.PRELOADING;
 
         /*this.orthoCamera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2,
          window.innerHeight / 2, -window.innerHeight / 2, 1, 10);
@@ -66,15 +61,19 @@ export class Game {
          this.objectExplorer = new DT.ObjectExplorer(this.orthoScene, this.graphicsManager.vMode);*/
     };
 
-    static load() {
-        const game = new Game();
-        game.load('game/site3');
+    static load(mapName) {
+        Game._disableContextMenu();
+        Game._showLockScreen();
+        $(document).one('click', function () {
+            const game = new Game();
+            game._load(mapName);
+            Game._hideLockScreen();
+        });
     }
 
     initStats() {
         this.stats = new Stats();
         this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
     }
 
     initRenderer() {
@@ -101,12 +100,8 @@ export class Game {
         this.systems[SystemType.PHYSICS_SYSTEM] = new PhysicsSystem();
     }
 
-    initSoundManager() {
-        this._soundManager = new SoundManager();
-    }
-
     initAssetLoader() {
-        this.assetLoader = new AssetLoader(this._soundManager);
+        this.assetLoader = new AssetLoader();
         this.assetLoader.addEventListener('load', $.proxy(function () {
             this.state = GameState.POSTLOADING;
         }, this));
@@ -116,13 +111,13 @@ export class Game {
         this.worldBuilder = new GameWorldBuilder(this.camera, this.scene, this.systems);
     }
 
-    static disableContextMenu() {
+    static _disableContextMenu() {
         $(document).on('contextmenu', function () {
             return false;
         });
     }
 
-    load(mapName) {
+    _load(mapName) {
         this.mapName = mapName;
 
         if (this.requestAnimationFrameId !== null)
@@ -130,6 +125,7 @@ export class Game {
 
         this.currentTime = currentTime();
         this.accumulator = 0.0;
+        this.state = GameState.PRELOADING;
 
         this.animate();
     }
@@ -206,8 +202,10 @@ export class Game {
     }
 
     doPostloading() {
+        document.body.appendChild(this.stats.dom);
         this.gameWorld = this.worldBuilder.build(this.mapName, this.assetLoader.assets);
-        this.controls = new FPSControls(this.camera, this.gameWorld.player);
+        this.camera.add(AudioListener.getListener());
+        this.controls = new FPSControls(this.camera, this.gameWorld.player, this.canvas);
         this.gameWorld.activateTriggers();
         this.state = GameState.RUNNING;
     }
@@ -219,12 +217,34 @@ export class Game {
         this.gameWorld.update(time);
         this.controls.update();
     }
+
+    get canvas() {
+        return this.renderer.domElement;
+    }
+
+    static _showLockScreen() {
+        const $div = $(document.createElement('div'));
+        $div.attr('id', 'lock_screen');
+        $div.addClass('message');
+
+        const span = document.createElement('span');
+        span.innerHTML = 'Click to continue';
+
+        $div.append(span);
+
+        document.body.appendChild($div[0]);
+    }
+
+    static _hideLockScreen() {
+        const $div = $(document).find('#lock_screen');
+        document.body.removeChild($div[0]);
+    }
 }
 
 Game.SystemType = Object.freeze(SystemType);
 
 $(function () {
     FeatureDetector.run(function () {
-        Game.load();
+        Game.load('game/site3');
     });
 });

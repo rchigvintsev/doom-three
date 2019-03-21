@@ -45,7 +45,8 @@ var DOOM_THREE = DOOM_THREE || {};
         this._bobbingOffset = new THREE.Vector3();
         this._previousDirection = new THREE.Vector3();
 
-        this._raiseSound = sounds.raise[0];
+        this._raiseSound = sounds['raise'][0];
+        this.add(this._raiseSound);
         this._impactSounds = sounds.impact;
     };
 
@@ -78,7 +79,7 @@ var DOOM_THREE = DOOM_THREE || {};
 
         playRaiseSound: function () {
             if (!this._raiseSound.playing)
-                this._raiseSound.play(0.1);
+                this._raiseSound.play(100);
         },
 
         update: function (player) {
@@ -200,7 +201,7 @@ var DOOM_THREE = DOOM_THREE || {};
         playImpactSound: function () {
             if (!this._impactSound || !this._impactSound.playing) {
                 var impactSound = math.pickRandom(this._impactSounds);
-                impactSound.play(0.1);
+                impactSound.play();
                 this._impactSound = impactSound;
             }
         },

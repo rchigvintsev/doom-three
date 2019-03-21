@@ -1,14 +1,14 @@
 import {MaterialBuilder} from './material-builder.js';
 import {AssetLoader} from '../../asset-loader.js';
 
-export class GUIMaterialBuilder extends MaterialBuilder {
+export class GuiMaterialBuilder extends MaterialBuilder {
     constructor(assets) {
         super(assets);
         this._tgaLoader = new THREE.TGALoader();
     }
 
     clone() {
-        return new GUIMaterialBuilder(this._assets);
+        return new GuiMaterialBuilder(this._assets);
     }
 
     build(name, materialDefinition) {

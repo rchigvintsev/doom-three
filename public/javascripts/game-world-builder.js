@@ -2,10 +2,10 @@ import {Game} from './game.js';
 import {GameConstants} from './doom-three.js';
 import {GameWorld} from './game-world.js';
 import {AssetLoader} from './asset-loader.js';
-import {SurfaceFactory} from './map/factory/surface-factory.js';
-import {MD5ModelFactory} from './map/factory/md5-model-factory.js';
-import {LWOModelFactory} from './map/factory/lwo-model-factory.js';
-import {LightFactory} from './map/factory/light-factory.js';
+import {SurfaceFactory} from './entity/surface/surface-factory.js';
+import {Md5ModelFactory} from './entity/model/md5-model-factory.js';
+import {LwoModelFactory} from './entity/model/lwo-model-factory.js';
+import {LightFactory} from './entity/light/light-factory.js';
 import {Materials} from './map/materials.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {Flashlight} from './player/weapon/flashlight.js';
@@ -13,7 +13,8 @@ import {Player} from './player/player.js';
 import {PlayerBody} from './physics/player-body.js';
 import {CollisionModelFactory} from './physics/collision-model-factory.js';
 import {Settings} from './settings.js';
-import {TriggerFactory} from './map/factory/trigger-factory.js';
+import {TriggerFactory} from './entity/trigger/trigger-factory.js';
+import {SoundFactory} from './audio/sound-factory.js';
 
 export class GameWorldBuilder {
     constructor(camera, scene, systems) {
@@ -83,7 +84,7 @@ export class GameWorldBuilder {
         }
 
         if (map.lights && !Settings.wireframeOnly) {
-            const lights = new LightBuilder().build(map.lights);
+            const lights = new LightBuilder(assets).build(map.lights);
             for (let i = 0; i < lights.length; i++) {
                 const light = lights[i];
                 this.addObjectToScene(light.light);
@@ -93,7 +94,7 @@ export class GameWorldBuilder {
         }
 
         if (map.triggers) {
-            const triggers = new TriggerBuilder().build(map.triggers);
+            const triggers = new TriggerBuilder(assets).build(map.triggers);
             for (let i = 0; i < triggers.length; i++)
                 gameWorld.addTrigger(triggers[i])
         }
@@ -219,26 +220,25 @@ class SkyboxBuilder {
 class WeaponBuilder {
     constructor(context) {
         this.context = context;
-        this.md5ModelFactory = new MD5ModelFactory(context.assets);
+        this.md5ModelFactory = new Md5ModelFactory(context.assets);
     }
 
     build() {
         const weapons = {};
         const animationSystem = this.context.systems[Game.SystemType.ANIMATION_SYSTEM];
+        const soundFactory = new SoundFactory(this.context.assets);
+
         for (let wi = 0; wi < Weapons.length; wi++) {
             const weaponClass = Weapons[wi];
             const weaponDef = weaponClass.definition;
-            const weaponModel = this.md5ModelFactory.createModel(weaponDef);
+
+            const weaponModel = this.md5ModelFactory.create(weaponDef);
+
             const animationMixer = new THREE.AnimationMixer(weaponModel);
             animationSystem.registerAnimationMixer(animationMixer);
-            const sounds = this.context.assets[AssetLoader.AssetType.SOUNDS];
-            const weaponSounds = {};
-            Object.keys(weaponDef.sounds).forEach(function (key) {
-                weaponSounds[key] = [];
-                weaponDef.sounds[key].forEach(function (soundName) {
-                    weaponSounds[key].push(sounds[soundName]);
-                });
-            });
+
+            const weaponSounds = soundFactory.createSounds(weaponDef);
+
             const args = [null, weaponModel, animationMixer, weaponSounds, this.context.world, this.context.camera];
             weapons[weaponDef.name] = new (Function.prototype.bind.apply(weaponClass, args));
         }
@@ -252,19 +252,15 @@ class PlayerBuilder {
     }
 
     build() {
-        const sounds = this.context.assets[AssetLoader.AssetType.SOUNDS];
-        const playerSounds = {};
-        Object.keys(Player.definition.sounds).forEach(function (key) {
-            playerSounds[key] = [];
-            Player.definition.sounds[key].forEach(function (soundName) {
-                playerSounds[key].push(sounds[soundName]);
-            });
-        });
+        const soundFactory = new SoundFactory(this.context.assets);
+        const sounds = soundFactory.createSounds(Player.definition);
+
         const physicsSystem = this.context.systems[Game.SystemType.PHYSICS_SYSTEM];
-        const cmFactory = new CollisionModelFactory(physicsSystem.materials);
-        const collisionModel = cmFactory.createCollisionModel(Player.definition);
+        const collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
+        const collisionModel = collisionModelFactory.createCollisionModel(Player.definition);
         const body = new PlayerBody(collisionModel);
-        return new Player(this.context.weapons, playerSounds, body);
+
+        return new Player(this.context.weapons, sounds, body);
     }
 }
 
@@ -331,13 +327,13 @@ class SurfaceBuilder {
     constructor(context) {
         const physicsSystem = context.systems[Game.SystemType.PHYSICS_SYSTEM];
         this.collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
-        this.surfaceFactory = new SurfaceFactory(context.assets, this.collisionModelFactory, context.flashlight);
+        this.surfaceFactory = new SurfaceFactory(context.assets, context.flashlight, this.collisionModelFactory);
     }
 
     build(surfaces) {
         const result = [];
         for (let i = 0; i < surfaces.length; i++) {
-            const surface = this.surfaceFactory.createSurface(surfaces[i]);
+            const surface = this.surfaceFactory.create(surfaces[i]);
             if (surfaces[i].position)
                 surface.position.fromArray(surfaces[i].position).multiplyScalar(GameConstants.WORLD_SCALE);
             result.push(surface);
@@ -347,8 +343,8 @@ class SurfaceBuilder {
 }
 
 class LightBuilder {
-    constructor() {
-        this.lightFactory = new LightFactory();
+    constructor(assets) {
+        this.lightFactory = new LightFactory(assets);
     }
 
     build(lights) {
@@ -356,7 +352,7 @@ class LightBuilder {
         for (let i = 0; i < lights.length; i++) {
             result.push({});
             const lightDef = lights[i];
-            result[i].light = this.lightFactory.createLight(lightDef);
+            result[i].light = this.lightFactory.create(lightDef);
             if (Settings.showLightSphere)
                 result[i].lightSphere = this.lightFactory.createLightSphere(lightDef);
         }
@@ -366,42 +362,34 @@ class LightBuilder {
 
 class ModelBuilder {
     constructor(context) {
-        this.md5ModelFactory = new MD5ModelFactory(context.assets, context.flashlight);
-        this.lwoModelFactory = new LWOModelFactory(context.systems, context.assets, context.flashlight);
+        this.md5ModelFactory = new Md5ModelFactory(context.assets, context.flashlight);
+        this.lwoModelFactory = new LwoModelFactory(context.assets, context.flashlight, context.systems);
     }
 
     build(models) {
         const result = [];
         for (let i = 0; i < models.length; i++) {
             const modelDef = models[i];
-            if (ModelBuilder.isMD5Model(modelDef.model))
-                result.push(this.md5ModelFactory.createModel(modelDef));
-            else if (ModelBuilder.isLWOModel(modelDef.model))
-                result.push(this.lwoModelFactory.createModel(modelDef));
+            if (Md5ModelFactory.isMD5Model(modelDef.model))
+                result.push(this.md5ModelFactory.create(modelDef));
+            else if (LwoModelFactory.isLWOModel(modelDef.model))
+                result.push(this.lwoModelFactory.create(modelDef));
             else
                 console.error("Model " + modelDef.model + " is not supported");
         }
         return result;
     }
-
-    static isLWOModel(modelName) {
-        return modelName.toLowerCase().indexOf('.lwo') > 0;
-    }
-
-    static isMD5Model(modelName) {
-        return modelName.toLowerCase().indexOf('.md5mesh') > 0;
-    }
 }
 
 class TriggerBuilder {
-    constructor() {
-        this._triggerFactory = new TriggerFactory();
+    constructor(assets) {
+        this._triggerFactory = new TriggerFactory(assets);
     }
 
     build(triggers) {
         const result = [];
         for (let i = 0; i < triggers.length; i++)
-            result.push(this._triggerFactory.createTrigger(triggers[i]));
+            result.push(this._triggerFactory.create(triggers[i]));
         return result;
     }
 }

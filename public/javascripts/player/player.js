@@ -30,18 +30,9 @@ var DOOM_THREE = DOOM_THREE || {};
             }]
         },
         sounds: {
-            footsteps: [
-                'sound/ed/player/steps/step01.ogg',
-                'sound/ed/player/steps/step02.ogg',
-                'sound/ed/player/steps/step03.ogg',
-                'sound/ed/player/steps/step10.ogg'
-            ],
-            jumps: ['sound/ed/player/jump1_alt3.ogg'],
-            landings: [
-                'sound/player/jump/land_small_01.ogg',
-                'sound/player/jump/land_small_02.ogg',
-                'sound/player/jump/land_small_03.ogg'
-            ]
+            footsteps: 'player_sounds_footsteps',
+            jumps: 'player_sounds_jump_small',
+            landings: 'player_sounds_fastlanding'
         }
     };
 
@@ -172,7 +163,7 @@ var DOOM_THREE = DOOM_THREE || {};
             if (directionChanged || !this._lastFootstepSound || !this._lastFootstepSound.playing) {
                 var currentFoot = (this._lastFoot + 1) % 2;
                 var footstepSound = math.pickRandom(this._footstepSounds[currentFoot]);
-                var delay = math.random(0.1, 0.2);
+                var delay = math.random(100, 200);
                 footstepSound.play(delay);
 
                 this._lastFootstepSound = footstepSound;

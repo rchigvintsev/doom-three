@@ -23,30 +23,25 @@ const _DEFINITION = Object.freeze({
 const MOVE_SPEED = 40 * GameWorld.WORLD_SCALE;
 
 export class ElevatorDoor extends THREE.Group {
-    constructor(builder) {
+    constructor(geometry, materials) {
         super();
-        this._name = builder._name;
-        this._body = builder._body;
-        this._opened = false;
-        this._moveDirection = builder._moveDirection;
-        this._time = builder._time;
-        this.add(new THREE.SkinnedMesh(builder._geometry, builder._materials));
+        this._geometry = geometry;
+        this._materials = materials;
+        this._moveDirection = 0;
+        this._time = 1;
     }
 
     static get DEFINITION() {
         return _DEFINITION;
     }
 
-    static newBuilder(geometry, materials) {
-        return new ElevatorDoorBuilder(geometry, materials);
-    }
-
-    get name() {
-        return this._name;
-    }
-
-    get body() {
-        return this._body;
+    init() {
+        this.add(new THREE.SkinnedMesh(this._geometry, this._materials));
+        this._opened = false;
+        if (this._sounds && this._sounds['open']) {
+            this._soundOpen = this._sounds['open'][0];
+            this.add(this._soundOpen);
+        }
     }
 
     open() {
@@ -70,6 +65,9 @@ export class ElevatorDoor extends THREE.Group {
                 scope._opened = true;
             });
         this._animation.start();
+
+        if (this._soundOpen)
+            this._soundOpen.play();
     }
 
     update(time) {
@@ -80,35 +78,44 @@ export class ElevatorDoor extends THREE.Group {
     onTrigger() {
         this.open();
     }
-}
 
-class ElevatorDoorBuilder {
-    constructor(geometry, materials) {
-        this._geometry = geometry;
-        this._materials = materials;
+    get name() {
+        return this._name;
     }
 
-    withName(name) {
+    set name(name) {
         this._name = name;
-        return this;
     }
 
-    withBody(body) {
+    get body() {
+        return this._body;
+    }
+
+    set body(body) {
         this._body = body;
-        return this;
     }
 
-    withMoveDirection(moveDirection) {
+    get moveDirection() {
+        return this._moveDirection;
+    }
+
+    set moveDirection(moveDirection) {
         this._moveDirection = moveDirection;
-        return this;
     }
 
-    withTime(time) {
+    get time() {
+        return this._time;
+    }
+
+    set time(time) {
         this._time = time;
-        return this;
     }
 
-    build() {
-        return new ElevatorDoor(this);
+    get sounds() {
+        return this._sounds;
+    }
+
+    set sounds(sounds) {
+        this._sounds = sounds;
     }
 }

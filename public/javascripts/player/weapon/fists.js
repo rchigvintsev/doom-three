@@ -20,19 +20,9 @@ var DOOM_THREE = DOOM_THREE || {};
         ],
         position: [0, -6.5, 10],
         sounds: {
-            raise: ['sound/weapons/fists/raise_fists_01.wav'],
-            woosh: [
-                'sound/xian/monsters/punch/whoosh_01.ogg',
-                'sound/xian/monsters/punch/whoosh_02.ogg',
-                'sound/xian/monsters/punch/whoosh_03.ogg',
-                'sound/xian/monsters/punch/whoosh_04.ogg'
-            ],
-            impact: [
-                'sound/weapons/fists/default_punch_01.wav',
-                'sound/weapons/fists/default_punch_02.wav',
-                'sound/weapons/fists/default_punch_03.wav',
-                'sound/weapons/fists/default_punch_04.wav'
-            ]
+            raise: 'fist_raise',
+            woosh: 'fist_whoosh',
+            impact: 'fist_impact'
         }
     };
 
@@ -106,7 +96,7 @@ var DOOM_THREE = DOOM_THREE || {};
         playWooshSound: function () {
             if (!this._wooshSound || !this._wooshSound.playing) {
                 var wooshSound = math.pickRandom(this._wooshSounds);
-                wooshSound.play(0.1);
+                wooshSound.play(100);
                 this._wooshSound = wooshSound;
             }
         }

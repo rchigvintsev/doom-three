@@ -1,4 +1,4 @@
-.error-message {
+.message {
     width: 450px;
     height: 150px;
     position: absolute;
@@ -15,7 +15,7 @@
     border: 4px double #fff;
 }
 
-.error-message span {
+.message span {
     display: block;
     margin-top: 50px;
 }

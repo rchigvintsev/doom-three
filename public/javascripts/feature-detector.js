@@ -47,7 +47,7 @@ var DOOM_THREE = DOOM_THREE || {};
 
         displayErrorMessage: function (feature) {
             var $div = $(document.createElement('div'));
-            $div.addClass('error-message');
+            $div.addClass('message');
 
             var span = document.createElement('span');
             span.innerHTML = 'Your browser does not support<br/>' + feature + '.';

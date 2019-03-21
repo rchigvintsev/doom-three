@@ -2,6 +2,7 @@ import {Settings} from './settings.js';
 import {Player} from './player/player.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {Materials} from './map/materials.js';
+import {SOUNDS} from './audio/sounds.js';
 
 
 const AssetType = {
@@ -14,9 +15,7 @@ const AssetType = {
 };
 
 export class AssetLoader {
-    constructor(soundManager) {
-        this._soundManager = soundManager;
-
+    constructor() {
         this.assets = {};
         this.assets[AssetType.MAPS] = {};
         this.assets[AssetType.MODELS] = {};
@@ -26,12 +25,8 @@ export class AssetLoader {
         this.assets[AssetType.SOUNDS] = {};
 
         this.fileLoader = new THREE.FileLoader();
-
-        this.soundLoader = new THREE.FileLoader();
-        this.soundLoader.setResponseType('arraybuffer');
-
+        this.soundLoader = new THREE.AudioLoader();
         this.animationLoader = new THREE.FileLoader();
-
         this.tgaLoader = new THREE.TGALoader();
     }
 
@@ -44,13 +39,7 @@ export class AssetLoader {
         this.shadersToLoad = [];
         this.soundsToLoad = [];
 
-        Object.keys(Player.definition.sounds).forEach(function (key) {
-            const sounds = Player.definition.sounds[key];
-            for (let i = 0; i < sounds.length; i++) {
-                if (scope.soundsToLoad.indexOf(sounds[i]) < 0)
-                    scope.soundsToLoad.push(sounds[i]);
-            }
-        });
+        this._registerSoundsToLoad(Player.definition.sounds);
 
         Weapons.forEach(function (weaponClass) {
             const weaponDef = weaponClass.definition;
@@ -68,13 +57,7 @@ export class AssetLoader {
                     scope.countShaders(materialName);
                 });
 
-            Object.keys(weaponDef.sounds).forEach(function (key) {
-                const sounds = weaponDef.sounds[key];
-                for (let i = 0; i < sounds.length; i++) {
-                    if (scope.soundsToLoad.indexOf(sounds[i]) < 0)
-                        scope.soundsToLoad.push(sounds[i]);
-                }
-            });
+            scope._registerSoundsToLoad(weaponDef.sounds);
         });
 
         this.loadMapMeta(mapName);
@@ -102,6 +85,8 @@ export class AssetLoader {
             mapMeta.animations.forEach(function (animationName) {
                 scope.animationsToLoad.push(animationName);
             });
+        if (mapMeta.sounds)
+            scope._registerSoundsToLoad(mapMeta.sounds);
         this.assetsToLoad = this.getNumberOfAssetsToLoad();
         this.totalAssets = this.assetsToLoad;
         this.loadMap(mapMeta);
@@ -182,10 +167,10 @@ export class AssetLoader {
 
     loadSounds() {
         const scope = this;
-        this.soundsToLoad.forEach(function (soundName) {
-            if (!scope.assets[AssetType.SOUNDS][soundName])
-                scope.soundLoader.load(soundName, function (audioData) {
-                    scope.assets[AssetType.SOUNDS][soundName] = scope._soundManager.createSound(soundName, audioData);
+        this.soundsToLoad.forEach(function (soundSrc) {
+            if (!scope.assets[AssetType.SOUNDS][soundSrc])
+                scope.soundLoader.load(soundSrc, function (audioBuffer) {
+                    scope.assets[AssetType.SOUNDS][soundSrc] = audioBuffer;
                     scope.assetsToLoad--;
                     scope.notifySubscribers();
                 });
@@ -287,6 +272,22 @@ export class AssetLoader {
         this.dispatchEvent({type: 'progress', percentLoaded: percentLoaded.toFixed()});
         if (this.assetsToLoad === 0)
             this.dispatchEvent({type: 'load'});
+    }
+
+    _registerSoundsToLoad(sounds) {
+        const scope = this;
+        Object.keys(sounds).forEach(function (key) {
+            const soundName = sounds[key];
+            const soundDef = SOUNDS[soundName];
+            if (soundDef) {
+                for (let i = 0; i < soundDef.sources.length; i++) {
+                    const soundSrc = soundDef.sources[i];
+                    if (scope.soundsToLoad.indexOf(soundSrc) < 0)
+                        scope.soundsToLoad.push(soundSrc);
+                }
+            } else
+                console.error('Definition of sound "' + soundName + '" is not found');
+        });
     }
 }
 

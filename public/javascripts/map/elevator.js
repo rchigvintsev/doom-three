@@ -1,6 +1,6 @@
-import {GUIFactory} from './factory/gui-factory.js';
+import {GuiFactory} from '../entity/gui/gui-factory.js';
 import {Settings} from '../settings.js';
-import {LightFactory} from './factory/light-factory.js';
+import {LightFactory} from '../entity/light/light-factory.js';
 
 const _DEFINITION = Object.freeze({
     lights: [
@@ -91,17 +91,17 @@ export class Elevator extends THREE.Group {
         this.add(new THREE.SkinnedMesh(geometry, materials));
 
         if (!Settings.wireframeOnly) {
-            const guiFactory = new GUIFactory(assets);
+            const guiFactory = new GuiFactory(assets);
             for (let guiMaterial of guiMaterials) {
-                const gui = guiFactory.createGui(guiMaterial.definition.guiClass, geometry, guiMaterial.index);
+                const gui = guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index);
                 this.add(gui);
                 this._gui.push(gui);
             }
 
-            const lightFactory = new LightFactory();
+            const lightFactory = new LightFactory(assets);
             for (let i = 0; i < _DEFINITION.lights.length; i++) {
                 const lightDef = _DEFINITION.lights[i];
-                const light = lightFactory.createLight(lightDef, false);
+                const light = lightFactory.create(lightDef, false);
                 this.add(light);
                 if (Settings.showLightSphere) {
                     const lightSphere = lightFactory.createLightSphere(lightDef, false);

@@ -1,14 +1,18 @@
 import {GameWorld} from '../../game-world.js';
+import {EntityFactory} from '../entity-factory.js';
 
-export class LightFactory {
-    createLight(lightDef, scale=true) {
+export class LightFactory extends EntityFactory {
+    constructor(assets) {
+        super(assets);
+    }
+
+    create(lightDef, scale=true) {
         let light;
+        const lightDistance = lightDef.distance * GameWorld.WORLD_SCALE;
         if (lightDef.type === 'point')
-            // Light distance should be scaled anyway
-            light = new THREE.PointLight(lightDef.color, lightDef.intensity, lightDef.distance * GameWorld.WORLD_SCALE);
+            light = new THREE.PointLight(lightDef.color, lightDef.intensity, lightDistance);
         else if (lightDef.type === 'spot')
-            light = new THREE.SpotLight(lightDef.color, lightDef.intensity, lightDef.distance * GameWorld.WORLD_SCALE,
-                lightDef.angle);
+            light = new THREE.SpotLight(lightDef.color, lightDef.intensity, lightDistance, lightDef.angle);
         else
             throw 'Unsupported light type: ' + lightDef.type;
         light.position.fromArray(lightDef.position);
@@ -17,6 +21,7 @@ export class LightFactory {
         return light;
     }
 
+    // noinspection JSMethodCanBeStatic
     createLightSphere(lightDef, scale=true) {
         let sphereRadius = 5;
         if (scale)

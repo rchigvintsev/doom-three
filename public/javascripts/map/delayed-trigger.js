@@ -7,10 +7,11 @@ export class DelayedTrigger {
 
     activate(gameWorld) {
         const targets = this._collectTargets(gameWorld);
-        setTimeout(function () {
-            for (let i = 0; i < targets.length; i++)
-                targets[i].onTrigger();
-        }, this._delay * 1000);
+        if (targets.length > 0)
+            setTimeout(function () {
+                for (let i = 0; i < targets.length; i++)
+                    targets[i].onTrigger();
+            }, this._delay * 1000);
     }
 
     _collectTargets(gameWorld) {
