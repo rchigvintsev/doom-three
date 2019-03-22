@@ -1,5 +1,5 @@
 import {AssetLoader} from '../../asset-loader.js';
-import {tables} from '../materials.js';
+import {TABLES} from '../../material/tables.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
@@ -265,7 +265,7 @@ export class MaterialBuilder {
     _createScalarColorUpdater(expression) {
         const compiledExpression = math.compile(expression);
         const tableFunc = function (tableName, value) {
-            const table = tables[tableName];
+            const table = TABLES[tableName];
             const val = value % table.values.length;
             let floor = Math.floor(val);
             let ceil = Math.ceil(val);
@@ -287,7 +287,7 @@ export class MaterialBuilder {
         const compiledBlueExpr = math.compile(blue.expression);
 
         const tableFunc = function (tableName, value) {
-            const table = tables[tableName];
+            const table = TABLES[tableName];
             const val = value % table.values.length;
             let floor = Math.floor(val);
             let ceil = Math.ceil(val);
@@ -314,7 +314,7 @@ export class MaterialBuilder {
     _createOpacityUpdater(expression) {
         const compiledExpression = math.compile(expression);
         const tableFunc = function (tableName, value) {
-            const table = tables[tableName];
+            const table = TABLES[tableName];
             const v = value % table.values.length;
             let floor = Math.floor(v);
             let ceil = Math.ceil(v);
@@ -334,7 +334,7 @@ export class MaterialBuilder {
         if (repeat.expression) {
             const compiledExpression = math.compile(repeat.expression);
             const tableFunc = function (tableName, value) {
-                const table = tables[tableName];
+                const table = TABLES[tableName];
                 const val = value % table.values.length;
                 let floor = Math.floor(val);
                 let ceil = Math.ceil(val);
@@ -358,7 +358,7 @@ export class MaterialBuilder {
     _createTranslationProvider(expression) {
         const compiledExpression = math.compile(expression);
         const tableFunc = function (tableName, value) {
-            const table = tables[tableName];
+            const table = TABLES[tableName];
             const v = value % table.values.length;
             if (!table.snap) {
                 let floor = Math.floor(v);

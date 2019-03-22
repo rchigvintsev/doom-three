@@ -6,7 +6,7 @@ import {SurfaceFactory} from './entity/surface/surface-factory.js';
 import {Md5ModelFactory} from './entity/model/md5-model-factory.js';
 import {LwoModelFactory} from './entity/model/lwo-model-factory.js';
 import {LightFactory} from './entity/light/light-factory.js';
-import {Materials} from './map/materials.js';
+import {MATERIALS} from './material/materials.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {Flashlight} from './player/weapon/flashlight.js';
 import {Player} from './player/player.js';
@@ -182,7 +182,7 @@ class SkyboxBuilder {
         const skyboxSize = skybox.size * GameConstants.WORLD_SCALE;
         const geometry = new THREE.BoxGeometry(skyboxSize, skyboxSize, skyboxSize);
 
-        const materialDef = Materials.definition[skybox.material];
+        const materialDef = MATERIALS[skybox.material];
         if (!materialDef) {
             console.error('Definition of material "' + skybox.material + '" is not found');
             return;

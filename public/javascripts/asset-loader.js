@@ -1,7 +1,7 @@
 import {Settings} from './settings.js';
 import {Player} from './player/player.js';
 import {Weapons} from './player/weapon/weapons.js';
-import {Materials} from './map/materials.js';
+import {MATERIALS} from './material/materials.js';
 import {SOUNDS} from './audio/sounds.js';
 
 
@@ -197,7 +197,7 @@ export class AssetLoader {
 
     countTextures(materialName) {
         const scope = this;
-        const material = Materials.definition[materialName];
+        const material = MATERIALS[materialName];
         if (material) {
             if (material.diffuseMap) {
                 const diffuseMapName = typeof material.diffuseMap === 'string'
@@ -250,7 +250,7 @@ export class AssetLoader {
     }
 
     countShaders(materialName) {
-        const material = Materials.definition[materialName];
+        const material = MATERIALS[materialName];
         if (material && material.type === 'shader')
             this.shadersToLoad.push(materialName);
     }

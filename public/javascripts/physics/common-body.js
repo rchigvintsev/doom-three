@@ -15,12 +15,10 @@ export class CommonBody {
 
     set rotation(rotation) {
         this._rotation.copy(rotation);
-
         for (let i = 0; i < this._collisionModel.bodies.length; i++) {
             const bodyQuaternion = this._collisionModel.bodies[i].quaternion;
             bodyQuaternion.setFromEuler(rotation.x, rotation.y, rotation.z);
         }
-
         const attachedMeshes = this._collisionModel.attachedMeshes;
         for (let i = 0; i < attachedMeshes.length; i++)
             attachedMeshes[i].rotation.copy(rotation);
@@ -31,6 +29,7 @@ export class CommonBody {
     }
 
     set position(position) {
+        this._position.copy(position);
         for (let i = 0; i < this._collisionModel.bodies.length; i++)
             this._collisionModel.bodies[i].position.copy(position);
         const attachedMeshes = this._collisionModel.attachedMeshes;

@@ -1,4 +1,4 @@
-import {materials} from '../../map/materials.js';
+import {MATERIALS} from '../../material/materials.js';
 import {Faces} from '../../util/face-utils.js';
 import {currentTime} from '../../util/common-utils.js';
 
@@ -51,7 +51,7 @@ export class Malfunction2Gui extends THREE.Group {
 
         let renderOrder = 0;
 
-        const faceTestMaterials = materials['gui/faces5'];
+        const faceTestMaterials = MATERIALS['gui/faces5'];
         for (let material of faceTestMaterials) {
             const layer = this._createWindow(material, new THREE.Vector2(626, 470).divide(ratio), position);
             layer.renderOrder = renderOrder;
@@ -60,7 +60,7 @@ export class Malfunction2Gui extends THREE.Group {
             renderOrder++;
         }
 
-        const warpMaterials = materials['gui/warp/static'];
+        const warpMaterials = MATERIALS['gui/warp/static'];
         for (let material of warpMaterials) {
             const layer = this._createWindow(material, new THREE.Vector2(626, 470).divide(ratio), position);
             layer.renderOrder = renderOrder;
@@ -107,7 +107,7 @@ export class Malfunction2Gui extends THREE.Group {
 
         renderOrder++;
 
-        const staticMaterials = materials['gui/static'];
+        const staticMaterials = MATERIALS['gui/static'];
         const staticSize = new THREE.Vector2(626, 470).divide(ratio);
         for (let material of staticMaterials) {
             const layer = this._createWindow(material, staticSize, position);
@@ -156,7 +156,7 @@ export class Malfunction2Gui extends THREE.Group {
 
         renderOrder++;
 
-        const addHighlightLayer = this._createWindow(materials['gui/addhighlight'],
+        const addHighlightLayer = this._createWindow(MATERIALS['gui/addhighlight'],
             new THREE.Vector2(640, 480).divide(ratio), position.clone().setY(position.y - 0.01));
         addHighlightLayer.renderOrder = renderOrder;
         this.add(addHighlightLayer);

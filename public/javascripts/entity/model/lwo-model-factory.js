@@ -1,7 +1,7 @@
 import {LWOLoader} from '../../loader/lwo-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../map/materials.js';
+import {MATERIALS} from '../../material/materials.js';
 import {GameWorld} from '../../game-world.js';
 import {Elevator} from './elevator.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
@@ -14,6 +14,7 @@ import {MeshFactory} from '../mesh-factory.js';
 import {SoundFactory} from '../../audio/sound-factory.js';
 import {GuiFactory} from '../gui/gui-factory.js';
 import {LightFactory} from '../light/light-factory.js';
+import {MODELS} from './models.js';
 
 export class LwoModelFactory extends MeshFactory {
     constructor(assets, flashlight, systems) {
@@ -59,7 +60,7 @@ export class LwoModelFactory extends MeshFactory {
                     if (skin && skin[materialName])
                         // Override material
                         materialName = skin[materialName];
-                    let materialDef = Materials.definition[materialName];
+                    let materialDef = MATERIALS[materialName];
                     if (!materialDef) {
                         console.error('Definition for material ' + materialName + ' is not found');
                         materials.push(new THREE.MeshPhongMaterial());
@@ -107,53 +108,61 @@ export class LwoModelFactory extends MeshFactory {
     }
 
     _createModelMesh(modelDef, geometry, materials, guiMaterials) {
-        if (modelDef.model === 'models/mapobjects/elevators/elevator.lwo') {
-            const collisionModel = this._collisionModelFactory.createCollisionModel(Elevator.DEFINITION);
-            const body = new CommonBody(collisionModel);
-            const elevator = new Elevator(geometry, materials, guiMaterials, this._assets, body);
-            elevator.name = modelDef.name;
-            elevator.body = body;
+        if (MODELS[modelDef.model])
+            modelDef = Object.assign({}, modelDef, MODELS[modelDef.model]);
+        switch (modelDef.model) {
+            case 'models/mapobjects/elevators/elevator.lwo': {
+                const elevator = new Elevator(geometry, materials);
+                elevator.name = modelDef.name;
 
-            if (guiMaterials) {
-                const guiFactory = new GuiFactory(this._assets);
-                for (let guiMaterial of guiMaterials)
-                    elevator.addGui(guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index));
-            }
+                const collisionModel = this._collisionModelFactory.createCollisionModel(modelDef);
+                elevator.body = new CommonBody(collisionModel);
 
-            if (!Settings.wireframeOnly) {
-                const lightFactory = new LightFactory(this._assets);
-                for (let i = 0; i < Elevator.DEFINITION.lights.length; i++) {
-                    const lightDef = Elevator.DEFINITION.lights[i];
-                    const light = lightFactory.create(lightDef, false);
-                    elevator.add(light);
-                    if (Settings.showLightSphere) {
-                        const lightSphere = lightFactory.createLightSphere(lightDef, false);
-                        elevator.add(lightSphere);
+                if (guiMaterials) {
+                    const guiFactory = new GuiFactory(this._assets);
+                    for (let guiMaterial of guiMaterials)
+                        elevator.addGui(guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index));
+                }
+
+                if (!Settings.wireframeOnly) {
+                    const lightFactory = new LightFactory(this._assets);
+                    for (let i = 0; i < modelDef.lights.length; i++) {
+                        const lightDef = modelDef.lights[i];
+                        const light = lightFactory.create(lightDef, false);
+                        elevator.add(light);
+                        if (Settings.showLightSphere) {
+                            const lightSphere = lightFactory.createLightSphere(lightDef, false);
+                            elevator.add(lightSphere);
+                        }
                     }
                 }
+
+                elevator.init();
+                return elevator;
             }
+            case 'models/mapobjects/elevators/elevator_door.lwo':
+            case 'models/mapobjects/doors/delelev/delelevlf.lwo':
+            case 'models/mapobjects/doors/delelev/delelevrt.lwo': {
+                const elevatorDoor = new ElevatorDoor(geometry, materials);
+                elevatorDoor.name = modelDef.name;
+                elevatorDoor.moveDirection = modelDef.moveDirection;
+                elevatorDoor.time = modelDef.time;
+                elevatorDoor.team = modelDef.team;
+                elevatorDoor.sounds = this._soundFactory.createSounds(modelDef);
 
-            elevator.init();
-            return elevator;
+                const collisionModel = this._collisionModelFactory.createCollisionModel(modelDef);
+                elevatorDoor.body = new CommonBody(collisionModel);
+
+                elevatorDoor.init();
+                return elevatorDoor;
+            }
+            default: {
+                const group = new THREE.Group();
+                group.name = modelDef.name;
+                group.add(new THREE.SkinnedMesh(geometry, materials));
+                return group;
+            }
         }
-
-        if (modelDef.model === 'models/mapobjects/elevators/elevator_door.lwo') {
-            const collisionModel = this._collisionModelFactory.createCollisionModel(ElevatorDoor.DEFINITION);
-            const elevatorDoor = new ElevatorDoor(geometry, materials);
-            elevatorDoor.name = modelDef.name;
-            elevatorDoor.body = new CommonBody(collisionModel);
-            elevatorDoor.moveDirection = modelDef.moveDirection;
-            elevatorDoor.time = modelDef.time;
-            elevatorDoor.team = modelDef.team;
-            elevatorDoor.sounds = this._soundFactory.createSounds(modelDef);
-            elevatorDoor.init();
-            return elevatorDoor;
-        }
-
-        const group = new THREE.Group();
-        group.name = modelDef.name;
-        group.add(new THREE.SkinnedMesh(geometry, materials));
-        return group;
     }
 
     // noinspection JSMethodCanBeStatic

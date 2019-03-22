@@ -1,4 +1,4 @@
-import {materials} from '../../map/materials.js';
+import {MATERIALS} from '../../material/materials.js';
 import {Faces} from '../../util/face-utils.js';
 import {currentTime} from '../../util/common-utils.js';
 import {strings} from '../../strings.js';
@@ -179,7 +179,7 @@ export class EnterSite3Gui extends THREE.Group {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const circle0Layer = this._createLayer(materials['gui/spin1alt'], new THREE.Vector2(578, 361).divide(ratio),
+        const circle0Layer = this._createLayer(MATERIALS['gui/spin1alt'], new THREE.Vector2(578, 361).divide(ratio),
             position.clone().setX(position.x - xOffset));
         circle0Layer.renderOrder = renderOrder;
         this._materials.push(circle0Layer.material);
@@ -188,7 +188,7 @@ export class EnterSite3Gui extends THREE.Group {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const circle1Layer = this._createLayer(materials['gui/spin2alt'], new THREE.Vector2(578, 361).divide(ratio),
+        const circle1Layer = this._createLayer(MATERIALS['gui/spin2alt'], new THREE.Vector2(578, 361).divide(ratio),
             position.clone().setX(position.x - xOffset));
         circle1Layer.renderOrder = renderOrder;
         this._materials.push(circle1Layer.material);
@@ -197,7 +197,7 @@ export class EnterSite3Gui extends THREE.Group {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const circle2Layer = this._createLayer(materials['gui/spin3alt'], new THREE.Vector2(528, 361).divide(ratio),
+        const circle2Layer = this._createLayer(MATERIALS['gui/spin3alt'], new THREE.Vector2(528, 361).divide(ratio),
             position.clone().setX(position.x - xOffset));
         circle2Layer.renderOrder = renderOrder;
         this._materials.push(circle2Layer.material);
@@ -206,7 +206,7 @@ export class EnterSite3Gui extends THREE.Group {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const circle3Layer = this._createLayer(materials['gui/spin4alt'], new THREE.Vector2(478, 361).divide(ratio),
+        const circle3Layer = this._createLayer(MATERIALS['gui/spin4alt'], new THREE.Vector2(478, 361).divide(ratio),
             position.clone().setX(position.x - xOffset));
         circle3Layer.renderOrder = renderOrder;
         this._materials.push(circle3Layer.material);
@@ -448,7 +448,7 @@ export class EnterSite3Gui extends THREE.Group {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const staticMaterials = materials['gui/static'];
+        const staticMaterials = MATERIALS['gui/static'];
         const staticSize = new THREE.Vector2(600, 430).divide(ratio);
         const staticPosition = position.clone()
             .setX(position.x - xOffset)
@@ -493,7 +493,7 @@ export class EnterSite3Gui extends THREE.Group {
         const addhighlight2Position = position.clone()
             .setX(position.x - xOffset)
             .setZ(position.z + 98 / ratio.y);
-        const addhighlight2MaterialDef = Object.assign(materials['gui/addhighlight']);
+        const addhighlight2MaterialDef = Object.assign(MATERIALS['gui/addhighlight']);
         addhighlight2MaterialDef.color = 0x668080;
         addhighlight2MaterialDef.opacity = 1;
         const addhighlight2Layer = this._createLayer(addhighlight2MaterialDef, addhighlight2Size, addhighlight2Position);
@@ -505,7 +505,7 @@ export class EnterSite3Gui extends THREE.Group {
         const addhighlightPosition = position.clone()
             .setX(position.x - xOffset)
             .setZ(position.z - 115 / ratio.y);
-        const addhighlightMaterialDef = Object.assign(materials['gui/addhighlight']);
+        const addhighlightMaterialDef = Object.assign(MATERIALS['gui/addhighlight']);
         addhighlightMaterialDef.color = 0x266680;
         addhighlightMaterialDef.opacity = 1;
         const addhighlightLayer = this._createLayer(addhighlightMaterialDef, addhighlightSize, addhighlightPosition);
@@ -519,7 +519,7 @@ export class EnterSite3Gui extends THREE.Group {
         const scanlinesPosition = position.clone()
             .setX(position.x - xOffset)
             .setZ(position.z - 7.5 / ratio.y);
-        const scanlinesLayer = this._createLayer(materials['gui/test/gui_scanlines'], scanlinesSize,
+        const scanlinesLayer = this._createLayer(MATERIALS['gui/test/gui_scanlines'], scanlinesSize,
             scanlinesPosition, 1.5);
         scanlinesLayer.renderOrder = renderOrder;
         scanlinesLayer.rotation.z = THREE.Math.degToRad(180);
@@ -544,7 +544,7 @@ export class EnterSite3Gui extends THREE.Group {
         const reflectPosition = position.clone()
             .setX(position.x - xOffset)
             .setZ(position.z - 15 / ratio.y);
-        const reflectLayer = this._createLayer(materials['gui/reflect1'], reflectSize, reflectPosition);
+        const reflectLayer = this._createLayer(MATERIALS['gui/reflect1'], reflectSize, reflectPosition);
         reflectLayer.renderOrder = renderOrder;
         this._materials.push(reflectLayer.material);
         this.add(reflectLayer);
@@ -556,7 +556,7 @@ export class EnterSite3Gui extends THREE.Group {
         const scanlinesAltPosition = position.clone()
             .setX(position.x - xOffset)
             .setZ(position.z - 7.5 / ratio.y);
-        const scanlinesAltMaterialDef = Object.assign(materials['gui/test/gui_scanlines5']);
+        const scanlinesAltMaterialDef = Object.assign(MATERIALS['gui/test/gui_scanlines5']);
         scanlinesAltMaterialDef.color = 0x1a1a1a;
         const scanlinesAltLayer = this._createLayer(scanlinesAltMaterialDef, scanlinesAltSize, scanlinesAltPosition, 2);
         scanlinesAltLayer.renderOrder = renderOrder;

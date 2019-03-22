@@ -2,7 +2,7 @@ import {MD5Loader} from '../../loader/md5-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../map/materials.js';
+import {MATERIALS} from '../../material/materials.js';
 import {GameWorld} from '../../game-world.js';
 import {MeshFactory} from '../mesh-factory.js';
 
@@ -29,7 +29,7 @@ export class Md5ModelFactory extends MeshFactory {
                     const declaredMaterial = declaredMaterials[i];
                     const materialName = typeof declaredMaterial === 'string' ? declaredMaterial
                         : declaredMaterial.name;
-                    const materialDef = Materials.definition[materialName];
+                    const materialDef = MATERIALS[materialName];
                     if (!materialDef) {
                         console.error('Definition for material ' + materialName + ' is not found');
                         materials.push(new THREE.MeshPhongMaterial());

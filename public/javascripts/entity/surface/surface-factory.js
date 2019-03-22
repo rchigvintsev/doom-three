@@ -2,7 +2,7 @@ import {Surface} from './surface.js';
 import {SurfaceBody} from '../../physics/surface-body.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
-import {Materials} from '../../map/materials.js';
+import {MATERIALS} from '../../material/materials.js';
 import {ProjectiveTextureMaterialBuilder} from '../../map/material/projective-texture-material-builder.js';
 import {MeshFactory} from '../mesh-factory.js';
 
@@ -26,7 +26,7 @@ export class SurfaceFactory extends MeshFactory {
             surface = new Surface(geometry, this._createWireframeMaterial(), body);
         else {
             const materialName = surfaceDef.material;
-            let materialDefinition = Materials.definition[materialName];
+            let materialDefinition = MATERIALS[materialName];
             if (!materialDefinition) {
                 console.error('Definition for material ' + materialName + ' is not found');
                 materialDefinition = FALLBACK_MATERIAL_DEFINITION;

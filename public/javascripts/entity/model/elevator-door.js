@@ -1,25 +1,5 @@
 import {GameWorld} from '../../game-world.js';
 
-const _DEFINITION = Object.freeze({
-    cm: {
-        bodies: [
-            {
-                mass: 0,
-                material: 'default',
-                shapes: [
-                    {
-                        type: 'box',
-                        width: 40,
-                        height: 10,
-                        depth: 128,
-                        offset: [-20, -2, -64]
-                    }
-                ]
-            }
-        ]
-    }
-});
-
 const MOVE_SPEED = 40 * GameWorld.WORLD_SCALE;
 
 export class ElevatorDoor extends THREE.Group {
@@ -29,10 +9,6 @@ export class ElevatorDoor extends THREE.Group {
         this._materials = materials;
         this._moveDirection = 0;
         this._time = 1;
-    }
-
-    static get DEFINITION() {
-        return _DEFINITION;
     }
 
     init() {
