@@ -65,9 +65,13 @@ var DOOM_THREE = DOOM_THREE || {};
                         var intersection = intersects[i];
                         var object = intersection.object;
                         if (object) {
-                            this._camera.getWorldDirection(force);
-                            force.negate().multiplyScalar(PUNCH_FORCE);
-                            object.takePunch(force, intersects[i].point);
+                            while (!object.takePunch && object.parent)
+                                object = object.parent;
+                            if (object.takePunch) {
+                                this._camera.getWorldDirection(force);
+                                force.negate().multiplyScalar(PUNCH_FORCE);
+                                object.takePunch(force, intersects[i].point);
+                            }
                             this.playImpactSound();
                             impacts++;
                         }
