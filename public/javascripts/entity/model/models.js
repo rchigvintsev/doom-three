@@ -94,5 +94,43 @@ export const MODELS = {
                 }
             ]
         }
+    },
+    'models/mapobjects/doors/delelev/delelevlf.lwo': {
+        cm: {
+            bodies: [
+                {
+                    mass: 0,
+                    material: 'default',
+                    shapes: [
+                        {
+                            type: 'box',
+                            width: 64,
+                            height: 10,
+                            depth: 128,
+                            offset: [-32, -1, -64]
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    'models/mapobjects/doors/delelev/delelevrt.lwo': {
+        cm: {
+            bodies: [
+                {
+                    mass: 0,
+                    material: 'default',
+                    shapes: [
+                        {
+                            type: 'box',
+                            width: 64,
+                            height: 10,
+                            depth: 128,
+                            offset: [32, -1, -64]
+                        }
+                    ]
+                }
+            ]
+        }
     }
 };
