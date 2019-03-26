@@ -10,15 +10,15 @@ import {Game} from '../../game.js';
 import {ElevatorDoor} from './elevator-door.js';
 import {SKINS} from '../../map/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
-import {MeshFactory} from '../mesh-factory.js';
 import {SoundFactory} from '../../audio/sound-factory.js';
 import {GuiFactory} from '../gui/gui-factory.js';
 import {LightFactory} from '../light/light-factory.js';
 import {MODELS} from './models.js';
+import {ModelFactory} from './model-factory.js';
 
-export class LwoModelFactory extends MeshFactory {
+export class LwoModelFactory extends ModelFactory {
     constructor(assets, flashlight, systems) {
-        super(assets, new ModelMaterialBuilder(assets, flashlight));
+        super('LWO', assets, new ModelMaterialBuilder(assets, flashlight));
         const physicsSystem = systems[Game.SystemType.PHYSICS_SYSTEM];
         this._collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
         this._soundFactory = new SoundFactory(this._assets);
@@ -29,99 +29,27 @@ export class LwoModelFactory extends MeshFactory {
         return modelName.toLowerCase().indexOf('.lwo') > 0;
     }
 
-    create(entityDef) {
-        const model = this._loadModel(entityDef);
-        if (!model) {
-            console.error('LWO model "' + entityDef.model + '" is not found for entity "' + entityDef.name + '"');
-            return null;
-        }
-
-        let mesh;
-        if (Settings.wireframeOnly)
-            mesh = this._createModelMesh(entityDef, model.geometry, this._createWireframeMaterial());
-        else {
-            const materials = [];
-            const additionalMaterials = [];
-            const guiMaterials = [];
-
-            const declaredMaterials = entityDef.materials || model.materials;
-            if (declaredMaterials) {
-                let skin = null;
-                if (entityDef.skin) {
-                    skin = SKINS[entityDef.skin];
-                    if (!skin)
-                        console.error('Skin "' + entityDef.skin + '" is not found');
-                }
-
-                for (let i = 0; i < declaredMaterials.length; i++) {
-                    let declaredMaterial = declaredMaterials[i];
-                    let materialName = typeof declaredMaterial === 'string' ? declaredMaterial
-                        : declaredMaterial.name;
-                    if (skin && skin[materialName])
-                        // Override material
-                        materialName = skin[materialName];
-                    let materialDef = MATERIALS[materialName];
-                    if (!materialDef) {
-                        console.error('Definition for material ' + materialName + ' is not found');
-                        materials.push(new THREE.MeshPhongMaterial());
-                    } else {
-                        if (materialDef.type === 'gui')
-                            guiMaterials.push({index: i, definition: materialDef});
-                        else {
-                            const regularMaterial = this._createRegularMaterial(materialName, materialDef);
-                            if (Array.isArray(regularMaterial)) {
-                                materials.push(regularMaterial[0]);
-                                additionalMaterials[i] = regularMaterial[1];
-                            } else
-                                materials.push(regularMaterial);
-                        }
-                    }
-                }
-            }
-
-            if (materials.length === 0) {
-                console.warn('Materials are not defined for LWO model ' + entityDef.model);
-                materials.push(new THREE.MeshPhongMaterial());
-            }
-
-            mesh = this._createModelMesh(entityDef, model.geometry, materials, guiMaterials);
-            if (additionalMaterials.length > 0 || Settings.showWireframe) {
-                if (additionalMaterials.length > 0)
-                    mesh.add(new THREE.SkinnedMesh(model.geometry, additionalMaterials));
-                if (Settings.showWireframe)
-                    mesh.add(new THREE.SkinnedMesh(model.geometry, this._createWireframeMaterial()));
-            }
-        }
-
-        mesh.scale.setScalar(GameWorld.WORLD_SCALE);
-        this._positionMesh(mesh, entityDef.position);
-        this._rotateMesh(mesh, entityDef.rotation);
-
-        return mesh;
-    }
-
     _loadModel(modelDef) {
         const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
-        if (model)
-            return this._lwoLoader.load(model);
-        return null;
+        return model ? this._lwoLoader.load(model) : null;
     }
 
-    _createModelMesh(modelDef, geometry, materials, guiMaterials) {
+    _createModelMesh(modelDef, model, materials) {
         if (MODELS[modelDef.model])
             modelDef = Object.assign({}, modelDef, MODELS[modelDef.model]);
+        let mesh;
         switch (modelDef.model) {
             case 'models/mapobjects/elevators/elevator.lwo': {
-                const elevator = new Elevator(geometry, materials);
+                const elevator = new Elevator(model.geometry, materials.main);
                 elevator.name = modelDef.name;
 
                 const collisionModel = this._collisionModelFactory.createCollisionModel(modelDef);
                 elevator.body = new CommonBody(collisionModel);
 
-                if (guiMaterials) {
+                if (materials.gui.length > 0) {
                     const guiFactory = new GuiFactory(this._assets);
-                    for (let guiMaterial of guiMaterials)
-                        elevator.addGui(guiFactory.create(guiMaterial.definition, geometry, guiMaterial.index));
+                    for (let guiMaterial of materials.gui)
+                        elevator.addGui(guiFactory.create(guiMaterial.definition, model.geometry, guiMaterial.index));
                 }
 
                 if (!Settings.wireframeOnly) {
@@ -138,12 +66,13 @@ export class LwoModelFactory extends MeshFactory {
                 }
 
                 elevator.init();
-                return elevator;
+                mesh = elevator;
+                break;
             }
             case 'models/mapobjects/elevators/elevator_door.lwo':
             case 'models/mapobjects/doors/delelev/delelevlf.lwo':
             case 'models/mapobjects/doors/delelev/delelevrt.lwo': {
-                const elevatorDoor = new ElevatorDoor(geometry, materials);
+                const elevatorDoor = new ElevatorDoor(model.geometry, materials.main);
                 elevatorDoor.name = modelDef.name;
                 elevatorDoor.moveDirection = modelDef.moveDirection;
                 elevatorDoor.time = modelDef.time;
@@ -154,25 +83,81 @@ export class LwoModelFactory extends MeshFactory {
                 elevatorDoor.body = new CommonBody(collisionModel);
 
                 elevatorDoor.init();
-                return elevatorDoor;
+                mesh = elevatorDoor;
+                break;
             }
             default: {
                 const group = new THREE.Group();
                 group.name = modelDef.name;
-                group.add(new THREE.SkinnedMesh(geometry, materials));
-                return group;
+                group.add(new THREE.SkinnedMesh(model.geometry, materials.main));
+                mesh = group;
             }
         }
+
+        if (materials.additional.length > 0)
+            mesh.add(new THREE.SkinnedMesh(model.geometry, materials.additional));
+
+        if (Settings.showWireframe && !Settings.wireframeOnly)
+            mesh.add(new THREE.SkinnedMesh(model.geometry, this._createWireframeMaterial()));
+
+        return mesh;
     }
 
-    // noinspection JSMethodCanBeStatic
+    _getMaterials(modelDef, model) {
+        const materials = {main: [], additional: [], gui: []};
+
+        if (Settings.wireframeOnly)
+            materials.main.push(this._createWireframeMaterial());
+        else {
+            const declaredMaterials = modelDef.materials || model.materials;
+            if (declaredMaterials) {
+                let skin = null;
+                if (modelDef.skin) {
+                    skin = SKINS[modelDef.skin];
+                    if (!skin)
+                        console.error('Skin "' + modelDef.skin + '" is not found');
+                }
+
+                for (let i = 0; i < declaredMaterials.length; i++) {
+                    let declaredMaterial = declaredMaterials[i];
+                    let materialName = typeof declaredMaterial === 'string' ? declaredMaterial : declaredMaterial.name;
+                    if (skin && skin[materialName])
+                    // Override material
+                        materialName = skin[materialName];
+                    let materialDef = MATERIALS[materialName];
+                    if (!materialDef) {
+                        console.error('Definition for material ' + materialName + ' is not found');
+                        materials.main.push(new THREE.MeshPhongMaterial());
+                    } else {
+                        if (materialDef.type === 'gui')
+                            materials.gui.push({index: i, definition: materialDef});
+                        else {
+                            const regularMaterial = this._createRegularMaterial(materialName, materialDef);
+                            if (Array.isArray(regularMaterial)) {
+                                materials.main.push(regularMaterial[0]);
+                                materials.additional[i] = regularMaterial[1];
+                            } else
+                                materials.main.push(regularMaterial);
+                        }
+                    }
+                }
+            }
+
+            if (materials.main.length === 0) {
+                console.warn('Materials are not defined for LWO model ' + modelDef.model);
+                materials.main.push(new THREE.MeshPhongMaterial());
+            }
+        }
+
+        return materials;
+    }
+
     _positionMesh(mesh, position) {
         mesh.position.fromArray(position).multiplyScalar(GameWorld.WORLD_SCALE);
         if (mesh.body)
             mesh.body.position = mesh.position;
     }
 
-    // noinspection JSMethodCanBeStatic
     _rotateMesh(mesh, rotation) {
         const ninetyDegrees = THREE.Math.degToRad(90);
         mesh.rotation.set(ninetyDegrees, 0, ninetyDegrees);
