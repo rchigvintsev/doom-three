@@ -8,13 +8,13 @@ import {LwoModelFactory} from './entity/model/lwo-model-factory.js';
 import {LightFactory} from './entity/light/light-factory.js';
 import {MATERIALS} from './material/materials.js';
 import {Weapons} from './player/weapon/weapons.js';
-import {Flashlight} from './player/weapon/flashlight.js';
 import {Player} from './player/player.js';
 import {PlayerBody} from './physics/player-body.js';
 import {CollisionModelFactory} from './physics/collision-model-factory.js';
 import {Settings} from './settings.js';
 import {TriggerFactory} from './entity/trigger/trigger-factory.js';
 import {SoundFactory} from './audio/sound-factory.js';
+import {GuiFactory} from './entity/gui/gui-factory.js';
 
 export class GameWorldBuilder {
     constructor(camera, scene, systems) {
@@ -27,30 +27,23 @@ export class GameWorldBuilder {
         const map = assets[AssetLoader.AssetType.MAPS][mapName];
         const gameWorld = new GameWorld(map.player.position, map.player.rotation);
 
+        const factories = new Factories(this.systems, assets);
+        const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
+
         if (map.skybox && !Settings.wireframeOnly)
-            this.scene.add(new SkyboxBuilder({assets: assets}).build(map.skybox));
+            this.scene.add(new SkyboxBuilder().build(assets, map.skybox));
 
-        const weapons = new WeaponBuilder({
-            camera: this.camera,
-            systems: this.systems,
-            world: gameWorld,
-            assets: assets
-        }).build();
+        const weapons = new WeaponBuilder(this).build(gameWorld, factories);
 
-        const player = new PlayerBuilder({systems: this.systems, assets: assets, weapons: weapons}).build();
-        this.systems[Game.SystemType.PHYSICS_SYSTEM].registerBody(player.body);
+        const player = new PlayerBuilder().build(assets, factories, weapons);
+        physicsSystem.registerBody(player.body);
         const attachedMeshes = player.body.collisionModel.attachedMeshes;
         if (attachedMeshes.length > 0)
             this.scene.add.apply(this.scene, attachedMeshes);
         gameWorld.player = player;
         this.scene.add(player);
 
-        const areas = new AreaBuilder({
-            systems: this.systems,
-            assets: assets,
-            flashlight: weapons[Flashlight.definition.name]
-        }).build(map.areas);
-
+        const areas = new AreaBuilder().build(factories, map.areas);
         for (let i = 0; i < areas.length; i++) {
             const area = areas[i];
 
@@ -59,7 +52,7 @@ export class GameWorldBuilder {
                 this.addObjectToScene(surface);
                 gameWorld.currentArea.add(surface);
                 if (surface.body)
-                    this.systems[Game.SystemType.PHYSICS_SYSTEM].registerBody(surface.body);
+                    physicsSystem.registerBody(surface.body);
             }
 
             for (let i = 0; i < area.lights.length; i++) {
@@ -73,7 +66,7 @@ export class GameWorldBuilder {
                 const model = area.models[i];
                 this.addObjectToScene(model);
                 if (model.body)
-                    this.systems[Game.SystemType.PHYSICS_SYSTEM].registerBody(model.body);
+                    physicsSystem.registerBody(model.body);
                 gameWorld.currentArea.add(model);
             }
 
@@ -84,7 +77,7 @@ export class GameWorldBuilder {
         }
 
         if (map.lights && !Settings.wireframeOnly) {
-            const lights = new LightBuilder(assets).build(map.lights);
+            const lights = new LightBuilder().build(factories, map.lights);
             for (let i = 0; i < lights.length; i++) {
                 const light = lights[i];
                 this.addObjectToScene(light.light);
@@ -94,12 +87,12 @@ export class GameWorldBuilder {
         }
 
         if (map.triggers) {
-            const triggers = new TriggerBuilder(assets).build(map.triggers);
+            const triggers = new TriggerBuilder().build(factories, map.triggers);
             for (let i = 0; i < triggers.length; i++)
                 gameWorld.addTrigger(triggers[i])
         }
 
-        this.createTestBoxes(gameWorld);
+        this.createTestBoxes(factories, gameWorld);
 
         return gameWorld;
     }
@@ -115,16 +108,15 @@ export class GameWorldBuilder {
 
     // ========== Temporary code ==========
 
-    createTestBoxes(gameWorld) {
-        const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
-        const collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
-
+    createTestBoxes(factories, gameWorld) {
         const boxSize = 25;
         const geometry = new THREE.BoxGeometry(
             boxSize * GameWorld.WORLD_SCALE,
             boxSize * GameWorld.WORLD_SCALE,
             boxSize * GameWorld.WORLD_SCALE
         );
+
+        const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
 
         const boxes = [];
         for (let i = 0; i < 3; i++) {
@@ -134,7 +126,7 @@ export class GameWorldBuilder {
             boxes[i] = new THREE.Mesh(geometry, material);
             this.scene.add(boxes[i]);
 
-            const cm = collisionModelFactory.createCollisionModel({
+            const cm = factories.collisionModelFactory.createCollisionModel({
                 material: 'test_box',
                 cm: {
                     bodies: [
@@ -174,11 +166,7 @@ export class GameWorldBuilder {
 }
 
 class SkyboxBuilder {
-    constructor(context) {
-        this.context = context;
-    }
-
-    build(skybox) {
+    build(assets, skybox) {
         const skyboxSize = skybox.size * GameConstants.WORLD_SCALE;
         const geometry = new THREE.BoxGeometry(skyboxSize, skyboxSize, skyboxSize);
 
@@ -188,7 +176,7 @@ class SkyboxBuilder {
             return;
         }
 
-        const textures = this.context.assets[AssetLoader.AssetType.TEXTURES];
+        const textures = assets[AssetLoader.AssetType.TEXTURES];
         const images = [];
         ['_right', '_left', '_up', '_down', '_forward', '_back'].forEach(function (postfix) {
             const texture = textures[materialDef.cubeMap + postfix];
@@ -218,28 +206,26 @@ class SkyboxBuilder {
 }
 
 class WeaponBuilder {
-    constructor(context) {
-        this.context = context;
-        this.md5ModelFactory = new Md5ModelFactory(context.assets);
+    constructor($this) {
+        this._$this = $this;
     }
 
-    build() {
+    build(gameWorld, factories) {
+        const $this = this._$this;
         const weapons = {};
-        const animationSystem = this.context.systems[Game.SystemType.ANIMATION_SYSTEM];
-        const soundFactory = new SoundFactory(this.context.assets);
-
-        for (let wi = 0; wi < Weapons.length; wi++) {
-            const weaponClass = Weapons[wi];
+        for (let i = 0; i < Weapons.length; i++) {
+            const weaponClass = Weapons[i];
             const weaponDef = weaponClass.definition;
 
-            const weaponModel = this.md5ModelFactory.create(weaponDef);
+            const weaponModel = factories.md5ModelFactory.create(weaponDef);
 
             const animationMixer = new THREE.AnimationMixer(weaponModel);
+            const animationSystem = $this.systems[Game.SystemType.ANIMATION_SYSTEM];
             animationSystem.registerAnimationMixer(animationMixer);
 
-            const weaponSounds = soundFactory.createSounds(weaponDef);
+            const weaponSounds = factories.soundFactory.createSounds(weaponDef);
 
-            const args = [null, weaponModel, animationMixer, weaponSounds, this.context.world, this.context.camera];
+            const args = [null, weaponModel, animationMixer, weaponSounds, gameWorld, $this.camera];
             weapons[weaponDef.name] = new (Function.prototype.bind.apply(weaponClass, args));
         }
         return weapons;
@@ -247,39 +233,28 @@ class WeaponBuilder {
 }
 
 class PlayerBuilder {
-    constructor(context) {
-        this.context = context;
-    }
+    build(assets, factories, weapons) {
+        const sounds = factories.soundFactory.createSounds(Player.definition);
 
-    build() {
-        const soundFactory = new SoundFactory(this.context.assets);
-        const sounds = soundFactory.createSounds(Player.definition);
-
-        const physicsSystem = this.context.systems[Game.SystemType.PHYSICS_SYSTEM];
-        const collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
-        const collisionModel = collisionModelFactory.createCollisionModel(Player.definition);
+        const collisionModel = factories.collisionModelFactory.createCollisionModel(Player.definition);
         const body = new PlayerBody(collisionModel);
 
-        return new Player(this.context.weapons, sounds, body);
+        return new Player(weapons, sounds, body);
     }
 }
 
 class AreaBuilder {
-    constructor(context) {
-        this.context = context;
-    }
-
-    build(areas) {
+    build(factories, areas) {
         const result = [];
-        const surfaceBuilder = new SurfaceBuilder(this.context);
+        const surfaceBuilder = new SurfaceBuilder();
         for (let ai = 0; ai < areas.length; ai++) {
             result.push({surfaces: [], lights: [], models: []});
             const area = areas[ai];
-            result[ai].surfaces = surfaceBuilder.build(area.surfaces);
+            result[ai].surfaces = surfaceBuilder.build(factories, area.surfaces);
             if (area.lights && !Settings.wireframeOnly)
-                result[ai].lights = new LightBuilder().build(area.lights);
+                result[ai].lights = new LightBuilder().build(factories, area.lights);
             if (area.models)
-                result[ai].models = new ModelBuilder(this.context).build(area.models);
+                result[ai].models = new ModelBuilder().build(factories, area.models);
             if (area.boundingBox && Settings.renderBoundingBoxes)
                 result[ai].boundingBox = AreaBuilder.createBoundingBox(area.boundingBox);
         }
@@ -324,16 +299,10 @@ class AreaBuilder {
 }
 
 class SurfaceBuilder {
-    constructor(context) {
-        const physicsSystem = context.systems[Game.SystemType.PHYSICS_SYSTEM];
-        this.collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
-        this.surfaceFactory = new SurfaceFactory(context.assets, context.flashlight, this.collisionModelFactory);
-    }
-
-    build(surfaces) {
+    build(factories, surfaces) {
         const result = [];
         for (let i = 0; i < surfaces.length; i++) {
-            const surface = this.surfaceFactory.create(surfaces[i]);
+            const surface = factories.surfaceFactory.create(surfaces[i]);
             if (surfaces[i].position)
                 surface.position.fromArray(surfaces[i].position).multiplyScalar(GameConstants.WORLD_SCALE);
             result.push(surface);
@@ -343,37 +312,28 @@ class SurfaceBuilder {
 }
 
 class LightBuilder {
-    constructor(assets) {
-        this.lightFactory = new LightFactory(assets);
-    }
-
-    build(lights) {
+    build(factories, lights) {
         const result = [];
         for (let i = 0; i < lights.length; i++) {
             result.push({});
             const lightDef = lights[i];
-            result[i].light = this.lightFactory.create(lightDef);
+            result[i].light = factories.lightFactory.create(lightDef);
             if (Settings.showLightSphere)
-                result[i].lightSphere = this.lightFactory.createLightSphere(lightDef);
+                result[i].lightSphere = factories.lightFactory.createLightSphere(lightDef);
         }
         return result;
     }
 }
 
 class ModelBuilder {
-    constructor(context) {
-        this.md5ModelFactory = new Md5ModelFactory(context.assets, context.flashlight);
-        this.lwoModelFactory = new LwoModelFactory(context.assets, context.flashlight, context.systems);
-    }
-
-    build(models) {
+    build(factories, models) {
         const result = [];
         for (let i = 0; i < models.length; i++) {
             const modelDef = models[i];
             if (Md5ModelFactory.isMD5Model(modelDef.model))
-                result.push(this.md5ModelFactory.create(modelDef));
+                result.push(factories.md5ModelFactory.create(modelDef));
             else if (LwoModelFactory.isLWOModel(modelDef.model))
-                result.push(this.lwoModelFactory.create(modelDef));
+                result.push(factories.lwoModelFactory.create(modelDef));
             else
                 console.error("Model " + modelDef.model + " is not supported");
         }
@@ -382,14 +342,55 @@ class ModelBuilder {
 }
 
 class TriggerBuilder {
-    constructor(assets) {
-        this._triggerFactory = new TriggerFactory(assets);
-    }
-
-    build(triggers) {
+    build(factories, triggers) {
         const result = [];
         for (let i = 0; i < triggers.length; i++)
-            result.push(this._triggerFactory.create(triggers[i]));
+            result.push(factories.triggerFactory.create(triggers[i]));
         return result;
+    }
+}
+
+class Factories {
+    constructor(systems, assets) {
+        this._lightFactory = new LightFactory(assets);
+        this._soundFactory = new SoundFactory(assets);
+        this._triggerFactory = new TriggerFactory(assets);
+        this._guiFactory = new GuiFactory(assets);
+        this._collisionModelFactory = new CollisionModelFactory(systems);
+        this._surfaceFactory = new SurfaceFactory(assets, systems);
+        this._md5ModelFactory = new Md5ModelFactory(assets);
+        this._lwoModelFactory = new LwoModelFactory(assets, systems);
+    }
+
+    get lightFactory() {
+        return this._lightFactory;
+    }
+
+    get soundFactory() {
+        return this._soundFactory;
+    }
+
+    get guiFactory() {
+        return this._guiFactory;
+    }
+
+    get triggerFactory() {
+        return this._triggerFactory;
+    }
+
+    get collisionModelFactory() {
+        return this._collisionModelFactory;
+    }
+
+    get surfaceFactory() {
+        return this._surfaceFactory;
+    }
+
+    get md5ModelFactory() {
+        return this._md5ModelFactory;
+    }
+
+    get lwoModelFactory() {
+        return this._lwoModelFactory;
     }
 }

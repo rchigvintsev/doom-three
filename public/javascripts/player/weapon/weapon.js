@@ -209,6 +209,7 @@ var DOOM_THREE = DOOM_THREE || {};
         onAnimationStarted: function (e) {
             if (e.action === this._actions['raise'] && this._enabled) {
                 this.visible = true;
+                this._onShow();
                 this.dispatchEvent({type: 'enabled'});
             }
         },
@@ -216,8 +217,17 @@ var DOOM_THREE = DOOM_THREE || {};
         onAnimationFinished: function (e) {
             if (e.action === this._actions['lower'] && !this._enabled) {
                 this.visible = false;
+                this._onHide();
                 this.dispatchEvent({type: 'disabled'});
             }
+        },
+
+        _onShow: function () {
+            // Override in subclasses
+        },
+
+        _onHide: function () {
+            // Override in subclasses
         }
     });
 

@@ -54,6 +54,8 @@ var DOOM_THREE = DOOM_THREE || {};
         this._wooshSounds = sounds.woosh;
     };
 
+    DT.Flashlight.visible = false;
+
     DT.Flashlight.prototype = inherit(Weapon, {
         constructor: DT.Flashlight,
 
@@ -255,6 +257,14 @@ var DOOM_THREE = DOOM_THREE || {};
                 wooshSound.play(100);
                 this._wooshSound = wooshSound;
             }
+        },
+
+        _onShow: function () {
+            DT.Flashlight.visible = true;
+        },
+
+        _onHide: function () {
+            DT.Flashlight.visible = false;
         }
     });
 

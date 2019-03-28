@@ -7,8 +7,8 @@ import {ModelFactory} from './model-factory.js';
 import {GameWorld} from '../../game-world.js';
 
 export class Md5ModelFactory extends ModelFactory {
-    constructor(assets, flashlight) {
-        super('MD5', assets, new Md5ModelMaterialBuilder(assets, flashlight));
+    constructor(assets) {
+        super('MD5', assets, new Md5ModelMaterialBuilder(assets));
         this.md5Loader = new MD5Loader();
     }
 

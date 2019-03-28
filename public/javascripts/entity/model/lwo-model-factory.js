@@ -5,28 +5,38 @@ import {MATERIALS} from '../../material/materials.js';
 import {GameWorld} from '../../game-world.js';
 import {Elevator} from './elevator.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
-import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
-import {Game} from '../../game.js';
 import {ElevatorDoor} from './elevator-door.js';
 import {SKINS} from '../../map/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
-import {SoundFactory} from '../../audio/sound-factory.js';
-import {GuiFactory} from '../gui/gui-factory.js';
-import {LightFactory} from '../light/light-factory.js';
 import {MODELS} from './models.js';
 import {ModelFactory} from './model-factory.js';
+import {GameConstants} from '../../doom-three.js';
+import {LightFactory} from '../light/light-factory.js';
+import {SoundFactory} from '../../audio/sound-factory.js';
+import {SurfaceFactory} from '../surface/surface-factory.js';
+import {GuiFactory} from '../gui/gui-factory.js';
+import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 
 export class LwoModelFactory extends ModelFactory {
-    constructor(assets, flashlight, systems) {
-        super('LWO', assets, new ModelMaterialBuilder(assets, flashlight));
-        const physicsSystem = systems[Game.SystemType.PHYSICS_SYSTEM];
-        this._collisionModelFactory = new CollisionModelFactory(physicsSystem.materials);
-        this._soundFactory = new SoundFactory(this._assets);
+    constructor(assets, systems) {
+        super('LWO', assets, new ModelMaterialBuilder(assets));
+        this._lightFactory = new LightFactory(assets);
+        this._soundFactory = new SoundFactory(assets);
+        this._surfaceFactory = new SurfaceFactory(assets, systems);
+        this._guiFactory = new GuiFactory(assets);
+        this._collisionModelFactory = new CollisionModelFactory(systems);
         this._lwoLoader = new LWOLoader();
     }
 
     static isLWOModel(modelName) {
         return modelName.toLowerCase().indexOf('.lwo') > 0;
+    }
+
+
+    create(entityDef) {
+        const modelMesh = super.create(entityDef);
+        this._bindSurfaces(modelMesh, entityDef.surfaces);
+        return modelMesh;
     }
 
     _loadModel(modelDef) {
@@ -46,20 +56,19 @@ export class LwoModelFactory extends ModelFactory {
                 const collisionModel = this._collisionModelFactory.createCollisionModel(modelDef);
                 elevator.body = new CommonBody(collisionModel);
 
-                if (materials.gui.length > 0) {
-                    const guiFactory = new GuiFactory(this._assets);
-                    for (let guiMaterial of materials.gui)
-                        elevator.addGui(guiFactory.create(guiMaterial.definition, model.geometry, guiMaterial.index));
-                }
+                if (materials.gui.length > 0)
+                    for (let guiMaterial of materials.gui) {
+                        const gui = this._guiFactory.create(guiMaterial.definition, model.geometry, guiMaterial.index);
+                        elevator.addGui(gui);
+                    }
 
                 if (!Settings.wireframeOnly) {
-                    const lightFactory = new LightFactory(this._assets);
                     for (let i = 0; i < modelDef.lights.length; i++) {
                         const lightDef = modelDef.lights[i];
-                        const light = lightFactory.create(lightDef, false);
+                        const light = this._lightFactory.create(lightDef, false);
                         elevator.add(light);
                         if (Settings.showLightSphere) {
-                            const lightSphere = lightFactory.createLightSphere(lightDef, false);
+                            const lightSphere = this._lightFactory.createLightSphere(lightDef, false);
                             elevator.add(lightSphere);
                         }
                     }
@@ -168,5 +177,19 @@ export class LwoModelFactory extends ModelFactory {
 
         if (mesh.body)
             mesh.body.rotation = mesh.rotation;
+    }
+
+    _bindSurfaces(mesh, surfaces) {
+        if (!surfaces)
+            return;
+        mesh.updateMatrixWorld();
+        const v = new THREE.Vector3();
+        for (let surfaceDef of surfaces) {
+            const surface = this._surfaceFactory.create(surfaceDef, false);
+            v.fromArray(surfaceDef.position).multiplyScalar(GameConstants.WORLD_SCALE);
+            surface.position.copy(mesh.worldToLocal(v));
+            surface.rotation.x -= THREE.Math.degToRad(90);
+            mesh.add(surface);
+        }
     }
 }

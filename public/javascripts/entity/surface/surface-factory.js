@@ -5,22 +5,23 @@ import {Settings} from '../../settings.js';
 import {MATERIALS} from '../../material/materials.js';
 import {ProjectiveTextureMaterialBuilder} from '../../map/material/projective-texture-material-builder.js';
 import {MeshFactory} from '../mesh-factory.js';
+import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 
 const FALLBACK_MATERIAL_DEFINITION = {};
 
 export class SurfaceFactory extends MeshFactory {
-    constructor(assets, flashlight, collisionModelFactory) {
-        super(assets, new ProjectiveTextureMaterialBuilder(assets, flashlight));
-        this._collisionModelFactory = collisionModelFactory;
+    constructor(assets, systems) {
+        super(assets, new ProjectiveTextureMaterialBuilder(assets));
+        this._collisionModelFactory = new CollisionModelFactory(systems);
     }
 
-    create(surfaceDef) {
+    create(surfaceDef, scale=true) {
         let body = null;
         const collisionModel = this._collisionModelFactory.createCollisionModel(surfaceDef);
         if (collisionModel)
             body = new SurfaceBody(collisionModel);
 
-        let surface, geometry = this._createGeometry(surfaceDef.geometry);
+        let surface, geometry = this._createGeometry(surfaceDef.geometry, scale);
 
         if (Settings.wireframeOnly)
             surface = new Surface(geometry, this._createWireframeMaterial(), body);
@@ -40,11 +41,12 @@ export class SurfaceFactory extends MeshFactory {
         return surface;
     }
 
-    _createGeometry(geometryDef) {
+    _createGeometry(geometryDef, scale) {
         const vertices = [];
         geometryDef.vertices.forEach(function (vertex) {
             const v = new THREE.Vector3(vertex[0], vertex[1], vertex[2]);
-            v.multiplyScalar(GameWorld.WORLD_SCALE);
+            if (scale)
+                v.multiplyScalar(GameWorld.WORLD_SCALE);
             vertices.push(v);
         });
 

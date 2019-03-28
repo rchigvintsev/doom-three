@@ -1,10 +1,12 @@
 import {CollisionModel} from './collision-model.js';
 import {GameWorld} from '../game-world.js';
 import {Settings} from '../settings.js';
+import {Game} from '../game.js';
 
 export class CollisionModelFactory {
-    constructor(physicsMaterials) {
-        this.physicsMaterials = physicsMaterials;
+    constructor(systems) {
+        const physicsSystem = systems[Game.SystemType.PHYSICS_SYSTEM];
+        this.physicsMaterials = physicsSystem.materials;
     }
 
     createCollisionModel(objectDef) {

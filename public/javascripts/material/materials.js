@@ -1066,7 +1066,8 @@ export const MATERIALS = {
     'textures/decals/military_logo': {
         type: 'basic',
         transparent: true,
-        diffuseMap: 'textures/decals/military_logo'
+        diffuseMap: 'textures/decals/military_logo',
+        blending: 'additive'
     },
     'textures/base_light/striplight3_broken': {
         diffuseMap: 'textures/base_light/striplight3break_d',

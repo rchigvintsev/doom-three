@@ -2,8 +2,8 @@ import {ProjectiveTextureMaterialBuilder} from './projective-texture-material-bu
 import {AssetLoader} from '../../asset-loader.js';
 
 export class ModelMaterialBuilder extends ProjectiveTextureMaterialBuilder {
-    constructor(assets, flashlight) {
-        super(assets, flashlight);
+    constructor(assets) {
+        super(assets);
         this._tgaLoader = new THREE.TGALoader();
     }
 
@@ -63,8 +63,7 @@ export class ModelMaterialBuilder extends ProjectiveTextureMaterialBuilder {
     }
 
     newPhongMaterial() {
-        /*if (this._flashlight && this._projTexture)
-            return new DT.MeshPhongProjectiveTextureMaterial(this._flashlight, this._projTexture);*/
+        // return new DT.MeshPhongProjectiveTextureMaterial(this._projTexture);
         return super.newPhongMaterial();
     }
 }

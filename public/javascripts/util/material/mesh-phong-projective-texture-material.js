@@ -1,14 +1,13 @@
 import {inherit} from '../oop-utils.js';
 import {ShaderLib} from './shader/shader-lib.js';
+import {Flashlight} from '../../player/weapon/flashlight.js';
 
 var DOOM_THREE = DOOM_THREE || {};
 
 // Code below based on the solution proposed by StackOverflow user @Popov
 // (see https://stackoverflow.com/questions/15665074/calculating-the-position-on-spotlight-cone-in-phong-shader)
 (function (DT) {
-    DT.MeshPhongProjectiveTextureMaterial = function (flashlight, projTexture) {
-        this._flashlight = flashlight;
-
+    DT.MeshPhongProjectiveTextureMaterial = function (projTexture) {
         var phongShaderLib = THREE.ShaderLib['phong'];
         var uniforms = THREE.UniformsUtils.clone(phongShaderLib.uniforms);
         uniforms['projTex'] = {'type': 't', 'value': projTexture};
@@ -28,7 +27,7 @@ var DOOM_THREE = DOOM_THREE || {};
             var projMatrix = new THREE.Matrix4();
 
             return function () {
-                if (this._flashlight.visible) {
+                if (Flashlight.visible) {
                     this._flashlight.updateProjectionMatrix(projMatrix);
                     this.uniforms.uProjTexMatrix.value = projMatrix;
                 }
