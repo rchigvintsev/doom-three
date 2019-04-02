@@ -42,8 +42,9 @@ export class Textures {
             throw 'Unsupported TGA image type: ' + image.type;
         if (image.pixelSize !== 8 && image.pixelSize !== 24 && image.pixelSize !== 32)
             throw 'Unsupported TGA image pixel size: ' + image.pixelSize;
-        if (image.attributes > 0)
-            throw 'TGA image attributes are not supported';
+        // noinspection JSBitwiseOperatorUsage
+        if (image.attributes & (1 << 5))
+            throw 'TGA image flipping is not supported';
 
         cursor += image.commentLength;
         for (let row = image.height - 1; row >= 0; row--) {

@@ -87,17 +87,38 @@ export const MATERIALS = {
     'textures/base_floor/grill_floor5': {
         diffuseMap: 'textures/base_floor/grill_floor5_d',
         specularMap: 'textures/base_floor/grill_floor5_s',
-        normalMap: 'textures/base_floor/grill_floor5_local'
+        normalMap: {
+            name: 'textures/base_floor/grill_floor3_local+grill_floor5_b',
+            addNormals: {
+                normalMap: 'textures/base_floor/grill_floor3_local',
+                bumpMap: 'textures/base_floor/grill_floor5_b',
+                scale: 5
+            }
+        }
     },
     'textures/caves/cavwarcol1': {
         diffuseMap: 'textures/caves/cavwarcol1_d',
         specularMap: 'textures/caves/cavwarcol1_s',
-        normalMap: 'textures/caves/cavwarcol1_local'
+        normalMap: {
+            name: 'textures/caves/cavwarcol1_local+cavwarcol1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavwarcol1_local',
+                bumpMap: 'textures/caves/cavwarcol1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/mcity/mcitypipe2': {
         diffuseMap: 'textures/mcity/mcitypipe2',
         specularMap: 'textures/mcity/mcitypipe2_s',
-        normalMap: 'textures/mcity/mcitypipe2_local'
+        normalMap: {
+            name: 'textures/mcity/mcitypipe1_local+mcitypipe1_bmp',
+            addNormals: {
+                normalMap: 'textures/mcity/mcitypipe1_local',
+                bumpMap: 'textures/mcity/mcitypipe1_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/base_wall/lfwall27d': {
         diffuseMap: 'textures/base_wall/lfwall27d',
@@ -131,11 +152,25 @@ export const MATERIALS = {
     'textures/base_trim/rustrim': {
         diffuseMap: 'textures/base_trim/rustrim_d',
         specularMap: 'textures/base_trim/rustrim_s',
-        normalMap: 'textures/base_trim/textures_base_trim_rustrim_b_4'
+        normalMap: {
+            name: 'textures/base_trim/rustrim_local+rustrim_b',
+            addNormals: {
+                normalMap: 'textures/base_trim/rustrim_local',
+                bumpMap: 'textures/base_trim/rustrim_b',
+                scale: 4
+            }
+        }
     },
     'textures/outside/outerpipe': {
         diffuseMap: 'textures/outside/outerpipe_d',
-        normalMap: 'textures/outside/outerpipe_local'
+        normalMap: {
+            name: 'textures/outside/outerpipe_local+outerpipe_bmp',
+            addNormals: {
+                normalMap: 'textures/outside/outerpipe_local',
+                bumpMap: 'textures/outside/outerpipe_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/base_floor/a_sofloor1_d01a': {
         diffuseMap: 'textures/base_floor/a_sofloor1_d01a',
@@ -144,11 +179,25 @@ export const MATERIALS = {
     },
     'textures/outside/outfactory8': {
         diffuseMap: 'textures/outside/outfactory8_d',
-        normalMap: 'textures/outside/textures_outside_outfactory8_bmp_4'
+        normalMap: {
+            name: 'textures/outside/outfactory8_local+outfactory8_bmp',
+            addNormals: {
+                normalMap: 'textures/outside/outfactory8_local',
+                bumpMap: 'textures/outside/outfactory8_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/outside/outfactory7': {
         diffuseMap: 'textures/outside/outfactory7_d',
-        normalMap: 'textures/outside/textures_outside_outfactory7_bmp_4'
+        normalMap: {
+            name: 'textures/outside/outfactory7_local+outfactory7_bmp',
+            addNormals: {
+                normalMap: 'textures/outside/outfactory7_local',
+                bumpMap: 'textures/outside/outfactory7_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/decals/a_pipecap2a_d': {
         diffuseMap: 'textures/decals/a_pipecap2a_d',
@@ -160,7 +209,14 @@ export const MATERIALS = {
     'textures/base_wall/a_rib_panel_04_fin': {
         diffuseMap: 'textures/base_wall/a_rib_panel_d04_fin',
         specularMap: 'textures/base_wall/a_rib_panel_s04_fin',
-        normalMap: 'textures/base_wall/a_rib_panel_local_fin'
+        normalMap: {
+            name: 'textures/base_wall/a_rib_panel_local_fin+a_rib_panel_b04_fin',
+            addNormals: {
+                normalMap: 'textures/base_wall/a_rib_panel_local_fin',
+                bumpMap: 'textures/base_wall/a_rib_panel_b04_fin',
+                scale: 2
+            }
+        }
     },
     'textures/base_trim/dangertrim01': {
         diffuseMap: 'textures/base_trim/dangertrim_d',
@@ -184,7 +240,14 @@ export const MATERIALS = {
     },
     'textures/rock/skysandnew': {
         diffuseMap: 'textures/rock/skysand2',
-        normalMap: 'textures/rock/textures_rock_skysand2_bmp_4'
+        normalMap: {
+            name: 'textures/rock/skysand1_local+skysand2_bmp',
+            addNormals: {
+                normalMap: 'textures/rock/skysand1_local',
+                bumpMap: 'textures/rock/skysand2_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/enpro/enwall16c': {
         diffuseMap: 'textures/enpro/enwall16c',
@@ -197,7 +260,14 @@ export const MATERIALS = {
     },
     'textures/outside/outfactory1': {
         diffuseMap: 'textures/outside/outfactory1_d',
-        normalMap: 'textures/outside/textures_outside_outfactory1_bmp_4'
+        normalMap: {
+            name: 'textures/outside/outfactory1_local+outfactory1_bmp',
+            addNormals: {
+                normalMap: 'textures/outside/outfactory1_local',
+                bumpMap: 'textures/outside/outfactory1_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/base_trim/gotrustcol1': {
         diffuseMap: 'textures/base_trim/gotrustcol1_d',
@@ -207,17 +277,38 @@ export const MATERIALS = {
     'textures/base_floor/a_ghoceiling1_04': {
         diffuseMap: 'textures/base_floor/a_ghoceiling1_d04',
         specularMap: 'textures/base_floor/a_ghoceiling1_s04',
-        normalMap: 'textures/base_floor/a_ghoceiling1_local'
+        normalMap: {
+            name: 'textures/base_floor/a_ghoceiling1_local+a_ghoceiling1_b04',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_ghoceiling1_local',
+                bumpMap: 'textures/base_floor/a_ghoceiling1_b04',
+                scale: 2
+            }
+        }
     },
     'textures/caves/metalswatch1': {
         diffuseMap: 'textures/caves/metalswatch1_d',
         specularMap: 'textures/caves/metalswatch1_s',
-        normalMap: 'textures/caves/metalswatch1_local'
+        normalMap: {
+            name: 'textures/caves/metalswatch1_local+metalswatch1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/metalswatch1_local',
+                bumpMap: 'textures/caves/metalswatch1_bmp',
+                scale: 3
+            }
+        }
     },
     'textures/base_trim/a_bluetex4j_01': {
         diffuseMap: 'textures/base_trim/a_bluetex4j_d01',
         specularMap: 'textures/base_trim/a_bluetex4j_s01',
-        normalMap: 'textures/base_trim/textures_base_trim_a_bluetex4j_b01_3'
+        normalMap: {
+            name: 'textures/base_trim/a_bluetex4j_local+a_bluetex4j_b01',
+            addNormals: {
+                normalMap: 'textures/base_trim/a_bluetex4j_local',
+                bumpMap: 'textures/base_trim/a_bluetex4j_b01',
+                scale: 3
+            }
+        }
     },
     'textures/enpro/enwall8a3': {
         diffuseMap: 'textures/enpro/enwall8a3',
@@ -246,7 +337,14 @@ export const MATERIALS = {
     'textures/base_floor/a_sflgrate2_01_fin': {
         diffuseMap: 'textures/base_floor/a_sflgrate2_d01_fin',
         specularMap: 'textures/base_floor/a_sflgrate2_s01_fin',
-        normalMap: 'textures/base_floor/a_sflgrate2_local01_fin'
+        normalMap: {
+            name: 'textures/base_floor/a_sflgrate2_local01_fin+a_sflgrate2_b01_fin',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_sflgrate2_local01_fin',
+                bumpMap: 'textures/base_floor/a_sflgrate2_b01_fin',
+                scale: 3
+            }
+        }
     },
     'textures/enpro/enwall13a': {
         diffuseMap: 'textures/enpro/enwall13a',
@@ -307,20 +405,41 @@ export const MATERIALS = {
     'textures/caves/cavfgirder1': {
         diffuseMap: 'textures/caves/cavfgirder1_d',
         specularMap: 'textures/caves/cavfgirder1_s',
-        normalMap: 'textures/caves/textures_caves_cavfgirder1_bmp_1'
+        normalMap: {
+            name: 'textures/caves/cavfgirder1_local+cavfgirder1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavfgirder1_local',
+                bumpMap: 'textures/caves/cavfgirder1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/decals/hangingwires2': {
         diffuseMap: 'textures/decals/hangingwires2_d',
         specularMap: 'textures/decals/hangingwires2_s',
-        normalMap: 'textures/decals/hangingwires2_local',
         transparent: true,
-        depthWrite: false
+        depthWrite: false,
+        normalMap: {
+            name: 'textures/decals/hangingwires_local+hangingwires2_b',
+            addNormals: {
+                normalMap: 'textures/decals/hangingwires_local',
+                bumpMap: 'textures/decals/hangingwires2_b',
+                scale: 2
+            }
+        }
     },
     'textures/base_trim/a_sgirder2cav': {
         diffuseMap: 'textures/base_trim/a_sgirder2cav_d',
         specularMap: 'textures/base_trim/a_sgirder2cav_s',
-        normalMap: 'textures/base_trim/textures_base_trim_a_sgirder2cav_bmp_4',
-        transparent: true
+        transparent: true,
+        normalMap: {
+            name: 'textures/base_trim/a_sgirder2_local+a_sgirder2cav_bmp',
+            addNormals: {
+                normalMap: 'textures/base_trim/a_sgirder2_local',
+                bumpMap: 'textures/base_trim/a_sgirder2cav_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/object/a_metalshelve_side': {
         diffuseMap: 'textures/object/a_metalshelve_side_d',
@@ -330,7 +449,14 @@ export const MATERIALS = {
     'textures/caves/cavwafpanel1': {
         diffuseMap: 'textures/caves/cavwafpanel1_d',
         specularMap: 'textures/caves/cavwafpanel1_s',
-        normalMap: 'textures/caves/cavwafpanel1_local'
+        normalMap: {
+            name: 'textures/caves/cavwafpanel1_local+cavwafpanel1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavwafpanel1_local',
+                bumpMap: 'textures/caves/cavwafpanel1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/base_wall/a_outfactory9_d01': {
         diffuseMap: 'textures/base_wall/a_outfactory9_d01',
@@ -346,7 +472,14 @@ export const MATERIALS = {
     'textures/base_floor/floorvent02': {
         diffuseMap: 'textures/base_floor/floorvent02_d',
         specularMap: 'textures/morgue/floorvent01_s',
-        normalMap: 'textures/morgue/floorvent01_local'
+        normalMap: {
+            name: 'textures/morgue/floorvent01_local+floorvent01_h',
+            addNormals: {
+                normalMap: 'textures/morgue/floorvent01_local',
+                bumpMap: 'textures/morgue/floorvent01_h',
+                scale: 3
+            }
+        }
     },
     'textures/enpro/enwall9': {
         diffuseMap: 'textures/enpro/enwall9',
@@ -365,7 +498,14 @@ export const MATERIALS = {
     'textures/base_floor/a_sflgrate2diag': {
         diffuseMap: 'textures/base_floor/a_sflgrate2diag_d',
         specularMap: 'textures/base_floor/a_sflgrate2diag_s',
-        normalMap: 'textures/base_floor/textures_base_floor_a_sflgrate2diag_b_3'
+        normalMap: {
+            name: 'textures/base_floor/a_sflgrate2diag_local+a_sflgrate2diag_b',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_sflgrate2diag_local',
+                bumpMap: 'textures/base_floor/a_sflgrate2diag_b',
+                scale: 3
+            }
+        }
     },
     'textures/outside/outfactory3': {
         diffuseMap: 'textures/outside/outfactory3_d',
@@ -394,7 +534,14 @@ export const MATERIALS = {
     'textures/caves/cavwafpanel1win': {
         diffuseMap: 'textures/caves/cavwafpanel1win_d',
         specularMap: 'textures/caves/cavwafpanel1win_s',
-        normalMap: 'textures/caves/cavwafpanel1win_local'
+        normalMap: {
+            name: 'textures/caves/cavwafpanel1win_local+cavwafpanel1win_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavwafpanel1win_local',
+                bumpMap: 'textures/caves/cavwafpanel1win_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/object/tecpipe2sil': {
         diffuseMap: 'textures/object/tecpipe2sil_d',
@@ -418,7 +565,14 @@ export const MATERIALS = {
     'textures/caves/cavpanel1': {
         diffuseMap: 'textures/caves/cavpanel1_d',
         specularMap: 'textures/caves/cavpanel1_s',
-        normalMap: 'textures/caves/textures_caves_cavpanel1_bmp_1'
+        normalMap: {
+            name: 'textures/caves/cavpanel1_local+cavpanel1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavpanel1_local',
+                bumpMap: 'textures/caves/cavpanel1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/enpro/enwall11': {
         diffuseMap: 'textures/enpro/enwall11',
@@ -438,7 +592,14 @@ export const MATERIALS = {
     'textures/base_light/tltrim': {
         diffuseMap: 'textures/base_light/tltrim_d',
         specularMap: 'textures/base_light/trimlightrim_s',
-        normalMap: 'textures/base_light/textures_base_light_tltrim_b_3'
+        normalMap: {
+            name: 'textures/base_light/trimlightrim_local+tltrim_b',
+            addNormals: {
+                normalMap: 'textures/base_light/trimlightrim_local',
+                bumpMap: 'textures/base_light/tltrim_b',
+                scale: 3
+            }
+        }
     },
     'textures/object/a_tecpipe1red': {
         diffuseMap: 'textures/object/a_tecpipe1red_d',
@@ -448,7 +609,14 @@ export const MATERIALS = {
     'textures/caves/cavgrate1dust': {
         diffuseMap: 'textures/caves/cavgrate1dust_d',
         specularMap: 'textures/caves/cavgrate1dust_s',
-        normalMap: 'textures/caves/textures_caves_cavgrate1_bmp_1'
+        normalMap: {
+            name: 'textures/caves/cavgrate1_local+cavgrate1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavgrate1_local',
+                bumpMap: 'textures/caves/cavgrate1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/decals/lightgrate': {
         diffuseMap: 'textures/decals/lightgrate_d',
@@ -460,7 +628,14 @@ export const MATERIALS = {
     'textures/base_floor/a_diafloor_1b_fin': {
         diffuseMap: 'textures/base_floor/a_diafloor_d1b_fin',
         specularMap: 'textures/base_floor/a_diafloor_s1_fin',
-        normalMap: 'textures/base_floor/a_diafloor_local_fin'
+        normalMap: {
+            name: 'textures/base_floor/a_diafloor_local_fin+a_diafloor_b1_fin',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_diafloor_local_fin',
+                bumpMap: 'textures/base_floor/a_diafloor_b1_fin',
+                scale: 4
+            }
+        }
     },
     'textures/base_wall/lfwall19': {
         diffuseMap: 'textures/base_wall/lfwall19',
@@ -470,12 +645,26 @@ export const MATERIALS = {
     'textures/base_trim/a_bluetex3k2_01': {
         diffuseMap: 'textures/base_trim/a_bluetex3k2_d01',
         specularMap: 'textures/base_trim/a_bluetex3k2_s01',
-        normalMap: 'textures/base_trim/textures_base_trim_a_bluetex3k2_b01_3'
+        normalMap: {
+            name: 'textures/base_trim/a_bluetex3k2_local+a_bluetex3k2_b01',
+            addNormals: {
+                normalMap: 'textures/base_trim/a_bluetex3k2_local',
+                bumpMap: 'textures/base_trim/a_bluetex3k2_b01',
+                scale: 3
+            }
+        }
     },
     'textures/base_floor/a_coldstairs_02_fin': {
         diffuseMap: 'textures/base_floor/a_coldstairs_d02_fin',
         specularMap: 'textures/base_floor/a_coldstairs_s02_fin',
-        normalMap: 'textures/base_floor/textures_base_floor_a_coldstairs_b02_fin_3'
+        normalMap: {
+            name: 'textures/base_floor/a_coldstairs_local01+a_coldstairs_b02_fin',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_coldstairs_local01',
+                bumpMap: 'textures/base_floor/a_coldstairs_b02_fin',
+                scale: 3
+            }
+        }
     },
     'textures/object/a_conpanel6blk': {
         diffuseMap: 'textures/object/a_conpanel6blk_d',
@@ -512,21 +701,42 @@ export const MATERIALS = {
     'textures/base_floor/a_skpanel5_03': {
         diffuseMap: 'textures/base_floor/a_skpanel5_d03',
         specularMap: 'textures/base_floor/a_skpanel5_s03',
-        normalMap: 'textures/base_floor/a_skpanel5_local'
+        normalMap: {
+            name: 'textures/base_floor/a_skpanel5_local+a_skpanel5_b03',
+            addNormals: {
+                normalMap: 'textures/base_floor/a_skpanel5_local',
+                bumpMap: 'textures/base_floor/a_skpanel5_b03',
+                scale: 2
+            }
+        }
     },
     'textures/base_light/striplight5a_ed': {
         diffuseMap: 'textures/base_light/striplight5a_d',
         specularMap: 'textures/base_light/striplight5a_s',
-        normalMap: 'textures/base_light/striplight2_local',
-        additional: 'textures/base_light/striplight5aadd'
+        additional: 'textures/base_light/striplight5aadd',
+        normalMap: {
+            name: 'textures/base_light/striplight2_local+striplight5a_b',
+            addNormals: {
+                normalMap: 'textures/base_light/striplight2_local',
+                bumpMap: 'textures/base_light/striplight5a_b',
+                scale: 3
+            }
+        }
     },
     'textures/base_floor/sflgratetrans2': {
         diffuseMap: 'textures/base_floor/sflgratetrans2_d',
         specularMap: 'textures/base_floor/sflgratetrans2_s',
-        normalMap: 'textures/base_floor/sflgratetrans1_local',
         transparent: true,
         depthWrite: false,
-        side: 'double'
+        side: 'double',
+        normalMap: {
+            name: 'textures/base_floor/sflgratetrans1_local+sflgratetrans2_b',
+            addNormals: {
+                normalMap: 'textures/base_floor/sflgratetrans1_local',
+                bumpMap: 'textures/base_floor/sflgratetrans2_b',
+                scale: 3
+            }
+        }
     },
     'textures/base_floor/a_insettrim_d01a': {
         diffuseMap: 'textures/base_floor/a_insettrim_d01a',
@@ -536,7 +746,14 @@ export const MATERIALS = {
     'textures/base_trim/stetrim2': {
         diffuseMap: 'textures/base_trim/stetrim2_d',
         specularMap: 'textures/base_trim/stetrim2_s',
-        normalMap: 'textures/base_trim/textures_base_trim_stetrim2_b_2'
+        normalMap: {
+            name: 'textures/base_trim/stetrim2_local+stetrim2_b',
+            addNormals: {
+                normalMap: 'textures/base_trim/stetrim2_local',
+                bumpMap: 'textures/base_trim/stetrim2_b',
+                scale: 2
+            }
+        }
     },
     'textures/object/metalshelve_floor': {
         diffuseMap: 'models/seneca/textures/metalshelve_floor_d',
@@ -546,12 +763,26 @@ export const MATERIALS = {
     'textures/base_wall/skpanelt2': {
         diffuseMap: 'textures/base_wall/skpanelt2',
         specularMap: 'textures/base_wall/skpanelt2_s',
-        normalMap: 'textures/base_wall/skpanelt2_local'
+        normalMap: {
+            name: 'textures/base_wall/skpanelt2_local+skpanelt2_b',
+            addNormals: {
+                normalMap: 'textures/base_wall/skpanelt2_local',
+                bumpMap: 'textures/base_wall/skpanelt2_b',
+                scale: 3
+            }
+        }
     },
     'textures/object/a_sopbox2_d01': {
         diffuseMap: 'textures/object/a_sopbox2_d01',
         specularMap: 'textures/object/a_sopbox2_s01',
-        normalMap: 'textures/object/textures_object_a_sopbox2_b01_2'
+        normalMap: {
+            name: 'textures/object/a_sopbox2_local+a_sopbox2_b01',
+            addNormals: {
+                normalMap: 'textures/object/a_sopbox2_local',
+                bumpMap: 'textures/object/a_sopbox2_b01',
+                scale: 2
+            }
+        }
     },
     'textures/base_wall/gotendo1': {
         diffuseMap: 'textures/base_wall/gotendo1_d',
@@ -576,17 +807,38 @@ export const MATERIALS = {
     'textures/base_trim/a_sfltrim7_d01': {
         diffuseMap: 'textures/base_trim/a_sfltrim7_d01',
         specularMap: 'textures/base_trim/a_sfltrim7_s01',
-        normalMap: 'textures/base_trim/textures_base_trim_a_sfltrim7_b01_2'
+        normalMap: {
+            name: 'textures/base_trim/a_sfltrim7_local+a_sfltrim7_b01',
+            addNormals: {
+                normalMap: 'textures/base_trim/a_sfltrim7_local',
+                bumpMap: 'textures/base_trim/a_sfltrim7_b01',
+                scale: 2
+            }
+        }
     },
     'textures/base_trim/sfltrim3': {
         diffuseMap: 'textures/base_trim/sfltrim3_d',
         specularMap: 'textures/base_trim/sfltrim3_s',
-        normalMap: 'textures/base_trim/textures_base_trim_sfltrim3_bmp_5'
+        normalMap: {
+            name: 'textures/base_trim/sfltrim3_local+sfltrim3_bmp',
+            addNormals: {
+                normalMap: 'textures/base_trim/sfltrim3_local',
+                bumpMap: 'textures/base_trim/sfltrim3_bmp',
+                scale: 5
+            }
+        }
     },
     'textures/base_trim/sfltrim4': {
         diffuseMap: 'textures/base_trim/sfltrim3_d',
         specularMap: 'textures/base_trim/sfltrim3_s',
-        normalMap: 'textures/base_trim/textures_base_trim_sfltrim3_bmp_5'
+        normalMap: {
+            name: 'textures/base_trim/sfltrim4_local+sfltrim3_bmp',
+            addNormals: {
+                normalMap: 'textures/base_trim/sfltrim4_local',
+                bumpMap: 'textures/base_trim/sfltrim3_bmp',
+                scale: 5
+            }
+        }
     },
     'textures/base_light/stehalllight': {
         diffuseMap: 'textures/base_light/stehalllight_d',
@@ -610,7 +862,14 @@ export const MATERIALS = {
     'models/mapobjects/guiobjects/recconpanel1/recconpanel1': {
         diffuseMap: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_d',
         specularMap: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_s',
-        normalMap: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_local'
+        normalMap: {
+            name: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_local+recconpanel1_bmp',
+            addNormals: {
+                normalMap: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_local',
+                bumpMap: 'models/mapobjects/guiobjects/recconpanel1/recconpanel1_bmp',
+                scale: 3
+            }
+        }
     },
     'textures/decals/splat2': {
         type: 'basic',
@@ -743,7 +1002,14 @@ export const MATERIALS = {
     'textures/caves/cavwarhaz1': {
         diffuseMap: 'textures/caves/cavwarhaz1_d',
         specularMap: 'textures/caves/cavwarhaz1_s',
-        normalMap: 'textures/enpro/enwall10_local'
+        normalMap: {
+            name: 'textures/caves/cavwarhaz1_local+cavwarhaz1_bmp',
+            addNormals: {
+                normalMap: 'textures/caves/cavwarhaz1_local',
+                bumpMap: 'textures/caves/cavwarhaz1_bmp',
+                scale: 1
+            }
+        }
     },
     'textures/base_door/airdoor_enpro': {
         diffuseMap: 'textures/base_door/airdoor_enpro',
@@ -753,10 +1019,17 @@ export const MATERIALS = {
     'textures/decals/pressurepanel': {
         diffuseMap: 'textures/decals/pressurepanel_d',
         specularMap: 'textures/decals/pressurepanel_s',
-        normalMap: 'textures/decals/pressurepanel_local',
         transparent: true,
         cast_shadow: false,
-        depthWrite: false
+        depthWrite: false,
+        normalMap: {
+            name: 'textures/decals/pressurepanel_local+pressurepanel_h',
+            addNormals: {
+                normalMap: 'textures/decals/pressurepanel_local',
+                bumpMap: 'textures/decals/pressurepanel_h',
+                scale: 6
+            }
+        }
     },
     'textures/decals/hangingwires2sided': {
         diffuseMap: 'textures/decals/hangingwires_d',
@@ -776,7 +1049,14 @@ export const MATERIALS = {
     'textures/base_trim/hose01': {
         diffuseMap: 'textures/base_trim/hose01_d',
         specularMap: 'textures/base_trim/hose01_s',
-        normalMap: 'textures/base_trim/hose01_local'
+        normalMap: {
+            name: 'textures/base_trim/hose01_local+hose01_b',
+            addNormals: {
+                normalMap: 'textures/base_trim/hose01_local',
+                bumpMap: 'textures/base_trim/hose01_b',
+                scale: 4
+            }
+        }
     },
     'textures/object/elec_box1': {
         diffuseMap: 'textures/base_trim/elec_box1_d',
@@ -828,7 +1108,14 @@ export const MATERIALS = {
     'textures/base_wall/bluetex1b_ed': {
         diffuseMap: 'textures/base_wall/bluetex1bdif',
         specularMap: 'textures/base_wall/bluetex1bspec',
-        normalMap: 'textures/base_wall/bluetex1blocal'
+        normalMap: {
+            name: 'textures/base_wall/bluetex1b_local+bluetex1bbmp',
+            addNormals: {
+                normalMap: 'textures/base_wall/bluetex1b_local',
+                bumpMap: 'textures/base_wall/bluetex1bbmp',
+                scale: 6
+            }
+        }
     },
     'textures/decals/labcoat': {
         diffuseMap: 'textures/decals/labcoat_d',
@@ -876,8 +1163,15 @@ export const MATERIALS = {
     'textures/base_light/striplight6_ed': {
         diffuseMap: 'textures/base_light/striplight6_d',
         specularMap: 'textures/base_light/striplight5a_s',
-        normalMap: 'textures/base_light/striplight2_local',
-        additional: 'textures/base_light/striplight6add'
+        additional: 'textures/base_light/striplight6add',
+        normalMap: {
+            name: 'textures/base_light/striplight2_local+striplight5a_b',
+            addNormals: {
+                normalMap: 'textures/base_light/striplight2_local',
+                bumpMap: 'textures/base_light/striplight5a_b',
+                scale: 2
+            }
+        }
     },
     'textures/enpro/enwall18e': {
         diffuseMap: 'textures/enpro/enwall18e',
@@ -905,7 +1199,14 @@ export const MATERIALS = {
     'textures/base_wall/a_boxpanel_06': {
         diffuseMap: 'textures/base_wall/a_boxpanel_d06',
         specularMap: 'textures/base_wall/a_boxpanel_s06',
-        normalMap: 'textures/base_wall/a_boxpanel_local06'
+        normalMap: {
+            name: 'textures/base_wall/boxpanel_local+a_boxpanel_b06',
+            addNormals: {
+                normalMap: 'textures/base_wall/boxpanel_local',
+                bumpMap: 'textures/base_wall/a_boxpanel_b06',
+                scale: 4
+            }
+        }
     },
     'textures/base_trim/a_reactorpipe_01_fin': {
         diffuseMap: 'textures/base_trim/a_reactorpipe_d01_fin',
@@ -915,10 +1216,17 @@ export const MATERIALS = {
     'textures/decals/wheel': {
         diffuseMap: 'textures/decals/wheel_d',
         specularMap: 'textures/decals/wheel_s',
-        normalMap: 'textures/decals/wheel_s',
         transparent: true,
         cast_shadow: false,
-        depthWrite: false
+        depthWrite: false,
+        normalMap: {
+            name: 'textures/decals/wheel_local+wheel_h',
+            addNormals: {
+                normalMap: 'textures/decals/wheel_local',
+                bumpMap: 'textures/decals/wheel_h',
+                scale: 6
+            }
+        }
     },
     'textures/base_light/snpanel15light': {
         diffuseMap: 'textures/base_light/snpanel15light_d',
@@ -1071,8 +1379,15 @@ export const MATERIALS = {
     },
     'textures/base_light/striplight3_broken': {
         diffuseMap: 'textures/base_light/striplight3break_d',
-        normalMap: 'textures/base_light/striplight3_local',
-        specularMap: 'textures/base_light/striplight3break_s'
+        specularMap: 'textures/base_light/striplight3break_s',
+        normalMap: {
+            name: 'textures/base_light/striplight3_local+striplight6break_b',
+            addNormals: {
+                normalMap: 'textures/base_light/striplight3_local',
+                bumpMap: 'textures/base_light/striplight6break_b',
+                scale: 2
+            }
+        }
     },
     'textures/sfx/flare': {},
     'textures/skies/desert': {
@@ -1340,7 +1655,7 @@ export const MATERIALS = {
     'textures/base_door/smdoor1b': {
         normalMap: 'textures/base_door/smdoor1a_local',
         diffuseMap: 'textures/base_door/smdoor1b',
-        specularMap	: 'textures/base_door/smdoor1b_s',
+        specularMap: 'textures/base_door/smdoor1b_s',
         specular: 0x808080
     },
     'textures/base_door/delelev1': {
@@ -1351,11 +1666,12 @@ export const MATERIALS = {
     },
     'textures/base_door/delelev2': {
         normalMap: 'textures/base_door/delelev2_local',
-        diffuseMap:	 'textures/base_door/delelev2_d',
+        diffuseMap: 'textures/base_door/delelev2_d',
         specularMap: 'textures/base_door/delelev2_s'
     },
     'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1': {
         diffuseMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
+        specularMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
         normalMap: {
             name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_local+techdrpanel1_bmp',
             addNormals: {
@@ -1363,8 +1679,6 @@ export const MATERIALS = {
                 bumpMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_bmp',
                 scale: 3
             }
-        },
-        specularMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
-        bumpMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_bmp'
+        }
     }
 };
