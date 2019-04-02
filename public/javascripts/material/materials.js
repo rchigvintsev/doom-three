@@ -1680,5 +1680,10 @@ export const MATERIALS = {
                 scale: 3
             }
         }
+    },
+    'textures/base_door/doorlight': {
+        type: 'basic',
+        diffuseMap: 'textures/base_door/doorlight_red',
+        normalMap: 'textures/base_door/doorlight_local'
     }
 };
