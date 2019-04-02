@@ -2,8 +2,8 @@ import {MeshFactory} from '../mesh-factory.js';
 import {GameWorld} from '../../game-world.js';
 
 export class ModelFactory extends MeshFactory {
-    constructor(type, assets, materialBuilder) {
-        super(assets, materialBuilder);
+    constructor(type, assetLoader, materialBuilder) {
+        super(assetLoader, materialBuilder);
         this._type = type;
     }
 

@@ -1,36 +1,19 @@
 import {MaterialBuilder} from './material-builder.js';
-import {AssetLoader} from '../../asset-loader.js';
 
 export class GuiMaterialBuilder extends MaterialBuilder {
-    constructor(assets) {
-        super(assets);
-        this._tgaLoader = new THREE.TGALoader();
+    constructor(assetLoader) {
+        super(assetLoader);
     }
 
     clone() {
-        return new GuiMaterialBuilder(this._assets);
+        return new GuiMaterialBuilder(this._assetLoader);
     }
 
-    build(name, materialDefinition) {
+    build(name, materialDef) {
         // Some textures may not be loaded in advance. We are going to load them here.
-
-        let diffuseMap = null;
-        if (materialDefinition.diffuseMap) {
-            const diffuseMapName = typeof materialDefinition.diffuseMap === 'string' ? materialDefinition.diffuseMap
-                : materialDefinition.diffuseMap.name;
-            diffuseMap = this._assets[AssetLoader.AssetType.TEXTURES][diffuseMapName];
-            if (!diffuseMap) {
-                diffuseMap = this._tgaLoader.load(diffuseMapName + '.tga');
-                if (materialDefinition.clamp)
-                    diffuseMap.wrapS = diffuseMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
-                this._assets[AssetLoader.AssetType.TEXTURES][diffuseMapName] = diffuseMap;
-            }
-        }
-
-        materialDefinition.type = 'shader'; // GUI supports only shader materials
-        const material = super.build(name, materialDefinition);
+        const diffuseMap = this._assetLoader.loadTextures(materialDef)[0];
+        materialDef.type = 'shader'; // GUI supports only shader materials
+        const material = super.build(name, materialDef);
         material.side = THREE.DoubleSide;
         if (diffuseMap)
             material.uniforms.map.value = diffuseMap;

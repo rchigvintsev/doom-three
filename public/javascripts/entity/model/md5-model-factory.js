@@ -7,8 +7,8 @@ import {ModelFactory} from './model-factory.js';
 import {GameWorld} from '../../game-world.js';
 
 export class Md5ModelFactory extends ModelFactory {
-    constructor(assets) {
-        super('MD5', assets, new Md5ModelMaterialBuilder(assets));
+    constructor(assetLoader) {
+        super('MD5', assetLoader, new Md5ModelMaterialBuilder(assetLoader));
         this.md5Loader = new MD5Loader();
     }
 
@@ -17,10 +17,10 @@ export class Md5ModelFactory extends ModelFactory {
     }
 
     _loadModel(modelDef) {
-        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
+        const model = this._assetLoader.assets[AssetLoader.AssetType.MODELS][modelDef.model];
         const animations = [];
         for (let i = 0; i < modelDef.animations.length; i++)
-            animations.push(this._assets[AssetLoader.AssetType.ANIMATIONS][modelDef.animations[i]]);
+            animations.push(this._assetLoader.assets[AssetLoader.AssetType.ANIMATIONS][modelDef.animations[i]]);
         return this.md5Loader.load(model, animations);
     }
 

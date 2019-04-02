@@ -38,11 +38,11 @@ var DOOM_THREE = DOOM_THREE || {};
         this.name = 'flashlight';
 
         // Force mesh to be always on top of other meshes
-        model.renderOrder = 999;
-        model.onBeforeRender = function (renderer, scene, camera, geometry, material) {
+        // model.renderOrder = 999;
+        /*model.onBeforeRender = function (renderer, scene, camera, geometry, material) {
             if (material.name === 'models/characters/player/arm2')
                 renderer.clearDepth();
-        };
+        };*/
 
         this.initSpotLight();
         this.applyTubeDeformToBeam();

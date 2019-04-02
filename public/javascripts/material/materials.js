@@ -9,7 +9,7 @@ export const MATERIALS = {
         side: 'double',
         depthWrite: false
     },
-    'models/items/flashlight/beam1': {
+    /*'models/items/flashlight/beam1': {
         type: 'shader',
         textures: [
             'models/items/flashlight/beam1',
@@ -22,7 +22,7 @@ export const MATERIALS = {
         transparent: true,
         side: 'double',
         depthWrite: false
-    },
+    },*/
     'models/items/flashlight/bulb': {
         type: 'basic',
         alphaMap: 'models/items/flashlight/bulb',
@@ -1353,5 +1353,18 @@ export const MATERIALS = {
         normalMap: 'textures/base_door/delelev2_local',
         diffuseMap:	 'textures/base_door/delelev2_d',
         specularMap: 'textures/base_door/delelev2_s'
+    },
+    'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1': {
+        diffuseMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
+        normalMap: {
+            name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_local+techdrpanel1_bmp',
+            addNormals: {
+                normalMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_local',
+                bumpMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_bmp',
+                scale: 3
+            }
+        },
+        specularMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
+        bumpMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_bmp'
     }
 };

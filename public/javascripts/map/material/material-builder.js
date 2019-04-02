@@ -6,12 +6,12 @@ const oneProvider = function () { return 1; };
 const noOpUpdater = function () {};
 
 export class MaterialBuilder {
-    constructor(assets) {
-        this._assets = assets;
+    constructor(assetLoader) {
+        this._assetLoader = assetLoader;
     }
 
     clone() {
-        return new MaterialBuilder(this._assets);
+        return new MaterialBuilder(this._assetLoader);
     }
 
     build(name, definition) {
@@ -41,7 +41,7 @@ export class MaterialBuilder {
         if (definition.diffuseMap) {
             const diffuseMapName = typeof definition.diffuseMap === 'string' ? definition.diffuseMap
                 : definition.diffuseMap.name;
-            let diffuseMap = this._assets[AssetLoader.AssetType.TEXTURES][diffuseMapName];
+            let diffuseMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][diffuseMapName];
             if (!diffuseMap)
                 console.error('Diffuse map ' + diffuseMapName + ' is not found');
             else {
@@ -56,7 +56,7 @@ export class MaterialBuilder {
         if (definition.normalMap) {
             const normalMapName = typeof definition.normalMap === 'string' ? definition.normalMap
                 : definition.normalMap.name;
-            let normalMap = this._assets[AssetLoader.AssetType.TEXTURES][normalMapName];
+            let normalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][normalMapName];
             if (!normalMap)
                 console.error('Normal map ' + normalMapName + ' is not found');
             else {
@@ -71,7 +71,7 @@ export class MaterialBuilder {
         if (definition.specularMap) {
             const specularMapName = typeof definition.specularMap === 'string' ? definition.specularMap
                 : definition.specularMap.name;
-            let specularMap = this._assets[AssetLoader.AssetType.TEXTURES][specularMapName];
+            let specularMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][specularMapName];
             if (!specularMap)
                 console.error('Specular map ' + specularMapName + ' is not found');
             else {
@@ -84,7 +84,7 @@ export class MaterialBuilder {
         }
 
         if (definition.alphaMap) {
-            let alphaMap = this._assets[AssetLoader.AssetType.TEXTURES][definition.alphaMap];
+            let alphaMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][definition.alphaMap];
             if (!alphaMap)
                 console.error('Alpha map ' + definition.alphaMap + ' is not found');
             else {
@@ -97,7 +97,7 @@ export class MaterialBuilder {
         }
 
         if (definition.additionalMap) {
-            let additionalMap = this._assets[AssetLoader.AssetType.TEXTURES][definition.additionalMap];
+            let additionalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][definition.additionalMap];
             if (!additionalMap)
                 console.error('Additional map ' + definition.additionalMap + ' is not found');
             else {
@@ -222,9 +222,9 @@ export class MaterialBuilder {
             let texture;
 
             if (typeof textureDefinition === 'string')
-                texture = this._assets[AssetLoader.AssetType.TEXTURES][textureDefinition];
+                texture = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][textureDefinition];
             else {
-                texture = this._assets[AssetLoader.AssetType.TEXTURES][textureDefinition.name];
+                texture = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][textureDefinition.name];
 
                 if (textureDefinition.repeat) {
                     const offsetRepeat = new THREE.Vector4(0, 0, textureDefinition.repeat[0],
@@ -253,8 +253,8 @@ export class MaterialBuilder {
 
         const material = new THREE.ShaderMaterial({
             uniforms: uniforms,
-            vertexShader: this._assets[AssetLoader.AssetType.SHADERS][name].vertex,
-            fragmentShader: this._assets[AssetLoader.AssetType.SHADERS][name].fragment
+            vertexShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].vertex,
+            fragmentShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].fragment
         });
         if (material.__updaters !== undefined)
             throw 'Attribute "__updaters" is already defined';

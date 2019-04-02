@@ -2,10 +2,11 @@ import {AssetLoader} from '../asset-loader.js';
 import {SOUNDS} from './sounds.js';
 import {AudioListener} from './audio-listener.js';
 import {Sound} from './sound.js';
+import {EntityFactory} from '../entity/entity-factory.js';
 
-export class SoundFactory {
-    constructor(assets, audioListener) {
-        this._assets = assets;
+export class SoundFactory extends EntityFactory {
+    constructor(assetLoader, audioListener) {
+        super(assetLoader);
         if (!audioListener)
             audioListener = AudioListener.getListener();
         this._audioListener = audioListener;
@@ -24,7 +25,7 @@ export class SoundFactory {
                 const sounds = [];
                 for (let i = 0; i < soundDef.sources.length; i++) {
                     const soundSrc = soundDef.sources[i];
-                    const audioBuffer = scope._assets[AssetLoader.AssetType.SOUNDS][soundSrc];
+                    const audioBuffer = scope._assetLoader.assets[AssetLoader.AssetType.SOUNDS][soundSrc];
                     if (audioBuffer) {
                         let sound;
                         if (soundDef.type === 'positional')

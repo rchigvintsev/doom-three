@@ -1,6 +1,6 @@
 export class EntityFactory {
-    constructor(assets) {
-        this._assets = assets;
+    constructor(assetLoader) {
+        this._assetLoader = assetLoader;
     }
 
     create(entityDef) {

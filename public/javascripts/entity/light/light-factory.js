@@ -2,8 +2,8 @@ import {GameWorld} from '../../game-world.js';
 import {EntityFactory} from '../entity-factory.js';
 
 export class LightFactory extends EntityFactory {
-    constructor(assets) {
-        super(assets);
+    constructor(assetLoader) {
+        super(assetLoader);
     }
 
     create(lightDef, scale=true) {

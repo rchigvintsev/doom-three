@@ -203,7 +203,7 @@ export class Game {
 
     doPostloading() {
         document.body.appendChild(this.stats.dom);
-        this.gameWorld = this.worldBuilder.build(this.mapName, this.assetLoader.assets);
+        this.gameWorld = this.worldBuilder.build(this.mapName, this.assetLoader);
         this.camera.add(AudioListener.getListener());
         this.controls = new FPSControls(this.camera, this.gameWorld.player, this.canvas);
         this.gameWorld.activateTriggers();

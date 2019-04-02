@@ -18,12 +18,12 @@ import {GuiFactory} from '../gui/gui-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 
 export class LwoModelFactory extends ModelFactory {
-    constructor(assets, systems) {
-        super('LWO', assets, new ModelMaterialBuilder(assets));
-        this._lightFactory = new LightFactory(assets);
-        this._soundFactory = new SoundFactory(assets);
-        this._surfaceFactory = new SurfaceFactory(assets, systems);
-        this._guiFactory = new GuiFactory(assets);
+    constructor(assetLoader, systems) {
+        super('LWO', assetLoader, new ModelMaterialBuilder(assetLoader));
+        this._lightFactory = new LightFactory(assetLoader);
+        this._soundFactory = new SoundFactory(assetLoader);
+        this._surfaceFactory = new SurfaceFactory(assetLoader, systems);
+        this._guiFactory = new GuiFactory(assetLoader);
         this._collisionModelFactory = new CollisionModelFactory(systems);
         this._lwoLoader = new LWOLoader();
     }
@@ -40,7 +40,7 @@ export class LwoModelFactory extends ModelFactory {
     }
 
     _loadModel(modelDef) {
-        const model = this._assets[AssetLoader.AssetType.MODELS][modelDef.model];
+        const model = this._assetLoader.assets[AssetLoader.AssetType.MODELS][modelDef.model];
         return model ? this._lwoLoader.load(model) : null;
     }
 

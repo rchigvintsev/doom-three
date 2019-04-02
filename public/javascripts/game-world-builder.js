@@ -23,19 +23,19 @@ export class GameWorldBuilder {
         this.systems = systems;
     }
 
-    build(mapName, assets) {
-        const map = assets[AssetLoader.AssetType.MAPS][mapName];
+    build(mapName, assetLoader) {
+        const map = assetLoader.assets[AssetLoader.AssetType.MAPS][mapName];
         const gameWorld = new GameWorld(map.player.position, map.player.rotation);
 
-        const factories = new Factories(this.systems, assets);
+        const factories = new Factories(this.systems, assetLoader);
         const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
 
         if (map.skybox && !Settings.wireframeOnly)
-            this.scene.add(new SkyboxBuilder().build(assets, map.skybox));
+            this.scene.add(new SkyboxBuilder().build(assetLoader, map.skybox));
 
         const weapons = new WeaponBuilder(this).build(gameWorld, factories);
 
-        const player = new PlayerBuilder().build(assets, factories, weapons);
+        const player = new PlayerBuilder().build(factories, weapons);
         physicsSystem.registerBody(player.body);
         const attachedMeshes = player.body.collisionModel.attachedMeshes;
         if (attachedMeshes.length > 0)
@@ -166,7 +166,7 @@ export class GameWorldBuilder {
 }
 
 class SkyboxBuilder {
-    build(assets, skybox) {
+    build(assetLoader, skybox) {
         const skyboxSize = skybox.size * GameConstants.WORLD_SCALE;
         const geometry = new THREE.BoxGeometry(skyboxSize, skyboxSize, skyboxSize);
 
@@ -176,7 +176,7 @@ class SkyboxBuilder {
             return;
         }
 
-        const textures = assets[AssetLoader.AssetType.TEXTURES];
+        const textures = assetLoader.assets[AssetLoader.AssetType.TEXTURES];
         const images = [];
         ['_right', '_left', '_up', '_down', '_forward', '_back'].forEach(function (postfix) {
             const texture = textures[materialDef.cubeMap + postfix];
@@ -233,7 +233,7 @@ class WeaponBuilder {
 }
 
 class PlayerBuilder {
-    build(assets, factories, weapons) {
+    build(factories, weapons) {
         const sounds = factories.soundFactory.createSounds(Player.definition);
 
         const collisionModel = factories.collisionModelFactory.createCollisionModel(Player.definition);
@@ -351,15 +351,15 @@ class TriggerBuilder {
 }
 
 class Factories {
-    constructor(systems, assets) {
-        this._lightFactory = new LightFactory(assets);
-        this._soundFactory = new SoundFactory(assets);
-        this._triggerFactory = new TriggerFactory(assets);
-        this._guiFactory = new GuiFactory(assets);
+    constructor(systems, assetLoader) {
+        this._lightFactory = new LightFactory(assetLoader);
+        this._soundFactory = new SoundFactory(assetLoader);
+        this._triggerFactory = new TriggerFactory(assetLoader);
+        this._guiFactory = new GuiFactory(assetLoader);
         this._collisionModelFactory = new CollisionModelFactory(systems);
-        this._surfaceFactory = new SurfaceFactory(assets, systems);
-        this._md5ModelFactory = new Md5ModelFactory(assets);
-        this._lwoModelFactory = new LwoModelFactory(assets, systems);
+        this._surfaceFactory = new SurfaceFactory(assetLoader, systems);
+        this._md5ModelFactory = new Md5ModelFactory(assetLoader);
+        this._lwoModelFactory = new LwoModelFactory(assetLoader, systems);
     }
 
     get lightFactory() {

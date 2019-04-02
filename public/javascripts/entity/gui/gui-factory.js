@@ -4,8 +4,8 @@ import {EnterSite3Gui} from './enter-site3-gui.js';
 import {MeshFactory} from '../mesh-factory.js';
 
 export class GuiFactory extends MeshFactory {
-    constructor(assets) {
-        super(assets, new GuiMaterialBuilder(assets));
+    constructor(assetLoader) {
+        super(assetLoader, new GuiMaterialBuilder(assetLoader));
     }
 
     create(entityDef, parentGeometry, index) {

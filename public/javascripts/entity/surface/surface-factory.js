@@ -10,8 +10,8 @@ import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 const FALLBACK_MATERIAL_DEFINITION = {};
 
 export class SurfaceFactory extends MeshFactory {
-    constructor(assets, systems) {
-        super(assets, new ProjectiveTextureMaterialBuilder(assets));
+    constructor(assetLoader, systems) {
+        super(assetLoader, new ProjectiveTextureMaterialBuilder(assetLoader));
         this._collisionModelFactory = new CollisionModelFactory(systems);
     }
 

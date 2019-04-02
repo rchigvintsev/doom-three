@@ -1,8 +1,8 @@
 import {EntityFactory} from './entity-factory.js';
 
 export class MeshFactory extends EntityFactory {
-    constructor(assets, materialBuilder) {
-        super(assets);
+    constructor(assetLoader, materialBuilder) {
+        super(assetLoader);
         this._materialBuilder = materialBuilder;
     }
 
