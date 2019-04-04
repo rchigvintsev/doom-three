@@ -8,11 +8,12 @@ export class GuiFactory extends MeshFactory {
         super(assetLoader, new GuiMaterialBuilder(assetLoader));
     }
 
-    create(entityDef, parentGeometry, index) {
-        if (entityDef.guiClass === 'malfunction2')
-            return new Malfunction2Gui(parentGeometry, index, this._materialBuilder);
-        if (entityDef.guiClass === 'enter_site3')
-            return new EnterSite3Gui(parentGeometry, index, this._materialBuilder);
-        throw 'Unsupported GUI class: ' + entityDef.guiClass;
+    create(guiDef, parentGeometry) {
+        if (guiDef.name === 'guis/screens/malfunction2.gui')
+            return new Malfunction2Gui(parentGeometry, guiDef.index, this._materialBuilder);
+        if (guiDef.name === 'guis/transfer/enter_site3.gui')
+            return new EnterSite3Gui(parentGeometry, guiDef.index, this._materialBuilder);
+        console.error('Unsupported GUI: ' + guiDef.name);
+        return null;
     }
 }

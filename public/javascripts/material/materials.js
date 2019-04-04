@@ -1426,10 +1426,6 @@ export const MATERIALS = {
         specularMap: 'textures/base_light/striplight3_s',
         additionalMap: 'textures/base_light/striplight3_add'
     },
-    'textures/common/entitygui2': {
-        type: 'gui',
-        guiClass: 'malfunction2'
-    },
     'gui/faces5': [
         {
             type: 'shader',
@@ -1569,10 +1565,6 @@ export const MATERIALS = {
         transparent: true,
         color: 0x4d6666,
         blending: 'additive'
-    },
-    'textures/common/entitygui': {
-        type: 'gui',
-        guiClass: 'enter_site3'
     },
     'gui/spin1alt': {
         clamp: true,

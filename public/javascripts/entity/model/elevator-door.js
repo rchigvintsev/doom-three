@@ -1,18 +1,17 @@
 import {GameWorld} from '../../game-world.js';
+import {LwoModel} from "./lwo-model.js";
 
 const MOVE_SPEED = 40 * GameWorld.WORLD_SCALE;
 
-export class ElevatorDoor extends THREE.Group {
+export class ElevatorDoor extends LwoModel {
     constructor(geometry, materials) {
-        super();
-        this._geometry = geometry;
-        this._materials = materials;
+        super(geometry, materials);
         this._moveDirection = 0;
         this._time = 1;
     }
 
     init() {
-        this.add(new THREE.SkinnedMesh(this._geometry, this._materials));
+        super.init();
         this._opened = false;
         if (this._sounds && this._sounds['open']) {
             this._soundOpen = this._sounds['open'][0];
@@ -47,6 +46,7 @@ export class ElevatorDoor extends THREE.Group {
     }
 
     update(time) {
+        super.update(time);
         if (this._animation)
             this._animation.update(time);
     }
@@ -55,28 +55,12 @@ export class ElevatorDoor extends THREE.Group {
         this.open();
     }
 
-    get name() {
-        return this._name;
-    }
-
-    set name(name) {
-        this._name = name;
-    }
-
     get team() {
         return this._team;
     }
 
     set team(team) {
         this._team = team;
-    }
-
-    get body() {
-        return this._body;
-    }
-
-    set body(body) {
-        this._body = body;
     }
 
     get moveDirection() {

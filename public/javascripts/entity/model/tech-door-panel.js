@@ -1,6 +1,6 @@
 import {LwoModel} from './lwo-model.js';
 
-export class Elevator extends LwoModel {
+export class TechDoorPanel extends LwoModel {
     constructor(geometry, materials) {
         super(geometry, materials);
     }
