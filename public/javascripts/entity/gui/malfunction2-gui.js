@@ -6,7 +6,7 @@ const SCREEN_WIDTH = 640;
 const SCREEN_HEIGHT = 480;
 
 export class Malfunction2Gui extends THREE.Group {
-    constructor(parentGeometry, materialIndex, materialBuilder) {
+    constructor(parent, materialIndex, materialBuilder) {
         super();
 
         this._materials = [];
@@ -14,8 +14,8 @@ export class Malfunction2Gui extends THREE.Group {
         this._materialBuilder = materialBuilder;
 
         const guiFaces = [];
-        for (let i = 0; i < parentGeometry.faces.length; i++) {
-            const face = parentGeometry.faces[i];
+        for (let i = 0; i < parent.geometry.faces.length; i++) {
+            const face = parent.geometry.faces[i];
             if (face.materialIndex === materialIndex)
                 guiFaces.push(face);
         }
@@ -30,9 +30,9 @@ export class Malfunction2Gui extends THREE.Group {
         if (commonVertexIndices.length !== 2)
             throw 'Two common vertices were expected but found ' + commonVertexIndices.length + ' vertices instead';
 
-        const v1 = parentGeometry.vertices[commonVertexIndices[0]];
-        const v2 = parentGeometry.vertices[commonVertexIndices[1]];
-        const v3 = parentGeometry.vertices[Faces.difference(face1, face2)];
+        const v1 = parent.geometry.vertices[commonVertexIndices[0]];
+        const v2 = parent.geometry.vertices[commonVertexIndices[1]];
+        const v3 = parent.geometry.vertices[Faces.difference(face1, face2)];
 
         const distance1 = v3.distanceTo(v1);
         const distance2 = v3.distanceTo(v2);
@@ -48,12 +48,16 @@ export class Malfunction2Gui extends THREE.Group {
         const displacement = v1.clone().sub(v2).normalize().multiplyScalar(halfDistance);
         // and finally move one of the diagonal vertices
         const position = v1.clone().sub(displacement);
+        // Prepare position offset to prevent texture flickering
+        const positionOffset = face1.normal.clone().multiplyScalar(0.01);
+
+        const rotation = this._computeRotation(position, parent.quaternion, face1.normal);
 
         let renderOrder = 0;
 
         const faceTestMaterials = MATERIALS['gui/faces5'];
         for (let material of faceTestMaterials) {
-            const layer = this._createWindow(material, new THREE.Vector2(626, 470).divide(ratio), position);
+            const layer = this._createLayer(material, new THREE.Vector2(626, 470).divide(ratio), position, rotation);
             layer.renderOrder = renderOrder;
             this.add(layer);
             this._materials.push(layer.material);
@@ -62,7 +66,7 @@ export class Malfunction2Gui extends THREE.Group {
 
         const warpMaterials = MATERIALS['gui/warp/static'];
         for (let material of warpMaterials) {
-            const layer = this._createWindow(material, new THREE.Vector2(626, 470).divide(ratio), position);
+            const layer = this._createLayer(material, new THREE.Vector2(626, 470).divide(ratio), position, rotation);
             layer.renderOrder = renderOrder;
             this.add(layer);
             this._materials.push(layer.material);
@@ -71,7 +75,8 @@ export class Malfunction2Gui extends THREE.Group {
 
         const warpLayers = [];
         for (let material of warpMaterials) {
-            const layer = this._createWindow(material, new THREE.Vector2(626, 470).divide(ratio), position, 2.0);
+            const layer = this._createLayer(material,
+                new THREE.Vector2(626, 470).divide(ratio), position, rotation, 2.0);
             layer.renderOrder = renderOrder;
             this.add(layer);
             this._materials.push(layer.material);
@@ -91,8 +96,8 @@ export class Malfunction2Gui extends THREE.Group {
         warpTween.start();
 
         const redFadeMaterialDef = {type: 'shader', color: 0x660000, transparent: true, opacity: 0.0};
-        const redFadeLayer = this._createWindow(redFadeMaterialDef, new THREE.Vector2(626, 470).divide(ratio),
-            position);
+        const redFadeLayer = this._createLayer(redFadeMaterialDef, new THREE.Vector2(626, 470).divide(ratio),
+            position, rotation);
         redFadeLayer.renderOrder = renderOrder;
         this.add(redFadeLayer);
         const redFadeTween = new TWEEN.Tween({opacity: 0.0})
@@ -110,7 +115,7 @@ export class Malfunction2Gui extends THREE.Group {
         const staticMaterials = MATERIALS['gui/static'];
         const staticSize = new THREE.Vector2(626, 470).divide(ratio);
         for (let material of staticMaterials) {
-            const layer = this._createWindow(material, staticSize, position);
+            const layer = this._createLayer(material, staticSize, position, rotation);
             layer.renderOrder = renderOrder;
             this.add(layer);
             this._materials.push(layer.material);
@@ -123,8 +128,8 @@ export class Malfunction2Gui extends THREE.Group {
             transparent: true,
             opacity: 0.2
         };
-        const maskLayer = this._createWindow(maskMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
-            position.clone().setY(position.y - 0.01));
+        const maskLayer = this._createLayer(maskMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
+            position.add(positionOffset), rotation);
         maskLayer.renderOrder = renderOrder;
         this.add(maskLayer);
 
@@ -136,8 +141,8 @@ export class Malfunction2Gui extends THREE.Group {
             transparent: true,
             opacity: {expression: 'table("pdflick", time * 0.0025) / 6'}
         };
-        const outerGlowLayer = this._createWindow(outerGlowMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
-            position.clone().setY(position.y - 0.01));
+        const outerGlowLayer = this._createLayer(outerGlowMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
+            position.add(positionOffset), rotation);
         outerGlowLayer.renderOrder = renderOrder;
         this._materials.push(outerGlowLayer.material);
         this.add(outerGlowLayer);
@@ -149,15 +154,15 @@ export class Malfunction2Gui extends THREE.Group {
             diffuseMap: 'guis/assets/common/outershadow',
             transparent: true
         };
-        const outerShadowLayer = this._createWindow(outerShadowMaterialDef,
-            new THREE.Vector2(640, 480).divide(ratio), position.clone().setY(position.y - 0.01));
+        const outerShadowLayer = this._createLayer(outerShadowMaterialDef,
+            new THREE.Vector2(640, 480).divide(ratio), position.add(positionOffset), rotation);
         outerShadowLayer.renderOrder = renderOrder;
         this.add(outerShadowLayer);
 
         renderOrder++;
 
-        const addHighlightLayer = this._createWindow(MATERIALS['gui/addhighlight'],
-            new THREE.Vector2(640, 480).divide(ratio), position.clone().setY(position.y - 0.01));
+        const addHighlightLayer = this._createLayer(MATERIALS['gui/addhighlight'],
+            new THREE.Vector2(640, 480).divide(ratio), position.add(positionOffset), rotation);
         addHighlightLayer.renderOrder = renderOrder;
         this.add(addHighlightLayer);
 
@@ -169,13 +174,20 @@ export class Malfunction2Gui extends THREE.Group {
             transparent: true,
             opacity: 0.8
         };
-        const dirtLayer = this._createWindow(dirtMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
-            position.clone().setY(position.y - 0.01));
+        const dirtLayer = this._createLayer(dirtMaterialDef, new THREE.Vector2(640, 480).divide(ratio),
+            position.add(positionOffset), rotation);
         dirtLayer.renderOrder = renderOrder;
         this.add(dirtLayer);
     }
 
-    _createWindow(materialDefinition, size, position, yScale) {
+    update(time) {
+        for (let material of this._materials)
+            material.update(time);
+        for (let animation of this._animations)
+            animation.update(time);
+    }
+
+    _createLayer(materialDefinition, size, position, rotation, yScale) {
         let materialBuilder;
         if (yScale) {
             const $uper = this._materialBuilder;
@@ -196,14 +208,26 @@ export class Malfunction2Gui extends THREE.Group {
         material.update(currentTime());
         const gui = new THREE.Mesh(geometry, material);
         gui.position.copy(position);
-        gui.rotation.set(THREE.Math.degToRad(90), THREE.Math.degToRad(180), 0);
+        gui.rotation.copy(rotation);
         return gui;
     }
 
-    update(time) {
-        for (let material of this._materials)
-            material.update(time);
-        for (let animation of this._animations)
-            animation.update(time);
+    _computeRotation(position, quaternion, normal) {
+        const direction = new THREE.Vector3();
+        direction.addVectors(position, normal);
+
+        const worldUp = new THREE.Vector3();
+        worldUp.copy(this.up).applyQuaternion(quaternion);
+
+        const m = new THREE.Matrix4();
+        m.lookAt(direction, position, worldUp);
+
+        const q = new THREE.Quaternion();
+        q.setFromRotationMatrix(m);
+
+        const rotation = new THREE.Euler();
+        rotation.setFromQuaternion(q, undefined, false);
+        rotation.x += THREE.Math.degToRad(-180);
+        return rotation;
     }
 }

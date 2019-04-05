@@ -120,7 +120,7 @@ const maskMaterialDef = {
 };
 
 export class EnterSite3Gui extends THREE.Group {
-    constructor(parentGeometry, materialIndex, materialBuilder) {
+    constructor(parent, materialIndex, materialBuilder) {
         super();
 
         this._materials = [];
@@ -128,8 +128,8 @@ export class EnterSite3Gui extends THREE.Group {
         this._materialBuilder = materialBuilder;
 
         const guiFaces = [];
-        for (let i = 0; i < parentGeometry.faces.length; i++) {
-            const face = parentGeometry.faces[i];
+        for (let i = 0; i < parent.geometry.faces.length; i++) {
+            const face = parent.geometry.faces[i];
             if (face.materialIndex === materialIndex)
                 guiFaces.push(face);
         }
@@ -144,9 +144,9 @@ export class EnterSite3Gui extends THREE.Group {
         if (commonVertexIndices.length !== 2)
             throw 'Two common vertices were expected but found ' + commonVertexIndices.length + ' vertices instead';
 
-        const v1 = parentGeometry.vertices[commonVertexIndices[0]];
-        const v2 = parentGeometry.vertices[commonVertexIndices[1]];
-        const v3 = parentGeometry.vertices[Faces.difference(face1, face2)];
+        const v1 = parent.geometry.vertices[commonVertexIndices[0]];
+        const v2 = parent.geometry.vertices[commonVertexIndices[1]];
+        const v3 = parent.geometry.vertices[Faces.difference(face1, face2)];
 
         const distance1 = v3.distanceTo(v1);
         const distance2 = v3.distanceTo(v2);
@@ -165,6 +165,7 @@ export class EnterSite3Gui extends THREE.Group {
         // and finally move one of the diagonal vertices
         const position = v1.clone().sub(displacement);
 
+        // TODO: Make offset along face normal (see Malfunction2Gui for details)
         let xOffset = 0;
         const xOffsetStep = 0.01;
 
@@ -600,6 +601,13 @@ export class EnterSite3Gui extends THREE.Group {
         this.add(dirt2Layer);
     }
 
+    update(time) {
+        for (let material of this._materials)
+            material.update(time);
+        for (let animation of this._animations)
+            animation.update(time);
+    }
+
     _createLayer(materialDefinition, size, position, yScale) {
         let materialBuilder;
         if (yScale) {
@@ -625,6 +633,7 @@ export class EnterSite3Gui extends THREE.Group {
             material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
         const layerMesh = new THREE.Mesh(geometry, material);
         layerMesh.position.copy(position);
+        // TODO: Set rotation in the same way as it is done in Malfunction2Gui
         layerMesh.rotation.set(THREE.Math.degToRad(-90), THREE.Math.degToRad(-90), 0);
         return layerMesh;
     }
@@ -660,12 +669,5 @@ export class EnterSite3Gui extends THREE.Group {
 
         textLayer.size.x = textWidth;
         return textLayer;
-    }
-
-    update(time) {
-        for (let material of this._materials)
-            material.update(time);
-        for (let animation of this._animations)
-            animation.update(time);
     }
 }

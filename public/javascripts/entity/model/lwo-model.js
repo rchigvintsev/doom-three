@@ -15,6 +15,10 @@ export class LwoModel extends THREE.Group {
         this._gui.push(gui);
     }
 
+    get geometry() {
+        return this._geometry;
+    }
+
     get name() {
         return this._name;
     }

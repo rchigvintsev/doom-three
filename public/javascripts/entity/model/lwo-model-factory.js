@@ -81,9 +81,12 @@ export class LwoModelFactory extends ModelFactory {
         if (collisionModel)
             mesh.body = new CommonBody(collisionModel);
 
+        // It is necessary to set right rotation before GUI construction
+        mesh.rotation.copy(this._computeMeshRotation(modelDef.rotation));
+
         if (materials.gui.length > 0)
-            for (let material of materials.gui) {
-                const gui = this._guiFactory.create(material, model.geometry);
+            for (let i = 0; i < materials.gui.length; i++) {
+                const gui = this._guiFactory.create(materials.gui[i], mesh);
                 if (gui)
                     mesh.addGui(gui);
             }
@@ -133,7 +136,7 @@ export class LwoModelFactory extends ModelFactory {
                     if (match) {
                         const guiNumber = (match[1] || 1) - 1;
                         if (modelDef.gui[guiNumber])
-                            materials.gui.push({name: modelDef.gui[guiNumber], index: i});
+                            materials.gui[guiNumber] = {name: modelDef.gui[guiNumber], index: i};
                         else
                             console.error('Model ' + modelDef.name + ' does not have GUI with number ' + guiNumber);
                     } else {
@@ -163,21 +166,31 @@ export class LwoModelFactory extends ModelFactory {
     }
 
     _positionMesh(mesh, position) {
-        mesh.position.fromArray(position).multiplyScalar(GameWorld.WORLD_SCALE);
+        mesh.position.copy(this._computeMeshPosition(position));
         if (mesh.body)
             mesh.body.position = mesh.position;
     }
 
+    _computeMeshPosition(position) {
+        return new THREE.Vector3().fromArray(position).multiplyScalar(GameWorld.WORLD_SCALE);
+    }
+
     _rotateMesh(mesh, rotation) {
-        const ninetyDegrees = THREE.Math.degToRad(90);
-        mesh.rotation.set(ninetyDegrees, 0, ninetyDegrees);
-
-        mesh.rotation.x -= rotation[0];
-        mesh.rotation.y -= rotation[1];
-        mesh.rotation.z -= rotation[2];
-
+        mesh.rotation.copy(this._computeMeshRotation(rotation));
         if (mesh.body)
             mesh.body.rotation = mesh.rotation;
+    }
+
+    _computeMeshRotation(rotation) {
+        const result = new THREE.Euler();
+        const ninetyDegrees = THREE.Math.degToRad(90);
+        result.set(ninetyDegrees, 0, ninetyDegrees);
+
+        result.x -= rotation[0];
+        result.y -= rotation[1];
+        result.z -= rotation[2];
+
+        return result;
     }
 
     _bindSurfaces(mesh, surfaces) {
