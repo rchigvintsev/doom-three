@@ -132,5 +132,24 @@ export const MODELS = {
                 }
             ]
         }
+    },
+    'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1.lwo': {
+        cm: {
+            bodies: [
+                {
+                    mass: 0,
+                    material: 'default',
+                    shapes: [
+                        {
+                            type: 'box',
+                            width: 26,
+                            height: 10,
+                            depth: 23,
+                            offset: [-0.5, -3.5, 0]
+                        }
+                    ]
+                }
+            ]
+        }
     }
 };
