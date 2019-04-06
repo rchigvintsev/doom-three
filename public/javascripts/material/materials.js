@@ -1671,7 +1671,8 @@ export const MATERIALS = {
                 bumpMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_bmp',
                 scale: 3
             }
-        }
+        },
+        specular: 0x808080
     },
     'textures/base_door/doorlight': {
         type: 'basic',
