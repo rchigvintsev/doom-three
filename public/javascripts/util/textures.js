@@ -42,9 +42,6 @@ export class Textures {
             throw 'Unsupported TGA image type: ' + image.type;
         if (image.pixelSize !== 8 && image.pixelSize !== 24 && image.pixelSize !== 32)
             throw 'Unsupported TGA image pixel size: ' + image.pixelSize;
-        // noinspection JSBitwiseOperatorUsage
-        if (image.attributes & (1 << 5))
-            throw 'TGA image flipping is not supported';
 
         cursor += image.commentLength;
         for (let row = image.height - 1; row >= 0; row--) {
@@ -81,6 +78,10 @@ export class Textures {
                 image.data[offset++] = alpha;
             }
         }
+
+        // noinspection JSBitwiseOperatorUsage
+        if (image.attributes & (1 << 5))
+            Textures._flipVertical(image);
 
         return image;
     }
@@ -181,6 +182,16 @@ export class Textures {
                 dst[pos + 3] = 255;
             }
         }
+    }
+
+    static _flipVertical(image) {
+        const width = image.width * 4;
+        for (let i = 0; i < width; i++)
+            for (let j = 0; j < image.height / 2; j++) {
+                const temp = image.data[j * width + i];
+                image.data[j * width + i] = image.data[(image.height - 1 - j) * width + i];
+                image.data[(image.height - 1 - j) * width + i] = temp;
+            }
     }
 }
 
