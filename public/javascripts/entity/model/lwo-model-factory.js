@@ -6,7 +6,7 @@ import {GameWorld} from '../../game-world.js';
 import {Elevator} from './elevator.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
 import {ElevatorDoor} from './elevator-door.js';
-import {SKINS} from '../../map/skins.js';
+import {SKINS} from '../../material/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
 import {MODELS} from './models.js';
 import {ModelFactory} from './model-factory.js';
@@ -18,6 +18,7 @@ import {GuiFactory} from '../gui/gui-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {TechDoorPanel} from './tech-door-panel.js';
 import {LwoModel} from "./lwo-model.js";
+import {HealthGui} from "./health-gui.js";
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
@@ -71,6 +72,9 @@ export class LwoModelFactory extends ModelFactory {
             case 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1.lwo':
                 mesh = new TechDoorPanel(model.geometry, materials.main);
                 break;
+            case 'models/mapobjects/healthgui/healthgui.lwo':
+                mesh = new HealthGui(model.geometry, materials.main);
+                break;
             default:
                 mesh = new LwoModel(model.geometry, materials.main);
         }
@@ -99,7 +103,7 @@ export class LwoModelFactory extends ModelFactory {
                 const lightDef = modelDef.lights[i];
                 const light = this._lightFactory.create(lightDef, false);
                 mesh.add(light);
-                if (Settings.showLightSphere) {
+                if (Settings.showLightSpheres) {
                     const lightSphere = this._lightFactory.createLightSphere(lightDef, false);
                     mesh.add(lightSphere);
                 }
@@ -143,7 +147,9 @@ export class LwoModelFactory extends ModelFactory {
                         const materialDef = MATERIALS[materialName];
                         if (!materialDef) {
                             console.error('Definition for material ' + materialName + ' is not found');
-                            materials.main.push(new THREE.MeshPhongMaterial());
+                            const fallbackMaterial = new THREE.MeshPhongMaterial();
+                            fallbackMaterial.name = materialName;
+                            materials.main.push(fallbackMaterial);
                         } else {
                             const regularMaterial = this._createRegularMaterial(materialName, materialDef);
                             if (Array.isArray(regularMaterial)) {

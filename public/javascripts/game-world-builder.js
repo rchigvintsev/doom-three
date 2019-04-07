@@ -318,7 +318,7 @@ class LightBuilder {
             result.push({});
             const lightDef = lights[i];
             result[i].light = factories.lightFactory.create(lightDef);
-            if (Settings.showLightSphere)
+            if (Settings.showLightSpheres)
                 result[i].lightSphere = factories.lightFactory.createLightSphere(lightDef);
         }
         return result;

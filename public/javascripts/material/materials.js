@@ -1678,5 +1678,23 @@ export const MATERIALS = {
         type: 'basic',
         diffuseMap: 'textures/base_door/doorlight_red',
         normalMap: 'textures/base_door/doorlight_local'
+    },
+    'models/mapobjects/healthgui/healthgui': {
+        diffuseMap: 'models/mapobjects/healthgui/healthgui',
+        specularMap: 'models/mapobjects/healthgui/healthgui_s',
+        normalMap: 'models/mapobjects/healthgui/healthgui_local'
+    },
+    'models/mapobjects/healthgui/healthguidirty': {
+        diffuseMap: 'models/mapobjects/healthgui/healthguidirty',
+        specularMap: 'models/mapobjects/healthgui/healthguidirty_s',
+        normalMap: {
+            name: 'models/mapobjects/healthgui/healthgui_local+healthguidirty_b',
+            addNormals: {
+                normalMap: 'models/mapobjects/healthgui/healthgui_local',
+                bumpMap: 'models/mapobjects/healthgui/healthguidirty_b',
+                scale: 3
+            }
+        },
+        specular: 0x696969
     }
 };

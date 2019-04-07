@@ -5,7 +5,7 @@ const settings = {
     cameraFov: 75,
     cameraNear: 0.01,
     cameraFar: 1000,
-    showLightSphere: false,
+    showLightSpheres: false,
     showWireframe: false,
     wireframeOnly: false,
     showCollisionModel: false,
@@ -61,12 +61,12 @@ export class Settings {
         settings.cameraFar = value;
     }
 
-    static get showLightSphere() {
-        return settings.showLightSphere;
+    static get showLightSpheres() {
+        return settings.showLightSpheres;
     }
 
-    static set showLightSphere(value) {
-        settings.showLightSphere = value;
+    static set showLightSpheres(value) {
+        settings.showLightSpheres = value;
     }
 
     static get showWireframe() {

@@ -5,5 +5,8 @@ export const SKINS = {
     },
     'skins/elevator_door_dirty': {
         'textures/base_door/smdoor1a': 'textures/base_door/smdoor1b'
+    },
+    'skins/healthguidirty': {
+        'models/mapobjects/healthgui/healthgui': 'models/mapobjects/healthgui/healthguidirty'
     }
 };
