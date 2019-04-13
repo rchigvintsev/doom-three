@@ -33,7 +33,22 @@ export class Textures {
         return canvas;
     }
 
-    static loadTga(buffer) {
+    static negate(map) {
+        map = Textures.loadTga(map, true);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = map.width;
+        canvas.height = map.height;
+
+        const context = canvas.getContext('2d');
+        const imageData = context.createImageData(map.width, map.height);
+        _copyArray(map.data, imageData.data);
+        context.putImageData(imageData, 0, 0);
+
+        return canvas;
+    }
+
+    static loadTga(buffer, negate=false) {
         const data = new Uint8Array(buffer);
         const image = new TgaImage();
         let cursor = Textures._readTgaHeader(data, image);
@@ -70,6 +85,12 @@ export class Textures {
                         alpha = data[cursor++];
                         break;
                     }
+                }
+
+                if (negate) {
+                    red = 255 - red;
+                    green = 255 - green;
+                    blue = 255 - blue;
                 }
 
                 image.data[offset++] = red;

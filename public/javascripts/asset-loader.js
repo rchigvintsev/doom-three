@@ -60,12 +60,12 @@ export class AssetLoader {
     }
 
     loadTextures(materialDef) {
-        const textures = [];
+        const textures = {};
         if (!materialDef)
             return textures;
         const textureSources = this._createTextureSources(materialDef);
-        for (let i = 0; i < textureSources.length; i++)
-            textures.push(textureSources[i].load());
+        for (let mapName of Object.keys(textureSources))
+            textures[mapName] = textureSources[mapName].load();
         return textures;
     }
 
@@ -123,7 +123,7 @@ export class AssetLoader {
             console.error('Definition of material ' + materialName + ' is not found');
             return;
         }
-        this._texturesToLoad = this._texturesToLoad.concat(this._createTextureSources(materialDef));
+        this._texturesToLoad = this._texturesToLoad.concat(Object.values(this._createTextureSources(materialDef)));
     }
 
     _registerShadersToLoad(materialName) {
@@ -148,30 +148,32 @@ export class AssetLoader {
     }
 
     _createTextureSources(materialDef) {
-        const result = [];
+        const result = {};
 
         if (materialDef.diffuseMap)
-            result.push(new TextureSource(this, materialDef.diffuseMap));
+            result.diffuseMap = new TextureSource(this, materialDef.diffuseMap);
         if (materialDef.specularMap)
-            result.push(new TextureSource(this, materialDef.specularMap));
+            result.specularMap = new TextureSource(this, materialDef.specularMap);
         if (materialDef.normalMap)
-            result.push(new TextureSource(this, materialDef.normalMap));
+            result.normalMap = new TextureSource(this, materialDef.normalMap);
         if (materialDef.bumpMap)
-            result.push(new TextureSource(this, materialDef.bumpMap));
+            result.bumpMap = new TextureSource(this, materialDef.bumpMap);
         if (materialDef.alphaMap)
-            result.push(new TextureSource(this, materialDef.alphaMap));
+            result.alphaMap = new TextureSource(this, materialDef.alphaMap);
 
         if (materialDef.cubeMap) {
-            result.push(new TextureSource(this, materialDef.cubeMap + '_right'));
-            result.push(new TextureSource(this, materialDef.cubeMap + '_left'));
-            result.push(new TextureSource(this, materialDef.cubeMap + '_up'));
-            result.push(new TextureSource(this, materialDef.cubeMap + '_down'));
-            result.push(new TextureSource(this, materialDef.cubeMap + '_forward'));
-            result.push(new TextureSource(this, materialDef.cubeMap + '_back'));
+            result.cubeMap_right = new TextureSource(this, materialDef.cubeMap + '_right');
+            result.cubeMap_left = new TextureSource(this, materialDef.cubeMap + '_left');
+            result.cubeMap_up = new TextureSource(this, materialDef.cubeMap + '_up');
+            result.cubeMap_down = new TextureSource(this, materialDef.cubeMap + '_down');
+            result.cubeMap_forward = new TextureSource(this, materialDef.cubeMap + '_forward');
+            result.cubeMap_back = new TextureSource(this, materialDef.cubeMap + '_back');
         }
 
-        if (materialDef.textures)
-            materialDef.textures.forEach((texture) => result.push(new TextureSource(this, texture)));
+        if (materialDef.textures) {
+            result.textures = [];
+            materialDef.textures.forEach((texture) => result.textures.push(new TextureSource(this, texture)));
+        }
 
         return result;
     }
@@ -285,6 +287,7 @@ class TextureSource {
         this.$this = $this;
         this._name = typeof textureDef === 'string' ? textureDef : textureDef.name;
         this._addNormals = textureDef.addNormals;
+        this._negate = textureDef.negate;
     }
 
     load(onLoad, onError) {
@@ -301,6 +304,14 @@ class TextureSource {
                 const scale = this._addNormals.scale;
                 $this._loadAllBinaryFiles([normalMap + '.tga', bumpMap + '.tga'], (normalMapBuf, bumpMapBuf) => {
                     texture.image = Textures.addNormals(normalMapBuf, bumpMapBuf, scale);
+                    texture.needsUpdate = true;
+                    if (onLoad)
+                        onLoad(texture);
+                }, onError);
+            } else if (this._negate) {
+                texture = new THREE.Texture();
+                $this._loadAllBinaryFiles([this._name + '.tga'], (mapBuf) => {
+                    texture.image = Textures.negate(mapBuf);
                     texture.needsUpdate = true;
                     if (onLoad)
                         onLoad(texture);

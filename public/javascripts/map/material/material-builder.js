@@ -84,9 +84,11 @@ export class MaterialBuilder {
         }
 
         if (definition.alphaMap) {
-            let alphaMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][definition.alphaMap];
+            const alphaMapName = typeof definition.alphaMap === 'string' ? definition.alphaMap
+                : definition.alphaMap.name;
+            const alphaMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][alphaMapName];
             if (!alphaMap)
-                console.error('Alpha map ' + definition.alphaMap + ' is not found');
+                console.error('Alpha map ' + alphaMapName + ' is not found');
             else {
                 if (definition.clamp)
                     alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
@@ -180,22 +182,16 @@ export class MaterialBuilder {
             if (definition.blending === 'custom') {
                 material.blending = THREE.CustomBlending;
                 material.blendEquation = THREE.AddEquation;
-
-                if (definition.blendSrc === 'dst_color')
-                    material.blendSrc = THREE.DstColorFactor;
-                else if (definition.blendSrc === 'src_alpha')
-                    material.blendSrc = THREE.SrcAlphaFactor;
-                else
-                    material.blendSrc = THREE.ZeroFactor;
-
-                if (definition.blendDst === 'one_minus_src_color')
-                    material.blendDst = THREE.OneMinusSrcColorFactor;
-                else if (definition.blendDst === 'one_minus_src_alpha')
-                    material.blendDst = THREE.OneMinusSrcAlphaFactor;
-                else
-                    material.blendDst = THREE.ZeroFactor;
+                if (definition.blendSrc)
+                    material.blendSrc = MaterialBuilder._blendFactorForName(definition.blendSrc);
+                if (definition.blendDst)
+                    material.blendDst = MaterialBuilder._blendFactorForName(definition.blendDst);
             } else if (definition.blending === 'additive')
                 material.blending = THREE.AdditiveBlending;
+            else if (definition.blending === 'subtractive')
+                material.blending = THREE.SubtractiveBlending;
+            else if (definition.blending === 'multiply')
+                material.blending = THREE.MultiplyBlending;
             else
                 console.error('Unsupported blending: ' + definition.blending);
         }
@@ -401,5 +397,16 @@ export class MaterialBuilder {
 
     _setOpacity(material, opacity) {
         material.opacity = opacity;
+    }
+
+    static _blendFactorForName(name) {
+        let propertyName = '';
+        const words = name.split('_');
+        for (let word of words)
+            propertyName += (word.charAt(0).toUpperCase() + word.slice(1));
+        propertyName += 'Factor';
+        if (THREE[propertyName] !== undefined)
+            return THREE[propertyName];
+        throw 'Unknown blend factor: ' + name;
     }
 }
