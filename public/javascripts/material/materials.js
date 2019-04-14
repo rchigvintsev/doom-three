@@ -1696,5 +1696,62 @@ export const MATERIALS = {
             }
         },
         specular: 0x696969
-    }
+    },
+    'gui/health/ekg2flat': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/health/ekgpulse2',
+            transparent: true,
+            scroll: ['time * -.4', '0']
+        },
+        {
+            type: 'shader',
+            diffuseMap: {
+                name: 'guis/assets/health/ekgmatflat',
+                negate: true
+            },
+            transparent: true,
+            blending: 'custom',
+            blendSrc: 'one_minus_dst_alpha',
+            blendDst: 'src_alpha'
+        }
+    ],
+    'gui/health/ekg3flat': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/health/ekgpulse2',
+            transparent: true,
+            scroll: ['time * -0.9', '0']
+        },
+        {
+            type: 'shader',
+            diffuseMap: {
+                name: 'guis/assets/health/ekgmatflat',
+                negate: true
+            },
+            transparent: true,
+            blending: 'custom',
+            blendSrc: 'one_minus_dst_alpha',
+            blendDst: 'src_alpha'
+        }
+    ],
+    'gui/health/ekgflat': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/health/ekgpulse',
+            transparent: true,
+            scroll: ['time * -0.8', '0']
+        },
+        {
+            type: 'shader',
+            diffuseMap: {
+                name: 'guis/assets/health/ekgmatflat',
+                negate: true
+            },
+            transparent: true,
+            blending: 'custom',
+            blendSrc: 'one_minus_dst_alpha',
+            blendDst: 'src_alpha'
+        }
+    ]
 };
