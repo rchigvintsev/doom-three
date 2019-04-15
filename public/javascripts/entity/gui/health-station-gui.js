@@ -11,6 +11,24 @@ const BLACK_BACKGROUND_MATERIAL_DEF = {
     transparent: true
 };
 
+const BORDER_CORNER_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/1pxborder_cornersm',
+    transparent: true
+};
+
+const VERTICAL_BORDER_MATERIAL_DEF = {
+  type: 'shader',
+  diffuseMap: 'guis/assets/common/1pxborder_vert',
+  transparent: true
+};
+
+const HORIZONTAL_BORDER_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/1pxborder_horiz',
+    transparent: true
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -22,7 +40,7 @@ export class HealthStationGui extends AbstractGui {
         const yOrigin = this._position.z - halfOfScreenHeight;
 
         // Prepare position offset to prevent texture flickering
-        const positionOffset = this._normal.clone().divideScalar(10.0);
+        const positionOffset = this._normal.clone().multiplyScalar(0.01);
         let renderOrder = 0;
 
         const bgBlackLayer = this._createLayer(BLACK_BACKGROUND_MATERIAL_DEF,
@@ -32,21 +50,10 @@ export class HealthStationGui extends AbstractGui {
 
         renderOrder++;
 
-        /*const bgBlack1LayerSize = new THREE.Vector2(613, 454).divide(ratio);
-        const bgBlack1LayerPosition = this._position.add(positionOffset).clone();
-        bgBlack1LayerPosition.x = xOrigin + bgBlack1LayerSize.x / 2 + 9 / ratio.x;
-        bgBlack1LayerPosition.z = yOrigin + bgBlack1LayerSize.y / 2 + 9 / ratio.y;
-        const bgBlack1Layer = this._createLayer({type: 'shader', color: 0x000000}, bgBlack1LayerSize,
-            bgBlack1LayerPosition);
-        bgBlack1Layer.renderOrder = renderOrder;
-        this.add(bgBlack1Layer);
-
-        renderOrder++;*/
-
         const hrWinOffset = new THREE.Vector2(17, 85);
 
         const spike2LayerSize = new THREE.Vector2(135, 36).divide(this._ratio);
-        const spike2LayerPosition = this._position.add(positionOffset).clone();
+        const spike2LayerPosition = this._position.clone().add(positionOffset);
         spike2LayerPosition.x = xOrigin + spike2LayerSize.x / 2 + (hrWinOffset.x + 9) / this._ratio.x;
         spike2LayerPosition.z = yOrigin + spike2LayerSize.y / 2 + (hrWinOffset.y + 186) / this._ratio.y;
         const spike2Materials = MATERIALS['gui/health/ekg2flat'];
@@ -59,7 +66,7 @@ export class HealthStationGui extends AbstractGui {
         }
 
         const spike1LayerSize = new THREE.Vector2(135, 28).divide(this._ratio);
-        const spike1LayerPosition = this._position.add(positionOffset).clone();
+        const spike1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
         spike1LayerPosition.x = xOrigin + spike1LayerSize.x / 2 + (hrWinOffset.x + 9) / this._ratio.x;
         spike1LayerPosition.z = yOrigin + spike1LayerSize.y / 2 + (hrWinOffset.y + 118) / this._ratio.y;
         const spike1Materials = MATERIALS['gui/health/ekg3flat'];
@@ -74,7 +81,7 @@ export class HealthStationGui extends AbstractGui {
         }
 
         const spikeLayerSize = new THREE.Vector2(134, 80).divide(this._ratio);
-        const spikeLayerPosition = this._position.add(positionOffset).clone();
+        const spikeLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
         spikeLayerPosition.x = xOrigin + spikeLayerSize.x / 2 + (hrWinOffset.x + 10) / this._ratio.x;
         spikeLayerPosition.z = yOrigin + spikeLayerSize.y / 2 + (hrWinOffset.y + 8) / this._ratio.y;
         const spikeMaterials = MATERIALS['gui/health/ekgflat'];
@@ -85,6 +92,64 @@ export class HealthStationGui extends AbstractGui {
             this._materials.push(layer.material);
             renderOrder++;
         }
+
+        const btn2Corner2LayerSize = new THREE.Vector2(82, 30).divide(this._ratio);
+        const btn2Corner2LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
+        btn2Corner2LayerPosition.x = xOrigin + btn2Corner2LayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
+        btn2Corner2LayerPosition.z = yOrigin + btn2Corner2LayerSize.y / 2 + (hrWinOffset.y + 5) / this._ratio.y;
+        const btn2Corner2Layer = this._createLayer(BORDER_CORNER_MATERIAL_DEF, btn2Corner2LayerSize,
+            btn2Corner2LayerPosition);
+        btn2Corner2Layer.renderOrder = renderOrder;
+        btn2Corner2Layer.rotation.x += THREE.Math.degToRad(180);
+        btn2Corner2Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(btn2Corner2Layer);
+
+        renderOrder++;
+
+        const btn2Corner4LayerSize = new THREE.Vector2(82, 30).divide(this._ratio);
+        const btn2Corner4LayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
+        btn2Corner4LayerPosition.x = xOrigin + btn2Corner4LayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
+        btn2Corner4LayerPosition.z = yOrigin + btn2Corner4LayerSize.y / 2 + (hrWinOffset.y + 252) / this._ratio.y;
+        const btn2Corner4Layer = this._createLayer(BORDER_CORNER_MATERIAL_DEF, btn2Corner4LayerSize,
+            btn2Corner4LayerPosition);
+        btn2Corner4Layer.renderOrder = renderOrder;
+        btn2Corner4Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(btn2Corner4Layer);
+
+        renderOrder++;
+
+        const btn2RightLayerSize = new THREE.Vector2(82, 217).divide(this._ratio);
+        const btn2RightLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
+        btn2RightLayerPosition.x = xOrigin + btn2RightLayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
+        btn2RightLayerPosition.z = yOrigin + btn2RightLayerSize.y / 2 + (hrWinOffset.y + 35) / this._ratio.y;
+        const btn2RightLayer = this._createLayer(VERTICAL_BORDER_MATERIAL_DEF, btn2RightLayerSize,
+            btn2RightLayerPosition);
+        btn2RightLayer.renderOrder = renderOrder;
+        btn2RightLayer.rotation.x += THREE.Math.degToRad(180);
+        btn2RightLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(btn2RightLayer);
+
+        renderOrder++;
+
+        const btn2TopLayerSize = new THREE.Vector2(71, 30).divide(this._ratio);
+        const btn2TopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
+        btn2TopLayerPosition.x = xOrigin + btn2TopLayerSize.x / 2 + (hrWinOffset.x + 3) / this._ratio.x;
+        btn2TopLayerPosition.z = yOrigin + btn2TopLayerSize.y / 2 + (hrWinOffset.y + 3) / this._ratio.y;
+        const btn2TopLayer = this._createLayer(HORIZONTAL_BORDER_MATERIAL_DEF, btn2TopLayerSize, btn2TopLayerPosition);
+        btn2TopLayer.renderOrder = renderOrder;
+        btn2TopLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(btn2TopLayer);
+
+        renderOrder++;
+
+        const btn2BottomLayerSize = new THREE.Vector2(71, 30).divide(this._ratio);
+        const btn2BottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
+        btn2BottomLayerPosition.x = xOrigin + btn2BottomLayerSize.x / 2 + (hrWinOffset.x + 3) / this._ratio.x;
+        btn2BottomLayerPosition.z = yOrigin + btn2BottomLayerSize.y / 2 + (hrWinOffset.y + 254) / this._ratio.y;
+        const btn2BottomLayer = this._createLayer(HORIZONTAL_BORDER_MATERIAL_DEF, btn2BottomLayerSize,
+            btn2BottomLayerPosition);
+        btn2BottomLayer.renderOrder = renderOrder;
+        this.add(btn2BottomLayer);
     }
 
     _getScreenWidth() {
