@@ -29,6 +29,18 @@ const HORIZONTAL_BORDER_MATERIAL_DEF = {
     transparent: true
 };
 
+const FILL_BOX_CAP_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/scibox/fillboxCap',
+    transparent: true
+};
+
+const FILL_BOX_CENTER_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/scibox/fillboxCenter',
+    transparent: true
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -150,6 +162,43 @@ export class HealthStationGui extends AbstractGui {
             btn2BottomLayerPosition);
         btn2BottomLayer.renderOrder = renderOrder;
         this.add(btn2BottomLayer);
+
+        renderOrder++;
+
+        const fillBoxTopLayerSize = new THREE.Vector2(252, 25).divide(this._ratio);
+        const fillBoxTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(15));
+        fillBoxTopLayerPosition.x = xOrigin + fillBoxTopLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
+        fillBoxTopLayerPosition.z = yOrigin + fillBoxTopLayerSize.y / 2 + (hrWinOffset.y + 2) / this._ratio.y;
+        const fillBoxTopLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CAP_MATERIAL_DEF);
+        const fillBoxTopLayer = this._createLayer(fillBoxTopLayerMaterial, fillBoxTopLayerSize,
+            fillBoxTopLayerPosition);
+        fillBoxTopLayer.renderOrder = renderOrder;
+        this.add(fillBoxTopLayer);
+
+        renderOrder++;
+
+        const fillBoxCenterLayerSize = new THREE.Vector2(252, 234).divide(this._ratio);
+        const fillBoxCenterLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(7));
+        fillBoxCenterLayerPosition.x = xOrigin + fillBoxCenterLayerSize.x / 2 + (hrWinOffset.x - 54) / this._ratio.x;
+        fillBoxCenterLayerPosition.z = yOrigin + fillBoxCenterLayerSize.y / 2 + (hrWinOffset.y + 27) / this._ratio.y;
+        const fillBoxCenterLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CENTER_MATERIAL_DEF);
+        const fillBoxCenterLayer = this._createLayer(fillBoxCenterLayerMaterial, fillBoxCenterLayerSize,
+            fillBoxCenterLayerPosition);
+        fillBoxCenterLayer.renderOrder = renderOrder;
+        this.add(fillBoxCenterLayer);
+
+        renderOrder++;
+
+        const fillBoxBottomLayerSize = new THREE.Vector2(252, 25).divide(this._ratio);
+        const fillBoxBottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
+        fillBoxBottomLayerPosition.x = xOrigin + fillBoxBottomLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
+        fillBoxBottomLayerPosition.z = yOrigin + fillBoxBottomLayerSize.y / 2 + (hrWinOffset.y + 260) / this._ratio.y;
+        const fillBoxBottomLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CAP_MATERIAL_DEF);
+        const fillBoxBottomLayer = this._createLayer(fillBoxBottomLayerMaterial, fillBoxBottomLayerSize,
+            fillBoxBottomLayerPosition);
+        fillBoxBottomLayer.rotation.x += THREE.Math.degToRad(180);
+        fillBoxBottomLayer.renderOrder = renderOrder;
+        this.add(fillBoxBottomLayer);
     }
 
     _getScreenWidth() {
