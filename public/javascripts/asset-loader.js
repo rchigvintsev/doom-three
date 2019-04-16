@@ -160,6 +160,8 @@ export class AssetLoader {
             result.bumpMap = new TextureSource(this, materialDef.bumpMap);
         if (materialDef.alphaMap)
             result.alphaMap = new TextureSource(this, materialDef.alphaMap);
+        if (materialDef.additionalMap)
+            result.additionalMap = new TextureSource(this, materialDef.additionalMap);
 
         if (materialDef.cubeMap) {
             result.cubeMap_right = new TextureSource(this, materialDef.cubeMap + '_right');
