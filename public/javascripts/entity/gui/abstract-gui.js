@@ -114,12 +114,12 @@ export class AbstractGui extends THREE.Group {
         return layerMesh;
     }
 
-    _createTextLayer(textCode, font, fontSize, opacity, renderOrder, screenRatio) {
+    _createTextLayer(textCode, font, fontSize, opacity, renderOrder, xScale=0.8) {
         const textLayer = new THREE.Group();
         textLayer.renderOrder = renderOrder;
         textLayer.size = new THREE.Vector2();
 
-        const textString = strings[textCode];
+        const textString = strings[textCode] || textCode;
         let textWidth = 0;
         for (let i = 0; i < textString.length; i++) {
             const charCode = textString.charCodeAt(i);
@@ -127,8 +127,8 @@ export class AbstractGui extends THREE.Group {
             if (!letter)
                 console.error('Font "' + font + '" does not support character with code ' + charCode);
             else {
-                const letterSize = new THREE.Vector2(letter.size[0] * fontSize * 0.8, letter.size[1] * fontSize)
-                    .divide(screenRatio);
+                const letterSize = new THREE.Vector2(letter.size[0] * fontSize * xScale, letter.size[1] * fontSize)
+                    .divide(this._ratio);
                 const letterPosition = new THREE.Vector3(textWidth + letterSize.x / 2, 0, 0);
                 let materialDef = null;
                 if (letter.material) {

@@ -189,7 +189,7 @@ export class HealthStationGui extends AbstractGui {
 
         renderOrder++;
 
-        const fillBoxBottomLayerSize = new THREE.Vector2(252, 25).divide(this._ratio);
+        const fillBoxBottomLayerSize = new THREE.Vector2(252, 28).divide(this._ratio);
         const fillBoxBottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
         fillBoxBottomLayerPosition.x = xOrigin + fillBoxBottomLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
         fillBoxBottomLayerPosition.z = yOrigin + fillBoxBottomLayerSize.y / 2 + (hrWinOffset.y + 260) / this._ratio.y;
@@ -199,6 +199,54 @@ export class HealthStationGui extends AbstractGui {
         fillBoxBottomLayer.rotation.x += THREE.Math.degToRad(180);
         fillBoxBottomLayer.renderOrder = renderOrder;
         this.add(fillBoxBottomLayer);
+
+        renderOrder++;
+
+        const textHr1LayerSize = new THREE.Vector2(133, 40).divide(this._ratio);
+        const textHr1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(12));
+        textHr1LayerPosition.x = xOrigin + textHr1LayerSize.x / 2 + (hrWinOffset.x + 6) / this._ratio.x;
+        textHr1LayerPosition.z = yOrigin + textHr1LayerSize.y / 2 + (hrWinOffset.y + 73) / this._ratio.y;
+        const textHr1Layer = this._createTextLayer('0', 'micro', 25, 0.7, renderOrder, 0.7);
+        textHr1LayerPosition.x += textHr1LayerSize.x / 2 - textHr1Layer.size.x;
+        textHr1Layer.position.copy(textHr1LayerPosition);
+        textHr1Layer.rotation.copy(this._rotation);
+        this.add(textHr1Layer);
+
+        renderOrder++;
+
+        const textHr2LayerSize = new THREE.Vector2(133, 40).divide(this._ratio);
+        const textHr2LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(6));
+        textHr2LayerPosition.x = xOrigin + textHr2LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
+        textHr2LayerPosition.z = yOrigin + textHr2LayerSize.y / 2 + (hrWinOffset.y + 139) / this._ratio.y;
+        const textHr2Layer = this._createTextLayer('0 / 0', 'micro', 18, 0.5, renderOrder, 0.7);
+        textHr2LayerPosition.x += textHr2LayerSize.x / 2 - textHr2Layer.size.x;
+        textHr2Layer.position.copy(textHr2LayerPosition);
+        textHr2Layer.rotation.copy(this._rotation);
+        this.add(textHr2Layer);
+
+        renderOrder++;
+
+        const textHr3LayerSize = new THREE.Vector2(133, 59).divide(this._ratio);
+        const textHr3LayerPosition = this._position.clone();
+        textHr3LayerPosition.x = xOrigin + textHr3LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
+        textHr3LayerPosition.z = yOrigin + textHr3LayerSize.y / 2 + (hrWinOffset.y + 200) / this._ratio.y;
+        const textHr3Layer = this._createTextLayer('0 / 0', 'micro', 18, 0.5, renderOrder, 0.7);
+        textHr3LayerPosition.x += textHr3LayerSize.x / 2 - textHr3Layer.size.x;
+        textHr3Layer.position.copy(textHr3LayerPosition);
+        textHr3Layer.rotation.copy(this._rotation);
+        this.add(textHr3Layer);
+
+        renderOrder++;
+
+        const textHr4LayerSize = new THREE.Vector2(133, 59).divide(this._ratio);
+        const textHr4LayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(2));
+        textHr4LayerPosition.x = xOrigin + textHr4LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
+        textHr4LayerPosition.z = yOrigin + textHr4LayerSize.y / 2 + (hrWinOffset.y + 220) / this._ratio.y;
+        const textHr4Layer = this._createTextLayer('0', 'micro', 18, 0.5, renderOrder, 0.7);
+        textHr4LayerPosition.x += textHr4LayerSize.x / 2 - textHr4Layer.size.x;
+        textHr4Layer.position.copy(textHr4LayerPosition);
+        textHr4Layer.rotation.copy(this._rotation);
+        this.add(textHr4Layer);
     }
 
     _getScreenWidth() {

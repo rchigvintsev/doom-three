@@ -3,6 +3,28 @@ export const fonts = {
         32: { // Space
             size: [0.5, 1]
         },
+        47: { // /
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.07, 0.15],
+                translate: [0, 0.855]
+            }
+        },
+        48: { // 0
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.12, 0.15],
+                translate: [0.155, 0.855]
+            }
+        },
         51: { // 3
             size: [1, 1],
             material: {

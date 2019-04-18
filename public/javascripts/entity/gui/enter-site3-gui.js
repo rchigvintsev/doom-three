@@ -264,7 +264,7 @@ export class EnterSite3Gui extends AbstractGui {
         xOffset += xOffsetStep;
         renderOrder++;
 
-        const sourceTextLayer = this._createTextLayer('#str_04006', 'micro', 26, 0.5, renderOrder, this._ratio);
+        const sourceTextLayer = this._createTextLayer('#str_04006', 'micro', 26, 0.5, renderOrder);
         sourceTextLayer.position.copy(this._position.clone()
             .setX(this._position.x - xOffset)
             .setY(this._position.y - sourceTextLayer.size.x / 2)
@@ -330,7 +330,7 @@ export class EnterSite3Gui extends AbstractGui {
         statusbar2RightLayer.renderOrder = renderOrder;
         this.add(statusbar2RightLayer);
 
-        const text41Layer = this._createTextLayer('#str_02989', 'micro', 32, 1, renderOrder, this._ratio);
+        const text41Layer = this._createTextLayer('#str_02989', 'micro', 32, 1, renderOrder);
         text41Layer.position.copy(this._position.clone()
             .setX(this._position.x - xOffset)
             .setY(this._position.y - text41Layer.size.x / 2)
@@ -376,7 +376,7 @@ export class EnterSite3Gui extends AbstractGui {
         destBar1Layer.renderOrder = renderOrder;
         this.add(destBar1Layer);
 
-        const textCurrentLocLayer = this._createTextLayer('#str_04007', 'bank', 15.5, 1, renderOrder, this._ratio);
+        const textCurrentLocLayer = this._createTextLayer('#str_04007', 'bank', 15.5, 1, renderOrder);
         textCurrentLocLayer.position.copy(this._position.clone()
             .setX(this._position.x - xOffset)
             .setY(this._position.y - textCurrentLocLayer.size.x / 2)
@@ -384,7 +384,7 @@ export class EnterSite3Gui extends AbstractGui {
         textCurrentLocLayer.rotation.set(THREE.Math.degToRad(-90), THREE.Math.degToRad(-90), 0);
         this.add(textCurrentLocLayer);
 
-        const textBtn2Layer = this._createTextLayer('#str_04008', 'micro', 42, 0.4, renderOrder, this._ratio);
+        const textBtn2Layer = this._createTextLayer('#str_04008', 'micro', 42, 0.4, renderOrder);
         textBtn2Layer.position.copy(this._position.clone()
             .setX(this._position.x - xOffset)
             .setY(this._position.y - textBtn2Layer.size.x / 2)
