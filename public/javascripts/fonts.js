@@ -3,6 +3,17 @@ export const fonts = {
         32: { // Space
             size: [0.5, 1]
         },
+        46: { // .
+            size: [0.4, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_0_48',
+                repeat: [0.04, 0.15],
+                translate: [0.80, 0.322]
+            }
+        },
         47: { // /
             size: [1, 1],
             material: {
@@ -58,6 +69,39 @@ export const fonts = {
                 translate: [0.653, 0.23]
             }
         },
+        1042: { // В
+            size: [1.1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.12, 0.15],
+                translate: [0.02, 0.853]
+            }
+        },
+        1043: { // Г
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.11, 0.15],
+                translate: [0.195, 0.853]
+            }
+        },
+        1044: { // Д
+            size: [1.25, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.13, 0.15],
+                translate: [0.358, 0.853]
+            }
+        },
         1045: { // Е
             size: [1, 1],
             material: {
@@ -67,6 +111,17 @@ export const fonts = {
                 diffuseMap: 'fonts/english/micro/fontimage_6_48',
                 repeat: [0.11, 0.15],
                 translate: [0.56, 0.853]
+            }
+        },
+        1047: { // З
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.11, 0.15],
+                translate: [0.33, 0.645]
             }
         },
         1048: { // И
@@ -91,6 +146,17 @@ export const fonts = {
                 translate: [0.71, 0.63]
             }
         },
+        1050: { // К
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.11, 0.15],
+                translate: [0.025, 0.437]
+            }
+        },
         1051: { // Л
             size: [1, 1],
             material: {
@@ -100,6 +166,17 @@ export const fonts = {
                 diffuseMap: 'fonts/english/micro/fontimage_6_48',
                 repeat: [0.11, 0.15],
                 translate: [0.305, 0.437]
+            }
+        },
+        1052: { // М
+            size: [1.25, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.15, 0.15],
+                translate: [0.572, 0.437]
             }
         },
         1053: { // Н
@@ -168,6 +245,17 @@ export const fonts = {
                 translate: [0.77, 0.23]
             }
         },
+        1059: { // У
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.11, 0.15],
+                translate: [0.025, 0.023]
+            }
+        },
         1060: { // Ф
             size: [1.25, 1],
             material: {
@@ -179,6 +267,28 @@ export const fonts = {
                 translate: [0.185, 0.023]
             }
         },
+        1062: { // Ц
+            size: [1.25, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                repeat: [0.14, 0.15],
+                translate: [0.78, 0.023]
+            }
+        },
+        1063: { // Ч
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.11, 0.15],
+                translate: [0.018, 0.854]
+            }
+        },
         1067: { // Ы
             size: [1.25, 1],
             material: {
@@ -188,6 +298,39 @@ export const fonts = {
                 diffuseMap: 'fonts/english/micro/fontimage_7_48',
                 repeat: [0.15, 0.15],
                 translate: [0.255, 0.645]
+            }
+        },
+        1068: { // Ь
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.11, 0.15],
+                translate: [0.48, 0.645]
+            }
+        },
+        1070: { // Ю
+            size: [1.5, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.18, 0.15],
+                translate: [0.018, 0.44]
+            }
+        },
+        1071: { // Я
+            size: [1.1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.13, 0.15],
+                translate: [0.278, 0.44]
             }
         },
         1072: { // а
