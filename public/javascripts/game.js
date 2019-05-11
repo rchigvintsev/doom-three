@@ -82,6 +82,7 @@ export class Game {
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFShadowMap;
         this.renderer.domElement.id = 'game_canvas';
+        this.renderer.localClippingEnabled = true;
         document.body.appendChild(this.renderer.domElement);
     }
 

@@ -57,7 +57,7 @@ export class GuiMaterialBuilder extends MaterialBuilder {
                 .translate(-center[0], -center[1])
                 .rotate(rotate(time))
                 .translate(center[0], center[1])
-                .translate(xTranslate(time), yTranslate(time))
+                .translate(xTranslate(time), yTranslate(time));
         };
     }
 

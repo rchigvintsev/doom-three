@@ -1,7 +1,7 @@
-import {currentTime} from "../../util/common-utils.js";
-import {strings} from "../../strings.js";
-import {fonts} from "../../fonts.js";
-import {Faces} from "../../util/face-utils.js";
+import {currentTime} from '../../util/common-utils.js';
+import {strings} from '../../strings.js';
+import {fonts} from '../../fonts.js';
+import {Faces} from '../../util/face-utils.js';
 
 export class AbstractGui extends THREE.Group {
     constructor(parent, materialIndex, materialBuilder) {
@@ -114,7 +114,7 @@ export class AbstractGui extends THREE.Group {
         return layerMesh;
     }
 
-    _createTextLayer(textCode, font, fontSize, opacity, renderOrder, xScale=0.8) {
+    _createTextLayer(textCode, font, fontSize, color, opacity, renderOrder, xScale=0.8) {
         const textLayer = new THREE.Group();
         textLayer.renderOrder = renderOrder;
         textLayer.size = new THREE.Vector2();
@@ -134,8 +134,11 @@ export class AbstractGui extends THREE.Group {
                 if (letter.material) {
                     materialDef = Object.assign({}, letter.material);
                     materialDef.opacity = opacity;
+                    if (color !== undefined)
+                        materialDef.color = color;
                 }
                 const letterLayer = this._createLayer(materialDef, letterSize, letterPosition);
+                letterLayer.material.clipping = true;
                 letterLayer.rotation.set(0, 0, 0);
                 letterLayer.renderOrder = renderOrder;
                 textLayer.add(letterLayer);
