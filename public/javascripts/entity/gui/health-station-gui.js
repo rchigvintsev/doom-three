@@ -42,6 +42,31 @@ const FILL_BOX_CENTER_MATERIAL_DEF = {
     transparent: true
 };
 
+const CRANE_BOX_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/caverns/cranebox',
+    transparent: true,
+    clamp: true,
+    translate: [0.34, 0],
+    color: 0x000000
+};
+
+const RED_CIRCLE1_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/health/circle',
+    transparent: true,
+    opacity: 0.42,
+    color: 0xff0000
+};
+
+const RED_CIRCLE2_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/health/circle',
+    transparent: true,
+    opacity: 0.62,
+    color: 0xff0000
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -262,6 +287,42 @@ export class HealthStationGui extends AbstractGui {
 
         const boundaries = new THREE.Vector2(xOrigin + 2.83, xOrigin + 16.91);
         this._scrollingText = new ScrollingText(textScrollLayer, boundaries, textScrollLayerSize.x, 22000, 2000);
+
+        renderOrder++;
+
+        const circClipOffset = new THREE.Vector2(19, 19);
+
+        const circFrameBtmBlackLayerSize = new THREE.Vector2(489, 208).divide(this._ratio);
+        const circFrameBtmBlackLayerPosition = this._position.clone();
+        circFrameBtmBlackLayerPosition.x = xOrigin + circFrameBtmBlackLayerSize.x / 2
+            + circClipOffset.x / this._ratio.x;
+        circFrameBtmBlackLayerPosition.z = yOrigin + circFrameBtmBlackLayerSize.y / 2
+            + (circClipOffset.y + 204) / this._ratio.y;
+        const circFrameBtmBlackLayer = this._createLayer(CRANE_BOX_MATERIAL_DEF, circFrameBtmBlackLayerSize,
+            circFrameBtmBlackLayerPosition);
+        circFrameBtmBlackLayer.renderOrder = renderOrder;
+        circFrameBtmBlackLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(circFrameBtmBlackLayer);
+
+        renderOrder++;
+
+        const circle1RedLayerSize = new THREE.Vector2(590, 440).divide(this._ratio);
+        const circle1RedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
+        circle1RedLayerPosition.x = xOrigin + circle1RedLayerSize.x / 2 + (circClipOffset.x + 88) / this._ratio.x;
+        circle1RedLayerPosition.z = yOrigin + circle1RedLayerSize.y / 2 + (circClipOffset.y - 10) / this._ratio.y;
+        const circle1RedLayer = this._createLayer(RED_CIRCLE1_MATERIAL_DEF, circle1RedLayerSize, circle1RedLayerPosition);
+        circle1RedLayer.renderOrder = renderOrder;
+        this.add(circle1RedLayer);
+
+        renderOrder++;
+
+        const circle2RedLayerSize = new THREE.Vector2(538, 401).divide(this._ratio);
+        const circle2RedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
+        circle2RedLayerPosition.x = xOrigin + circle2RedLayerSize.x / 2 + (circClipOffset.x + 114) / this._ratio.x;
+        circle2RedLayerPosition.z = yOrigin + circle2RedLayerSize.y / 2 + (circClipOffset.y + 8) / this._ratio.y;
+        const circle2RedLayer = this._createLayer(RED_CIRCLE2_MATERIAL_DEF, circle2RedLayerSize, circle2RedLayerPosition);
+        circle2RedLayer.renderOrder = renderOrder;
+        this.add(circle2RedLayer);
     }
 
     update(time) {
