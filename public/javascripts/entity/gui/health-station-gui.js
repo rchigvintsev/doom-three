@@ -67,6 +67,20 @@ const RED_CIRCLE2_MATERIAL_DEF = {
     color: 0xff0000
 };
 
+const BLACK_CIRCLE_CLIP_MATERIAL_DEF = {
+    type: 'shader',
+    color: 0x000000,
+    transparent: true
+};
+
+const HEALTH_LINE_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/health/line',
+    transparent: true,
+    opacity: 0.4,
+    color: 0xff0000
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -323,6 +337,69 @@ export class HealthStationGui extends AbstractGui {
         const circle2RedLayer = this._createLayer(RED_CIRCLE2_MATERIAL_DEF, circle2RedLayerSize, circle2RedLayerPosition);
         circle2RedLayer.renderOrder = renderOrder;
         this.add(circle2RedLayer);
+
+        renderOrder++;
+
+        const blackCircleClipLayerSize = new THREE.Vector2(221, 346).divide(this._ratio);
+        const blackCircleClipLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
+        blackCircleClipLayerPosition.x = xOrigin + blackCircleClipLayerSize.x / 2
+            + (circClipOffset.x + 385) / this._ratio.x;
+        blackCircleClipLayerPosition.z = yOrigin + blackCircleClipLayerSize.y / 2
+            + (circClipOffset.y + 35) / this._ratio.y;
+        const blackCircleClipLayer = this._createLayer(BLACK_CIRCLE_CLIP_MATERIAL_DEF, blackCircleClipLayerSize,
+            blackCircleClipLayerPosition);
+        blackCircleClipLayer.renderOrder = renderOrder;
+        this.add(blackCircleClipLayer);
+
+        renderOrder++;
+
+        const bar1TopRedLayerSize = new THREE.Vector2(214, 30).divide(this._ratio);
+        const bar1TopRedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(25));
+        bar1TopRedLayerPosition.x = xOrigin + bar1TopRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
+        bar1TopRedLayerPosition.z = yOrigin + bar1TopRedLayerSize.y / 2 + (circClipOffset.y + 36) / this._ratio.y;
+        const bar1TopRedLayer = this._createLayer(HEALTH_LINE_MATERIAL_DEF, bar1TopRedLayerSize,
+            bar1TopRedLayerPosition);
+        bar1TopRedLayer.renderOrder = renderOrder;
+        this.add(bar1TopRedLayer);
+
+        renderOrder++;
+
+        const bar1BtmRedLayerSize = new THREE.Vector2(214, 30).divide(this._ratio);
+        const bar1BtmRedLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(2));
+        bar1BtmRedLayerPosition.x = xOrigin + bar1BtmRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
+        bar1BtmRedLayerPosition.z = yOrigin + bar1BtmRedLayerSize.y / 2 + (circClipOffset.y + 354) / this._ratio.y;
+        const bar1BtmRedLayer = this._createLayer(HEALTH_LINE_MATERIAL_DEF, bar1BtmRedLayerSize,
+            bar1BtmRedLayerPosition);
+        bar1BtmRedLayer.renderOrder = renderOrder;
+        bar1BtmRedLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(bar1BtmRedLayer);
+
+        renderOrder++;
+
+        const bar2TopRedLayerSize = new THREE.Vector2(214, 27).divide(this._ratio);
+        const bar2TopRedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(24));
+        bar2TopRedLayerPosition.x = xOrigin + bar2TopRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
+        bar2TopRedLayerPosition.z = yOrigin + bar2TopRedLayerSize.y / 2 + (circClipOffset.y + 51) / this._ratio.y;
+        const bar2TopLayerMaterialDef = Object.assign({}, HEALTH_LINE_MATERIAL_DEF);
+        bar2TopLayerMaterialDef.opacity = 0.6;
+        const bar2TopRedLayer = this._createLayer(bar2TopLayerMaterialDef, bar2TopRedLayerSize,
+            bar2TopRedLayerPosition);
+        bar2TopRedLayer.renderOrder = renderOrder;
+        this.add(bar2TopRedLayer);
+
+        renderOrder++;
+
+        const bar2BtmRedLayerSize = new THREE.Vector2(214, 27).divide(this._ratio);
+        const bar2BtmRedLayerPosition = this._position.clone();
+        bar2BtmRedLayerPosition.x = xOrigin + bar2BtmRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
+        bar2BtmRedLayerPosition.z = yOrigin + bar2BtmRedLayerSize.y / 2 + (circClipOffset.y + 341) / this._ratio.y;
+        const bar2BtmLayerMaterialDef = Object.assign({}, HEALTH_LINE_MATERIAL_DEF);
+        bar2BtmLayerMaterialDef.opacity = 0.6;
+        const bar2BtmRedLayer = this._createLayer(bar2BtmLayerMaterialDef, bar2BtmRedLayerSize,
+            bar2BtmRedLayerPosition);
+        bar2BtmRedLayer.renderOrder = renderOrder;
+        bar2BtmRedLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(bar2BtmRedLayer);
     }
 
     update(time) {

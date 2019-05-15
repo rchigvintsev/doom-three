@@ -1753,5 +1753,12 @@ export const MATERIALS = {
             blendSrc: 'one_minus_dst_alpha',
             blendDst: 'src_alpha'
         }
-    ]
+    ],
+    'gui/health/circle2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/health/circle',
+        rotate:	'time * -0.05',
+        clamp: true,
+        transparent: true
+    }
 };
