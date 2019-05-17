@@ -46,9 +46,19 @@ const CRANE_BOX_MATERIAL_DEF = {
     type: 'shader',
     diffuseMap: 'guis/assets/caverns/cranebox',
     transparent: true,
+    color: 0x000000,
     clamp: true,
-    translate: [0.34, 0],
-    color: 0x000000
+    translate: [0.34, 0]
+};
+
+const RED_CRANE_BOX_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/caverns/cranebox',
+    transparent: true,
+    opacity: 0.1,
+    color: 0xff0000,
+    clamp: true,
+    translate: [0.34, 0]
 };
 
 const RED_CIRCLE1_MATERIAL_DEF = {
@@ -400,6 +410,29 @@ export class HealthStationGui extends AbstractGui {
         bar2BtmRedLayer.renderOrder = renderOrder;
         bar2BtmRedLayer.rotation.y += THREE.Math.degToRad(180);
         this.add(bar2BtmRedLayer);
+
+        renderOrder++;
+
+        const circFrameBtmLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
+        const circFrameBtmLayerPosition = this._position.clone().add(positionOffset);
+        circFrameBtmLayerPosition.x = xOrigin + circFrameBtmLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
+        circFrameBtmLayerPosition.z = yOrigin + circFrameBtmLayerSize.y / 2 + (circClipOffset.y + 218) / this._ratio.y;
+        const circFrameBtmLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameBtmLayerSize,
+            circFrameBtmLayerPosition);
+        circFrameBtmLayer.renderOrder = renderOrder;
+        circFrameBtmLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(circFrameBtmLayer);
+
+        renderOrder++;
+
+        const circFrameTopLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
+        const circFrameTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(30));
+        circFrameTopLayerPosition.x = xOrigin + circFrameTopLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
+        circFrameTopLayerPosition.z = yOrigin + circFrameTopLayerSize.y / 2 + (circClipOffset.y + 12) / this._ratio.y;
+        const circFrameTopLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameTopLayerSize,
+            circFrameTopLayerPosition);
+        circFrameTopLayer.renderOrder = renderOrder;
+        this.add(circFrameTopLayer);
     }
 
     update(time) {
