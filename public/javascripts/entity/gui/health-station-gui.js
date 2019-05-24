@@ -91,6 +91,34 @@ const HEALTH_LINE_MATERIAL_DEF = {
     color: 0xff0000
 };
 
+const GLOW_BORDER_VERT_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/glowborder_vert',
+    transparent: true,
+    color: 0xb3e6ff
+};
+
+const GLOW_BORDER_HORIZ_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/glowborder_horiz',
+    transparent: true,
+    color: 0xb3e6ff
+};
+
+const GLOW_BORDER_CORNER4_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/glowborder_corner4',
+    transparent: true,
+    color: 0xb3e6ff
+};
+
+const GLOW_BORDER_CORNER3_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/glowborder_corner3',
+    transparent: true,
+    color: 0xb3e6ff
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -414,7 +442,7 @@ export class HealthStationGui extends AbstractGui {
         renderOrder++;
 
         const circFrameBtmLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
-        const circFrameBtmLayerPosition = this._position.clone().add(positionOffset);
+        const circFrameBtmLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
         circFrameBtmLayerPosition.x = xOrigin + circFrameBtmLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
         circFrameBtmLayerPosition.z = yOrigin + circFrameBtmLayerSize.y / 2 + (circClipOffset.y + 218) / this._ratio.y;
         const circFrameBtmLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameBtmLayerSize,
@@ -426,13 +454,107 @@ export class HealthStationGui extends AbstractGui {
         renderOrder++;
 
         const circFrameTopLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
-        const circFrameTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(30));
+        const circFrameTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(19));
         circFrameTopLayerPosition.x = xOrigin + circFrameTopLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
         circFrameTopLayerPosition.z = yOrigin + circFrameTopLayerSize.y / 2 + (circClipOffset.y + 12) / this._ratio.y;
         const circFrameTopLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameTopLayerSize,
             circFrameTopLayerPosition);
         circFrameTopLayer.renderOrder = renderOrder;
         this.add(circFrameTopLayer);
+
+        renderOrder++;
+
+        const rightBorderLayerSize = new THREE.Vector2(59, 352).divide(this._ratio);
+        const rightBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
+        rightBorderLayerPosition.x = xOrigin + rightBorderLayerSize.x / 2 + 576 / this._ratio.x;
+        rightBorderLayerPosition.z = yOrigin + rightBorderLayerSize.y / 2 + 64 / this._ratio.y;
+        const rightBorderLayer = this._createLayer(GLOW_BORDER_VERT_MATERIAL_DEF, rightBorderLayerSize,
+            rightBorderLayerPosition);
+        rightBorderLayer.renderOrder = renderOrder;
+        rightBorderLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(rightBorderLayer);
+
+        renderOrder++;
+
+        const leftBorderLayerSize = new THREE.Vector2(59, 352).divide(this._ratio);
+        const leftBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
+        leftBorderLayerPosition.x = xOrigin + leftBorderLayerSize.x / 2 + 5 / this._ratio.x;
+        leftBorderLayerPosition.z = yOrigin + leftBorderLayerSize.y / 2 + 64 / this._ratio.y;
+        const leftBorderLayer = this._createLayer(GLOW_BORDER_VERT_MATERIAL_DEF, leftBorderLayerSize,
+            leftBorderLayerPosition);
+        leftBorderLayer.renderOrder = renderOrder;
+        this.add(leftBorderLayer);
+
+        renderOrder++;
+
+        const topBorderLayerSize = new THREE.Vector2(512, 59).divide(this._ratio);
+        const topBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
+        topBorderLayerPosition.x = xOrigin + topBorderLayerSize.x / 2 + 64 / this._ratio.x;
+        topBorderLayerPosition.z = yOrigin + topBorderLayerSize.y / 2 + 5 / this._ratio.y;
+        const topBorderLayer = this._createLayer(GLOW_BORDER_HORIZ_MATERIAL_DEF, topBorderLayerSize,
+            topBorderLayerPosition);
+        topBorderLayer.renderOrder = renderOrder;
+        topBorderLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(topBorderLayer);
+
+        renderOrder++;
+
+        const bottomBorderLayerSize = new THREE.Vector2(512, 59).divide(this._ratio);
+        const bottomBorderLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
+        bottomBorderLayerPosition.x = xOrigin + bottomBorderLayerSize.x / 2 + 64 / this._ratio.x;
+        bottomBorderLayerPosition.z = yOrigin + bottomBorderLayerSize.y / 2 + 416 / this._ratio.y;
+        const bottomBorderLayer = this._createLayer(GLOW_BORDER_HORIZ_MATERIAL_DEF, bottomBorderLayerSize,
+            bottomBorderLayerPosition);
+        bottomBorderLayer.renderOrder = renderOrder;
+        this.add(bottomBorderLayer);
+
+        renderOrder++;
+
+        const blCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
+        const blCornerLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
+        blCornerLayerPosition.x = xOrigin + blCornerLayerSize.x / 2 + 5 / this._ratio.x;
+        blCornerLayerPosition.z = yOrigin + blCornerLayerSize.y / 2 + 416 / this._ratio.y;
+        const blCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER4_MATERIAL_DEF, blCornerLayerSize,
+            blCornerLayerPosition);
+        blCornerBorderLayer.renderOrder = renderOrder;
+        blCornerBorderLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(blCornerBorderLayer);
+
+        renderOrder++;
+
+        const brCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
+        const brCornerLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
+        brCornerLayerPosition.x = xOrigin + brCornerLayerSize.x / 2 + 576 / this._ratio.x;
+        brCornerLayerPosition.z = yOrigin + brCornerLayerSize.y / 2 + 416 / this._ratio.y;
+        const brCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER4_MATERIAL_DEF, brCornerLayerSize,
+            brCornerLayerPosition);
+        brCornerBorderLayer.renderOrder = renderOrder;
+        this.add(brCornerBorderLayer);
+
+        renderOrder++;
+
+        const trCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
+        const trCornerLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
+        trCornerLayerPosition.x = xOrigin + trCornerLayerSize.x / 2 + 576 / this._ratio.x;
+        trCornerLayerPosition.z = yOrigin + trCornerLayerSize.y / 2 + 5 / this._ratio.y;
+        const trCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER3_MATERIAL_DEF, trCornerLayerSize,
+            trCornerLayerPosition);
+        trCornerBorderLayer.renderOrder = renderOrder;
+        trCornerBorderLayer.rotation.x += THREE.Math.degToRad(180);
+        trCornerBorderLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(trCornerBorderLayer);
+
+        renderOrder++;
+
+        const tlCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
+        const tlCornerLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
+        tlCornerLayerPosition.x = xOrigin + tlCornerLayerSize.x / 2 + 5 / this._ratio.x;
+        tlCornerLayerPosition.z = yOrigin + tlCornerLayerSize.y / 2 + 5 / this._ratio.y;
+        const tlCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER3_MATERIAL_DEF, tlCornerLayerSize,
+            tlCornerLayerPosition);
+        tlCornerBorderLayer.renderOrder = renderOrder;
+        tlCornerBorderLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(tlCornerBorderLayer);
     }
 
     update(time) {
