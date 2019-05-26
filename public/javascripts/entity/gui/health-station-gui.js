@@ -119,6 +119,14 @@ const GLOW_BORDER_CORNER3_MATERIAL_DEF = {
     color: 0xb3e6ff
 };
 
+const IN_BG_FILL_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/airlock/inbgfill',
+    transparent: true,
+    opacity: 0.2,
+    color: 0x71b4ff
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -555,6 +563,39 @@ export class HealthStationGui extends AbstractGui {
         tlCornerBorderLayer.renderOrder = renderOrder;
         tlCornerBorderLayer.rotation.x += THREE.Math.degToRad(180);
         this.add(tlCornerBorderLayer);
+
+        renderOrder++;
+
+        const text3LayerSize = new THREE.Vector2(300, 144).divide(this._ratio);
+        const text3LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(3));
+        text3LayerPosition.x = xOrigin + text3LayerSize.x / 2 + 300 / this._ratio.x;
+        text3LayerPosition.z = yOrigin + text3LayerSize.y / 2 + 250 / this._ratio.y;
+        const text3Layer = this._createTextLayer('100', 'micro', 70, 0x4f5a65, 1, renderOrder);
+        text3LayerPosition.x += text3LayerSize.x / 2 - text3Layer.size.x;
+        text3Layer.position.copy(text3LayerPosition);
+        text3Layer.rotation.copy(this._rotation);
+        this.add(text3Layer);
+
+        renderOrder++;
+
+        const bgLeftLayerSize = new THREE.Vector2(289, 28).divide(this._ratio);
+        const bgLeftLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
+        bgLeftLayerPosition.x = xOrigin + bgLeftLayerSize.x / 2 + 33 / this._ratio.x;
+        bgLeftLayerPosition.z = yOrigin + bgLeftLayerSize.y / 2 + 433 / this._ratio.y;
+        const bgLeftLayer = this._createLayer(IN_BG_FILL_MATERIAL_DEF, bgLeftLayerSize, bgLeftLayerPosition);
+        bgLeftLayer.renderOrder = renderOrder;
+        this.add(bgLeftLayer);
+
+        renderOrder++;
+
+        const bgRightLayerSize = new THREE.Vector2(289, 28).divide(this._ratio);
+        const bgRightLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
+        bgRightLayerPosition.x = xOrigin + bgRightLayerSize.x / 2 + 317 / this._ratio.x;
+        bgRightLayerPosition.z = yOrigin + bgRightLayerSize.y / 2 + 433 / this._ratio.y;
+        const bgRightLayer = this._createLayer(IN_BG_FILL_MATERIAL_DEF, bgRightLayerSize, bgRightLayerPosition);
+        bgRightLayer.renderOrder = renderOrder;
+        bgRightLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(bgRightLayer);
     }
 
     update(time) {

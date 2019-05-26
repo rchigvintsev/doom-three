@@ -36,6 +36,17 @@ export const fonts = {
                 translate: [0.155, 0.855]
             }
         },
+        49: { // 1
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.12, 0.15],
+                translate: [0.3, 0.855]
+            }
+        },
         51: { // 3
             size: [1, 1],
             material: {
