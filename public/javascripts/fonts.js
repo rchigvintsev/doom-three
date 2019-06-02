@@ -1,7 +1,29 @@
 export const fonts = {
     micro: {
+        8470: { // №
+            size: [1.8, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                repeat: [0.20, 0.15],
+                translate: [0.77, 0.645]
+            }
+        },
         32: { // Space
             size: [0.5, 1]
+        },
+        45: { // -
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                repeat: [0.12, 0.12],
+                translate: [0.775, 0.92]
+            }
         },
         46: { // .
             size: [0.4, 1],
@@ -37,14 +59,25 @@ export const fonts = {
             }
         },
         49: { // 1
+            size: [0.8, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.09, 0.15],
+                translate: [0.335, 0.855]
+            }
+        },
+        50: { // 2
             size: [1, 1],
             material: {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
                 diffuseMap: 'fonts/english/micro/fontimage_1_48',
-                repeat: [0.12, 0.15],
-                translate: [0.3, 0.855]
+                repeat: [0.11, 0.15],
+                translate: [0.455, 0.855]
             }
         },
         51: { // 3
@@ -56,6 +89,61 @@ export const fonts = {
                 diffuseMap: 'fonts/english/micro/fontimage_1_48',
                 repeat: [0.11, 0.15],
                 translate: [0.626, 0.855]
+            }
+        },
+        57: { // 9
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.11, 0.15],
+                translate: [0.693, 0.648]
+            }
+        },
+        58: { // :
+            size: [0.5, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.05, 0.15],
+                translate: [0.86, 0.648]
+            }
+        },
+        65: { // A
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.11, 0.15],
+                translate: [0.693, 0.44]
+            }
+        },
+        67: { // A
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                repeat: [0.11, 0.15],
+                translate: [0.175, 0.233]
+            }
+        },
+        85: { // U
+            size: [1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_2_48',
+                repeat: [0.11, 0.15],
+                translate: [0.52, 0.44]
             }
         },
         1040: { // А
@@ -298,6 +386,17 @@ export const fonts = {
                 diffuseMap: 'fonts/english/micro/fontimage_7_48',
                 repeat: [0.11, 0.15],
                 translate: [0.018, 0.854]
+            }
+        },
+        1065: { // Щ
+            size: [1.5, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.18, 0.15],
+                translate: [0.48, 0.854]
             }
         },
         1067: { // Ы

@@ -596,6 +596,30 @@ export class HealthStationGui extends AbstractGui {
         bgRightLayer.renderOrder = renderOrder;
         bgRightLayer.rotation.y += THREE.Math.degToRad(180);
         this.add(bgRightLayer);
+
+        renderOrder++;
+
+        const textTitleLayerSize = new THREE.Vector2(602, 56).divide(this._ratio);
+        const textTitleLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
+        textTitleLayerPosition.x = xOrigin + textTitleLayerSize.x / 2 - 70 / this._ratio.x;
+        textTitleLayerPosition.z = yOrigin + textTitleLayerSize.y / 2 + 10 / this._ratio.y;
+        const textTitleLayer = this._createTextLayer('#str_00771', 'micro', 25, 0xffffff, 0.7, renderOrder);
+        textTitleLayerPosition.x += textTitleLayerSize.x / 2 - textTitleLayer.size.x;
+        textTitleLayer.position.copy(textTitleLayerPosition);
+        textTitleLayer.rotation.copy(this._rotation);
+        this.add(textTitleLayer);
+
+        renderOrder++;
+
+        const textTitleStationIdLayerSize = new THREE.Vector2(566, 33).divide(this._ratio);
+        const textTitleStationIdLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(6));
+        textTitleStationIdLayerPosition.x = xOrigin + textTitleStationIdLayerSize.x / 2 + 6 / this._ratio.x;
+        textTitleStationIdLayerPosition.z = yOrigin + textTitleStationIdLayerSize.y / 2 + 431 / this._ratio.y;
+        const textTitleStationIdLayer = this._createTextLayer('#str_00772', 'micro', 17, 0xe6f2ff, 0.5, renderOrder);
+        textTitleStationIdLayerPosition.x += textTitleStationIdLayerSize.x / 2 - textTitleStationIdLayer.size.x;
+        textTitleStationIdLayer.position.copy(textTitleStationIdLayerPosition);
+        textTitleStationIdLayer.rotation.copy(this._rotation);
+        this.add(textTitleStationIdLayer);
     }
 
     update(time) {
