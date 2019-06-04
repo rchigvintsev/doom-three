@@ -118,35 +118,66 @@ export class AbstractGui extends THREE.Group {
         const textLayer = new THREE.Group();
         textLayer.renderOrder = renderOrder;
         textLayer.size = new THREE.Vector2();
+        const lines = [];
 
         const textString = strings[textCode] || textCode;
-        let textWidth = 0;
+        let textWidth = 0, textHeight = 0;
+        let hOffset = 0, vOffset = 0;
+        let lineNumber = 0;
         for (let i = 0; i < textString.length; i++) {
             const charCode = textString.charCodeAt(i);
-            const letter = fonts[font][charCode];
-            if (!letter)
-                console.error('Font "' + font + '" does not support character with code ' + charCode);
-            else {
-                const letterSize = new THREE.Vector2(letter.size[0] * fontSize * xScale, letter.size[1] * fontSize)
-                    .divide(this._ratio);
-                const letterPosition = new THREE.Vector3(textWidth + letterSize.x / 2, 0, 0);
-                let materialDef = null;
-                if (letter.material) {
-                    materialDef = Object.assign({}, letter.material);
-                    materialDef.opacity = opacity;
-                    if (color !== undefined)
-                        materialDef.color = color;
+            if (charCode === 10) {
+                vOffset -= 1.5 * fontSize / this._ratio.y;
+                hOffset = 0;
+                lineNumber++;
+            } else {
+                const letter = fonts[font][charCode];
+                if (!letter)
+                    console.error('Font "' + font + '" does not support character with code ' + charCode);
+                else {
+                    const letterSize = new THREE.Vector2(letter.size[0] * fontSize * xScale, letter.size[1] * fontSize)
+                        .divide(this._ratio);
+                    const letterPosition = new THREE.Vector3(hOffset + letterSize.x / 2, vOffset, 0);
+                    let materialDef = null;
+                    if (letter.material) {
+                        materialDef = Object.assign({}, letter.material);
+                        materialDef.opacity = opacity;
+                        if (color !== undefined)
+                            materialDef.color = color;
+                    }
+                    const letterLayer = this._createLayer(materialDef, letterSize, letterPosition);
+                    letterLayer.material.clipping = true;
+                    letterLayer.rotation.set(0, 0, 0);
+                    letterLayer.renderOrder = renderOrder;
+                    textLayer.add(letterLayer);
+
+                    hOffset += letterSize.x;
+
+                    if (hOffset > textWidth)
+                        textWidth = hOffset;
+                    if (vOffset > textHeight)
+                        textHeight = vOffset;
+
+                    if (lines.length === lineNumber)
+                        lines.push({size: 0, letters: []});
+                    lines[lineNumber].letters.push(letterLayer);
+                    lines[lineNumber].size = hOffset;
                 }
-                const letterLayer = this._createLayer(materialDef, letterSize, letterPosition);
-                letterLayer.material.clipping = true;
-                letterLayer.rotation.set(0, 0, 0);
-                letterLayer.renderOrder = renderOrder;
-                textLayer.add(letterLayer);
-                textWidth += letterSize.x
             }
         }
 
         textLayer.size.x = textWidth;
+        textLayer.size.y = textHeight;
+
+        // Align text to center
+        for (let line of lines) {
+            if (line.size < textWidth) {
+                const hOffset = (textWidth - line.size) / 2;
+                for (let letter of line.letters)
+                    letter.position.x += hOffset;
+            }
+        }
+
         return textLayer;
     }
 }

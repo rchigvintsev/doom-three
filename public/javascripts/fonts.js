@@ -399,6 +399,17 @@ export const fonts = {
                 translate: [0.48, 0.854]
             }
         },
+        1066: { // Ъ
+            size: [1.1, 1],
+            material: {
+                type: 'shader',
+                clamp: true,
+                transparent: true,
+                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                repeat: [0.12, 0.15],
+                translate: [0.023, 0.645]
+            }
+        },
         1067: { // Ы
             size: [1.25, 1],
             material: {

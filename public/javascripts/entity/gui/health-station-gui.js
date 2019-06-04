@@ -127,6 +127,29 @@ const IN_BG_FILL_MATERIAL_DEF = {
     color: 0x71b4ff
 };
 
+const OUTER_SHADOW_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/outershadow',
+    transparent: true,
+    color: 0xffffff
+};
+
+const BUTTON2_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/health/button2',
+    transparent: true,
+    opacity: 0.5,
+    color: 0xcccccc
+};
+
+const BUTTON2_BAR_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/health/button2bar',
+    transparent: true,
+    opacity: 0.2,
+    color: 0xffffff
+};
+
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
@@ -567,10 +590,10 @@ export class HealthStationGui extends AbstractGui {
         renderOrder++;
 
         const text3LayerSize = new THREE.Vector2(300, 144).divide(this._ratio);
-        const text3LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(3));
+        const text3LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(4));
         text3LayerPosition.x = xOrigin + text3LayerSize.x / 2 + 300 / this._ratio.x;
-        text3LayerPosition.z = yOrigin + text3LayerSize.y / 2 + 250 / this._ratio.y;
-        const text3Layer = this._createTextLayer('100', 'micro', 70, 0x4f5a65, 1, renderOrder);
+        text3LayerPosition.z = yOrigin + text3LayerSize.y / 2 + 246 / this._ratio.y;
+        const text3Layer = this._createTextLayer('100', 'micro', 80, 0x4f5a65, 1, renderOrder);
         text3LayerPosition.x += text3LayerSize.x / 2 - text3Layer.size.x;
         text3Layer.position.copy(text3LayerPosition);
         text3Layer.rotation.copy(this._rotation);
@@ -620,6 +643,74 @@ export class HealthStationGui extends AbstractGui {
         textTitleStationIdLayer.position.copy(textTitleStationIdLayerPosition);
         textTitleStationIdLayer.rotation.copy(this._rotation);
         this.add(textTitleStationIdLayer);
+
+        renderOrder++;
+
+        const outerShadowLayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const outerShadowLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
+        outerShadowLayerPosition.x = xOrigin + outerShadowLayerSize.x / 2;
+        outerShadowLayerPosition.z = yOrigin + outerShadowLayerSize.y / 2;
+        const outerShadowLayer = this._createLayer(OUTER_SHADOW_MATERIAL_DEF, outerShadowLayerSize,
+            outerShadowLayerPosition);
+        outerShadowLayer.renderOrder = renderOrder;
+        outerShadowLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(outerShadowLayer);
+
+        renderOrder++;
+
+        const textTitleChargesLayerSize = new THREE.Vector2(291, 33).divide(this._ratio);
+        const textTitleChargesLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
+        textTitleChargesLayerPosition.x = xOrigin + textTitleChargesLayerSize.x / 2 + 278 / this._ratio.x;
+        textTitleChargesLayerPosition.z = yOrigin + textTitleChargesLayerSize.y / 2 + 248 / this._ratio.y;
+        const textTitleChargesLayer = this._createTextLayer('#str_00773', 'micro', 19, 0xe6f2ff, 0.5, renderOrder);
+        textTitleChargesLayerPosition.x += textTitleChargesLayerSize.x / 2 - textTitleChargesLayer.size.x;
+        textTitleChargesLayer.position.copy(textTitleChargesLayerPosition);
+        textTitleChargesLayer.rotation.copy(this._rotation);
+        this.add(textTitleChargesLayer);
+
+        renderOrder++;
+
+        const bgButtonBtmLayerSize = new THREE.Vector2(521, 186).divide(this._ratio);
+        const bgButtonBtmLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
+        bgButtonBtmLayerPosition.x = xOrigin + bgButtonBtmLayerSize.x / 2 + 168 / this._ratio.x;
+        bgButtonBtmLayerPosition.z = yOrigin + bgButtonBtmLayerSize.y / 2 + 182 / this._ratio.y;
+        const bgButtonBtmLayer = this._createLayer(BUTTON2_MATERIAL_DEF, bgButtonBtmLayerSize, bgButtonBtmLayerPosition);
+        bgButtonBtmLayer.renderOrder = renderOrder;
+        bgButtonBtmLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(bgButtonBtmLayer);
+
+        renderOrder++;
+
+        const bgButtonBorderLayerSize = new THREE.Vector2(123, 29).divide(this._ratio);
+        const bgButtonBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
+        bgButtonBorderLayerPosition.x = xOrigin + bgButtonBorderLayerSize.x / 2 + 218 / this._ratio.x;
+        bgButtonBorderLayerPosition.z = yOrigin + bgButtonBorderLayerSize.y / 2 + 250 / this._ratio.y;
+        const bgButtonBorderLayer = this._createLayer(BUTTON2_BAR_MATERIAL_DEF, bgButtonBorderLayerSize, bgButtonBorderLayerPosition);
+        bgButtonBorderLayer.renderOrder = renderOrder;
+        bgButtonBorderLayer.rotation.x += THREE.Math.degToRad(180);
+        this.add(bgButtonBorderLayer);
+
+        renderOrder++;
+
+        const bgButtonTopLayerSize = new THREE.Vector2(521, 186).divide(this._ratio);
+        const bgButtonTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(17));
+        bgButtonTopLayerPosition.x = xOrigin + bgButtonTopLayerSize.x / 2 + 168 / this._ratio.x;
+        bgButtonTopLayerPosition.z = yOrigin + bgButtonTopLayerSize.y / 2 + 86 / this._ratio.y;
+        const bgButtonTopLayer = this._createLayer(BUTTON2_MATERIAL_DEF, bgButtonTopLayerSize, bgButtonTopLayerPosition);
+        bgButtonTopLayer.renderOrder = renderOrder;
+        this.add(bgButtonTopLayer);
+
+        renderOrder++;
+
+        const textBtnLayerSize = new THREE.Vector2(321, 103).divide(this._ratio);
+        const textBtnLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(16));
+        textBtnLayerPosition.x = xOrigin + textBtnLayerSize.x / 2 + 226 / this._ratio.x;
+        textBtnLayerPosition.z = yOrigin + textBtnLayerSize.y / 2 + 145 / this._ratio.y;
+        const textBtnLayer = this._createTextLayer('#str_00775', 'micro', 25, 0xffffff, 0.2, renderOrder);
+        textBtnLayerPosition.x += textBtnLayerSize.x / 2 - textBtnLayer.size.x;
+        textBtnLayer.position.copy(textBtnLayerPosition);
+        textBtnLayer.rotation.copy(this._rotation);
+        this.add(textBtnLayer);
     }
 
     update(time) {
