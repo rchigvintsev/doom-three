@@ -415,7 +415,7 @@ export class EnterSite3Gui extends AbstractGui {
             const materialDef = Object.assign(material);
             materialDef.opacity = {expression: 'table("pdhalffade", time * 0.001) / 10'};
             materialDef.color = 0xffffff;
-            const layer = this._createLayer(material, staticSize, staticPosition);
+            const layer = this._createLayer(materialDef, staticSize, staticPosition);
             layer.renderOrder = renderOrder;
             this.add(layer);
             this._materials.push(layer.material);

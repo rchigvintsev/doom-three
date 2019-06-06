@@ -33,13 +33,17 @@ const HORIZONTAL_BORDER_MATERIAL_DEF = {
 const FILL_BOX_CAP_MATERIAL_DEF = {
     type: 'shader',
     diffuseMap: 'guis/assets/common/scibox/fillboxCap',
-    transparent: true
+    transparent: true,
+    color: 0xff0000,
+    opacity: 0.2
 };
 
 const FILL_BOX_CENTER_MATERIAL_DEF = {
     type: 'shader',
     diffuseMap: 'guis/assets/common/scibox/fillboxCenter',
-    transparent: true
+    transparent: true,
+    color: 0xff0000,
+    opacity: 0.2
 };
 
 const CRANE_BOX_MATERIAL_DEF = {
@@ -55,7 +59,7 @@ const RED_CRANE_BOX_MATERIAL_DEF = {
     type: 'shader',
     diffuseMap: 'guis/assets/caverns/cranebox',
     transparent: true,
-    opacity: 0.1,
+    opacity: 0.15,
     color: 0xff0000,
     clamp: true,
     translate: [0.34, 0]
@@ -148,6 +152,22 @@ const BUTTON2_BAR_MATERIAL_DEF = {
     transparent: true,
     opacity: 0.2,
     color: 0xffffff
+};
+
+const DIRT4_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/common/dirt4',
+    transparent: true,
+    opacity: 0.2,
+    color: 0xffffff
+};
+
+const B_GLOW_MATERIAL_DEF = {
+    type: 'shader',
+    diffuseMap: 'guis/assets/cpuserver/bglow',
+    transparent: true,
+    opacity: 0.1,
+    color: 0xffcccc
 };
 
 export class HealthStationGui extends AbstractGui {
@@ -278,8 +298,7 @@ export class HealthStationGui extends AbstractGui {
         const fillBoxTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(15));
         fillBoxTopLayerPosition.x = xOrigin + fillBoxTopLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
         fillBoxTopLayerPosition.z = yOrigin + fillBoxTopLayerSize.y / 2 + (hrWinOffset.y + 2) / this._ratio.y;
-        const fillBoxTopLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CAP_MATERIAL_DEF);
-        const fillBoxTopLayer = this._createLayer(fillBoxTopLayerMaterial, fillBoxTopLayerSize,
+        const fillBoxTopLayer = this._createLayer(FILL_BOX_CAP_MATERIAL_DEF, fillBoxTopLayerSize,
             fillBoxTopLayerPosition);
         fillBoxTopLayer.renderOrder = renderOrder;
         this.add(fillBoxTopLayer);
@@ -290,8 +309,7 @@ export class HealthStationGui extends AbstractGui {
         const fillBoxCenterLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(7));
         fillBoxCenterLayerPosition.x = xOrigin + fillBoxCenterLayerSize.x / 2 + (hrWinOffset.x - 54) / this._ratio.x;
         fillBoxCenterLayerPosition.z = yOrigin + fillBoxCenterLayerSize.y / 2 + (hrWinOffset.y + 27) / this._ratio.y;
-        const fillBoxCenterLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CENTER_MATERIAL_DEF);
-        const fillBoxCenterLayer = this._createLayer(fillBoxCenterLayerMaterial, fillBoxCenterLayerSize,
+        const fillBoxCenterLayer = this._createLayer(FILL_BOX_CENTER_MATERIAL_DEF, fillBoxCenterLayerSize,
             fillBoxCenterLayerPosition);
         fillBoxCenterLayer.renderOrder = renderOrder;
         this.add(fillBoxCenterLayer);
@@ -302,8 +320,7 @@ export class HealthStationGui extends AbstractGui {
         const fillBoxBottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
         fillBoxBottomLayerPosition.x = xOrigin + fillBoxBottomLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
         fillBoxBottomLayerPosition.z = yOrigin + fillBoxBottomLayerSize.y / 2 + (hrWinOffset.y + 260) / this._ratio.y;
-        const fillBoxBottomLayerMaterial = Object.assign({color: 0xff0000, opacity: 0.15}, FILL_BOX_CAP_MATERIAL_DEF);
-        const fillBoxBottomLayer = this._createLayer(fillBoxBottomLayerMaterial, fillBoxBottomLayerSize,
+        const fillBoxBottomLayer = this._createLayer(FILL_BOX_CAP_MATERIAL_DEF, fillBoxBottomLayerSize,
             fillBoxBottomLayerPosition);
         fillBoxBottomLayer.rotation.x += THREE.Math.degToRad(180);
         fillBoxBottomLayer.renderOrder = renderOrder;
@@ -711,6 +728,84 @@ export class HealthStationGui extends AbstractGui {
         textBtnLayer.position.copy(textBtnLayerPosition);
         textBtnLayer.rotation.copy(this._rotation);
         this.add(textBtnLayer);
+
+        renderOrder++;
+
+        const static1LayerSize = new THREE.Vector2(660, 500).divide(this._ratio);
+        const static1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(12));
+        static1LayerPosition.x = xOrigin + static1LayerSize.x / 2 - 8 / this._ratio.x;
+        static1LayerPosition.z = yOrigin + static1LayerSize.y / 2 - 8 / this._ratio.y;
+        const staticMaterials = MATERIALS['gui/static'];
+        for (let material of staticMaterials) {
+            const materialDef = Object.assign({}, material);
+            materialDef.opacity = {expression: 'table("pdhalffade", time * 0.001) / 8'};
+            materialDef.color = 0xffffff;
+            const static1Layer = this._createLayer(materialDef, static1LayerSize, static1LayerPosition);
+            static1Layer.renderOrder = renderOrder;
+            static1Layer.rotation.y += THREE.Math.degToRad(180);
+            this.add(static1Layer);
+            this._materials.push(static1Layer.material);
+            renderOrder++;
+        }
+
+        const outerShadow1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const outerShadow1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
+        outerShadow1LayerPosition.x = xOrigin + outerShadow1LayerSize.x / 2;
+        outerShadow1LayerPosition.z = yOrigin + outerShadow1LayerSize.y / 2;
+        const outserShadow1Layer = this._createLayer(OUTER_SHADOW_MATERIAL_DEF, outerShadow1LayerSize,
+            outerShadow1LayerPosition);
+        outserShadow1Layer.renderOrder = renderOrder;
+        outserShadow1Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(outserShadow1Layer);
+
+        renderOrder++;
+
+        const dirt1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const dirt1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
+        dirt1LayerPosition.x = xOrigin + dirt1LayerSize.x / 2;
+        dirt1LayerPosition.z = yOrigin + dirt1LayerSize.y / 2;
+        const dirt1Layer = this._createLayer(DIRT4_MATERIAL_DEF, dirt1LayerSize, dirt1LayerPosition);
+        dirt1Layer.renderOrder = renderOrder;
+        dirt1Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(dirt1Layer);
+
+        renderOrder++;
+
+        const scanLines1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const scanLines1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
+        scanLines1LayerPosition.x = xOrigin + scanLines1LayerSize.x / 2;
+        scanLines1LayerPosition.z = yOrigin + scanLines1LayerSize.y / 2;
+        const scanLines1Material = Object.assign({color: 0x333333}, MATERIALS['gui/test/gui_scanlines5']);
+        const scanLines1Layer = this._createLayer(scanLines1Material, scanLines1LayerSize, scanLines1LayerPosition, 2);
+        scanLines1Layer.renderOrder = renderOrder;
+        scanLines1Layer.rotation.x += THREE.Math.degToRad(180);
+        scanLines1Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(scanLines1Layer);
+        this._materials.push(scanLines1Layer.material);
+
+        renderOrder++;
+
+        const addHighlight1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const addHighlight1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
+        addHighlight1LayerPosition.x = xOrigin + addHighlight1LayerSize.x / 2;
+        addHighlight1LayerPosition.z = yOrigin + addHighlight1LayerSize.y / 2;
+        const addHighlight1Material = Object.assign({color: 0xcccccc}, MATERIALS['gui/addhighlight']);
+        const addHighlight1Layer = this._createLayer(addHighlight1Material, addHighlight1LayerSize,
+            addHighlight1LayerPosition);
+        addHighlight1Layer.renderOrder = renderOrder;
+        addHighlight1Layer.rotation.y += THREE.Math.degToRad(180);
+        this.add(addHighlight1Layer);
+
+        renderOrder++;
+
+        const bGlowLayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
+        const bGlowLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
+        bGlowLayerPosition.x = xOrigin + bGlowLayerSize.x / 2;
+        bGlowLayerPosition.z = yOrigin + bGlowLayerSize.y / 2;
+        const bGlowLayer = this._createLayer(B_GLOW_MATERIAL_DEF, bGlowLayerSize, bGlowLayerPosition);
+        bGlowLayer.renderOrder = renderOrder;
+        bGlowLayer.rotation.y += THREE.Math.degToRad(180);
+        this.add(bGlowLayer);
     }
 
     update(time) {
