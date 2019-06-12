@@ -1,5 +1,5 @@
 import {GameWorld} from '../../game-world.js';
-import {LwoModel} from "./lwo-model.js";
+import {LwoModel} from './lwo-model.js';
 
 const MOVE_SPEED = 40 * GameWorld.WORLD_SCALE;
 

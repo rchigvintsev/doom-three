@@ -151,5 +151,24 @@ export const MODELS = {
                 }
             ]
         }
+    },
+    'models/mapobjects/healthgui/healthgui.lwo': {
+        cm: {
+            bodies: [
+                {
+                    mass: 0,
+                    material: 'default',
+                    shapes: [
+                        {
+                            type: 'box',
+                            width: 32,
+                            height: 21,
+                            depth: 54,
+                            offset: [0, 11, 3]
+                        }
+                    ]
+                }
+            ]
+        }
     }
 };
