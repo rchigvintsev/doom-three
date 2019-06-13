@@ -15,6 +15,7 @@ export class LightFactory extends EntityFactory {
             light = new THREE.SpotLight(lightDef.color, lightDef.intensity, lightDistance, lightDef.angle);
         else
             throw 'Unsupported light type: ' + lightDef.type;
+        light.name = lightDef.name;
         light.position.fromArray(lightDef.position);
         if (scale)
             light.position.multiplyScalar(GameWorld.WORLD_SCALE);

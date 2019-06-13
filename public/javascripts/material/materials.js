@@ -359,7 +359,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_light/sterlightdecal_d',
         specularMap: 'textures/base_light/sterlightdecal_s',
         normalMap: 'textures/base_light/sterlightdecal_local',
-        additional: 'textures/base_light/sterlightdecalred_add',
+        additionalMap: 'textures/base_light/sterlightdecalred_add',
         transparent: true
     },
     'textures/base_floor/grill_floor2': {
@@ -467,7 +467,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel4blk_d',
         specularMap: 'textures/object/a_conpanel4_s',
         normalMap: 'textures/object/a_conpanel4_local',
-        additional: 'textures/object/a_conpanel4_add'
+        additionalMap: 'textures/object/a_conpanel4_add'
     },
     'textures/base_floor/floorvent02': {
         diffuseMap: 'textures/base_floor/floorvent02_d',
@@ -529,7 +529,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel3blk_d01',
         specularMap: 'textures/object/a_conpanel3_s01',
         normalMap: 'textures/object/a_conpanel3_local',
-        additional: 'textures/object/a_conpanel3_add'
+        additionalMap: 'textures/object/a_conpanel3_add'
     },
     'textures/caves/cavwafpanel1win': {
         diffuseMap: 'textures/caves/cavwafpanel1win_d',
@@ -552,7 +552,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel2blk_d01',
         specularMap: 'textures/object/a_conpanel2_s01',
         normalMap: 'textures/object/a_conpanel2_local',
-        additional: 'textures/object/a_conpanel2_add'
+        additionalMap: 'textures/object/a_conpanel2_add'
     },
     'textures/enpro/enwall14': {
         diffuseMap: 'textures/enpro/enwall14',
@@ -582,7 +582,8 @@ export const MATERIALS = {
     'textures/base_wall/skpanel20d': {
         diffuseMap: 'textures/base_wall/skpanel20d',
         specularMap: 'textures/base_wall/skpanel20c_s',
-        normalMap: 'textures/base_wall/skpanel20_local'
+        normalMap: 'textures/base_wall/skpanel20_local',
+        specular: 0x808080
     },
     'textures/base_wall/lfwall25': {
         diffuseMap: 'textures/base_wall/lfwall25',
@@ -635,7 +636,8 @@ export const MATERIALS = {
                 bumpMap: 'textures/base_floor/a_diafloor_b1_fin',
                 scale: 4
             }
-        }
+        },
+        specular: 0x808080
     },
     'textures/base_wall/lfwall19': {
         diffuseMap: 'textures/base_wall/lfwall19',
@@ -670,7 +672,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel6blk_d',
         specularMap: 'textures/object/a_conpanel6_s',
         normalMap: 'textures/object/a_conpanel6_local',
-        additional: 'textures/object/a_conpanel6_add'
+        additionalMap: 'textures/object/a_conpanel6_add'
     },
     'textures/base_trim/steslashtrim2': {
         diffuseMap: 'textures/base_trim/steslashtrim2_d',
@@ -696,7 +698,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conmonitorxl1blk_d',
         specularMap: 'textures/object/a_conmonitorxl1_s',
         normalMap: 'textures/object/a_conmonitorxl1_local',
-        additional: 'textures/object/a_conmonitorxl1_add'
+        additionalMap: 'textures/object/a_conmonitorxl1_add'
     },
     'textures/base_floor/a_skpanel5_03': {
         diffuseMap: 'textures/base_floor/a_skpanel5_d03',
@@ -713,7 +715,7 @@ export const MATERIALS = {
     'textures/base_light/striplight5a_ed': {
         diffuseMap: 'textures/base_light/striplight5a_d',
         specularMap: 'textures/base_light/striplight5a_s',
-        additional: 'textures/base_light/striplight5aadd',
+        additionalMap: 'textures/base_light/striplight5aadd',
         normalMap: {
             name: 'textures/base_light/striplight2_local+striplight5a_b',
             addNormals: {
@@ -844,7 +846,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_light/stehalllight_d',
         specularMap: 'textures/base_light/stehalllight_s',
         normalMap: 'textures/base_light/stehalllight_local',
-        additional: 'textures/base_light/stehalllight_add'
+        additionalMap: 'textures/base_light/stehalllight_add'
     },
     'textures/glass/outdoor_glass1': {
         color: 0xa3a3a3,
@@ -957,7 +959,7 @@ export const MATERIALS = {
         opacity: 0.3,
         specular: 0xffffff,
         shininess: 68,
-        additional: {
+        additionalMap: {
             diffuseMap: {
                 name: 'textures/hell/wrinklewall_tile_ss',
                 translate: ['-0.005 * sin(time)', '0.01 * sin(time)']
@@ -1044,7 +1046,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_wall/skpanel7_d',
         specularMap: 'textures/base_wall/skpanel7_s',
         normalMap: 'textures/base_wall/skpanel7_local',
-        additional: 'textures/base_wall/skpanel7_add'
+        additionalMap: 'textures/base_wall/skpanel7_add'
     },
     'textures/base_trim/hose01': {
         diffuseMap: 'textures/base_trim/hose01_d',
@@ -1061,7 +1063,7 @@ export const MATERIALS = {
     'textures/object/elec_box1': {
         diffuseMap: 'textures/base_trim/elec_box1_d',
         normalMap: 'textures/base_trim/elec_box1_local',
-        additional: 'textures/base_trim/elec_box1_add'
+        additionalMap: 'textures/base_trim/elec_box1_add'
     },
     'textures/object/elec_box1s': {
         diffuseMap: 'textures/base_trim/elec_box1s_d',
@@ -1163,7 +1165,7 @@ export const MATERIALS = {
     'textures/base_light/striplight6_ed': {
         diffuseMap: 'textures/base_light/striplight6_d',
         specularMap: 'textures/base_light/striplight5a_s',
-        additional: 'textures/base_light/striplight6add',
+        additionalMap: 'textures/base_light/striplight6add',
         normalMap: {
             name: 'textures/base_light/striplight2_local+striplight5a_b',
             addNormals: {
@@ -1231,7 +1233,7 @@ export const MATERIALS = {
     'textures/base_light/snpanel15light': {
         diffuseMap: 'textures/base_light/snpanel15light_d',
         normalMap: 'textures/base_light/snpanel15light_local',
-        additional: 'textures/base_light/snpanel15light_add'
+        additionalMap: 'textures/base_light/snpanel15light_add'
     },
     'textures/base_wall/a_sopanel2a_d01b': {
         diffuseMap: 'textures/base_wall/a_sopanel2a_d01b',
@@ -1272,7 +1274,7 @@ export const MATERIALS = {
         normalMap: 'models/mapobjects/hell/Site3/archviletemple/candle_b_local',
         specular: 0xffffff,
         shininess: 100,
-        additional: {
+        additionalMap: {
             diffuseMap: 'models/mapobjects/hell/Site3/archviletemple/candle_b_add',
             rgb: {
                 expr: 'now * 0.006',
@@ -1313,7 +1315,7 @@ export const MATERIALS = {
         blending: 'custom',
         blendSrc: 'dst_color',
         blendDst: 'zero',
-        additional: {
+        additionalMap: {
             diffuseMap: {
                 name: 'textures/decals/blood_drip1a',
                 translate: ['1', 'time * 0.02']
