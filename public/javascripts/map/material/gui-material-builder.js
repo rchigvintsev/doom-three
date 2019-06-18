@@ -15,8 +15,8 @@ export class GuiMaterialBuilder extends MaterialBuilder {
         materialDef.type = 'shader'; // GUI supports only shader materials
         const material = super.build(name, materialDef);
         material.side = THREE.DoubleSide;
-        if (textures.diffuseMap)
-            material.uniforms.map.value = textures.diffuseMap;
+        if (textures[0].diffuseMap)
+            material.uniforms.map.value = textures[0].diffuseMap;
         return material;
     }
 

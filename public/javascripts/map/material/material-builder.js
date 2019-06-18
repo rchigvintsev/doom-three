@@ -1,5 +1,6 @@
 import {AssetLoader} from '../../asset-loader.js';
 import {TABLES} from '../../material/tables.js';
+import {LightBasicMaterial} from '../../material/light-basic-material.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
@@ -14,14 +15,16 @@ export class MaterialBuilder {
         return new MaterialBuilder(this._assetLoader);
     }
 
-    build(name, definition) {
+    build(name, materialDef) {
         const materials = [];
 
         let material;
-        if (definition.type === 'basic')
+        if (materialDef.type === 'basic')
             material = this.newBasicMaterial();
-        else if (definition.type === 'shader')
-            material = this.newShaderMaterial(name, definition);
+        else if (materialDef.type === 'light_basic')
+            material = new LightBasicMaterial();
+        else if (materialDef.type === 'shader')
+            material = this.newShaderMaterial(name, materialDef);
         else
             material = this.newPhongMaterial();
 
@@ -38,14 +41,14 @@ export class MaterialBuilder {
 
         materials.push(material);
 
-        if (definition.diffuseMap) {
-            const diffuseMapName = typeof definition.diffuseMap === 'string' ? definition.diffuseMap
-                : definition.diffuseMap.name;
+        if (materialDef.diffuseMap) {
+            const diffuseMapName = typeof materialDef.diffuseMap === 'string' ? materialDef.diffuseMap
+                : materialDef.diffuseMap.name;
             let diffuseMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][diffuseMapName];
             if (!diffuseMap)
                 console.error('Diffuse map ' + diffuseMapName + ' is not found');
             else {
-                if (definition.clamp)
+                if (materialDef.clamp)
                     diffuseMap.wrapS = diffuseMap.wrapT = THREE.ClampToEdgeWrapping;
                 else
                     diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
@@ -53,14 +56,14 @@ export class MaterialBuilder {
             }
         }
 
-        if (definition.normalMap) {
-            const normalMapName = typeof definition.normalMap === 'string' ? definition.normalMap
-                : definition.normalMap.name;
+        if (materialDef.normalMap) {
+            const normalMapName = typeof materialDef.normalMap === 'string' ? materialDef.normalMap
+                : materialDef.normalMap.name;
             let normalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][normalMapName];
             if (!normalMap)
                 console.error('Normal map ' + normalMapName + ' is not found');
             else {
-                if (definition.clamp)
+                if (materialDef.clamp)
                     normalMap.wrapS = normalMap.wrapT = THREE.ClampToEdgeWrapping;
                 else
                     normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
@@ -68,14 +71,14 @@ export class MaterialBuilder {
             }
         }
 
-        if (definition.specularMap) {
-            const specularMapName = typeof definition.specularMap === 'string' ? definition.specularMap
-                : definition.specularMap.name;
+        if (materialDef.specularMap) {
+            const specularMapName = typeof materialDef.specularMap === 'string' ? materialDef.specularMap
+                : materialDef.specularMap.name;
             let specularMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][specularMapName];
             if (!specularMap)
                 console.error('Specular map ' + specularMapName + ' is not found');
             else {
-                if (definition.clamp)
+                if (materialDef.clamp)
                     specularMap.wrapS = specularMap.wrapT = THREE.ClampToEdgeWrapping;
                 else
                     specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
@@ -83,14 +86,14 @@ export class MaterialBuilder {
             }
         }
 
-        if (definition.alphaMap) {
-            const alphaMapName = typeof definition.alphaMap === 'string' ? definition.alphaMap
-                : definition.alphaMap.name;
+        if (materialDef.alphaMap) {
+            const alphaMapName = typeof materialDef.alphaMap === 'string' ? materialDef.alphaMap
+                : materialDef.alphaMap.name;
             const alphaMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][alphaMapName];
             if (!alphaMap)
                 console.error('Alpha map ' + alphaMapName + ' is not found');
             else {
-                if (definition.clamp)
+                if (materialDef.clamp)
                     alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
                 else
                     alphaMap.wrapS = alphaMap.wrapT = THREE.RepeatWrapping;
@@ -98,12 +101,12 @@ export class MaterialBuilder {
             }
         }
 
-        if (definition.additionalMap) {
-            let additionalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][definition.additionalMap];
+        if (materialDef.additionalMap) {
+            let additionalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][materialDef.additionalMap];
             if (!additionalMap)
-                console.error('Additional map ' + definition.additionalMap + ' is not found');
+                console.error('Additional map ' + materialDef.additionalMap + ' is not found');
             else {
-                if (definition.clamp)
+                if (materialDef.clamp)
                     additionalMap.wrapS = additionalMap.wrapT = THREE.ClampToEdgeWrapping;
                 else
                     additionalMap.wrapS = additionalMap.wrapT = THREE.RepeatWrapping;
@@ -117,83 +120,86 @@ export class MaterialBuilder {
             }
         }
 
-        if (definition.color !== undefined) {
-            if (definition.color.expression)
-                updaters.push(this._createScalarColorUpdater(definition.color.expression));
-            else if (definition.color.red && definition.color.green && definition.color.blue)
-                updaters.push(this._createRgbColorUpdater(definition.color.red, definition.color.green,
-                    definition.color.blue));
+        if (materialDef.color !== undefined) {
+            if (materialDef.color.expression)
+                updaters.push(this._createScalarColorUpdater(materialDef.color.expression));
+            else if (materialDef.color.red && materialDef.color.green && materialDef.color.blue)
+                updaters.push(this._createRgbColorUpdater(materialDef.color.red, materialDef.color.green,
+                    materialDef.color.blue));
             else
-                this._setColor(material, definition.color);
+                this._setColor(material, materialDef.color);
         }
 
-        if (definition.specular)
-            material.specular = new THREE.Color().setHex(definition.specular);
+        if (materialDef.specular)
+            material.specular = new THREE.Color().setHex(materialDef.specular);
 
-        if (definition.shininess)
-            material.shininess = definition.shininess;
+        if (materialDef.shininess)
+            material.shininess = materialDef.shininess;
+
+        if (materialDef.lightIntensity)
+            material.lightIntensity = materialDef.lightIntensity;
 
         let xRepeat, yRepeat;
-        if (definition.repeat) {
-            xRepeat = this._createRepetitionProvider(definition.repeat[0]);
-            yRepeat = this._createRepetitionProvider(definition.repeat[1]);
+        if (materialDef.repeat) {
+            xRepeat = this._createRepetitionProvider(materialDef.repeat[0]);
+            yRepeat = this._createRepetitionProvider(materialDef.repeat[1]);
         } else
             xRepeat = yRepeat = oneProvider;
 
         let xTranslate, yTranslate;
-        if (definition.translate) {
-            xTranslate = this._createTranslationProvider(definition.translate[0]);
-            yTranslate = this._createTranslationProvider(definition.translate[1]);
-        } else if (definition.scroll) {
-            xTranslate = this._createScrollingProvider(definition.scroll[0]);
-            yTranslate = this._createScrollingProvider(definition.scroll[1], yRepeat);
+        if (materialDef.translate) {
+            xTranslate = this._createTranslationProvider(materialDef.translate[0]);
+            yTranslate = this._createTranslationProvider(materialDef.translate[1]);
+        } else if (materialDef.scroll) {
+            xTranslate = this._createScrollingProvider(materialDef.scroll[0]);
+            yTranslate = this._createScrollingProvider(materialDef.scroll[1], yRepeat);
         } else
             xTranslate = yTranslate = zeroProvider;
 
         let rotate;
-        if (definition.rotate)
-            rotate = this._createRotationProvider(definition.rotate);
+        if (materialDef.rotate)
+            rotate = this._createRotationProvider(materialDef.rotate);
         else
             rotate = zeroProvider;
 
         updaters.push(this._createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate,
-            definition.center));
+            materialDef.center));
 
-        if (definition.side === 'double')
+        if (materialDef.side === 'double')
             material.side = THREE.DoubleSide;
-        else if (definition.side === 'front')
+        else if (materialDef.side === 'front')
             material.side = THREE.FrontSide;
         else
             material.side = THREE.BackSide;
 
-        if (definition.transparent) {
+        if (materialDef.transparent) {
             material.transparent = true;
-            if (definition.opacity !== undefined)
-                if (definition.opacity.expression)
-                    updaters.push(this._createOpacityUpdater(definition.opacity.expression));
+            if (materialDef.opacity !== undefined)
+                if (materialDef.opacity.expression)
+                    updaters.push(this._createOpacityUpdater(materialDef.opacity.expression));
                 else
-                    this._setOpacity(material, definition.opacity);
+                    this._setOpacity(material, materialDef.opacity);
         }
 
-        if (definition.depthWrite !== undefined)
-            material.depthWrite = definition.depthWrite;
+        if (materialDef.depthWrite !== undefined)
+            material.depthWrite = materialDef.depthWrite;
 
-        if (definition.blending) {
-            if (definition.blending === 'custom') {
+        if (materialDef.blending) {
+            if (materialDef.blending === 'custom') {
                 material.blending = THREE.CustomBlending;
                 material.blendEquation = THREE.AddEquation;
-                if (definition.blendSrc)
-                    material.blendSrc = MaterialBuilder._blendFactorForName(definition.blendSrc);
-                if (definition.blendDst)
-                    material.blendDst = MaterialBuilder._blendFactorForName(definition.blendDst);
-            } else if (definition.blending === 'additive')
+                if (materialDef.blendSrc)
+                    material.blendSrc = MaterialBuilder._blendFactorForName(materialDef.blendSrc);
+                if (materialDef.blendDst)
+                    material.blendDst = MaterialBuilder._blendFactorForName(materialDef.blendDst);
+            } else if (materialDef.blending === 'additive')
                 material.blending = THREE.AdditiveBlending;
-            else if (definition.blending === 'subtractive')
+            else if (materialDef.blending === 'subtractive')
                 material.blending = THREE.SubtractiveBlending;
-            else if (definition.blending === 'multiply')
+            else if (materialDef.blending === 'multiply')
                 material.blending = THREE.MultiplyBlending;
             else
-                console.error('Unsupported blending: ' + definition.blending);
+                console.error('Unsupported blending: ' + materialDef.blending);
         }
 
         return materials.length === 1 ? material : materials;

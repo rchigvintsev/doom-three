@@ -959,13 +959,11 @@ export const MATERIALS = {
         opacity: 0.3,
         specular: 0xffffff,
         shininess: 68,
-        additionalMap: {
-            diffuseMap: {
-                name: 'textures/hell/wrinklewall_tile_ss',
-                translate: ['-0.005 * sin(time)', '0.01 * sin(time)']
-            },
+        /*additionalMap: {
+            name: 'textures/hell/wrinklewall_tile_ss',
+            translate: ['-0.005 * sin(time)', '0.01 * sin(time)'],
             transparent: false
-        }
+        }*/
     },
     'textures/common/shadow': {
         type: 'basic',
@@ -1162,19 +1160,28 @@ export const MATERIALS = {
         blendDst: 'zero',
         cast_shadow: false
     },
-    'textures/base_light/striplight6_ed': {
-        diffuseMap: 'textures/base_light/striplight6_d',
-        specularMap: 'textures/base_light/striplight5a_s',
-        additionalMap: 'textures/base_light/striplight6add',
-        normalMap: {
-            name: 'textures/base_light/striplight2_local+striplight5a_b',
-            addNormals: {
-                normalMap: 'textures/base_light/striplight2_local',
-                bumpMap: 'textures/base_light/striplight5a_b',
-                scale: 2
+    'textures/base_light/striplight6_ed': [
+        {
+            diffuseMap: 'textures/base_light/striplight6_d',
+            specularMap: 'textures/base_light/striplight5a_s',
+            normalMap: {
+                name: 'textures/base_light/striplight2_local+striplight5a_b',
+                addNormals: {
+                    normalMap: 'textures/base_light/striplight2_local',
+                    bumpMap: 'textures/base_light/striplight5a_b',
+                    scale: 2
+                }
             }
+        },
+        {
+            type: 'light_basic',
+            diffuseMap: 'textures/base_light/striplight6add',
+            alphaMap: 'textures/base_light/striplight6add',
+            lightIntensity: 2.0,
+            transparent: true,
+            side: 'double'
         }
-    },
+    ],
     'textures/enpro/enwall18e': {
         diffuseMap: 'textures/enpro/enwall18e',
         specularMap: 'textures/enpro/enwall18e_s',
@@ -1274,8 +1281,8 @@ export const MATERIALS = {
         normalMap: 'models/mapobjects/hell/Site3/archviletemple/candle_b_local',
         specular: 0xffffff,
         shininess: 100,
-        additionalMap: {
-            diffuseMap: 'models/mapobjects/hell/Site3/archviletemple/candle_b_add',
+        /*additionalMap: {
+            name: 'models/mapobjects/hell/Site3/archviletemple/candle_b_add',
             rgb: {
                 expr: 'now * 0.006',
                 table: 'candle'
@@ -1283,7 +1290,7 @@ export const MATERIALS = {
             transparent: true,
             opacity: 0.90,
             side: 'double'
-        },
+        },*/
         cast_shadow: false,
         side: 'double'
     },
@@ -1315,15 +1322,13 @@ export const MATERIALS = {
         blending: 'custom',
         blendSrc: 'dst_color',
         blendDst: 'zero',
-        additionalMap: {
-            diffuseMap: {
-                name: 'textures/decals/blood_drip1a',
-                translate: ['1', 'time * 0.02']
-            },
+        /*additionalMap: {
+            name: 'textures/decals/blood_drip1a',
+            translate: ['1', 'time * 0.02'],
             blending: 'custom',
             blendSrc: 'dst_color',
             blendDst: 'zero'
-        },
+        },*/
         depthWrite: false
     },
     'textures/hell/scowall': {
@@ -1759,7 +1764,7 @@ export const MATERIALS = {
     'gui/health/circle2': {
         type: 'shader',
         diffuseMap: 'guis/assets/health/circle',
-        rotate:	'time * -0.05',
+        rotate: 'time * -0.05',
         clamp: true,
         transparent: true
     }

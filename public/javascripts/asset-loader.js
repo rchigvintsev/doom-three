@@ -60,13 +60,17 @@ export class AssetLoader {
     }
 
     loadTextures(materialDef) {
-        const textures = {};
+        const result = [];
         if (!materialDef)
-            return textures;
+            return result;
         const textureSources = this._createTextureSources(materialDef);
-        for (let mapName of Object.keys(textureSources))
-            textures[mapName] = textureSources[mapName].load();
-        return textures;
+        for (let namedSources of textureSources) {
+            const textures = {};
+            result.push(textures);
+            for (let key of Object.keys(namedSources))
+                textures[key] = namedSources[key].load();
+        }
+        return result;
     }
 
     get assets() {
@@ -123,7 +127,8 @@ export class AssetLoader {
             console.error('Definition of material ' + materialName + ' is not found');
             return;
         }
-        this._texturesToLoad = this._texturesToLoad.concat(Object.values(this._createTextureSources(materialDef)));
+        for (let namedSources of this._createTextureSources(materialDef))
+            this._texturesToLoad = this._texturesToLoad.concat(Object.values(namedSources));
     }
 
     _registerShadersToLoad(materialName) {
@@ -147,34 +152,42 @@ export class AssetLoader {
         });
     }
 
-    _createTextureSources(materialDef) {
-        const result = {};
+    _createTextureSources(materialDefs) {
+        const result = [];
 
-        if (materialDef.diffuseMap)
-            result.diffuseMap = new TextureSource(this, materialDef.diffuseMap);
-        if (materialDef.specularMap)
-            result.specularMap = new TextureSource(this, materialDef.specularMap);
-        if (materialDef.normalMap)
-            result.normalMap = new TextureSource(this, materialDef.normalMap);
-        if (materialDef.bumpMap)
-            result.bumpMap = new TextureSource(this, materialDef.bumpMap);
-        if (materialDef.alphaMap)
-            result.alphaMap = new TextureSource(this, materialDef.alphaMap);
-        if (materialDef.additionalMap)
-            result.additionalMap = new TextureSource(this, materialDef.additionalMap);
+        if (!Array.isArray(materialDefs))
+            materialDefs = [materialDefs];
 
-        if (materialDef.cubeMap) {
-            result.cubeMap_right = new TextureSource(this, materialDef.cubeMap + '_right');
-            result.cubeMap_left = new TextureSource(this, materialDef.cubeMap + '_left');
-            result.cubeMap_up = new TextureSource(this, materialDef.cubeMap + '_up');
-            result.cubeMap_down = new TextureSource(this, materialDef.cubeMap + '_down');
-            result.cubeMap_forward = new TextureSource(this, materialDef.cubeMap + '_forward');
-            result.cubeMap_back = new TextureSource(this, materialDef.cubeMap + '_back');
-        }
+        for (let materialDef of materialDefs) {
+            const namedSources = {};
+            result.push(namedSources);
 
-        if (materialDef.textures) {
-            result.textures = [];
-            materialDef.textures.forEach((texture) => result.textures.push(new TextureSource(this, texture)));
+            if (materialDef.diffuseMap)
+                namedSources.diffuseMap = new TextureSource(this, materialDef.diffuseMap);
+            if (materialDef.specularMap)
+                namedSources.specularMap = new TextureSource(this, materialDef.specularMap);
+            if (materialDef.normalMap)
+                namedSources.normalMap = new TextureSource(this, materialDef.normalMap);
+            if (materialDef.bumpMap)
+                namedSources.bumpMap = new TextureSource(this, materialDef.bumpMap);
+            if (materialDef.alphaMap)
+                namedSources.alphaMap = new TextureSource(this, materialDef.alphaMap);
+            if (materialDef.additionalMap)
+                namedSources.additionalMap = new TextureSource(this, materialDef.additionalMap);
+
+            if (materialDef.cubeMap) {
+                namedSources.cubeMap_right = new TextureSource(this, materialDef.cubeMap + '_right');
+                namedSources.cubeMap_left = new TextureSource(this, materialDef.cubeMap + '_left');
+                namedSources.cubeMap_up = new TextureSource(this, materialDef.cubeMap + '_up');
+                namedSources.cubeMap_down = new TextureSource(this, materialDef.cubeMap + '_down');
+                namedSources.cubeMap_forward = new TextureSource(this, materialDef.cubeMap + '_forward');
+                namedSources.cubeMap_back = new TextureSource(this, materialDef.cubeMap + '_back');
+            }
+
+            if (materialDef.textures) {
+                namedSources.textures = [];
+                materialDef.textures.forEach((texture) => namedSources.textures.push(new TextureSource(this, texture)));
+            }
         }
 
         return result;

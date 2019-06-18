@@ -1,30 +1,22 @@
-import {inherit} from '../../util/oop-utils.js';
-
-var DOOM_THREE = DOOM_THREE || {};
-
-(function (DT) {
-    DT.Surface = function (geometry, material, body) {
-        THREE.Mesh.apply(this, arguments);
+export class Surface extends THREE.Mesh {
+    constructor(geometry, materials, body) {
+        super(geometry, materials[0]);
+        for (let i = 1; i < materials.length; i++)
+            this.add(new THREE.Mesh(geometry, materials[i]));
         this._body = body;
-    };
+    }
 
-    DT.Surface.prototype = inherit(THREE.Mesh, {
-        constructor: DT.Surface,
+    get body() {
+        return this._body;
+    }
 
-        get body() {
-            return this._body;
-        },
+    update() {
+        if (this.material.update)
+            this.material.update();
+    }
 
-        update: function () {
-            if (this.material.update)
-                this.material.update();
-        },
-
-        takePunch: function (force, worldPoint) {
-            if (this._body)
-                this._body.takePunch(force, worldPoint);
-        }
-    });
-})(DOOM_THREE);
-
-export const Surface = DOOM_THREE.Surface;
+    takePunch(force, worldPoint) {
+        if (this._body)
+            this._body.takePunch(force, worldPoint);
+    }
+}

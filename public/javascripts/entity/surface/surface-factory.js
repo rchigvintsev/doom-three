@@ -24,16 +24,21 @@ export class SurfaceFactory extends MeshFactory {
         let surface, geometry = this._createGeometry(surfaceDef.geometry, scale);
 
         if (Settings.wireframeOnly)
-            surface = new Surface(geometry, this._createWireframeMaterial(), body);
+            surface = new Surface(geometry, [this._createWireframeMaterial()], body);
         else {
             const materialName = surfaceDef.material;
-            let materialDefinition = MATERIALS[materialName];
-            if (!materialDefinition) {
+            let materialDef = MATERIALS[materialName];
+            if (!materialDef) {
                 console.error('Definition for material ' + materialName + ' is not found');
-                materialDefinition = FALLBACK_MATERIAL_DEFINITION;
+                materialDef = FALLBACK_MATERIAL_DEFINITION;
             }
-            const mainMaterial = this._createRegularMaterial(materialName, materialDefinition);
-            surface = new Surface(geometry, mainMaterial, body);
+            const materials = [];
+            if (Array.isArray(materialDef)) {
+                for (let e of materialDef)
+                    materials.push(this._createRegularMaterial(materialName, e));
+            } else
+                materials.push(this._createRegularMaterial(materialName, materialDef));
+            surface = new Surface(geometry, materials, body);
             if (Settings.showWireframe)
                 surface.add(new THREE.Mesh(geometry, this._createWireframeMaterial()));
         }

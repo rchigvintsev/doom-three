@@ -1,5 +1,5 @@
 import {inherit} from '../oop-utils.js';
-import {ShaderLib} from './shader/shader-lib.js';
+import {ShaderLib} from '../../material/shader/shader-lib.js';
 import {Flashlight} from '../../player/weapon/flashlight.js';
 
 var DOOM_THREE = DOOM_THREE || {};
