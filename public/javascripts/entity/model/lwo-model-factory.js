@@ -17,8 +17,8 @@ import {SurfaceFactory} from '../surface/surface-factory.js';
 import {GuiFactory} from '../gui/gui-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {TechDoorPanel} from './tech-door-panel.js';
-import {LwoModel} from "./lwo-model.js";
-import {HealthGui} from "./health-gui.js";
+import {LwoModel} from './lwo-model.js';
+import {HealthGui} from './health-gui.js';
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 

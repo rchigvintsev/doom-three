@@ -7,7 +7,11 @@ export class LwoModel extends THREE.Group {
     }
 
     init() {
-        this.add(new THREE.SkinnedMesh(this._geometry, this._materials));
+        const bufferGeometry = new THREE.BufferGeometry().fromGeometry(this._geometry);
+        if (bufferGeometry.getAttribute('skinWeight') == null) {
+            bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
+        }
+        this.add(new THREE.SkinnedMesh(bufferGeometry, this._materials));
     }
 
     addGui(gui) {

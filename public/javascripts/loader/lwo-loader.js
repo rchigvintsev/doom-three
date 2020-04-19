@@ -1,3 +1,5 @@
+import {LwoPolygon} from './lwo-polygon.js';
+
 const TYPE_LWO2 = 0x4c574f32;
 
 const CHUNK_TYPE_FORM = 0x464f524d;
@@ -234,8 +236,7 @@ export class LWOLoader {
                     cursor += result.size;
                     const c = result.value;
 
-                    const polygon = new THREE.Face3(a, b, c);
-                    polygon.vertexUv = {};
+                    const polygon = new LwoPolygon(a, b, c);
                     this.currentLayer.polygons.push(polygon);
                 }
                 break;

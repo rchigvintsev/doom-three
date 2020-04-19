@@ -1,7 +1,6 @@
 import {currentTime} from '../../util/common-utils.js';
 import {strings} from '../../strings.js';
 import {fonts} from '../../fonts.js';
-import {Faces} from '../../util/face-utils.js';
 
 export class AbstractGui extends THREE.Group {
     constructor(parent, materialIndex, materialBuilder) {
@@ -20,18 +19,30 @@ export class AbstractGui extends THREE.Group {
         }
 
         if (guiFaces.length !== 2)
-            throw 'Two faces were expected but found ' + guiFaces.length + ' faces instead';
+            throw 'Two GUI faces were expected but found ' + guiFaces.length + ' faces instead';
 
         const face1 = guiFaces[0];
         const face2 = guiFaces[1];
 
-        const commonVertexIndices = Faces.intersection(face1, face2);
-        if (commonVertexIndices.length !== 2)
-            throw 'Two common vertices were expected but found ' + commonVertexIndices.length + ' vertices instead';
+        const diagonalVertexIndices = [];
+        const angularVertexIndices = [];
 
-        const v1 = parent.geometry.vertices[commonVertexIndices[0]];
-        const v2 = parent.geometry.vertices[commonVertexIndices[1]];
-        const v3 = parent.geometry.vertices[Faces.difference(face1, face2)];
+        const face1VertexIndices = [face1.a, face1.b, face1.c];
+        for (let p of ['a', 'b', 'c']) {
+            const idx = face1VertexIndices.indexOf(face2[p]);
+            if (idx >= 0) {
+                diagonalVertexIndices.push(face2[p]);
+            } else {
+                angularVertexIndices.push(face2[p]);
+            }
+        }
+
+        if (diagonalVertexIndices.length !== 2)
+            throw 'Two diagonal vertices were expected but found ' + diagonalVertexIndices.length + ' vertices instead';
+
+        const v1 = parent.geometry.vertices[diagonalVertexIndices[0]];
+        const v2 = parent.geometry.vertices[diagonalVertexIndices[1]];
+        const v3 = parent.geometry.vertices[angularVertexIndices[0]];
 
         // To compute screen position we should find half of the diagonal distance
         const halfDistance = v1.distanceTo(v2) / 2;
