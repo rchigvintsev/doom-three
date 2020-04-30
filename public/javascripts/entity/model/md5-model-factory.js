@@ -24,7 +24,6 @@ export class Md5ModelFactory extends ModelFactory {
         return this.md5Loader.load(model, animations);
     }
 
-
     _getMaterials(modelDef, model) {
         const materials = {main: [], additional: [], gui: []};
 
@@ -55,7 +54,7 @@ export class Md5ModelFactory extends ModelFactory {
     }
 
     _createModelMesh(modelDef, model, materials) {
-        return new THREE.SkinnedMesh(model.geometry, materials.main);
+        return new THREE.Mesh(model.geometry, materials.main);
     }
 
     _createWireframeMaterial() {

@@ -1,4 +1,3 @@
-import {Game} from './game.js';
 import {GameConstants} from './doom-three.js';
 import {GameWorld} from './game-world.js';
 import {AssetLoader} from './asset-loader.js';
@@ -15,6 +14,7 @@ import {Settings} from './settings.js';
 import {TriggerFactory} from './entity/trigger/trigger-factory.js';
 import {SoundFactory} from './audio/sound-factory.js';
 import {GuiFactory} from './entity/gui/gui-factory.js';
+import {SystemType} from "./game-context.js";
 
 export class GameWorldBuilder {
     constructor(camera, scene, systems) {
@@ -28,7 +28,7 @@ export class GameWorldBuilder {
         const gameWorld = new GameWorld(map.player.position, map.player.rotation);
 
         const factories = new Factories(this.systems, assetLoader);
-        const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
+        const physicsSystem = this.systems[SystemType.PHYSICS];
 
         if (map.skybox && !Settings.wireframeOnly)
             this.scene.add(new SkyboxBuilder().build(assetLoader, map.skybox));
@@ -116,7 +116,7 @@ export class GameWorldBuilder {
             boxSize * GameWorld.WORLD_SCALE
         );
 
-        const physicsSystem = this.systems[Game.SystemType.PHYSICS_SYSTEM];
+        const physicsSystem = this.systems[SystemType.PHYSICS];
 
         const boxes = [];
         for (let i = 0; i < 3; i++) {
@@ -217,15 +217,10 @@ class WeaponBuilder {
             const weaponClass = Weapons[i];
             const weaponDef = weaponClass.definition;
 
-            const weaponModel = factories.md5ModelFactory.create(weaponDef);
-
-            const animationMixer = new THREE.AnimationMixer(weaponModel);
-            const animationSystem = $this.systems[Game.SystemType.ANIMATION_SYSTEM];
-            animationSystem.registerAnimationMixer(animationMixer);
-
+            const weaponMesh = factories.md5ModelFactory.create(weaponDef);
             const weaponSounds = factories.soundFactory.createSounds(weaponDef);
 
-            const args = [null, weaponModel, animationMixer, weaponSounds, gameWorld, $this.camera];
+            const args = [null, weaponMesh, weaponSounds, gameWorld, $this.camera];
             weapons[weaponDef.name] = new (Function.prototype.bind.apply(weaponClass, args));
         }
         return weapons;

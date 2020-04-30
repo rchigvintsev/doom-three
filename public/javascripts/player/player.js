@@ -69,8 +69,9 @@ var DOOM_THREE = DOOM_THREE || {};
 
         this._pitchObject = new THREE.Object3D();
         var weaponNames = Object.keys(this._weapons);
-        for (var i = 0; i < weaponNames.length; i++)
+        for (var i = 0; i < weaponNames.length; i++) {
             this._pitchObject.add(this._weapons[weaponNames[i]]);
+        }
         this.add(this._pitchObject);
 
         Settings.addEventListener('ghostModeChange', $.proxy(this.onGhostModeChange, this));
@@ -210,7 +211,7 @@ var DOOM_THREE = DOOM_THREE || {};
                     }
                 }
             }
-            this._activeWeapon.update(this);
+            this._activeWeapon.refresh(this);
         },
 
         updateBobbing: function () {

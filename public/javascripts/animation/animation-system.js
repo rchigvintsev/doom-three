@@ -1,24 +1,17 @@
-var DOOM_THREE = DOOM_THREE || {};
+export class AnimationSystem {
+    constructor() {
+        this._clock = new THREE.Clock();
+        this._animationMixers = [];
+    }
 
-(function (DT) {
-    DT.AnimationSystem = function () {
-        this.clock = new THREE.Clock();
-        this.animationMixers = [];
-    };
+    registerAnimationMixer(animationMixer) {
+        this._animationMixers.push(animationMixer);
+    }
 
-    DT.AnimationSystem.prototype = {
-        constructor: DT.AnimationSystem,
-
-        registerAnimationMixer: function (animationMixer) {
-            this.animationMixers.push(animationMixer);
-        },
-
-        update: function () {
-            var delta = this.clock.getDelta();
-            for (var i = 0; i < this.animationMixers.length; i++)
-                this.animationMixers[i].update(delta);
+    update() {
+        const delta = this._clock.getDelta();
+        for (let i = 0; i < this._animationMixers.length; i++) {
+            this._animationMixers[i].update(delta);
         }
     }
-})(DOOM_THREE);
-
-export const AnimationSystem = DOOM_THREE.AnimationSystem;
+}

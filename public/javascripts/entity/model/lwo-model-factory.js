@@ -95,8 +95,13 @@ export class LwoModelFactory extends ModelFactory {
                     mesh.addGui(gui);
             }
 
-        if (materials.additional.length > 0)
+        if (materials.additional.length > 0) {
+            const bufferGeometry = new THREE.BufferGeometry().fromGeometry(model.geometry);
+            if (bufferGeometry.getAttribute('skinWeight') == null) {
+                bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
+            }
             mesh.add(new THREE.SkinnedMesh(model.geometry, materials.additional));
+        }
 
         if (modelDef.lights && !Settings.wireframeOnly)
             for (let i = 0; i < modelDef.lights.length; i++) {
@@ -109,8 +114,13 @@ export class LwoModelFactory extends ModelFactory {
                 }
             }
 
-        if (Settings.showWireframe && !Settings.wireframeOnly)
-            mesh.add(new THREE.SkinnedMesh(model.geometry, this._createWireframeMaterial()));
+        if (Settings.showWireframe && !Settings.wireframeOnly) {
+            const bufferGeometry = new THREE.BufferGeometry().fromGeometry(model.geometry);
+            if (bufferGeometry.getAttribute('skinWeight') == null) {
+                bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
+            }
+            mesh.add(new THREE.SkinnedMesh(bufferGeometry, this._createWireframeMaterial()));
+        }
 
         mesh.init();
         return mesh;

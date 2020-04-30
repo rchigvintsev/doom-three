@@ -8,6 +8,7 @@ import {AssetLoader} from './asset-loader.js';
 import {GameWorldBuilder} from './game-world-builder.js'
 import {FPSControls} from './control/fps-controls.js';
 import {AudioListener} from './audio/audio-listener.js';
+import {GameContext, SystemType} from "./game-context.js";
 
 const GameState = {
     PRELOADING: 0,
@@ -17,17 +18,9 @@ const GameState = {
     PAUSE: 4
 };
 
-export const SystemType = {
-    ANIMATION_SYSTEM: 0,
-    PHYSICS_SYSTEM: 1,
-
-    get length() {
-        return 2;
-    }
-};
-
-export class Game {
+export class Game extends GameContext {
     constructor() {
+        super();
         Settings.load();
 
         this.initStats();
@@ -59,6 +52,8 @@ export class Game {
          this.scene, $.proxy(this.onMapLoad, this));
 
          this.objectExplorer = new DT.ObjectExplorer(this.orthoScene, this.graphicsManager.vMode);*/
+
+        GameContext.setInstance(this);
     };
 
     static load(mapName) {
@@ -69,6 +64,10 @@ export class Game {
             game._load(mapName);
             Game._hideLockScreen();
         });
+    }
+    
+    getSystem(systemType) {
+        return this._systems[systemType];
     }
 
     initStats() {
@@ -96,9 +95,9 @@ export class Game {
     }
 
     initSystems() {
-        this.systems = {};
-        this.systems[SystemType.ANIMATION_SYSTEM] = new AnimationSystem();
-        this.systems[SystemType.PHYSICS_SYSTEM] = new PhysicsSystem();
+        this._systems = {};
+        this._systems[SystemType.ANIMATION] = new AnimationSystem();
+        this._systems[SystemType.PHYSICS] = new PhysicsSystem();
     }
 
     initAssetLoader() {
@@ -109,7 +108,7 @@ export class Game {
     }
 
     initWorldBuilder() {
-        this.worldBuilder = new GameWorldBuilder(this.camera, this.scene, this.systems);
+        this.worldBuilder = new GameWorldBuilder(this.camera, this.scene, this._systems);
     }
 
     static _disableContextMenu() {
@@ -213,8 +212,9 @@ export class Game {
 
     doRunning() {
         const time = currentTime();
-        for (let i = 0; i < SystemType.length; i++)
-            this.systems[i].update(TIME_STEP);
+        for (let key of Object.keys(SystemType)) {
+            this._systems[SystemType[key]].update(TIME_STEP);
+        }
         this.gameWorld.update(time);
         this.controls.update();
     }
@@ -241,8 +241,6 @@ export class Game {
         document.body.removeChild($div[0]);
     }
 }
-
-Game.SystemType = Object.freeze(SystemType);
 
 $(function () {
     FeatureDetector.run(function () {

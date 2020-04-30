@@ -27,7 +27,8 @@ var DOOM_THREE = DOOM_THREE || {};
             var projMatrix = new THREE.Matrix4();
 
             return function () {
-                if (Flashlight.visible) {
+                // TODO: find more elegant way to check the need to update flashlight's projection matrix
+                if (Flashlight._visible) {
                     this._flashlight.updateProjectionMatrix(projMatrix);
                     this.uniforms.uProjTexMatrix.value = projMatrix;
                 }

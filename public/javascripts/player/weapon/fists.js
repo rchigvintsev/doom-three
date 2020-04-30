@@ -1,37 +1,35 @@
-import {inherit} from '../../util/oop-utils.js';
 import {Weapon} from './weapon.js';
 import {GameWorld} from '../../game-world.js';
 
-var DOOM_THREE = DOOM_THREE || {};
+var definition = {
+    name: 'fists',
+    model: 'models/md5/weapons/fists_view/fists.md5mesh',
+    materials: ['models/weapons/berserk/fist'],
+    animations: [
+        'models/md5/weapons/fists_view/idle.md5anim',
+        'models/md5/weapons/fists_view/lower.md5anim',
+        'models/md5/weapons/fists_view/raise.md5anim',
+        'models/md5/weapons/fists_view/berserk_punch1.md5anim',
+        'models/md5/weapons/fists_view/berserk_punch2.md5anim',
+        'models/md5/weapons/fists_view/berserk_punch3.md5anim',
+        'models/md5/weapons/fists_view/berserk_punch4.md5anim'
+    ],
+    position: [0, -6.5, 10],
+    sounds: {
+        raise: 'fist_raise',
+        woosh: 'fist_whoosh',
+        impact: 'fist_impact'
+    }
+};
 
-(function (DT) {
-    var definition = {
-        name: 'fists',
-        model: 'models/md5/weapons/fists_view/fists.md5mesh',
-        materials: ['models/weapons/berserk/fist'],
-        animations: [
-            'models/md5/weapons/fists_view/idle.md5anim',
-            'models/md5/weapons/fists_view/lower.md5anim',
-            'models/md5/weapons/fists_view/raise.md5anim',
-            'models/md5/weapons/fists_view/berserk_punch1.md5anim',
-            'models/md5/weapons/fists_view/berserk_punch2.md5anim',
-            'models/md5/weapons/fists_view/berserk_punch3.md5anim',
-            'models/md5/weapons/fists_view/berserk_punch4.md5anim'
-        ],
-        position: [0, -6.5, 10],
-        sounds: {
-            raise: 'fist_raise',
-            woosh: 'fist_whoosh',
-            impact: 'fist_impact'
-        }
-    };
+const Arm = {LEFT: 0, RIGHT: 1};
 
-    var Arm = {LEFT: 0, RIGHT: 1};
+const PUNCH_FORCE = 200;
 
-    var PUNCH_FORCE = 200;
+export class Fists extends Weapon {
+    constructor(mesh, sounds, gameWorld, camera) {
+        super(mesh, sounds);
 
-    DT.Fists = function (model, animationMixer, sounds, gameWorld, camera) {
-        Weapon.apply(this, arguments);
         this.name = 'fists';
 
         this._gameWorld = gameWorld;
@@ -43,70 +41,66 @@ var DOOM_THREE = DOOM_THREE || {};
         ];
 
         this._wooshSounds = sounds.woosh;
-    };
+    }
 
-    DT.Fists.prototype = inherit(Weapon, {
-        constructor: DT.Fists,
+    attack = (() => {
+        const raycaster = new THREE.Raycaster();
+        raycaster.far = 20 * GameWorld.WORLD_SCALE;
 
-        attack: function () {
-            var raycaster = new THREE.Raycaster();
-            raycaster.far = 20 * GameWorld.WORLD_SCALE;
+        const coords = new THREE.Vector2();
+        const force = new THREE.Vector3();
 
-            var coords = new THREE.Vector2();
-            var force = new THREE.Vector3();
-
-            return function () {
-                if (!this.punching()) {
-                    raycaster.setFromCamera(coords, this._camera);
-                    var currentArea = this._gameWorld.currentArea;
-                    var intersects = raycaster.intersectObjects(currentArea.objects, true);
-                    var impacts = 0;
-                    for (var i = 0; i < intersects.length; i++) {
-                        var intersection = intersects[i];
-                        var object = intersection.object;
-                        if (object) {
-                            while (!object.takePunch && object.parent)
-                                object = object.parent;
-                            if (object.takePunch) {
-                                this._camera.getWorldDirection(force);
-                                force.negate().multiplyScalar(PUNCH_FORCE);
-                                object.takePunch(force, intersects[i].point);
-                            }
-                            this.playImpactSound();
-                            impacts++;
+        return () => {
+            if (!this._punching) {
+                raycaster.setFromCamera(coords, this._camera);
+                const currentArea = this._gameWorld.currentArea;
+                const intersects = raycaster.intersectObjects(currentArea.objects, true);
+                let impacts = 0;
+                for (let i = 0; i < intersects.length; i++) {
+                    const intersection = intersects[i];
+                    let object = intersection.object;
+                    if (object) {
+                        while (!object.takePunch && object.parent) {
+                            object = object.parent;
                         }
+                        if (object.takePunch) {
+                            this._camera.getWorldDirection(force);
+                            force.negate().multiplyScalar(PUNCH_FORCE);
+                            object.takePunch(force, intersects[i].point);
+                        }
+                        this._playImpactSound();
+                        impacts++;
                     }
+                }
 
-                    var currentArm = (this._lastArm + 1) % 2;
-                    var punchAction = math.pickRandom(this._punchActions[currentArm]);
-                    var idleAction = this._actions['idle'];
+                const currentArm = (this._lastArm + 1) % 2;
+                const punchAction = math.pickRandom(this._punchActions[currentArm]);
+                const idleAction = this._actions['idle'];
 
-                    punchAction.reset().play();
-                    this.executeActionCrossFade(punchAction, idleAction, 2.0);
+                punchAction.reset().play();
+                this._executeActionCrossFade(punchAction, idleAction, 2.0);
 
-                    this._lastArm = currentArm;
-                    this._lastPunchAction = punchAction;
+                this._lastArm = currentArm;
+                this._lastPunchAction = punchAction;
 
-                    if (impacts === 0)
-                        this.playWooshSound();
+                if (impacts === 0) {
+                    this._playWooshSound();
                 }
             }
-        }(),
-
-        punching: function () {
-            return this._lastPunchAction && this._lastPunchAction.isRunning();
-        },
-
-        playWooshSound: function () {
-            if (!this._wooshSound || !this._wooshSound.playing) {
-                var wooshSound = math.pickRandom(this._wooshSounds);
-                wooshSound.play(100);
-                this._wooshSound = wooshSound;
-            }
         }
-    });
+    })();
 
-    DT.Fists.definition = Object.freeze(definition);
-})(DOOM_THREE);
+    get _punching() {
+        return this._lastPunchAction && this._lastPunchAction.isRunning();
+    }
 
-export const Fists = DOOM_THREE.Fists;
+    _playWooshSound() {
+        if (!this._wooshSound || !this._wooshSound.playing) {
+            const wooshSound = math.pickRandom(this._wooshSounds);
+            wooshSound.play(100);
+            this._wooshSound = wooshSound;
+        }
+    }
+}
+
+Fists.definition = Object.freeze(definition);
