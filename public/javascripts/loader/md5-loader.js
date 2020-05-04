@@ -1,3 +1,5 @@
+import {JSONLoader} from './json-loader.js';
+
 var DOOM_THREE = DOOM_THREE || {};
 
 /**
@@ -36,7 +38,7 @@ var DOOM_THREE = DOOM_THREE || {};
                 md5AnimationDefinitions.push(this.parseAnimation(md5Animations[i]));
             this.bindPose(md5MeshDefinition, md5AnimationDefinitions[0]);
             var result = this.compose(md5MeshDefinition, md5AnimationDefinitions);
-            var loader = new THREE.JSONLoader();
+            var loader = new JSONLoader();
             var geomAndMat = loader.parse(result);
             geomAndMat.geometry.computeFaceNormals();
             geomAndMat.geometry.computeVertexNormals();

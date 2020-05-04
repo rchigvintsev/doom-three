@@ -1,4 +1,5 @@
 import {LwoPolygon} from './lwo-polygon.js';
+import {JSONLoader} from './json-loader.js';
 
 const TYPE_LWO2 = 0x4c574f32;
 
@@ -73,7 +74,7 @@ export class LWOLoader {
     constructor(manager) {
         this._fileLoader = new THREE.FileLoader(manager);
         this._fileLoader.setResponseType('arraybuffer');
-        this._jsonLoader = new THREE.JSONLoader(manager);
+        this._jsonLoader = new JSONLoader(manager);
     }
 
     load(model, onLoad, onProgress, onError) {
