@@ -5,7 +5,6 @@ import {SurfaceFactory} from './entity/surface/surface-factory.js';
 import {Md5ModelFactory} from './entity/model/md5-model-factory.js';
 import {LwoModelFactory} from './entity/model/lwo-model-factory.js';
 import {LightFactory} from './entity/light/light-factory.js';
-import {MATERIALS} from './material/materials.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {Player} from './player/player.js';
 import {PlayerBody} from './physics/player-body.js';
@@ -14,7 +13,8 @@ import {Settings} from './settings.js';
 import {TriggerFactory} from './entity/trigger/trigger-factory.js';
 import {SoundFactory} from './audio/sound-factory.js';
 import {GuiFactory} from './entity/gui/gui-factory.js';
-import {SystemType} from "./game-context.js";
+import {SystemType} from './game-context.js';
+import {SkyboxFactory} from './map/skybox/skybox-factory.js';
 
 export class GameWorldBuilder {
     constructor(camera, scene, systems) {
@@ -30,8 +30,9 @@ export class GameWorldBuilder {
         const factories = new Factories(this.systems, assetLoader);
         const physicsSystem = this.systems[SystemType.PHYSICS];
 
-        if (map.skybox && !Settings.wireframeOnly)
-            this.scene.add(new SkyboxBuilder().build(assetLoader, map.skybox));
+        if (map.skybox && !Settings.wireframeOnly) {
+            this.scene.background = new SkyboxFactory(assetLoader).createSkybox(map.skybox);
+        }
 
         const weapons = new WeaponBuilder(this).build(gameWorld, factories);
 
@@ -162,46 +163,6 @@ export class GameWorldBuilder {
 
             gameWorld.currentArea.add(boxes[i]);
         }
-    }
-}
-
-class SkyboxBuilder {
-    build(assetLoader, skybox) {
-        const skyboxSize = skybox.size * GameConstants.WORLD_SCALE;
-        const geometry = new THREE.BoxGeometry(skyboxSize, skyboxSize, skyboxSize);
-
-        const materialDef = MATERIALS[skybox.material];
-        if (!materialDef) {
-            console.error('Definition of material "' + skybox.material + '" is not found');
-            return;
-        }
-
-        const textures = assetLoader.assets[AssetLoader.AssetType.TEXTURES];
-        const images = [];
-        ['_right', '_left', '_up', '_down', '_forward', '_back'].forEach(function (postfix) {
-            const texture = textures[materialDef.cubeMap + postfix];
-            if (!texture)
-                console.error('Texture "' + materialDef.cubeMap + postfix + '" is not found');
-            else
-                images.push(texture.image);
-        });
-
-        const cubeTexture = new THREE.CubeTexture();
-        cubeTexture.images = images;
-        cubeTexture.format = THREE.RGBFormat;
-        cubeTexture.needsUpdate = true;
-
-        const cubeShader = THREE.ShaderLib.cube;
-        cubeShader.uniforms.tCube.value = cubeTexture;
-
-        const material = new THREE.ShaderMaterial({
-            fragmentShader: cubeShader.fragmentShader,
-            vertexShader: cubeShader.vertexShader,
-            uniforms: cubeShader.uniforms,
-            side: THREE.BackSide
-        });
-
-        return new THREE.Mesh(geometry, material);
     }
 }
 
