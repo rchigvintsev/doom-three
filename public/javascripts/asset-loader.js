@@ -309,8 +309,9 @@ class TextureSource {
         const $this = this.$this;
         let texture = $this._assets[AssetLoader.AssetType.TEXTURES][this._name];
         if (texture) {
-            if (onLoad)
+            if (onLoad) {
                 onLoad(texture);
+            }
         } else {
             if (this._addNormals) {
                 texture = new THREE.Texture();
@@ -320,8 +321,9 @@ class TextureSource {
                 $this._loadAllBinaryFiles([normalMap + '.tga', bumpMap + '.tga'], (normalMapBuf, bumpMapBuf) => {
                     texture.image = Textures.addNormals(normalMapBuf, bumpMapBuf, scale);
                     texture.needsUpdate = true;
-                    if (onLoad)
+                    if (onLoad) {
                         onLoad(texture);
+                    }
                 }, onError);
             } else if (this._negate) {
                 texture = new THREE.Texture();
@@ -331,8 +333,10 @@ class TextureSource {
                     if (onLoad)
                         onLoad(texture);
                 }, onError);
-            } else
-                texture = $this._tgaLoader.load(this._name + '.tga', onLoad, () => {}, onError);
+            } else {
+                texture = $this._tgaLoader.load(this._name + '.tga', onLoad, () => {
+                }, onError);
+            }
             $this._assets[AssetLoader.AssetType.TEXTURES][this._name] = texture;
         }
         return texture;

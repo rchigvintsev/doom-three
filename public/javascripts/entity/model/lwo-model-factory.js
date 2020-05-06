@@ -100,7 +100,7 @@ export class LwoModelFactory extends ModelFactory {
             if (bufferGeometry.getAttribute('skinWeight') == null) {
                 bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
             }
-            mesh.add(new THREE.SkinnedMesh(model.geometry, materials.additional));
+            mesh.add(new THREE.Mesh(model.geometry, materials.additional));
         }
 
         if (modelDef.lights && !Settings.wireframeOnly)
@@ -119,7 +119,7 @@ export class LwoModelFactory extends ModelFactory {
             if (bufferGeometry.getAttribute('skinWeight') == null) {
                 bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
             }
-            mesh.add(new THREE.SkinnedMesh(bufferGeometry, this._createWireframeMaterial()));
+            mesh.add(new THREE.Mesh(bufferGeometry, this._createWireframeMaterial()));
         }
 
         mesh.init();
@@ -193,8 +193,9 @@ export class LwoModelFactory extends ModelFactory {
 
     _rotateMesh(mesh, rotation) {
         mesh.rotation.copy(this._computeMeshRotation(rotation));
-        if (mesh.body)
+        if (mesh.body) {
             mesh.body.rotation = mesh.rotation;
+        }
     }
 
     _computeMeshRotation(rotation) {

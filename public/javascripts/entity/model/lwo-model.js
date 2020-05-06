@@ -1,4 +1,4 @@
-export class LwoModel extends THREE.Group {
+export class LwoModel extends THREE.Group{
     constructor(geometry, materials) {
         super();
         this._geometry = geometry;
@@ -7,11 +7,7 @@ export class LwoModel extends THREE.Group {
     }
 
     init() {
-        const bufferGeometry = new THREE.BufferGeometry().fromGeometry(this._geometry);
-        if (bufferGeometry.getAttribute('skinWeight') == null) {
-            bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
-        }
-        this.add(new THREE.SkinnedMesh(bufferGeometry, this._materials));
+        this.add(new THREE.Mesh(this._geometry, this._materials));
     }
 
     addGui(gui) {

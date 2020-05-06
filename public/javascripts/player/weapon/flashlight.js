@@ -1,7 +1,6 @@
 import {Weapon} from './weapon.js';
 import {GameWorld} from '../../game-world.js';
 
-
 var definition = {
     name: 'flashlight',
     model: 'models/md5/items/flashlight_view/viewflashlight.md5mesh',

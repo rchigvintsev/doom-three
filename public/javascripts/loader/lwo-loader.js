@@ -1,4 +1,3 @@
-import {LwoPolygon} from './lwo-polygon.js';
 import {JSONLoader} from './json-loader.js';
 
 const TYPE_LWO2 = 0x4c574f32;
@@ -89,8 +88,9 @@ export class LWOLoader {
     parse(buffer) {
         const dataView = new DataView(buffer);
 
-        if (dataView.getUint32(0) !== CHUNK_TYPE_FORM)
+        if (dataView.getUint32(0) !== CHUNK_TYPE_FORM) {
             throw 'Failed to find LWO header';
+        }
 
         const typeOffset = CHUNK_HEADER_SIZE;
         if (dataView.getUint32(typeOffset) !== TYPE_LWO2) {
@@ -105,9 +105,9 @@ export class LWOLoader {
 
         let cursor = CHUNK_HEADER_SIZE + 4;
         while (cursor < dataView.byteLength) {
-            if (dataView.getUint8(cursor) === 0)
+            if (dataView.getUint8(cursor) === 0) {
                 cursor++;
-            else {
+            } else {
                 const chunkType = dataView.getInt32(cursor);
                 const chunkSize = dataView.getInt32(cursor + 4);
 
@@ -161,8 +161,9 @@ export class LWOLoader {
         let cursor = chunkOffset;
         while (cursor < chunkOffset + chunkSize) {
             const result = readS0(dataView, cursor, buffer);
-            if (result.size > 0)
+            if (result.size > 0) {
                 this.tags.push(result.value.trim());
+            }
             cursor += result.size;
         }
     }
@@ -176,10 +177,12 @@ export class LWOLoader {
     }
 
     parsePoints(dataView, chunkOffset, chunkSize) {
-        if (chunkSize % 12 !== 0)
+        if (chunkSize % 12 !== 0) {
             throw 'Points chunk length (' + chunkSize + ') is not multiple of vertex length';
-        if (!this.currentLayer)
+        }
+        if (!this.currentLayer) {
             throw 'Failed to parse points: current layer is undefined';
+        }
         const pointsNumber = chunkSize / 12;
         for (let i = 0; i < pointsNumber; i++) {
             const pointOffset = i * 12;
@@ -192,8 +195,9 @@ export class LWOLoader {
     }
 
     parseBoundingBox(dataView, chunkOffset) {
-        if (!this.currentLayer)
+        if (!this.currentLayer) {
             throw 'Failed to parse bounding box: current layer is undefined';
+        }
         let cursor = chunkOffset;
 
         const min = [];
@@ -215,8 +219,9 @@ export class LWOLoader {
         const type = dataView.getInt32(chunkOffset);
         switch (type) {
             case CHUNK_TYPE_FACE:
-                if (!this.currentLayer)
+                if (!this.currentLayer) {
                     throw 'Failed to parse polygons: current layer is undefined';
+                }
 
                 let cursor = chunkOffset + 4;
                 while (cursor < chunkOffset + chunkSize) {
@@ -237,7 +242,7 @@ export class LWOLoader {
                     cursor += result.size;
                     const c = result.value;
 
-                    const polygon = new LwoPolygon(a, b, c);
+                    const polygon = new Polygon(a, b, c);
                     this.currentLayer.polygons.push(polygon);
                 }
                 break;
@@ -253,35 +258,39 @@ export class LWOLoader {
         this.materials.push(material);
 
         let offset = 0;
-        while (dataView.getUint8(chunkOffset + offset) !== 0)
+        while (dataView.getUint8(chunkOffset + offset) !== 0) {
             offset++;
+        }
         material.name = new TextDecoder().decode(new Uint8Array(buffer, chunkOffset, offset));
 
         while (offset < chunkSize) {
             const subchunkOffset = chunkOffset + offset;
-            if (dataView.getUint8(subchunkOffset) === 0)
+            if (dataView.getUint8(subchunkOffset) === 0) {
                 offset++;
-            else {
+            } else {
                 const subchunkType = dataView.getInt32(subchunkOffset);
                 const subchunkSize = dataView.getInt16(subchunkOffset + 4);
 
                 switch (subchunkType) {
                     case CHUNK_TYPE_COLR:
                         const colorArray = [];
-                        for (let i = 0; i < 4; i++)
+                        for (let i = 0; i < 4; i++) {
                             colorArray.push(dataView.getUint8(subchunkOffset + SUBCHUNK_HEADER_SIZE + i) / 255);
+                        }
                         const color = new THREE.Color().fromArray(colorArray);
                         material.color = color;
                         break;
                     case CHUNK_TYPE_VTRN:
                         let transparency;
-                        if (subchunkType === CHUNK_TYPE_VTRN)
+                        if (subchunkType === CHUNK_TYPE_VTRN) {
                             transparency = dataView.getFloat32(subchunkOffset + SUBCHUNK_HEADER_SIZE);
-                        else
+                        } else {
                             transparency = dataView.getInt16(subchunkOffset + SUBCHUNK_HEADER_SIZE) / 255;
+                        }
                         material.opacity = 1 - transparency;
-                        if (transparency > 0)
+                        if (transparency > 0) {
                             material.transparent = true;
+                        }
                         break;
                     case CHUNK_TYPE_SPEC:
                     case CHUNK_TYPE_FLAG:
@@ -325,8 +334,9 @@ export class LWOLoader {
 
         switch (type) {
             case CHUNK_TYPE_TXUV:
-                if (!this.currentLayer)
+                if (!this.currentLayer) {
                     throw 'Failed to parse vertex mapping: current layer is undefined';
+                }
 
                 const dimension = dataView.getInt16(cursor);
                 cursor += 2;
@@ -371,8 +381,9 @@ export class LWOLoader {
         const type = dataView.getUint32(chunkOffset);
         switch (type) {
             case CHUNK_TYPE_SURF:
-                if (!this.currentLayer)
+                if (!this.currentLayer) {
                     throw 'Failed to parse polygon-tag mapping: current layer is undefined';
+                }
 
                 let cursor = chunkOffset + 4;
                 while (cursor < chunkOffset + chunkSize) {
@@ -381,10 +392,11 @@ export class LWOLoader {
                     const tag = dataView.getUint16(cursor);
                     cursor += 2;
                     const polygon = this.currentLayer.polygons[result.value];
-                    if (polygon)
+                    if (polygon) {
                         polygon.materialIndex = tag;
-                    else
+                    } else {
                         console.warn('Polygon is not found by index ' + result.value);
+                    }
                 }
                 break;
             default:
@@ -395,12 +407,14 @@ export class LWOLoader {
     }
 
     composeJson() {
-        if (this.layers.length === 0)
+        if (this.layers.length === 0) {
             throw 'At least one layer must be present';
+        }
         let layer = this.layers[0];
         let idx = 0;
-        while (idx < this.layers.length - 1 && !layer)
+        while (idx < this.layers.length - 1 && !layer) {
             layer = this.layers[++idx];
+        }
 
         const json = {
             scale: 1.0,
@@ -421,39 +435,32 @@ export class LWOLoader {
 
         for (let i = 0; i < layer.vertexMaps.length; i++) {
             const vertexMap = layer.vertexMaps[i];
-            if (!vertexMap.perPoly)
+            if (!vertexMap.perPoly) {
                 for (let j = 0; j < vertexMap.vindex.length; j++) {
                     const vertexIndex = vertexMap.vindex[j];
                     const uv = vertexMap.uvs[j];
                     json.uvs[0][vertexIndex * 2] = math.round(uv[0], 6);
-                    json.uvs[0][vertexIndex * 2 + 1] = math.round(uv[1], 6);
+                    json.uvs[0][vertexIndex * 2 + 1] = math.round(1.0 - uv[1], 6);
                 }
-        }
-
-        for (let i = 0; i < layer.vertexMaps.length; i++) {
-            const vertexMap = layer.vertexMaps[i];
-            if (vertexMap.perPoly)
+            } else {
                 for (let j = 0; j < vertexMap.pindex.length; j++) {
                     const polygon = layer.polygons[vertexMap.pindex[j]];
-
+                    let polygonComponent = null;
                     if (vertexMap.vindex[j] === polygon.a) {
-                        json.uvs[0].push(vertexMap.uvs[j][0]);
-                        json.uvs[0].push(vertexMap.uvs[j][1]);
-                        polygon.vertexUv.a = (json.uvs[0].length - 2) / 2;
+                        polygonComponent = 'a';
+                    } else if (vertexMap.vindex[j] === polygon.b) {
+                        polygonComponent = 'b'
+                    } else if (vertexMap.vindex[j] === polygon.c) {
+                        polygonComponent = 'c';
                     }
 
-                    if (vertexMap.vindex[j] === polygon.b) {
+                    if (polygonComponent != null) {
                         json.uvs[0].push(vertexMap.uvs[j][0]);
-                        json.uvs[0].push(vertexMap.uvs[j][1]);
-                        polygon.vertexUv.b = (json.uvs[0].length - 2) / 2;
-                    }
-
-                    if (vertexMap.vindex[j] === polygon.c) {
-                        json.uvs[0].push(vertexMap.uvs[j][0]);
-                        json.uvs[0].push(vertexMap.uvs[j][1]);
-                        polygon.vertexUv.c = (json.uvs[0].length - 2) / 2;
+                        json.uvs[0].push(1.0 - vertexMap.uvs[j][1]);
+                        polygon.vertexUv[polygonComponent] = (json.uvs[0].length - 2) / 2;
                     }
                 }
+            }
         }
 
         for (let i = 0; i < layer.points.length; i++) {
@@ -494,8 +501,9 @@ export class LWOLoader {
                     });
                 }
             }
-            if (!materialFound)
+            if (!materialFound) {
                 console.warn('Material corresponding to tag \"' + tag + '\" is not found');
+            }
         }
 
         return json;
@@ -518,5 +526,16 @@ class VertexMap {
         this.vindex = [];
         this.pindex = [];
         this.uvs = [];
+    }
+}
+
+class Polygon extends THREE.Face3 {
+    constructor(a, b, c) {
+        super(a, b, c);
+        this._vertexUv = {};
+    }
+
+    get vertexUv() {
+        return this._vertexUv;
     }
 }

@@ -2,7 +2,7 @@ import {currentTime} from '../../util/common-utils.js';
 import {AnimationUtils} from '../../util/animation-utils.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
-import {GameContext, SystemType} from "../../game-context.js";
+import {GameContext, SystemType} from '../../game-context.js';
 
 
 const BOBBING_MAGNITUDE_X = 0.40;
@@ -15,7 +15,7 @@ const LAND_OFFSET = -8;
 const LAND_DEFLECT_TIME = 150;
 const LAND_RETURN_TIME = 300;
 
-export class Weapon extends THREE.Object3D {
+export class Weapon extends THREE.Group {
     constructor(mesh, sounds) {
         super();
 
@@ -83,6 +83,76 @@ export class Weapon extends THREE.Object3D {
         }
     }
 
+    _createSkinnedMesh(sourceMesh) {
+        const bufferGeometry = this._createBufferGeometry(sourceMesh.geometry);
+        const skinnedMesh = new THREE.SkinnedMesh(bufferGeometry, sourceMesh.material);
+
+        this._initSkeleton(skinnedMesh, sourceMesh.geometry);
+
+        skinnedMesh.scale.setScalar(GameWorld.WORLD_SCALE);
+
+        if (sourceMesh.position) {
+            skinnedMesh.position.copy(sourceMesh.position);
+        }
+        if (sourceMesh.rotation) {
+            skinnedMesh.rotation.copy(sourceMesh.rotation);
+        }
+
+        return skinnedMesh
+    }
+
+    _initSkeleton(skinnedMesh, geometry) {
+        let bones = [], bone, gbone;
+        let i, il;
+
+        if (geometry && geometry.bones != null) {
+            // First, create array of 'Bone' objects from geometry data
+            for (i = 0, il = geometry.bones.length; i < il; i++) {
+                gbone = geometry.bones[i];
+                // Create new 'Bone' object
+                bone = new THREE.Bone();
+                bones.push(bone);
+
+                // Apply values
+                bone.name = gbone.name;
+                bone.position.fromArray(gbone.pos);
+                bone.quaternion.fromArray(gbone.rotq);
+                if (gbone.scl != null) {
+                    bone.scale.fromArray(gbone.scl);
+                }
+            }
+
+            // Second, create bone hierarchy
+            for (i = 0, il = geometry.bones.length; i < il; i++) {
+                gbone = geometry.bones[i];
+                if (gbone.parent !== -1 && gbone.parent != null && bones[gbone.parent] != null) {
+                    // Subsequent bones in the hierarchy
+                    bones[gbone.parent].add(bones[i]);
+                } else {
+                    // Topmost bone, immediate child of the skinned mesh
+                    skinnedMesh.add(bones[i]);
+                }
+            }
+        }
+
+        skinnedMesh.bind(new THREE.Skeleton(bones));
+        skinnedMesh.normalizeSkinWeights();
+    }
+
+    _createBufferGeometry(sourceGeometry) {
+        const bufferGeometry = new THREE.BufferGeometry().fromGeometry(sourceGeometry);
+        if (bufferGeometry.getAttribute('skinWeight') == null) {
+            bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
+        }
+        if (sourceGeometry.animations) {
+            bufferGeometry.animations = sourceGeometry.animations;
+        }
+        if (sourceGeometry.bones) {
+            bufferGeometry.bones = sourceGeometry.bones;
+        }
+        return bufferGeometry;
+    }
+
     _initActions(mesh) {
         this._actions = {};
 
@@ -102,29 +172,6 @@ export class Weapon extends THREE.Object3D {
 
         const context = GameContext.getInstance();
         context.getSystem(SystemType.ANIMATION).registerAnimationMixer(animationMixer);
-    }
-
-    _createSkinnedMesh(sourceMesh) {
-        const bufferGeometry = this._createBufferGeometry(sourceMesh.geometry);
-        const skinnedMesh = new THREE.SkinnedMesh(bufferGeometry, sourceMesh.material);
-        skinnedMesh.scale.setScalar(GameWorld.WORLD_SCALE);
-        skinnedMesh.position.copy(sourceMesh.position);
-        skinnedMesh.rotation.copy(sourceMesh.rotation);
-        return skinnedMesh
-    }
-
-    _createBufferGeometry(sourceGeometry) {
-        const bufferGeometry = new THREE.BufferGeometry().fromGeometry(sourceGeometry);
-        if (bufferGeometry.getAttribute('skinWeight') == null) {
-            bufferGeometry.addAttribute('skinWeight', new THREE.Float32BufferAttribute(0, 4));
-        }
-        if (sourceGeometry.animations) {
-            bufferGeometry.animations = sourceGeometry.animations;
-        }
-        if (sourceGeometry.bones) {
-            bufferGeometry.bones = sourceGeometry.bones;
-        }
-        return bufferGeometry;
     }
 
     _playRaiseSound() {

@@ -17,8 +17,9 @@ export class Textures {
         bumpMap = Textures.loadTga(bumpMap);
         bumpMap = Textures._bumpMapToNormalMap(bumpMap, scale);
 
-        if (bumpMap.width !== normalMap.width || bumpMap.height !== normalMap.height)
+        if (bumpMap.width !== normalMap.width || bumpMap.height !== normalMap.height) {
             throw 'Images of different size are not supported';
+        }
 
         const canvas = document.createElement('canvas');
         canvas.width = normalMap.width;
@@ -53,10 +54,12 @@ export class Textures {
         const image = new TgaImage();
         let cursor = Textures._readTgaHeader(data, image);
 
-        if (image.type !== 2)
+        if (image.type !== 2) {
             throw 'Unsupported TGA image type: ' + image.type;
-        if (image.pixelSize !== 8 && image.pixelSize !== 24 && image.pixelSize !== 32)
+        }
+        if (image.pixelSize !== 8 && image.pixelSize !== 24 && image.pixelSize !== 32) {
             throw 'Unsupported TGA image pixel size: ' + image.pixelSize;
+        }
 
         cursor += image.commentLength;
         for (let row = image.height - 1; row >= 0; row--) {
@@ -100,9 +103,10 @@ export class Textures {
             }
         }
 
-        // noinspection JSBitwiseOperatorUsage
-        if (image.attributes & (1 << 5))
+        const flipped = image.attributes & (1 << 5);
+        if (!flipped) {
             Textures._flipVertical(image);
+        }
 
         return image;
     }
@@ -113,8 +117,9 @@ export class Textures {
         // Copy and convert to grey scale
         const depth = [];
         const n = bumpMap.width * bumpMap.height;
-        for (let i = 0; i < n; i++)
+        for (let i = 0; i < n; i++) {
             depth[i] = (bumpMap.data[i * 4] + bumpMap.data[i * 4 + 1] + bumpMap.data[i * 4 + 2]) / 3;
+        }
 
         const dir = new THREE.Vector3();
         const dir2 = new THREE.Vector3();
