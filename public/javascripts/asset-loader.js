@@ -3,7 +3,8 @@ import {Player} from './player/player.js';
 import {Weapons} from './player/weapon/weapons.js';
 import {MATERIALS} from './material/materials.js';
 import {SOUNDS} from './audio/sounds.js';
-import {Textures} from './util/textures.js';
+import {Images} from './util/images.js';
+import {TGALoader} from './loader/tga-loader.js';
 
 const AssetType = {
     MAPS: 0,
@@ -29,7 +30,7 @@ export class AssetLoader {
         this._binaryFileLoader.setResponseType('arraybuffer');
         this._soundLoader = new THREE.AudioLoader();
         this._animationLoader = new THREE.FileLoader();
-        this._tgaLoader = new THREE.TGALoader();
+        this._tgaLoader = new TGALoader();
     }
 
     load(mapName) {
@@ -67,8 +68,9 @@ export class AssetLoader {
         for (let namedSources of textureSources) {
             const textures = {};
             result.push(textures);
-            for (let key of Object.keys(namedSources))
+            for (let key of Object.keys(namedSources)) {
                 textures[key] = namedSources[key].load();
+            }
         }
         return result;
     }
@@ -319,7 +321,7 @@ class TextureSource {
                 const bumpMap = this._addNormals.bumpMap;
                 const scale = this._addNormals.scale;
                 $this._loadAllBinaryFiles([normalMap + '.tga', bumpMap + '.tga'], (normalMapBuf, bumpMapBuf) => {
-                    texture.image = Textures.addNormals(normalMapBuf, bumpMapBuf, scale);
+                    texture.image = Images.addNormals(normalMapBuf, bumpMapBuf, scale);
                     texture.needsUpdate = true;
                     if (onLoad) {
                         onLoad(texture);
@@ -328,7 +330,7 @@ class TextureSource {
             } else if (this._negate) {
                 texture = new THREE.Texture();
                 $this._loadAllBinaryFiles([this._name + '.tga'], (mapBuf) => {
-                    texture.image = Textures.negate(mapBuf);
+                    texture.image = Images.negate(mapBuf);
                     texture.needsUpdate = true;
                     if (onLoad)
                         onLoad(texture);

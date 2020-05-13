@@ -117,8 +117,9 @@ export class AbstractGui extends THREE.Group {
         if (materialDef) {
             material = materialBuilder.build(materialDef.diffuseMap, materialDef);
             material.update(currentTime());
-        } else
+        } else {
             material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
+        }
         const layerMesh = new THREE.Mesh(geometry, material);
         layerMesh.position.copy(position);
         layerMesh.rotation.copy(this._rotation);
