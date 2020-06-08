@@ -127,7 +127,7 @@ export class AbstractGui extends THREE.Group {
     }
 
     _createTextLayer(textCode, font, fontSize, color, opacity, renderOrder, xScale=0.8) {
-        const textLayer = new THREE.Group();
+        const textLayer = new THREE.Mesh();
         textLayer.renderOrder = renderOrder;
         textLayer.size = new THREE.Vector2();
         const lines = [];

@@ -1566,16 +1566,63 @@ export const MATERIALS = {
             opacity: 0.15
         }
     ],
+    'gui/static2': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/cpuserver/bg',
+            color: 0xffffff,
+            transparent: true,
+            opacity: {expression: 'table("pdhalffade", time * 0.001) / 10'}
+        },
+        {
+            type: 'shader',
+            diffuseMap: 'textures/sfx/monitor_glass2',
+            repeat: [2, 2],
+            translate: [
+                'table("staticatable", time * 20) * time',
+                'table("staticatable", time) * time',
+            ],
+            rotate: 'time * 6',
+            color: 0xffffff,
+            transparent: true,
+            opacity: {expression: 'table("pdhalffade", time * 0.001) / 10'}
+        }
+    ],
     'gui/addhighlight': {
         type: 'shader',
-        diffuseMap: 'guis/assets/common/addhighlight',
+        diffuseMap: {
+            name: 'guis/assets/common/addhighlight',
+            flip: true
+        },
         transparent: true,
         color: 0x4d6666,
         blending: 'additive'
     },
+    'gui/addhighlight2': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/addhighlight',
+            flip: true
+        },
+        transparent: true,
+        opacity: 1.0,
+        color: 0x668080,
+        blending: 'additive'
+    },
+    'gui/addhighlight3': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/addhighlight',
+            flip: true
+        },
+        transparent: true,
+        opacity: 1.0,
+        color: 0x266680,
+        blending: 'additive'
+    },
     'gui/spin1alt': {
         clamp: true,
-        type: 'shader',
+        type: 'basic',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * -0.015',
         transparent: true,
@@ -1587,7 +1634,7 @@ export const MATERIALS = {
     },
     'gui/spin2alt': {
         clamp: true,
-        type: 'shader',
+        type: 'basic',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * 0.02',
         transparent: true,
@@ -1599,7 +1646,7 @@ export const MATERIALS = {
     },
     'gui/spin3alt': {
         clamp: true,
-        type: 'shader',
+        type: 'basic',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * -0.025',
         transparent: true,
@@ -1611,7 +1658,7 @@ export const MATERIALS = {
     },
     'gui/spin4alt': {
         clamp: true,
-        type: 'shader',
+        type: 'basic',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * 0.03',
         transparent: true,
@@ -1635,9 +1682,20 @@ export const MATERIALS = {
         transparent: true,
         blending: 'additive'
     },
+    'gui/test/gui_scanlines52': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/test/gui_scanlines5',
+        color: 0x1a1a1a,
+        scroll: ['0', 'time * -.02'],
+        transparent: true,
+        blending: 'additive'
+    },
     'gui/reflect1': {
         type: 'shader',
-        diffuseMap: 'guis/assets/smdoor/reflect1',
+        diffuseMap: {
+            name: 'guis/assets/smdoor/reflect1',
+            flip: true
+        },
         color: {
             red: {expression: 'table("subtleflick", time * 3)'},
             green: {expression: 'table("subtleflick", time * 3)'},
@@ -1767,5 +1825,138 @@ export const MATERIALS = {
         rotate: 'time * -0.05',
         clamp: true,
         transparent: true
+    },
+    'gui/cpuserver/bgwhite4': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/cpuserver/bgWhite4',
+        color: 0,
+        transparent: true,
+        opacity: 0.9
+    },
+    'gui/doors/adminbg1': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: {
+            name: 'guis/assets/doors/adminbg',
+            flip: true
+        },
+        color: 0x99cccc,
+        transparent: true,
+        repeat: [0.9, 0.7]
+    },
+    'gui/doors/adminbg2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: {
+            name: 'guis/assets/doors/adminbg',
+            flip: true
+        },
+        color: 0x99cccc,
+        transparent: true,
+        opacity: 1,
+        repeat: [0.9, 0.79],
+    },
+    'gui/bgblack': {
+        type: 'shader',
+        color: 0,
+        transparent: true,
+        opacity: 0.9
+    },
+    'gui/common/titlebar_corner': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: {
+            name: 'guis/assets/common/titlebar_corner',
+            flip: true
+        },
+        color: 0x99ccd9,
+        transparent: true,
+        opacity: 0.3
+    },
+    'gui/common/titlebar_mid': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: {
+            name: 'guis/assets/common/titlebar_mid',
+            flip: true
+        },
+        color: 0x99ccd9,
+        transparent: true,
+        opacity: 0.3
+    },
+    'gui/common/btn_2pxborder_horiz1': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/btn_2pxborder_horiz',
+            flip: true
+        },
+        color: 0x80ffe6,
+        transparent: true,
+        opacity: 0.2
+    },
+    'gui/common/btn_2pxborder_horiz2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: {
+            name: 'guis/assets/common/btn_2pxborder_horiz',
+            flip: true
+        },
+        color: 0x80ffe6,
+        transparent: true,
+        opacity: 0.2,
+        translate: [0, 0.4]
+    },
+    'gui/cpuserver/bglow': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/cpuserver/bglow',
+        color: 0x80e699,
+        transparent: true,
+        opacity: 0.1
+    },
+    'gui/common/outerglow': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/outerglow',
+        color: 0xffffff,
+        transparent: true,
+        opacity: {expression: 'table("pdflick", time * 0.0025) / 6'}
+    },
+    'gui/common/outershadow': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/outershadow',
+        color: 0xffffff,
+        transparent: true
+    },
+    'gui/common/dirt4': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/dirt4',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.2
+    },
+    'gui/common/dirt42': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/dirt4',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.8
+    },
+    'gui/common/dirt2': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/dirt2',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.5
+    },
+    'gui/test/mask': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/test/mask',
+        transparent: true,
+        opacity: 0.1
     }
 };
