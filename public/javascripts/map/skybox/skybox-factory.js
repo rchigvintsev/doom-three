@@ -1,6 +1,5 @@
 import {MATERIALS} from '../../material/materials.js';
 import {AssetLoader} from '../../asset-loader.js';
-import {Images} from '../../util/images.js';
 
 export class SkyboxFactory {
     constructor(assetLoader) {
@@ -28,13 +27,7 @@ export class SkyboxFactory {
             if (!texture) {
                 console.error('Texture "' + materialDef.cubeMap + postfix + '" is not found');
             } else {
-                const canvas = texture.image;
-                const context = canvas.getContext('2d');
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                // For some reason skybox textures need to be flipped
-                Images.flip(imageData);
-                context.putImageData(imageData, 0, 0);
-                images.push(canvas);
+                images.push(texture.image);
             }
         });
 

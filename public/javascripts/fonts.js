@@ -6,7 +6,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_5_48', flip: true},
                 repeat: [0.20, 0.15],
                 translate: [0.77, 0.645]
             }
@@ -20,7 +20,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_5_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.775, 0.92]
             }
@@ -31,7 +31,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_0_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_0_48', flip: true},
                 repeat: [0.04, 0.15],
                 translate: [0.80, 0.322]
             }
@@ -42,7 +42,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.07, 0.15],
                 translate: [0, 0.855]
             }
@@ -53,7 +53,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.12, 0.15],
                 translate: [0.155, 0.855]
             }
@@ -64,7 +64,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.09, 0.15],
                 translate: [0.335, 0.855]
             }
@@ -75,7 +75,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.455, 0.855]
             }
@@ -86,7 +86,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.626, 0.855]
             }
@@ -97,7 +97,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.693, 0.648]
             }
@@ -108,7 +108,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.05, 0.15],
                 translate: [0.86, 0.648]
             }
@@ -119,7 +119,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.693, 0.44]
             }
@@ -130,7 +130,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_1_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_1_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.175, 0.233]
             }
@@ -141,7 +141,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_2_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_2_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.52, 0.44]
             }
@@ -152,7 +152,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_5_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.43, 0.23]
             }
@@ -163,7 +163,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_5_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.653, 0.23]
             }
@@ -174,7 +174,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.12, 0.15],
                 translate: [0.02, 0.853]
             }
@@ -185,7 +185,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.195, 0.853]
             }
@@ -196,7 +196,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.13, 0.15],
                 translate: [0.358, 0.853]
             }
@@ -207,7 +207,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.56, 0.853]
             }
@@ -218,7 +218,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.33, 0.645]
             }
@@ -229,7 +229,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.51, 0.645]
             }
@@ -240,7 +240,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.71, 0.63]
             }
@@ -251,7 +251,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.025, 0.437]
             }
@@ -262,7 +262,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.305, 0.437]
             }
@@ -273,7 +273,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.15, 0.15],
                 translate: [0.572, 0.437]
             }
@@ -284,7 +284,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.805, 0.437]
             }
@@ -295,7 +295,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.025, 0.23]
             }
@@ -306,7 +306,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.22, 0.23]
             }
@@ -317,7 +317,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.41, 0.23]
             }
@@ -328,7 +328,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.59, 0.23]
             }
@@ -339,7 +339,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.77, 0.23]
             }
@@ -350,7 +350,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.025, 0.023]
             }
@@ -361,7 +361,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.15, 0.15],
                 translate: [0.185, 0.023]
             }
@@ -372,7 +372,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_6_48', flip: true},
                 repeat: [0.14, 0.15],
                 translate: [0.78, 0.023]
             }
@@ -383,7 +383,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.018, 0.854]
             }
@@ -394,7 +394,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.18, 0.15],
                 translate: [0.48, 0.854]
             }
@@ -405,7 +405,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.12, 0.15],
                 translate: [0.023, 0.645]
             }
@@ -416,7 +416,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.15, 0.15],
                 translate: [0.255, 0.645]
             }
@@ -427,7 +427,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.48, 0.645]
             }
@@ -438,7 +438,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.18, 0.15],
                 translate: [0.018, 0.44]
             }
@@ -449,7 +449,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.13, 0.15],
                 translate: [0.278, 0.44]
             }
@@ -460,7 +460,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.1, 0.15],
                 translate: [0.46, 0.465]
             }
@@ -471,7 +471,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.11, 0.15],
                 translate: [0.035, 0.26]
             }
@@ -482,7 +482,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.1, 0.15],
                 translate: [0.012, 0.054]
             }
@@ -493,7 +493,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.1, 0.15],
                 translate: [0.16, 0.05]
             }
@@ -504,7 +504,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_7_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_7_48', flip: true},
                 repeat: [0.1, 0.15],
                 translate: [0.84, 0.05]
             }
@@ -515,7 +515,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/micro/fontimage_8_48',
+                diffuseMap: {name: 'fonts/english/micro/fontimage_8_48', flip: true},
                 repeat: [0.15, 0.15],
                 translate: [0.015, 0.465]
             }
@@ -531,7 +531,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.118, 0.478]
             }
@@ -542,7 +542,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.86, 0.478]
             }
@@ -553,7 +553,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.22, 0.12],
                 translate: [0.028, 0.275]
             }
@@ -564,7 +564,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.397, 0.275]
             }
@@ -575,7 +575,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.697, 0.275]
             }
@@ -586,7 +586,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_5_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_5_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.845, 0.275]
             }
@@ -597,7 +597,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.02, 0.885]
             }
@@ -608,7 +608,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.165, 0.885]
             }
@@ -619,7 +619,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.14, 0.12],
                 translate: [0.31, 0.885]
             }
@@ -630,7 +630,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.46, 0.885]
             }
@@ -641,7 +641,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.592, 0.885]
             }
@@ -652,7 +652,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.732, 0.885]
             }
@@ -663,7 +663,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.12, 0.12],
                 translate: [0.028, 0.682]
             }
@@ -674,7 +674,7 @@ export const fonts = {
                 type: 'shader',
                 clamp: true,
                 transparent: true,
-                diffuseMap: 'fonts/english/bank/fontimage_6_48',
+                diffuseMap: {name: 'fonts/english/bank/fontimage_6_48', flip: true},
                 repeat: [0.19, 0.12],
                 translate: [0.026, 0.48]
             }

@@ -178,12 +178,12 @@ export class AssetLoader {
                 namedSources.additionalMap = new TextureSource(this, materialDef.additionalMap);
 
             if (materialDef.cubeMap) {
-                namedSources.cubeMap_right = new TextureSource(this, materialDef.cubeMap + '_right');
-                namedSources.cubeMap_left = new TextureSource(this, materialDef.cubeMap + '_left');
-                namedSources.cubeMap_up = new TextureSource(this, materialDef.cubeMap + '_up');
-                namedSources.cubeMap_down = new TextureSource(this, materialDef.cubeMap + '_down');
-                namedSources.cubeMap_forward = new TextureSource(this, materialDef.cubeMap + '_forward');
-                namedSources.cubeMap_back = new TextureSource(this, materialDef.cubeMap + '_back');
+                namedSources.cubeMap_right = new TextureSource(this, {name: materialDef.cubeMap + '_right', flip: true});
+                namedSources.cubeMap_left = new TextureSource(this, {name: materialDef.cubeMap + '_left', flip: true});
+                namedSources.cubeMap_up = new TextureSource(this, {name: materialDef.cubeMap + '_up', flip: true});
+                namedSources.cubeMap_down = new TextureSource(this, {name: materialDef.cubeMap + '_down', flip: true});
+                namedSources.cubeMap_forward = new TextureSource(this, {name: materialDef.cubeMap + '_forward', flip: true});
+                namedSources.cubeMap_back = new TextureSource(this, {name: materialDef.cubeMap + '_back', flip: true});
             }
 
             if (materialDef.textures) {
@@ -284,7 +284,8 @@ export class AssetLoader {
                 result[i] = buffer;
                 if (++counter === files.length)
                     onLoad.apply(this, result);
-            }, () => {}, onError);
+            }, () => {
+            }, onError);
     }
 
     _notifySubscribers() {
@@ -305,6 +306,7 @@ class TextureSource {
         this._name = typeof textureDef === 'string' ? textureDef : textureDef.name;
         this._addNormals = textureDef.addNormals;
         this._negate = textureDef.negate;
+        this._flip = textureDef.flip;
     }
 
     load(onLoad, onError) {
@@ -336,8 +338,18 @@ class TextureSource {
                         onLoad(texture);
                 }, onError);
             } else {
-                texture = $this._tgaLoader.load(this._name + '.tga', onLoad, () => {
-                }, onError);
+                texture = $this._tgaLoader.load(this._name + '.tga', () => {
+                    if (this._flip) {
+                        const canvas = texture.image;
+                        const context = canvas.getContext('2d');
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                        Images.flip(imageData);
+                        context.putImageData(imageData, 0, 0);
+                    }
+                    if (onLoad) {
+                        onLoad(texture);
+                    }
+                }, () => {}, onError);
             }
             $this._assets[AssetLoader.AssetType.TEXTURES][this._name] = texture;
         }
