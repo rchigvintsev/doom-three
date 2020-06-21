@@ -1,824 +1,498 @@
 import {AbstractGui} from './abstract-gui.js';
 import {MATERIALS} from '../../material/materials.js';
-import {ScrollingText} from './scrolling-text.js';
+import {ScrollingText} from "./scrolling-text.js";
 
-const SCREEN_WIDTH = 640;
-const SCREEN_HEIGHT = 480;
-
-const BLACK_BACKGROUND_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/cpuserver/bg',
-    color: 0,
-    transparent: true
-};
-
-const BORDER_CORNER_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/1pxborder_cornersm',
-    transparent: true
-};
-
-const VERTICAL_BORDER_MATERIAL_DEF = {
-  type: 'shader',
-  diffuseMap: 'guis/assets/common/1pxborder_vert',
-  transparent: true
-};
-
-const HORIZONTAL_BORDER_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/1pxborder_horiz',
-    transparent: true
-};
-
-const FILL_BOX_CAP_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/scibox/fillboxCap',
-    transparent: true,
-    color: 0xff0000,
-    opacity: 0.2
-};
-
-const FILL_BOX_CENTER_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/scibox/fillboxCenter',
-    transparent: true,
-    color: 0xff0000,
-    opacity: 0.2
-};
-
-const CRANE_BOX_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/caverns/cranebox',
-    transparent: true,
-    color: 0x000000,
-    clamp: true,
-    translate: [0.34, 0]
-};
-
-const RED_CRANE_BOX_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/caverns/cranebox',
-    transparent: true,
-    opacity: 0.15,
-    color: 0xff0000,
-    clamp: true,
-    translate: [0.34, 0]
-};
-
-const RED_CIRCLE1_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/health/circle',
-    transparent: true,
-    opacity: 0.42,
-    color: 0xff0000
-};
-
-const RED_CIRCLE2_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/health/circle',
-    transparent: true,
-    opacity: 0.62,
-    color: 0xff0000
-};
-
-const BLACK_CIRCLE_CLIP_MATERIAL_DEF = {
-    type: 'shader',
-    color: 0x000000,
-    transparent: true
-};
-
-const HEALTH_LINE_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/health/line',
-    transparent: true,
-    opacity: 0.4,
-    color: 0xff0000
-};
-
-const GLOW_BORDER_VERT_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/glowborder_vert',
-    transparent: true,
-    color: 0xb3e6ff
-};
-
-const GLOW_BORDER_HORIZ_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/glowborder_horiz',
-    transparent: true,
-    color: 0xb3e6ff
-};
-
-const GLOW_BORDER_CORNER4_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/glowborder_corner4',
-    transparent: true,
-    color: 0xb3e6ff
-};
-
-const GLOW_BORDER_CORNER3_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/glowborder_corner3',
-    transparent: true,
-    color: 0xb3e6ff
-};
-
-const IN_BG_FILL_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/airlock/inbgfill',
-    transparent: true,
-    opacity: 0.2,
-    color: 0x71b4ff
-};
-
-const OUTER_SHADOW_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/outershadow',
-    transparent: true,
-    color: 0xffffff
-};
-
-const BUTTON2_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/health/button2',
-    transparent: true,
-    opacity: 0.5,
-    color: 0xcccccc
-};
-
-const BUTTON2_BAR_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/health/button2bar',
-    transparent: true,
-    opacity: 0.2,
-    color: 0xffffff
-};
-
-const DIRT4_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/common/dirt4',
-    transparent: true,
-    opacity: 0.2,
-    color: 0xffffff
-};
-
-const B_GLOW_MATERIAL_DEF = {
-    type: 'shader',
-    diffuseMap: 'guis/assets/cpuserver/bglow',
-    transparent: true,
-    opacity: 0.1,
-    color: 0xffcccc
-};
+export const HEALTH_STATION_GUI = {
+    width: 640,
+    height: 480,
+    layers: [
+        {
+            type: 'regular',
+            material: 'gui/cpuserver/bg',
+            size: [1280, 480]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/ekg2flat',
+            size: [135, 36],
+            offset: [-226.5, 49]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/ekg3flat2',
+            size: [135, 36],
+            offset: [-226.5, -23]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/ekgflat',
+            size: [134, 80],
+            offset: [-226, -107]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/1pxborder_cornersm',
+            size: [82, 30],
+            offset: [-188, -135],
+            rotation: [180, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/1pxborder_cornersm',
+            size: [82, 30],
+            offset: [-188, 112],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/1pxborder_vert',
+            size: [82, 217],
+            offset: [-188, -11.5],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/1pxborder_horiz',
+            size: [71, 30],
+            offset: [-264.5, -137]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/1pxborder_horiz',
+            size: [71, 30],
+            offset: [-264.5, 114],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/scibox/fillboxcap',
+            size: [252, 25],
+            offset: [-232, -140.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/scibox/fillboxcenter',
+            size: [252, 234],
+            offset: [-231, -11],
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/scibox/fillboxcap',
+            size: [252, 28],
+            offset: [-232, 119],
+            rotation: [180, 0]
+        },
+        {
+            type: 'text',
+            text: '0',
+            font: 'micro',
+            size: [133, 40],
+            fontSize: 25,
+            transparent: true,
+            opacity: 0.7,
+            offset: [-230.5, -62],
+            scale: [0.7, 1.0],
+            textAlign: 'right'
+        },
+        {
+            type: 'text',
+            text: '0 / 0',
+            font: 'micro',
+            size: [133, 40],
+            fontSize: 18,
+            transparent: true,
+            opacity: 0.5,
+            offset: [-232.5, 4],
+            scale: [0.7, 1.0],
+            textAlign: 'right'
+        },
+        {
+            type: 'text',
+            text: '0 / 0',
+            font: 'micro',
+            size: [133, 59],
+            fontSize: 18,
+            transparent: true,
+            opacity: 0.5,
+            offset: [-232.5, 74.5],
+            scale: [0.7, 1.0],
+            textAlign: 'right'
+        },
+        {
+            type: 'text',
+            text: '0',
+            font: 'micro',
+            size: [133, 59],
+            fontSize: 18,
+            transparent: true,
+            opacity: 0.5,
+            offset: [-232.5, 94.5],
+            scale: [0.7, 1.0],
+            textAlign: 'right'
+        },
+        {
+            type: 'scrolling-text',
+            text: '#str_00770',
+            font: 'micro',
+            size: [317, 32],
+            fontSize: 18,
+            color: 0xb2e5ff,
+            transparent: true,
+            opacity: 0.5,
+            offset: [296, 170],
+            boundaries: [-227.48, 232.86]
+        },
+        {
+            type: 'regular',
+            material: 'gui/caverns/cranebox',
+            size: [489, 208],
+            offset: [-56.5, 87],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/circle',
+            size: [590, 440],
+            offset: [82, -11]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/circle3',
+            size: [538, 401],
+            offset: [82, -12.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/bgblack2',
+            size: [221, 346],
+            offset: [194.5, -13]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/line',
+            size: [214, 30],
+            offset: [191, -170]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/line',
+            size: [214, 30],
+            offset: [191, 148]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/line2',
+            size: [214, 27],
+            offset: [191, -156.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/line2',
+            size: [214, 27],
+            offset: [191, 133.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/caverns/cranebox2',
+            size: [489, 191],
+            offset: [-56.5, 92.5],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/caverns/cranebox2',
+            size: [489, 191],
+            offset: [-56.5, -113.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_vert',
+            size: [59, 352],
+            offset: [285.5, 0],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_vert',
+            size: [59, 352],
+            offset: [-285.5, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/glowborder_horiz',
+            size: [512, 59],
+            offset: [0, -205.5],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/glowborder_horiz',
+            size: [512, 59],
+            offset: [0, 205.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_corner4',
+            size: [59, 59],
+            offset: [-285.5, 205.5],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_corner4',
+            size: [59, 59],
+            offset: [285.5, 205.5]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_corner3',
+            size: [59, 59],
+            offset: [285.5, -205.5],
+            rotation: [180, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/glowborder_corner3',
+            size: [59, 59],
+            offset: [-285.5, -205.5],
+            rotation: [180, 0]
+        },
+        {
+            type: 'text',
+            text: '100',
+            font: 'micro',
+            size: [300, 144],
+            fontSize: 80,
+            color: 0x4f5a65,
+            transparent: true,
+            opacity: 1.0,
+            offset: [130, 78],
+            textAlign: 'right'
+        },
+        {
+            type: 'regular',
+            material: 'gui/airlock/inbgfill',
+            size: [289, 28],
+            offset: [-142.5, 207]
+        },
+        {
+            type: 'regular',
+            material: 'gui/airlock/inbgfill',
+            size: [289, 28],
+            offset: [141.5, 207],
+            rotation: [0, 180]
+        },
+        {
+            type: 'text',
+            text: '#str_00771',
+            font: 'micro',
+            size: [602, 56],
+            fontSize: 25,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.7,
+            offset: [-89, -202],
+            textAlign: 'right'
+        },
+        {
+            type: 'text',
+            text: '#str_00772',
+            font: 'micro',
+            size: [566, 33],
+            fontSize: 17,
+            color: 0xe6f2ff,
+            transparent: true,
+            opacity: 0.5,
+            offset: [-31, 207.5],
+            textAlign: 'right'
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/outershadow',
+            size: [640, 480],
+            offset: [0, 0]
+        },
+        {
+            type: 'text',
+            text: '#str_00773',
+            font: 'micro',
+            size: [291, 33],
+            fontSize: 19,
+            color: 0xe6f2ff,
+            transparent: true,
+            opacity: 0.5,
+            offset: [103.5, 24.5],
+            textAlign: 'right'
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/button2',
+            size: [521, 186],
+            offset: [108.5, 35],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/button2bar',
+            size: [123, 29],
+            offset: [-40.5, 24.5],
+            rotation: [180, 0]
+        },
+        {
+            type: 'regular',
+            material: 'gui/health/button2',
+            size: [521, 186],
+            offset: [108.5, -61]
+        },
+        {
+            type: 'text',
+            text: '#str_00775',
+            font: 'micro',
+            size: [321, 103],
+            fontSize: 25,
+            color: 0xffffff,
+            transparent: true,
+            opacity: {expression: 'table("pdhalffade2", time * 0.3)'},
+            offset: [66.5, -43.5],
+            textAlign: 'right'
+        },
+        {
+            type: 'regular',
+            material: 'gui/static3',
+            size: [660, 500],
+            offset: [2, 2],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/outershadow',
+            size: [640, 480],
+            offset: [0, 0],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/common/dirt4_3',
+            size: [640, 480],
+            offset: [0, 0],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/test/gui_scanlines5_3',
+            size: [640, 480],
+            offset: [0, 0],
+            rotation: [180, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/addhighlight4',
+            size: [640, 480],
+            offset: [0, 0],
+            rotation: [0, 180]
+        },
+        {
+            type: 'regular',
+            material: 'gui/cpuserver/bglow2',
+            size: [640, 480],
+            offset: [0, 0],
+            rotation: [0, 180]
+        }
+    ]
+}
 
 export class HealthStationGui extends AbstractGui {
     constructor(parent, materialIndex, materialBuilder) {
         super(parent, materialIndex, materialBuilder);
 
-        const halfOfScreenWidth = this._getScreenWidth() / 2 / this._ratio.x;
-        const halfOfScreenHeight = this._getScreenHeight() / 2 / this._ratio.y;
-
-        const xOrigin = this._position.x - halfOfScreenWidth;
-        const yOrigin = this._position.z - halfOfScreenHeight;
-
         // Prepare position offset to prevent texture flickering
-        const positionOffset = this._normal.clone().multiplyScalar(0.01);
+        const offsetMask = new THREE.Vector3(0, 0, 1);
+        const offset = new THREE.Vector3().setScalar(-0.10).multiply(offsetMask);
+        const offsetStep = new THREE.Vector3().setScalar(0.001).multiply(offsetMask)
+
         let renderOrder = 0;
+        
+        for (let layer of HEALTH_STATION_GUI.layers) {
+            let layerMesh = null;
 
-        const bgBlackLayer = this._createLayer(BLACK_BACKGROUND_MATERIAL_DEF,
-            new THREE.Vector2(SCREEN_WIDTH + 2, SCREEN_HEIGHT).divide(this._ratio), this._position);
-        bgBlackLayer.renderOrder = renderOrder;
-        this.add(bgBlackLayer);
+            const width = layer.size != null ? layer.size[0] : HEALTH_STATION_GUI.width;
+            const height = layer.size != null ? layer.size[1] : HEALTH_STATION_GUI.height;
+            const size = new THREE.Vector2(width, height).divide(this._ratio);
 
-        renderOrder++;
+            const offsetX = layer.offset != null ? layer.offset[0] : 0;
+            const offsetY = layer.offset != null ? layer.offset[1] : 0;
+            const position = new THREE.Vector3()
+                .add(offset)
+                .setX(offsetX / this._ratio.x)
+                .setY(offsetY * -1 / this._ratio.y);
 
-        const hrWinOffset = new THREE.Vector2(17, 85);
+            if (layer.type === 'text' || layer.type === 'scrolling-text') {
+                const scaleX = layer.scale != null ? layer.scale[0] : 0.8;
 
-        const spike2LayerSize = new THREE.Vector2(135, 36).divide(this._ratio);
-        const spike2LayerPosition = this._position.clone().add(positionOffset);
-        spike2LayerPosition.x = xOrigin + spike2LayerSize.x / 2 + (hrWinOffset.x + 9) / this._ratio.x;
-        spike2LayerPosition.z = yOrigin + spike2LayerSize.y / 2 + (hrWinOffset.y + 186) / this._ratio.y;
-        const spike2Materials = MATERIALS['gui/health/ekg2flat'];
-        for (let material of spike2Materials) {
-            const layer = this._createLayer(material, spike2LayerSize, spike2LayerPosition);
-            layer.renderOrder = renderOrder;
-            this.add(layer);
-            this._materials.push(layer.material);
-            renderOrder++;
+                layerMesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, layer.color, layer.opacity,
+                    renderOrder++, scaleX);
+                if (layer.textAlign === 'center') {
+                    position.setX(position.x - layerMesh.size.x / 2)
+                } else if (layer.textAlign === 'right') {
+                    position.setX(position.x + size.x / 2 - layerMesh.size.x);
+                }
+                layerMesh.position.copy(position);
+
+                if (layer.type === 'scrolling-text') {
+                    const boundaries = new THREE.Vector2(
+                        this._position.x + layer.boundaries[0] / this._ratio.x,
+                        this._position.x + layer.boundaries[1] / this._ratio.x
+                    );
+                    this._scrollingText = new ScrollingText(layerMesh, boundaries, size.x, 22000, 2000);
+                }
+            } else {
+                const scaleY = layer.scale != null ? layer.scale[1] : null;
+
+                const material = MATERIALS[layer.material];
+                if (Array.isArray(material)) {
+                    for (let m of material) {
+                        const mesh = this._createLayer(m, size, position, scaleY);
+                        mesh.rotation.set(0, 0, 0);
+                        mesh.renderOrder = renderOrder++;
+                        this.add(mesh);
+                        this._materials.push(mesh.material);
+                    }
+                } else {
+                    layerMesh = this._createLayer(material, size, position, scaleY);
+                    layerMesh.rotation.set(0, 0, 0);
+                    layerMesh.renderOrder = renderOrder++;
+                    this._materials.push(layerMesh.material);
+                }
+            }
+
+            if (layerMesh != null) {
+                if (layer.rotation != null) {
+                    layerMesh.rotateX(THREE.Math.degToRad(layer.rotation[0]));
+                    layerMesh.rotateY(THREE.Math.degToRad(layer.rotation[1]));
+                }
+                this.add(layerMesh);
+            }
+
+            offset.add(offsetStep);
         }
 
-        const spike1LayerSize = new THREE.Vector2(135, 28).divide(this._ratio);
-        const spike1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
-        spike1LayerPosition.x = xOrigin + spike1LayerSize.x / 2 + (hrWinOffset.x + 9) / this._ratio.x;
-        spike1LayerPosition.z = yOrigin + spike1LayerSize.y / 2 + (hrWinOffset.y + 118) / this._ratio.y;
-        const spike1Materials = MATERIALS['gui/health/ekg3flat'];
-        for (let material of spike1Materials) {
-            material = Object.assign({}, material);
-            material.color = 0xff0000; // TODO: Color should be assigned depending on the player's health level
-            const layer = this._createLayer(material, spike1LayerSize, spike1LayerPosition);
-            layer.renderOrder = renderOrder;
-            this.add(layer);
-            this._materials.push(layer.material);
-            renderOrder++;
-        }
-
-        const spikeLayerSize = new THREE.Vector2(134, 80).divide(this._ratio);
-        const spikeLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
-        spikeLayerPosition.x = xOrigin + spikeLayerSize.x / 2 + (hrWinOffset.x + 10) / this._ratio.x;
-        spikeLayerPosition.z = yOrigin + spikeLayerSize.y / 2 + (hrWinOffset.y + 8) / this._ratio.y;
-        const spikeMaterials = MATERIALS['gui/health/ekgflat'];
-        for (let material of spikeMaterials) {
-            const layer = this._createLayer(material, spikeLayerSize, spikeLayerPosition);
-            layer.renderOrder = renderOrder;
-            this.add(layer);
-            this._materials.push(layer.material);
-            renderOrder++;
-        }
-
-        const btn2Corner2LayerSize = new THREE.Vector2(82, 30).divide(this._ratio);
-        const btn2Corner2LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
-        btn2Corner2LayerPosition.x = xOrigin + btn2Corner2LayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
-        btn2Corner2LayerPosition.z = yOrigin + btn2Corner2LayerSize.y / 2 + (hrWinOffset.y + 5) / this._ratio.y;
-        const btn2Corner2Layer = this._createLayer(BORDER_CORNER_MATERIAL_DEF, btn2Corner2LayerSize,
-            btn2Corner2LayerPosition);
-        btn2Corner2Layer.renderOrder = renderOrder;
-        btn2Corner2Layer.rotation.x += THREE.Math.degToRad(180);
-        btn2Corner2Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(btn2Corner2Layer);
-
-        renderOrder++;
-
-        const btn2Corner4LayerSize = new THREE.Vector2(82, 30).divide(this._ratio);
-        const btn2Corner4LayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
-        btn2Corner4LayerPosition.x = xOrigin + btn2Corner4LayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
-        btn2Corner4LayerPosition.z = yOrigin + btn2Corner4LayerSize.y / 2 + (hrWinOffset.y + 252) / this._ratio.y;
-        const btn2Corner4Layer = this._createLayer(BORDER_CORNER_MATERIAL_DEF, btn2Corner4LayerSize,
-            btn2Corner4LayerPosition);
-        btn2Corner4Layer.renderOrder = renderOrder;
-        btn2Corner4Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(btn2Corner4Layer);
-
-        renderOrder++;
-
-        const btn2RightLayerSize = new THREE.Vector2(82, 217).divide(this._ratio);
-        const btn2RightLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
-        btn2RightLayerPosition.x = xOrigin + btn2RightLayerSize.x / 2 + (hrWinOffset.x + 74) / this._ratio.x;
-        btn2RightLayerPosition.z = yOrigin + btn2RightLayerSize.y / 2 + (hrWinOffset.y + 35) / this._ratio.y;
-        const btn2RightLayer = this._createLayer(VERTICAL_BORDER_MATERIAL_DEF, btn2RightLayerSize,
-            btn2RightLayerPosition);
-        btn2RightLayer.renderOrder = renderOrder;
-        btn2RightLayer.rotation.x += THREE.Math.degToRad(180);
-        btn2RightLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(btn2RightLayer);
-
-        renderOrder++;
-
-        const btn2TopLayerSize = new THREE.Vector2(71, 30).divide(this._ratio);
-        const btn2TopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
-        btn2TopLayerPosition.x = xOrigin + btn2TopLayerSize.x / 2 + (hrWinOffset.x + 3) / this._ratio.x;
-        btn2TopLayerPosition.z = yOrigin + btn2TopLayerSize.y / 2 + (hrWinOffset.y + 3) / this._ratio.y;
-        const btn2TopLayer = this._createLayer(HORIZONTAL_BORDER_MATERIAL_DEF, btn2TopLayerSize, btn2TopLayerPosition);
-        btn2TopLayer.renderOrder = renderOrder;
-        btn2TopLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(btn2TopLayer);
-
-        renderOrder++;
-
-        const btn2BottomLayerSize = new THREE.Vector2(71, 30).divide(this._ratio);
-        const btn2BottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
-        btn2BottomLayerPosition.x = xOrigin + btn2BottomLayerSize.x / 2 + (hrWinOffset.x + 3) / this._ratio.x;
-        btn2BottomLayerPosition.z = yOrigin + btn2BottomLayerSize.y / 2 + (hrWinOffset.y + 254) / this._ratio.y;
-        const btn2BottomLayer = this._createLayer(HORIZONTAL_BORDER_MATERIAL_DEF, btn2BottomLayerSize,
-            btn2BottomLayerPosition);
-        btn2BottomLayer.renderOrder = renderOrder;
-        this.add(btn2BottomLayer);
-
-        renderOrder++;
-
-        const fillBoxTopLayerSize = new THREE.Vector2(252, 25).divide(this._ratio);
-        const fillBoxTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(15));
-        fillBoxTopLayerPosition.x = xOrigin + fillBoxTopLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
-        fillBoxTopLayerPosition.z = yOrigin + fillBoxTopLayerSize.y / 2 + (hrWinOffset.y + 2) / this._ratio.y;
-        const fillBoxTopLayer = this._createLayer(FILL_BOX_CAP_MATERIAL_DEF, fillBoxTopLayerSize,
-            fillBoxTopLayerPosition);
-        fillBoxTopLayer.renderOrder = renderOrder;
-        this.add(fillBoxTopLayer);
-
-        renderOrder++;
-
-        const fillBoxCenterLayerSize = new THREE.Vector2(252, 234).divide(this._ratio);
-        const fillBoxCenterLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(7));
-        fillBoxCenterLayerPosition.x = xOrigin + fillBoxCenterLayerSize.x / 2 + (hrWinOffset.x - 54) / this._ratio.x;
-        fillBoxCenterLayerPosition.z = yOrigin + fillBoxCenterLayerSize.y / 2 + (hrWinOffset.y + 27) / this._ratio.y;
-        const fillBoxCenterLayer = this._createLayer(FILL_BOX_CENTER_MATERIAL_DEF, fillBoxCenterLayerSize,
-            fillBoxCenterLayerPosition);
-        fillBoxCenterLayer.renderOrder = renderOrder;
-        this.add(fillBoxCenterLayer);
-
-        renderOrder++;
-
-        const fillBoxBottomLayerSize = new THREE.Vector2(252, 28).divide(this._ratio);
-        const fillBoxBottomLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(9));
-        fillBoxBottomLayerPosition.x = xOrigin + fillBoxBottomLayerSize.x / 2 + (hrWinOffset.x - 55) / this._ratio.x;
-        fillBoxBottomLayerPosition.z = yOrigin + fillBoxBottomLayerSize.y / 2 + (hrWinOffset.y + 260) / this._ratio.y;
-        const fillBoxBottomLayer = this._createLayer(FILL_BOX_CAP_MATERIAL_DEF, fillBoxBottomLayerSize,
-            fillBoxBottomLayerPosition);
-        fillBoxBottomLayer.rotation.x += THREE.Math.degToRad(180);
-        fillBoxBottomLayer.renderOrder = renderOrder;
-        this.add(fillBoxBottomLayer);
-
-        renderOrder++;
-
-        const textHr1LayerSize = new THREE.Vector2(133, 40).divide(this._ratio);
-        const textHr1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(12));
-        textHr1LayerPosition.x = xOrigin + textHr1LayerSize.x / 2 + (hrWinOffset.x + 6) / this._ratio.x;
-        textHr1LayerPosition.z = yOrigin + textHr1LayerSize.y / 2 + (hrWinOffset.y + 73) / this._ratio.y;
-        const textHr1Layer = this._createTextLayer('0', 'micro', 25, undefined, 0.7, renderOrder, 0.7);
-        textHr1LayerPosition.x += textHr1LayerSize.x / 2 - textHr1Layer.size.x;
-        textHr1Layer.position.copy(textHr1LayerPosition);
-        textHr1Layer.rotation.copy(this._rotation);
-        this.add(textHr1Layer);
-
-        renderOrder++;
-
-        const textHr2LayerSize = new THREE.Vector2(133, 40).divide(this._ratio);
-        const textHr2LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(6));
-        textHr2LayerPosition.x = xOrigin + textHr2LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
-        textHr2LayerPosition.z = yOrigin + textHr2LayerSize.y / 2 + (hrWinOffset.y + 139) / this._ratio.y;
-        const textHr2Layer = this._createTextLayer('0 / 0', 'micro', 18, undefined, 0.5, renderOrder, 0.7);
-        textHr2LayerPosition.x += textHr2LayerSize.x / 2 - textHr2Layer.size.x;
-        textHr2Layer.position.copy(textHr2LayerPosition);
-        textHr2Layer.rotation.copy(this._rotation);
-        this.add(textHr2Layer);
-
-        renderOrder++;
-
-        const textHr3LayerSize = new THREE.Vector2(133, 59).divide(this._ratio);
-        const textHr3LayerPosition = this._position.clone();
-        textHr3LayerPosition.x = xOrigin + textHr3LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
-        textHr3LayerPosition.z = yOrigin + textHr3LayerSize.y / 2 + (hrWinOffset.y + 200) / this._ratio.y;
-        const textHr3Layer = this._createTextLayer('0 / 0', 'micro', 18, undefined, 0.5, renderOrder, 0.7);
-        textHr3LayerPosition.x += textHr3LayerSize.x / 2 - textHr3Layer.size.x;
-        textHr3Layer.position.copy(textHr3LayerPosition);
-        textHr3Layer.rotation.copy(this._rotation);
-        this.add(textHr3Layer);
-
-        renderOrder++;
-
-        const textHr4LayerSize = new THREE.Vector2(133, 59).divide(this._ratio);
-        const textHr4LayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(2));
-        textHr4LayerPosition.x = xOrigin + textHr4LayerSize.x / 2 + (hrWinOffset.x + 4) / this._ratio.x;
-        textHr4LayerPosition.z = yOrigin + textHr4LayerSize.y / 2 + (hrWinOffset.y + 220) / this._ratio.y;
-        const textHr4Layer = this._createTextLayer('0', 'micro', 18, undefined, 0.5, renderOrder, 0.7);
-        textHr4LayerPosition.x += textHr4LayerSize.x / 2 - textHr4Layer.size.x;
-        textHr4Layer.position.copy(textHr4LayerPosition);
-        textHr4Layer.rotation.copy(this._rotation);
-        this.add(textHr4Layer);
-
-        renderOrder++;
-
-        const textScrollLayerSize = new THREE.Vector2(317, 32).divide(this._ratio);
-        const textScrollLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(14));
-        textScrollLayerPosition.x = xOrigin + textScrollLayerSize.x + 299 / this._ratio.x;
-        textScrollLayerPosition.z = yOrigin + textScrollLayerSize.y / 2 + 394 / this._ratio.y;
-        const textScrollLayer = this._createTextLayer('#str_00770', 'micro', 18, 0xb2e5ff, 0.5, renderOrder);
-        textScrollLayer.position.copy(textScrollLayerPosition);
-        textScrollLayer.rotation.copy(this._rotation);
-        this.add(textScrollLayer);
-
-        const boundaries = new THREE.Vector2(xOrigin + 2.83, xOrigin + 16.91);
-        this._scrollingText = new ScrollingText(textScrollLayer, boundaries, textScrollLayerSize.x, 22000, 2000);
-
-        renderOrder++;
-
-        const circClipOffset = new THREE.Vector2(19, 19);
-
-        const circFrameBtmBlackLayerSize = new THREE.Vector2(489, 208).divide(this._ratio);
-        const circFrameBtmBlackLayerPosition = this._position.clone();
-        circFrameBtmBlackLayerPosition.x = xOrigin + circFrameBtmBlackLayerSize.x / 2
-            + circClipOffset.x / this._ratio.x;
-        circFrameBtmBlackLayerPosition.z = yOrigin + circFrameBtmBlackLayerSize.y / 2
-            + (circClipOffset.y + 204) / this._ratio.y;
-        const circFrameBtmBlackLayer = this._createLayer(CRANE_BOX_MATERIAL_DEF, circFrameBtmBlackLayerSize,
-            circFrameBtmBlackLayerPosition);
-        circFrameBtmBlackLayer.renderOrder = renderOrder;
-        circFrameBtmBlackLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(circFrameBtmBlackLayer);
-
-        renderOrder++;
-
-        const circle1RedLayerSize = new THREE.Vector2(590, 440).divide(this._ratio);
-        const circle1RedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
-        circle1RedLayerPosition.x = xOrigin + circle1RedLayerSize.x / 2 + (circClipOffset.x + 88) / this._ratio.x;
-        circle1RedLayerPosition.z = yOrigin + circle1RedLayerSize.y / 2 + (circClipOffset.y - 10) / this._ratio.y;
-        const circle1RedLayer = this._createLayer(RED_CIRCLE1_MATERIAL_DEF, circle1RedLayerSize, circle1RedLayerPosition);
-        circle1RedLayer.renderOrder = renderOrder;
-        this.add(circle1RedLayer);
-
-        renderOrder++;
-
-        const circle2RedLayerSize = new THREE.Vector2(538, 401).divide(this._ratio);
-        const circle2RedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
-        circle2RedLayerPosition.x = xOrigin + circle2RedLayerSize.x / 2 + (circClipOffset.x + 114) / this._ratio.x;
-        circle2RedLayerPosition.z = yOrigin + circle2RedLayerSize.y / 2 + (circClipOffset.y + 8) / this._ratio.y;
-        const circle2RedLayer = this._createLayer(RED_CIRCLE2_MATERIAL_DEF, circle2RedLayerSize, circle2RedLayerPosition);
-        circle2RedLayer.renderOrder = renderOrder;
-        this.add(circle2RedLayer);
-
-        renderOrder++;
-
-        const blackCircleClipLayerSize = new THREE.Vector2(221, 346).divide(this._ratio);
-        const blackCircleClipLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
-        blackCircleClipLayerPosition.x = xOrigin + blackCircleClipLayerSize.x / 2
-            + (circClipOffset.x + 385) / this._ratio.x;
-        blackCircleClipLayerPosition.z = yOrigin + blackCircleClipLayerSize.y / 2
-            + (circClipOffset.y + 35) / this._ratio.y;
-        const blackCircleClipLayer = this._createLayer(BLACK_CIRCLE_CLIP_MATERIAL_DEF, blackCircleClipLayerSize,
-            blackCircleClipLayerPosition);
-        blackCircleClipLayer.renderOrder = renderOrder;
-        this.add(blackCircleClipLayer);
-
-        renderOrder++;
-
-        const bar1TopRedLayerSize = new THREE.Vector2(214, 30).divide(this._ratio);
-        const bar1TopRedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(25));
-        bar1TopRedLayerPosition.x = xOrigin + bar1TopRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
-        bar1TopRedLayerPosition.z = yOrigin + bar1TopRedLayerSize.y / 2 + (circClipOffset.y + 36) / this._ratio.y;
-        const bar1TopRedLayer = this._createLayer(HEALTH_LINE_MATERIAL_DEF, bar1TopRedLayerSize,
-            bar1TopRedLayerPosition);
-        bar1TopRedLayer.renderOrder = renderOrder;
-        this.add(bar1TopRedLayer);
-
-        renderOrder++;
-
-        const bar1BtmRedLayerSize = new THREE.Vector2(214, 30).divide(this._ratio);
-        const bar1BtmRedLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(2));
-        bar1BtmRedLayerPosition.x = xOrigin + bar1BtmRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
-        bar1BtmRedLayerPosition.z = yOrigin + bar1BtmRedLayerSize.y / 2 + (circClipOffset.y + 354) / this._ratio.y;
-        const bar1BtmRedLayer = this._createLayer(HEALTH_LINE_MATERIAL_DEF, bar1BtmRedLayerSize,
-            bar1BtmRedLayerPosition);
-        bar1BtmRedLayer.renderOrder = renderOrder;
-        bar1BtmRedLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(bar1BtmRedLayer);
-
-        renderOrder++;
-
-        const bar2TopRedLayerSize = new THREE.Vector2(214, 27).divide(this._ratio);
-        const bar2TopRedLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(24));
-        bar2TopRedLayerPosition.x = xOrigin + bar2TopRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
-        bar2TopRedLayerPosition.z = yOrigin + bar2TopRedLayerSize.y / 2 + (circClipOffset.y + 51) / this._ratio.y;
-        const bar2TopLayerMaterialDef = Object.assign({}, HEALTH_LINE_MATERIAL_DEF);
-        bar2TopLayerMaterialDef.opacity = 0.6;
-        const bar2TopRedLayer = this._createLayer(bar2TopLayerMaterialDef, bar2TopRedLayerSize,
-            bar2TopRedLayerPosition);
-        bar2TopRedLayer.renderOrder = renderOrder;
-        this.add(bar2TopRedLayer);
-
-        renderOrder++;
-
-        const bar2BtmRedLayerSize = new THREE.Vector2(214, 27).divide(this._ratio);
-        const bar2BtmRedLayerPosition = this._position.clone();
-        bar2BtmRedLayerPosition.x = xOrigin + bar2BtmRedLayerSize.x / 2 + (circClipOffset.x + 385) / this._ratio.x;
-        bar2BtmRedLayerPosition.z = yOrigin + bar2BtmRedLayerSize.y / 2 + (circClipOffset.y + 341) / this._ratio.y;
-        const bar2BtmLayerMaterialDef = Object.assign({}, HEALTH_LINE_MATERIAL_DEF);
-        bar2BtmLayerMaterialDef.opacity = 0.6;
-        const bar2BtmRedLayer = this._createLayer(bar2BtmLayerMaterialDef, bar2BtmRedLayerSize,
-            bar2BtmRedLayerPosition);
-        bar2BtmRedLayer.renderOrder = renderOrder;
-        bar2BtmRedLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(bar2BtmRedLayer);
-
-        renderOrder++;
-
-        const circFrameBtmLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
-        const circFrameBtmLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(2));
-        circFrameBtmLayerPosition.x = xOrigin + circFrameBtmLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
-        circFrameBtmLayerPosition.z = yOrigin + circFrameBtmLayerSize.y / 2 + (circClipOffset.y + 218) / this._ratio.y;
-        const circFrameBtmLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameBtmLayerSize,
-            circFrameBtmLayerPosition);
-        circFrameBtmLayer.renderOrder = renderOrder;
-        circFrameBtmLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(circFrameBtmLayer);
-
-        renderOrder++;
-
-        const circFrameTopLayerSize = new THREE.Vector2(489, 191).divide(this._ratio);
-        const circFrameTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(19));
-        circFrameTopLayerPosition.x = xOrigin + circFrameTopLayerSize.x / 2 + circClipOffset.x / this._ratio.x;
-        circFrameTopLayerPosition.z = yOrigin + circFrameTopLayerSize.y / 2 + (circClipOffset.y + 12) / this._ratio.y;
-        const circFrameTopLayer = this._createLayer(RED_CRANE_BOX_MATERIAL_DEF, circFrameTopLayerSize,
-            circFrameTopLayerPosition);
-        circFrameTopLayer.renderOrder = renderOrder;
-        this.add(circFrameTopLayer);
-
-        renderOrder++;
-
-        const rightBorderLayerSize = new THREE.Vector2(59, 352).divide(this._ratio);
-        const rightBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
-        rightBorderLayerPosition.x = xOrigin + rightBorderLayerSize.x / 2 + 576 / this._ratio.x;
-        rightBorderLayerPosition.z = yOrigin + rightBorderLayerSize.y / 2 + 64 / this._ratio.y;
-        const rightBorderLayer = this._createLayer(GLOW_BORDER_VERT_MATERIAL_DEF, rightBorderLayerSize,
-            rightBorderLayerPosition);
-        rightBorderLayer.renderOrder = renderOrder;
-        rightBorderLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(rightBorderLayer);
-
-        renderOrder++;
-
-        const leftBorderLayerSize = new THREE.Vector2(59, 352).divide(this._ratio);
-        const leftBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
-        leftBorderLayerPosition.x = xOrigin + leftBorderLayerSize.x / 2 + 5 / this._ratio.x;
-        leftBorderLayerPosition.z = yOrigin + leftBorderLayerSize.y / 2 + 64 / this._ratio.y;
-        const leftBorderLayer = this._createLayer(GLOW_BORDER_VERT_MATERIAL_DEF, leftBorderLayerSize,
-            leftBorderLayerPosition);
-        leftBorderLayer.renderOrder = renderOrder;
-        this.add(leftBorderLayer);
-
-        renderOrder++;
-
-        const topBorderLayerSize = new THREE.Vector2(512, 59).divide(this._ratio);
-        const topBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
-        topBorderLayerPosition.x = xOrigin + topBorderLayerSize.x / 2 + 64 / this._ratio.x;
-        topBorderLayerPosition.z = yOrigin + topBorderLayerSize.y / 2 + 5 / this._ratio.y;
-        const topBorderLayer = this._createLayer(GLOW_BORDER_HORIZ_MATERIAL_DEF, topBorderLayerSize,
-            topBorderLayerPosition);
-        topBorderLayer.renderOrder = renderOrder;
-        topBorderLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(topBorderLayer);
-
-        renderOrder++;
-
-        const bottomBorderLayerSize = new THREE.Vector2(512, 59).divide(this._ratio);
-        const bottomBorderLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
-        bottomBorderLayerPosition.x = xOrigin + bottomBorderLayerSize.x / 2 + 64 / this._ratio.x;
-        bottomBorderLayerPosition.z = yOrigin + bottomBorderLayerSize.y / 2 + 416 / this._ratio.y;
-        const bottomBorderLayer = this._createLayer(GLOW_BORDER_HORIZ_MATERIAL_DEF, bottomBorderLayerSize,
-            bottomBorderLayerPosition);
-        bottomBorderLayer.renderOrder = renderOrder;
-        this.add(bottomBorderLayer);
-
-        renderOrder++;
-
-        const blCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
-        const blCornerLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
-        blCornerLayerPosition.x = xOrigin + blCornerLayerSize.x / 2 + 5 / this._ratio.x;
-        blCornerLayerPosition.z = yOrigin + blCornerLayerSize.y / 2 + 416 / this._ratio.y;
-        const blCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER4_MATERIAL_DEF, blCornerLayerSize,
-            blCornerLayerPosition);
-        blCornerBorderLayer.renderOrder = renderOrder;
-        blCornerBorderLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(blCornerBorderLayer);
-
-        renderOrder++;
-
-        const brCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
-        const brCornerLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
-        brCornerLayerPosition.x = xOrigin + brCornerLayerSize.x / 2 + 576 / this._ratio.x;
-        brCornerLayerPosition.z = yOrigin + brCornerLayerSize.y / 2 + 416 / this._ratio.y;
-        const brCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER4_MATERIAL_DEF, brCornerLayerSize,
-            brCornerLayerPosition);
-        brCornerBorderLayer.renderOrder = renderOrder;
-        this.add(brCornerBorderLayer);
-
-        renderOrder++;
-
-        const trCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
-        const trCornerLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
-        trCornerLayerPosition.x = xOrigin + trCornerLayerSize.x / 2 + 576 / this._ratio.x;
-        trCornerLayerPosition.z = yOrigin + trCornerLayerSize.y / 2 + 5 / this._ratio.y;
-        const trCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER3_MATERIAL_DEF, trCornerLayerSize,
-            trCornerLayerPosition);
-        trCornerBorderLayer.renderOrder = renderOrder;
-        trCornerBorderLayer.rotation.x += THREE.Math.degToRad(180);
-        trCornerBorderLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(trCornerBorderLayer);
-
-        renderOrder++;
-
-        const tlCornerLayerSize = new THREE.Vector2(59, 59).divide(this._ratio);
-        const tlCornerLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
-        tlCornerLayerPosition.x = xOrigin + tlCornerLayerSize.x / 2 + 5 / this._ratio.x;
-        tlCornerLayerPosition.z = yOrigin + tlCornerLayerSize.y / 2 + 5 / this._ratio.y;
-        const tlCornerBorderLayer = this._createLayer(GLOW_BORDER_CORNER3_MATERIAL_DEF, tlCornerLayerSize,
-            tlCornerLayerPosition);
-        tlCornerBorderLayer.renderOrder = renderOrder;
-        tlCornerBorderLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(tlCornerBorderLayer);
-
-        renderOrder++;
-
-        const text3LayerSize = new THREE.Vector2(300, 144).divide(this._ratio);
-        const text3LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(4));
-        text3LayerPosition.x = xOrigin + text3LayerSize.x / 2 + 300 / this._ratio.x;
-        text3LayerPosition.z = yOrigin + text3LayerSize.y / 2 + 246 / this._ratio.y;
-        const text3Layer = this._createTextLayer('100', 'micro', 80, 0x4f5a65, 1, renderOrder);
-        text3LayerPosition.x += text3LayerSize.x / 2 - text3Layer.size.x;
-        text3Layer.position.copy(text3LayerPosition);
-        text3Layer.rotation.copy(this._rotation);
-        this.add(text3Layer);
-
-        renderOrder++;
-
-        const bgLeftLayerSize = new THREE.Vector2(289, 28).divide(this._ratio);
-        const bgLeftLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
-        bgLeftLayerPosition.x = xOrigin + bgLeftLayerSize.x / 2 + 33 / this._ratio.x;
-        bgLeftLayerPosition.z = yOrigin + bgLeftLayerSize.y / 2 + 433 / this._ratio.y;
-        const bgLeftLayer = this._createLayer(IN_BG_FILL_MATERIAL_DEF, bgLeftLayerSize, bgLeftLayerPosition);
-        bgLeftLayer.renderOrder = renderOrder;
-        this.add(bgLeftLayer);
-
-        renderOrder++;
-
-        const bgRightLayerSize = new THREE.Vector2(289, 28).divide(this._ratio);
-        const bgRightLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(7));
-        bgRightLayerPosition.x = xOrigin + bgRightLayerSize.x / 2 + 317 / this._ratio.x;
-        bgRightLayerPosition.z = yOrigin + bgRightLayerSize.y / 2 + 433 / this._ratio.y;
-        const bgRightLayer = this._createLayer(IN_BG_FILL_MATERIAL_DEF, bgRightLayerSize, bgRightLayerPosition);
-        bgRightLayer.renderOrder = renderOrder;
-        bgRightLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(bgRightLayer);
-
-        renderOrder++;
-
-        const textTitleLayerSize = new THREE.Vector2(602, 56).divide(this._ratio);
-        const textTitleLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(28));
-        textTitleLayerPosition.x = xOrigin + textTitleLayerSize.x / 2 - 70 / this._ratio.x;
-        textTitleLayerPosition.z = yOrigin + textTitleLayerSize.y / 2 + 10 / this._ratio.y;
-        const textTitleLayer = this._createTextLayer('#str_00771', 'micro', 25, 0xffffff, 0.7, renderOrder);
-        textTitleLayerPosition.x += textTitleLayerSize.x / 2 - textTitleLayer.size.x;
-        textTitleLayer.position.copy(textTitleLayerPosition);
-        textTitleLayer.rotation.copy(this._rotation);
-        this.add(textTitleLayer);
-
-        renderOrder++;
-
-        const textTitleStationIdLayerSize = new THREE.Vector2(566, 33).divide(this._ratio);
-        const textTitleStationIdLayerPosition = this._position.clone().sub(positionOffset.clone().multiplyScalar(6));
-        textTitleStationIdLayerPosition.x = xOrigin + textTitleStationIdLayerSize.x / 2 + 6 / this._ratio.x;
-        textTitleStationIdLayerPosition.z = yOrigin + textTitleStationIdLayerSize.y / 2 + 431 / this._ratio.y;
-        const textTitleStationIdLayer = this._createTextLayer('#str_00772', 'micro', 17, 0xe6f2ff, 0.5, renderOrder);
-        textTitleStationIdLayerPosition.x += textTitleStationIdLayerSize.x / 2 - textTitleStationIdLayer.size.x;
-        textTitleStationIdLayer.position.copy(textTitleStationIdLayerPosition);
-        textTitleStationIdLayer.rotation.copy(this._rotation);
-        this.add(textTitleStationIdLayer);
-
-        renderOrder++;
-
-        const outerShadowLayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const outerShadowLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(11));
-        outerShadowLayerPosition.x = xOrigin + outerShadowLayerSize.x / 2;
-        outerShadowLayerPosition.z = yOrigin + outerShadowLayerSize.y / 2;
-        const outerShadowLayer = this._createLayer(OUTER_SHADOW_MATERIAL_DEF, outerShadowLayerSize,
-            outerShadowLayerPosition);
-        outerShadowLayer.renderOrder = renderOrder;
-        outerShadowLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(outerShadowLayer);
-
-        renderOrder++;
-
-        const textTitleChargesLayerSize = new THREE.Vector2(291, 33).divide(this._ratio);
-        const textTitleChargesLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
-        textTitleChargesLayerPosition.x = xOrigin + textTitleChargesLayerSize.x / 2 + 278 / this._ratio.x;
-        textTitleChargesLayerPosition.z = yOrigin + textTitleChargesLayerSize.y / 2 + 248 / this._ratio.y;
-        const textTitleChargesLayer = this._createTextLayer('#str_00773', 'micro', 19, 0xe6f2ff, 0.5, renderOrder);
-        textTitleChargesLayerPosition.x += textTitleChargesLayerSize.x / 2 - textTitleChargesLayer.size.x;
-        textTitleChargesLayer.position.copy(textTitleChargesLayerPosition);
-        textTitleChargesLayer.rotation.copy(this._rotation);
-        this.add(textTitleChargesLayer);
-
-        renderOrder++;
-
-        const bgButtonBtmLayerSize = new THREE.Vector2(521, 186).divide(this._ratio);
-        const bgButtonBtmLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(9));
-        bgButtonBtmLayerPosition.x = xOrigin + bgButtonBtmLayerSize.x / 2 + 168 / this._ratio.x;
-        bgButtonBtmLayerPosition.z = yOrigin + bgButtonBtmLayerSize.y / 2 + 182 / this._ratio.y;
-        const bgButtonBtmLayer = this._createLayer(BUTTON2_MATERIAL_DEF, bgButtonBtmLayerSize, bgButtonBtmLayerPosition);
-        bgButtonBtmLayer.renderOrder = renderOrder;
-        bgButtonBtmLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(bgButtonBtmLayer);
-
-        renderOrder++;
-
-        const bgButtonBorderLayerSize = new THREE.Vector2(123, 29).divide(this._ratio);
-        const bgButtonBorderLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(10));
-        bgButtonBorderLayerPosition.x = xOrigin + bgButtonBorderLayerSize.x / 2 + 218 / this._ratio.x;
-        bgButtonBorderLayerPosition.z = yOrigin + bgButtonBorderLayerSize.y / 2 + 250 / this._ratio.y;
-        const bgButtonBorderLayer = this._createLayer(BUTTON2_BAR_MATERIAL_DEF, bgButtonBorderLayerSize, bgButtonBorderLayerPosition);
-        bgButtonBorderLayer.renderOrder = renderOrder;
-        bgButtonBorderLayer.rotation.x += THREE.Math.degToRad(180);
-        this.add(bgButtonBorderLayer);
-
-        renderOrder++;
-
-        const bgButtonTopLayerSize = new THREE.Vector2(521, 186).divide(this._ratio);
-        const bgButtonTopLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(17));
-        bgButtonTopLayerPosition.x = xOrigin + bgButtonTopLayerSize.x / 2 + 168 / this._ratio.x;
-        bgButtonTopLayerPosition.z = yOrigin + bgButtonTopLayerSize.y / 2 + 86 / this._ratio.y;
-        const bgButtonTopLayer = this._createLayer(BUTTON2_MATERIAL_DEF, bgButtonTopLayerSize, bgButtonTopLayerPosition);
-        bgButtonTopLayer.renderOrder = renderOrder;
-        this.add(bgButtonTopLayer);
-
-        renderOrder++;
-
-        const textBtnLayerSize = new THREE.Vector2(321, 103).divide(this._ratio);
-        const textBtnLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(16));
-        textBtnLayerPosition.x = xOrigin + textBtnLayerSize.x / 2 + 226 / this._ratio.x;
-        textBtnLayerPosition.z = yOrigin + textBtnLayerSize.y / 2 + 145 / this._ratio.y;
-        const textBtnLayer = this._createTextLayer('#str_00775', 'micro', 25, 0xffffff, 0.2, renderOrder);
-        textBtnLayerPosition.x += textBtnLayerSize.x / 2 - textBtnLayer.size.x;
-        textBtnLayer.position.copy(textBtnLayerPosition);
-        textBtnLayer.rotation.copy(this._rotation);
-        this.add(textBtnLayer);
-
-        renderOrder++;
-
-        const static1LayerSize = new THREE.Vector2(660, 500).divide(this._ratio);
-        const static1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(12));
-        static1LayerPosition.x = xOrigin + static1LayerSize.x / 2 - 8 / this._ratio.x;
-        static1LayerPosition.z = yOrigin + static1LayerSize.y / 2 - 8 / this._ratio.y;
-        const staticMaterials = MATERIALS['gui/static'];
-        for (let material of staticMaterials) {
-            const materialDef = Object.assign({}, material);
-            materialDef.opacity = {expression: 'table("pdhalffade", time * 0.001) / 8'};
-            materialDef.color = 0xffffff;
-            const static1Layer = this._createLayer(materialDef, static1LayerSize, static1LayerPosition);
-            static1Layer.renderOrder = renderOrder;
-            static1Layer.rotation.y += THREE.Math.degToRad(180);
-            this.add(static1Layer);
-            this._materials.push(static1Layer.material);
-            renderOrder++;
-        }
-
-        const outerShadow1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const outerShadow1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
-        outerShadow1LayerPosition.x = xOrigin + outerShadow1LayerSize.x / 2;
-        outerShadow1LayerPosition.z = yOrigin + outerShadow1LayerSize.y / 2;
-        const outserShadow1Layer = this._createLayer(OUTER_SHADOW_MATERIAL_DEF, outerShadow1LayerSize,
-            outerShadow1LayerPosition);
-        outserShadow1Layer.renderOrder = renderOrder;
-        outserShadow1Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(outserShadow1Layer);
-
-        renderOrder++;
-
-        const dirt1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const dirt1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
-        dirt1LayerPosition.x = xOrigin + dirt1LayerSize.x / 2;
-        dirt1LayerPosition.z = yOrigin + dirt1LayerSize.y / 2;
-        const dirt1Layer = this._createLayer(DIRT4_MATERIAL_DEF, dirt1LayerSize, dirt1LayerPosition);
-        dirt1Layer.renderOrder = renderOrder;
-        dirt1Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(dirt1Layer);
-
-        renderOrder++;
-
-        const scanLines1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const scanLines1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(13));
-        scanLines1LayerPosition.x = xOrigin + scanLines1LayerSize.x / 2;
-        scanLines1LayerPosition.z = yOrigin + scanLines1LayerSize.y / 2;
-        const scanLines1Material = Object.assign({color: 0x333333}, MATERIALS['gui/test/gui_scanlines5']);
-        const scanLines1Layer = this._createLayer(scanLines1Material, scanLines1LayerSize, scanLines1LayerPosition, 2);
-        scanLines1Layer.renderOrder = renderOrder;
-        scanLines1Layer.rotation.x += THREE.Math.degToRad(180);
-        scanLines1Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(scanLines1Layer);
-        this._materials.push(scanLines1Layer.material);
-
-        renderOrder++;
-
-        const addHighlight1LayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const addHighlight1LayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
-        addHighlight1LayerPosition.x = xOrigin + addHighlight1LayerSize.x / 2;
-        addHighlight1LayerPosition.z = yOrigin + addHighlight1LayerSize.y / 2;
-        const addHighlight1Material = Object.assign({color: 0xcccccc}, MATERIALS['gui/addhighlight']);
-        const addHighlight1Layer = this._createLayer(addHighlight1Material, addHighlight1LayerSize,
-            addHighlight1LayerPosition);
-        addHighlight1Layer.renderOrder = renderOrder;
-        addHighlight1Layer.rotation.y += THREE.Math.degToRad(180);
-        this.add(addHighlight1Layer);
-
-        renderOrder++;
-
-        const bGlowLayerSize = new THREE.Vector2(640, 480).divide(this._ratio);
-        const bGlowLayerPosition = this._position.clone().add(positionOffset.clone().multiplyScalar(14));
-        bGlowLayerPosition.x = xOrigin + bGlowLayerSize.x / 2;
-        bGlowLayerPosition.z = yOrigin + bGlowLayerSize.y / 2;
-        const bGlowLayer = this._createLayer(B_GLOW_MATERIAL_DEF, bGlowLayerSize, bGlowLayerPosition);
-        bGlowLayer.renderOrder = renderOrder;
-        bGlowLayer.rotation.y += THREE.Math.degToRad(180);
-        this.add(bGlowLayer);
+        this.rotation.copy(this._rotation);
+        this.position.copy(this._position);
     }
 
     update(time) {
         super.update(time);
-        this._scrollingText.update(time);
+        if (this._scrollingText) {
+            this._scrollingText.update(time);
+        }
     }
 
     _getScreenWidth() {
-        return SCREEN_WIDTH;
+        return HEALTH_STATION_GUI.width;
     }
 
     _getScreenHeight() {
-        return SCREEN_HEIGHT;
+        return HEALTH_STATION_GUI.height;
     }
 
     _computeRotation(position, quaternion, normal) {

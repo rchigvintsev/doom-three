@@ -64,8 +64,11 @@ export class AbstractGui extends THREE.Group {
     }
 
     update(time) {
-        for (let material of this._materials)
-            material.update(time);
+        for (let material of this._materials) {
+            if (material.update) {
+                material.update(time);
+            }
+        }
         for (let animation of this._animations)
             animation.update(time);
     }
@@ -162,6 +165,7 @@ export class AbstractGui extends THREE.Group {
                     letterLayer.rotation.set(0, 0, 0);
                     letterLayer.renderOrder = renderOrder;
                     textLayer.add(letterLayer);
+                    this._materials.push(letterLayer.material);
 
                     hOffset += letterSize.x;
 

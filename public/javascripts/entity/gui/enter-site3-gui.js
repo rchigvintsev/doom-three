@@ -235,7 +235,7 @@ export const ENTER_SITE3_GUI = {
             material: 'gui/test/gui_scanlines',
             size: [605, 450],
             offset: [0, -7.5],
-            scale: [0, 1.5],
+            scale: [1.0, 1.5],
             rotation: [180, 0]
         },
         {
@@ -252,10 +252,10 @@ export const ENTER_SITE3_GUI = {
         },
         {
             type: 'regular',
-            material: 'gui/test/gui_scanlines52',
+            material: 'gui/test/gui_scanlines5_2',
             size: [605, 450],
             offset: [0, -7.5],
-            scale: [0, 2],
+            scale: [1.0, 2],
             rotation: [180, 0]
         },
         {
@@ -263,21 +263,21 @@ export const ENTER_SITE3_GUI = {
             material: 'gui/common/dirt2',
             size: [610, 460],
             offset: [0, -7.5],
-            scale: [0, 2]
+            scale: [1.0, 2]
         },
         {
             type: 'regular',
             material: 'gui/test/mask',
             size: [610, 450],
             offset: [0, -7.5],
-            scale: [0, 2]
+            scale: [1.0, 2]
         },
         {
             type: 'regular',
-            material: 'gui/common/dirt42',
+            material: 'gui/common/dirt4_2',
             size: [610, 450],
             offset: [0, -7.5],
-            scale: [0, 2]
+            scale: [1.0, 2]
         }
     ]
 };
@@ -306,8 +306,9 @@ export class EnterSite3Gui extends AbstractGui {
                 .setZ(this._position.z + offsetY / this._ratio.y);
 
             if (layer.type === 'text') {
+                const scaleX = layer.scale != null ? layer.scale[0] : 0.8;
                 layerMesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, undefined, layer.opacity,
-                    renderOrder++);
+                    renderOrder++, scaleX);
                 if (layer.textAlign === 'center') {
                     position.setY(position.y - layerMesh.size.x / 2)
                 }

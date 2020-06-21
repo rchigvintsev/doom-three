@@ -1588,6 +1588,28 @@ export const MATERIALS = {
             opacity: {expression: 'table("pdhalffade", time * 0.001) / 10'}
         }
     ],
+    'gui/static3': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/cpuserver/bg',
+            color: 0xffffff,
+            transparent: true,
+            opacity: {expression: 'table("pdhalffade", time * 0.001) / 8'}
+        },
+        {
+            type: 'shader',
+            diffuseMap: 'textures/sfx/monitor_glass2',
+            color: 0xffffff,
+            repeat: [2, 2],
+            translate: [
+                'table("staticatable", time * 20) * time',
+                'table("staticatable", time) * time',
+            ],
+            rotate: 'time * 6',
+            transparent: true,
+            opacity: {expression: 'table("pdhalffade", time * 0.001) / 8'}
+        }
+    ],
     'gui/addhighlight': {
         type: 'shader',
         diffuseMap: {
@@ -1620,6 +1642,16 @@ export const MATERIALS = {
         color: 0x266680,
         blending: 'additive'
     },
+    'gui/addhighlight4': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/addhighlight',
+            flip: true
+        },
+        transparent: true,
+        color: 0xcccccc,
+        blending: 'additive'
+    },
     'gui/spin1alt': {
         clamp: true,
         type: 'basic',
@@ -1629,8 +1661,12 @@ export const MATERIALS = {
         opacity: 0.5,
         color: 0x809999,
         repeat: [0.86, 0.56],
-        get translate() { return [(1 - this.repeat[0]) / 2, (1 - this.repeat[1]) / 2 + 0.02] },
-        get center() { return [0.5 - this.translate[0], 0.5 - this.translate[1]]; }
+        get translate() {
+            return [(1 - this.repeat[0]) / 2, (1 - this.repeat[1]) / 2 + 0.02]
+        },
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
     },
     'gui/spin2alt': {
         clamp: true,
@@ -1641,8 +1677,12 @@ export const MATERIALS = {
         opacity: 0.5,
         color: 0x809999,
         repeat: [0.96, 0.64],
-        get translate() { return [(1 - this.repeat[0]) / 2, (1 - this.repeat[1]) / 2 + 0.02]; },
-        get center() { return [0.5 - this.translate[0], 0.5 - this.translate[1]]; }
+        get translate() {
+            return [(1 - this.repeat[0]) / 2, (1 - this.repeat[1]) / 2 + 0.02];
+        },
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
     },
     'gui/spin3alt': {
         clamp: true,
@@ -1653,8 +1693,12 @@ export const MATERIALS = {
         opacity: 0.5,
         color: 0x809999,
         repeat: [1, 0.72],
-        get translate() { return [0, (1 - this.repeat[1]) / 2 + 0.02]; },
-        get center() { return [0.5, 0.5 - this.translate[1]]; }
+        get translate() {
+            return [0, (1 - this.repeat[1]) / 2 + 0.02];
+        },
+        get center() {
+            return [0.5, 0.5 - this.translate[1]];
+        }
     },
     'gui/spin4alt': {
         clamp: true,
@@ -1665,8 +1709,12 @@ export const MATERIALS = {
         opacity: 0.5,
         color: 0x809999,
         repeat: [1, 0.80],
-        get translate() { return [0, (1 - this.repeat[1]) / 2 + 0.02]; },
-        get center() { return [0.5, 0.5 - this.translate[1]]; }
+        get translate() {
+            return [0, (1 - this.repeat[1]) / 2 + 0.02];
+        },
+        get center() {
+            return [0.5, 0.5 - this.translate[1]];
+        }
     },
     'gui/test/gui_scanlines': {
         type: 'shader',
@@ -1682,10 +1730,18 @@ export const MATERIALS = {
         transparent: true,
         blending: 'additive'
     },
-    'gui/test/gui_scanlines52': {
+    'gui/test/gui_scanlines5_2': {
         type: 'shader',
         diffuseMap: 'guis/assets/test/gui_scanlines5',
         color: 0x1a1a1a,
+        scroll: ['0', 'time * -.02'],
+        transparent: true,
+        blending: 'additive'
+    },
+    'gui/test/gui_scanlines5_3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/test/gui_scanlines5',
+        color: 0x333333,
         scroll: ['0', 'time * -.02'],
         transparent: true,
         blending: 'additive'
@@ -1773,7 +1829,7 @@ export const MATERIALS = {
             type: 'shader',
             diffuseMap: {
                 name: 'guis/assets/health/ekgmatflat',
-                negate: true
+                flip: true
             },
             transparent: true,
             blending: 'custom',
@@ -1800,6 +1856,28 @@ export const MATERIALS = {
             blendDst: 'src_alpha'
         }
     ],
+    // TODO: Color should be assigned depending on the player's health level
+    'gui/health/ekg3flat2': [
+        {
+            type: 'shader',
+            diffuseMap: 'guis/assets/health/ekgpulse2',
+            color: 0xff0000,
+            transparent: true,
+            scroll: ['time * -0.9', '0']
+        },
+        {
+            type: 'shader',
+            diffuseMap: {
+                name: 'guis/assets/health/ekgmatflat',
+                flip: true
+            },
+            color: 0xff0000,
+            transparent: true,
+            blending: 'custom',
+            blendSrc: 'one_minus_dst_alpha',
+            blendDst: 'src_alpha'
+        }
+    ],
     'gui/health/ekgflat': [
         {
             type: 'shader',
@@ -1811,7 +1889,7 @@ export const MATERIALS = {
             type: 'shader',
             diffuseMap: {
                 name: 'guis/assets/health/ekgmatflat',
-                negate: true
+                flip: true
             },
             transparent: true,
             blending: 'custom',
@@ -1819,13 +1897,6 @@ export const MATERIALS = {
             blendDst: 'src_alpha'
         }
     ],
-    'gui/health/circle2': {
-        type: 'shader',
-        diffuseMap: 'guis/assets/health/circle',
-        rotate: 'time * -0.05',
-        clamp: true,
-        transparent: true
-    },
     'gui/cpuserver/bgwhite4': {
         type: 'shader',
         diffuseMap: 'guis/assets/cpuserver/bgWhite4',
@@ -1861,6 +1932,10 @@ export const MATERIALS = {
         color: 0,
         transparent: true,
         opacity: 0.9
+    },
+    'gui/bgblack2': {
+        type: 'shader',
+        color: 0,
     },
     'gui/common/titlebar_corner': {
         type: 'shader',
@@ -1913,6 +1988,13 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.1
     },
+    'gui/cpuserver/bglow2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/cpuserver/bglow',
+        transparent: true,
+        opacity: 0.1,
+        color: 0xffcccc
+    },
     'gui/common/outerglow': {
         type: 'shader',
         diffuseMap: 'guis/assets/common/outerglow',
@@ -1935,7 +2017,7 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.2
     },
-    'gui/common/dirt42': {
+    'gui/common/dirt4_2': {
         type: 'shader',
         diffuseMap: {
             name: 'guis/assets/common/dirt4',
@@ -1943,6 +2025,16 @@ export const MATERIALS = {
         },
         transparent: true,
         opacity: 0.8
+    },
+    'gui/common/dirt4_3': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/dirt4',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.2,
+        color: 0xffffff
     },
     'gui/common/dirt2': {
         type: 'shader',
@@ -1958,5 +2050,173 @@ export const MATERIALS = {
         diffuseMap: 'guis/assets/test/mask',
         transparent: true,
         opacity: 0.1
+    },
+    'gui/cpuserver/bg': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/cpuserver/bg',
+        color: 0,
+        transparent: true
+    },
+    'gui/common/1pxborder_cornersm': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/1pxborder_cornersm',
+            flip: true
+        },
+        transparent: true
+    },
+    'gui/common/1pxborder_vert': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/1pxborder_vert',
+        transparent: true
+    },
+    'gui/common/1pxborder_horiz': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/1pxborder_horiz',
+        transparent: true
+    },
+    'gui/common/scibox/fillboxcap': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/scibox/fillboxCap',
+            flip: true,
+        },
+        transparent: true,
+        color: 0xff0000,
+        opacity: 0.2
+    },
+    'gui/common/scibox/fillboxcenter': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/scibox/fillboxCenter',
+        transparent: true,
+        color: 0xff0000,
+        opacity: 0.2
+    },
+    'gui/caverns/cranebox': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/caverns/cranebox',
+            flip: true
+        },
+        transparent: true,
+        color: 0,
+        clamp: true,
+        translate: [0.34, 0]
+    },
+    'gui/caverns/cranebox2': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/caverns/cranebox',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.15,
+        color: 0xff0000,
+        clamp: true,
+        translate: [0.34, 0]
+    },
+    'gui/health/circle': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/health/circle',
+        transparent: true,
+        opacity: 0.42,
+        color: 0xff0000
+    },
+    'gui/health/circle2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/health/circle',
+        rotate: 'time * -0.05',
+        clamp: true,
+        transparent: true
+    },
+    'gui/health/circle3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/health/circle',
+        transparent: true,
+        opacity: 0.62,
+        color: 0xff0000
+    },
+    'gui/health/line': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/health/line',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.4,
+        color: 0xff0000
+    },
+    'gui/health/line2': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/health/line',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.6,
+        color: 0xff0000
+    },
+    'gui/common/glowborder_vert': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/glowborder_vert',
+        transparent: true,
+        color: 0xb3e6ff
+    },
+    'gui/glowborder_horiz': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/glowborder_horiz',
+            flip: true
+        },
+        transparent: true,
+        color: 0xb3e6ff
+    },
+    'gui/common/glowborder_corner4': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/glowborder_corner4',
+            flip: true
+        },
+        transparent: true,
+        color: 0xb3e6ff
+    },
+    'gui/common/glowborder_corner3': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/common/glowborder_corner3',
+            flip: true
+        },
+        transparent: true,
+        color: 0xb3e6ff
+    },
+    'gui/airlock/inbgfill': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/airlock/inbgfill',
+            flip: true,
+        },
+        transparent: true,
+        opacity: 0.2,
+        color: 0x71b4ff
+    },
+    'gui/health/button2': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/health/button2',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.5,
+        color: 0xcccccc
+    },
+    'gui/health/button2bar': {
+        type: 'shader',
+        diffuseMap: {
+            name: 'guis/assets/health/button2bar',
+            flip: true
+        },
+        transparent: true,
+        opacity: 0.2,
+        color: 0xffffff
     }
 };
