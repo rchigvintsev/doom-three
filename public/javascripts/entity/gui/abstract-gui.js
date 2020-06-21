@@ -1,6 +1,8 @@
 import {currentTime} from '../../util/common-utils.js';
 import {strings} from '../../strings.js';
 import {fonts} from '../../fonts.js';
+import {ScrollingText} from "./scrolling-text.js";
+import {MATERIALS} from "../../material/materials.js";
 
 export class AbstractGui extends THREE.Group {
     constructor(parent, materialIndex, materialBuilder) {
@@ -71,6 +73,81 @@ export class AbstractGui extends THREE.Group {
         }
         for (let animation of this._animations)
             animation.update(time);
+    }
+
+    _initLayers(guiDef, initialOffset = 0.0) {
+        // Prepare position offset to prevent texture flickering
+        const offsetMask = new THREE.Vector3(0, 0, 1);
+        const offset = new THREE.Vector3().setScalar(initialOffset).multiply(offsetMask);
+        const offsetStep = new THREE.Vector3().setScalar(0.001).multiply(offsetMask)
+
+        let renderOrder = 0;
+
+        for (let layer of guiDef.layers) {
+            let layerMesh = null;
+
+            const width = layer.size != null ? layer.size[0] : guiDef.width;
+            const height = layer.size != null ? layer.size[1] : guiDef.height;
+
+            const size = new THREE.Vector2(width, height).divide(this._ratio);
+
+            const offsetX = layer.offset != null ? layer.offset[0] : 0;
+            const offsetY = layer.offset != null ? layer.offset[1] : 0;
+
+            const position = new THREE.Vector3()
+                .add(offset)
+                .setX(offsetX / this._ratio.x)
+                .setY(offsetY * -1 / this._ratio.y);
+
+            if (layer.type === 'text' || layer.type === 'scrolling-text') {
+                const scaleX = layer.scale != null ? layer.scale[0] : 0.8;
+
+                layerMesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, layer.color, layer.opacity,
+                    renderOrder++, scaleX);
+                if (layer.textAlign === 'center') {
+                    position.setX(position.x - layerMesh.size.x / 2)
+                } else if (layer.textAlign === 'right') {
+                    position.setX(position.x + size.x / 2 - layerMesh.size.x);
+                }
+                layerMesh.position.copy(position);
+
+                if (layer.type === 'scrolling-text') {
+                    const boundaries = new THREE.Vector2(
+                        this._position.x + layer.boundaries[0] / this._ratio.x,
+                        this._position.x + layer.boundaries[1] / this._ratio.x
+                    );
+                    this._scrollingText = new ScrollingText(layerMesh, boundaries, size.x, 22000, 2000);
+                }
+            } else {
+                const scaleY = layer.scale != null ? layer.scale[1] : null;
+
+                const material = MATERIALS[layer.material];
+                if (Array.isArray(material)) {
+                    for (let m of material) {
+                        const mesh = this._createLayer(m, size, position, scaleY);
+                        mesh.rotation.set(0, 0, 0);
+                        mesh.renderOrder = renderOrder++;
+                        this.add(mesh);
+                        this._materials.push(mesh.material);
+                    }
+                } else {
+                    layerMesh = this._createLayer(material, size, position, scaleY);
+                    layerMesh.rotation.set(0, 0, 0);
+                    layerMesh.renderOrder = renderOrder++;
+                    this._materials.push(layerMesh.material);
+                }
+            }
+
+            if (layerMesh != null) {
+                if (layer.rotation != null) {
+                    layerMesh.rotateX(THREE.Math.degToRad(layer.rotation[0]));
+                    layerMesh.rotateY(THREE.Math.degToRad(layer.rotation[1]));
+                }
+                this.add(layerMesh);
+            }
+
+            offset.add(offsetStep);
+        }
     }
 
     _getScreenWidth() {
