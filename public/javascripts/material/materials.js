@@ -2002,10 +2002,21 @@ export const MATERIALS = {
         transparent: true,
         opacity: {expression: 'table("pdflick", time * 0.0025) / 6'}
     },
+    'gui/common/outerglow2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/outerglow',
+        transparent: true,
+        opacity: {expression: 'table("pdflick", time * 0.0025) / 6'}
+    },
     'gui/common/outershadow': {
         type: 'shader',
         diffuseMap: 'guis/assets/common/outershadow',
         color: 0xffffff,
+        transparent: true
+    },
+    'gui/common/outershadow2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/outershadow',
         transparent: true
     },
     'gui/common/dirt4': {
@@ -2045,11 +2056,23 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.5
     },
+    'gui/common/dirt2_2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/dirt2',
+        transparent: true,
+        opacity: 0.8
+    },
     'gui/test/mask': {
         type: 'shader',
         diffuseMap: 'guis/assets/test/mask',
         transparent: true,
         opacity: 0.1
+    },
+    'gui/test/mask2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/test/mask',
+        transparent: true,
+        opacity: 0.2
     },
     'gui/cpuserver/bg': {
         type: 'shader',
@@ -2218,5 +2241,11 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.2,
         color: 0xffffff
+    },
+    'gui/malfunction2/redfade': {
+        type: 'shader',
+        color: 0x660000,
+        transparent: true,
+        opacity: 0.0
     }
 };

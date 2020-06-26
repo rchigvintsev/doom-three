@@ -579,8 +579,7 @@ export const GUIS = {
             {
                 type: 'regular',
                 material: 'gui/common/outershadow',
-                size: [640, 480],
-                offset: [0, 0]
+                size: [640, 480]
             },
             {
                 type: 'text',
@@ -637,36 +636,98 @@ export const GUIS = {
                 type: 'regular',
                 material: 'gui/common/outershadow',
                 size: [640, 480],
-                offset: [0, 0],
                 rotation: [0, 180]
             },
             {
                 type: 'regular',
                 material: 'gui/common/dirt4_3',
                 size: [640, 480],
-                offset: [0, 0],
                 rotation: [0, 180]
             },
             {
                 type: 'regular',
                 material: 'gui/test/gui_scanlines5_3',
                 size: [640, 480],
-                offset: [0, 0],
                 rotation: [180, 180]
             },
             {
                 type: 'regular',
                 material: 'gui/addhighlight4',
                 size: [640, 480],
-                offset: [0, 0],
                 rotation: [0, 180]
             },
             {
                 type: 'regular',
                 material: 'gui/cpuserver/bglow2',
                 size: [640, 480],
-                offset: [0, 0],
                 rotation: [0, 180]
+            }
+        ]
+    },
+    malfunction2: {
+        width: 640,
+        height: 480,
+        layers: [
+            {
+                type: 'regular',
+                material: 'gui/faces5',
+                size: [626, 470]
+            },
+            {
+                type: 'regular',
+                material: 'gui/warp/static',
+                size: [626, 470]
+            },
+            {
+                type: 'regular',
+                material: 'gui/warp/static',
+                size: [626, 470],
+                scale: [1.0, 2.0],
+                warp: {
+                    target: 'visibility',
+                    values: [1, -1],
+                    duration: 100
+                }
+            },
+            {
+                type: 'regular',
+                material: 'gui/malfunction2/redfade',
+                size: [626, 470],
+                warp: {
+                    target: 'opacity',
+                    values: [0.0, 0.3],
+                    duration: 1000
+                }
+            },
+            {
+                type: 'regular',
+                material: 'gui/static',
+                size: [626, 470]
+            },
+            {
+                type: 'regular',
+                material: 'gui/test/mask2',
+                size: [640, 480]
+            },
+            {
+                type: 'regular',
+                material: 'gui/common/outerglow2',
+                size: [640, 480]
+            },
+            {
+                type: 'regular',
+                material: 'gui/common/outershadow2',
+                size: [640, 480]
+            },
+            {
+                type: 'regular',
+                material: 'gui/addhighlight',
+                size: [640, 480]
+            },
+            {
+                type: 'regular',
+                material: 'gui/common/dirt2_2',
+                size: [640, 480]
             }
         ]
     }

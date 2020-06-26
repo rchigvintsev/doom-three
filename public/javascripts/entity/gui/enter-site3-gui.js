@@ -6,7 +6,7 @@ export class EnterSite3Gui extends AbstractGui {
         super(parent, materialIndex, materialBuilder);
         this._initLayers(GUIS.enter_site3)
         this.rotation.copy(this._rotation);
-        this.position.copy(this._position);
+        this.position.copy(this._position.setY(this._position.y + 0.3));
     }
 
     update(time) {

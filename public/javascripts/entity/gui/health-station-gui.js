@@ -6,7 +6,7 @@ export class HealthStationGui extends AbstractGui {
         super(parent, materialIndex, materialBuilder);
         this._initLayers(GUIS.health_station, -0.10);
         this.rotation.copy(this._rotation);
-        this.position.copy(this._position);
+        this.position.copy(this._position.setX(this._position.x + 0.1));
     }
 
     update(time) {

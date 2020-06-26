@@ -1,8 +1,8 @@
 import {currentTime} from '../../util/common-utils.js';
 import {strings} from '../../strings.js';
 import {fonts} from '../../fonts.js';
-import {ScrollingText} from "./scrolling-text.js";
-import {MATERIALS} from "../../material/materials.js";
+import {ScrollingText} from './scrolling-text.js';
+import {MATERIALS} from '../../material/materials.js';
 
 export class AbstractGui extends THREE.Group {
     constructor(parent, materialIndex, materialBuilder) {
@@ -75,16 +75,16 @@ export class AbstractGui extends THREE.Group {
             animation.update(time);
     }
 
-    _initLayers(guiDef, initialOffset = 0.0) {
+    _initLayers(guiDef, initialOffset = 0.0, offsetStep = 0.001) {
         // Prepare position offset to prevent texture flickering
         const offsetMask = new THREE.Vector3(0, 0, 1);
         const offset = new THREE.Vector3().setScalar(initialOffset).multiply(offsetMask);
-        const offsetStep = new THREE.Vector3().setScalar(0.001).multiply(offsetMask)
+        offsetStep = new THREE.Vector3().setScalar(offsetStep).multiply(offsetMask)
 
         let renderOrder = 0;
 
         for (let layer of guiDef.layers) {
-            let layerMesh = null;
+            const layerMeshes = [];
 
             const width = layer.size != null ? layer.size[0] : guiDef.width;
             const height = layer.size != null ? layer.size[1] : guiDef.height;
@@ -101,49 +101,69 @@ export class AbstractGui extends THREE.Group {
 
             if (layer.type === 'text' || layer.type === 'scrolling-text') {
                 const scaleX = layer.scale != null ? layer.scale[0] : 0.8;
-
-                layerMesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, layer.color, layer.opacity,
+                const mesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, layer.color, layer.opacity,
                     renderOrder++, scaleX);
                 if (layer.textAlign === 'center') {
-                    position.setX(position.x - layerMesh.size.x / 2)
+                    position.setX(position.x - mesh.size.x / 2)
                 } else if (layer.textAlign === 'right') {
-                    position.setX(position.x + size.x / 2 - layerMesh.size.x);
+                    position.setX(position.x + size.x / 2 - mesh.size.x);
                 }
-                layerMesh.position.copy(position);
+                mesh.position.copy(position);
 
                 if (layer.type === 'scrolling-text') {
                     const boundaries = new THREE.Vector2(
                         this._position.x + layer.boundaries[0] / this._ratio.x,
                         this._position.x + layer.boundaries[1] / this._ratio.x
                     );
-                    this._scrollingText = new ScrollingText(layerMesh, boundaries, size.x, 22000, 2000);
+                    this._scrollingText = new ScrollingText(mesh, boundaries, size.x, 22000, 2000);
                 }
+
+                layerMeshes.push(mesh);
             } else {
                 const scaleY = layer.scale != null ? layer.scale[1] : null;
+                const materials = Array.isArray(MATERIALS[layer.material])
+                    ? MATERIALS[layer.material]
+                    : [MATERIALS[layer.material]];
+                for (let material of materials) {
+                    const mesh = this._createLayer(material, size, position, scaleY);
+                    mesh.rotation.set(0, 0, 0);
+                    mesh.renderOrder = renderOrder++;
+                    this._materials.push(mesh.material);
+                    layerMeshes.push(mesh);
+                }
 
-                const material = MATERIALS[layer.material];
-                if (Array.isArray(material)) {
-                    for (let m of material) {
-                        const mesh = this._createLayer(m, size, position, scaleY);
-                        mesh.rotation.set(0, 0, 0);
-                        mesh.renderOrder = renderOrder++;
-                        this.add(mesh);
-                        this._materials.push(mesh.material);
+                if (layer.warp) {
+                    let onUpdate;
+                    if (layer.warp.target === 'visibility') {
+                        onUpdate = function (params) {
+                            const visible = params.opacity >= 0;
+                            for (let mesh of layerMeshes) {
+                                mesh.visible = visible;
+                            }
+                        };
+                    } else {
+                        onUpdate = function (params) {
+                            for (let mesh of layerMeshes) {
+                                mesh.material.uniforms['opacity'].value = params.opacity;
+                            }
+                        };
                     }
-                } else {
-                    layerMesh = this._createLayer(material, size, position, scaleY);
-                    layerMesh.rotation.set(0, 0, 0);
-                    layerMesh.renderOrder = renderOrder++;
-                    this._materials.push(layerMesh.material);
+                    const warpTween = new TWEEN.Tween({opacity: layer.warp.values[0]})
+                        .to({opacity: layer.warp.values[1]}, layer.warp.duration)
+                        .yoyo(true)
+                        .repeat(Infinity)
+                        .onUpdate(onUpdate);
+                    this._animations.push(warpTween);
+                    warpTween.start();
                 }
             }
 
-            if (layerMesh != null) {
+            for (let mesh of layerMeshes) {
                 if (layer.rotation != null) {
-                    layerMesh.rotateX(THREE.Math.degToRad(layer.rotation[0]));
-                    layerMesh.rotateY(THREE.Math.degToRad(layer.rotation[1]));
+                    mesh.rotateX(THREE.Math.degToRad(layer.rotation[0]));
+                    mesh.rotateY(THREE.Math.degToRad(layer.rotation[1]));
                 }
-                this.add(layerMesh);
+                this.add(mesh);
             }
 
             offset.add(offsetStep);
