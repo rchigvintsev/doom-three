@@ -178,12 +178,12 @@ export class AssetLoader {
                 namedSources.additionalMap = new TextureSource(this, materialDef.additionalMap);
 
             if (materialDef.cubeMap) {
-                namedSources.cubeMap_right = new TextureSource(this, {name: materialDef.cubeMap + '_right', flip: true});
-                namedSources.cubeMap_left = new TextureSource(this, {name: materialDef.cubeMap + '_left', flip: true});
-                namedSources.cubeMap_up = new TextureSource(this, {name: materialDef.cubeMap + '_up', flip: true});
-                namedSources.cubeMap_down = new TextureSource(this, {name: materialDef.cubeMap + '_down', flip: true});
-                namedSources.cubeMap_forward = new TextureSource(this, {name: materialDef.cubeMap + '_forward', flip: true});
-                namedSources.cubeMap_back = new TextureSource(this, {name: materialDef.cubeMap + '_back', flip: true});
+                namedSources.cubeMap_right = new TextureSource(this, {name: materialDef.cubeMap + '_right'});
+                namedSources.cubeMap_left = new TextureSource(this, {name: materialDef.cubeMap + '_left'});
+                namedSources.cubeMap_up = new TextureSource(this, {name: materialDef.cubeMap + '_up'});
+                namedSources.cubeMap_down = new TextureSource(this, {name: materialDef.cubeMap + '_down'});
+                namedSources.cubeMap_forward = new TextureSource(this, {name: materialDef.cubeMap + '_forward'});
+                namedSources.cubeMap_back = new TextureSource(this, {name: materialDef.cubeMap + '_back'});
             }
 
             if (materialDef.textures) {

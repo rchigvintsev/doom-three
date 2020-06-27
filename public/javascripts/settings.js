@@ -9,7 +9,7 @@ const settings = {
     showWireframe: false,
     wireframeOnly: false,
     showCollisionModel: false,
-    ghostMode: false,
+    ghostMode: true,
     renderBoundingBoxes: false
 };
 

@@ -324,14 +324,14 @@ export const GUIS = {
                 type: 'regular',
                 material: 'gui/common/1pxborder_horiz',
                 size: [71, 30],
-                offset: [-264.5, -137]
+                offset: [-264.5, -137],
+                rotation: [180, 0]
             },
             {
                 type: 'regular',
                 material: 'gui/common/1pxborder_horiz',
                 size: [71, 30],
-                offset: [-264.5, 114],
-                rotation: [180, 0]
+                offset: [-264.5, 114]
             },
             {
                 type: 'regular',

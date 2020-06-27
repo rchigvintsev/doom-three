@@ -32,6 +32,7 @@ export class TGALoader extends THREE.Loader {
 
         const imageData = context.createImageData(tga.width, tga.height);
         Arrays.copy(tga.data, imageData.data);
+        Images.flip(imageData);
         context.putImageData(imageData, 0, 0);
         return canvas;
     }

@@ -43,9 +43,18 @@ export const MATERIALS = {
         side: 'front'
     },
     'models/weapons/berserk/fist': {
-        diffuseMap: 'models/weapons/berserk/fist',
-        specularMap: 'models/weapons/berserk/fist_s',
-        normalMap: 'models/weapons/berserk/fist_local',
+        diffuseMap: {
+            name: 'models/weapons/berserk/fist',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/weapons/berserk/fist_s',
+            flip: true
+        },
+        normalMap: {
+            name: 'models/weapons/berserk/fist_local',
+            flip: true
+        },
         side: 'front'
     },
     'textures/base_wall/snpanel3': {
@@ -1401,9 +1410,18 @@ export const MATERIALS = {
         cubeMap: 'env/desert'
     },
     'textures/base_floor/diafloor': {
-        diffuseMap: 'textures/base_floor/diafloor_d',
-        normalMap: 'textures/base_floor/diafloor_local',
-        specularMap: 'textures/base_floor/diafloor_s'
+        diffuseMap: {
+            name: 'textures/base_floor/diafloor_d',
+            flip: true
+        },
+        normalMap: {
+            name: 'textures/base_floor/diafloor_local',
+            flip: true
+        },
+        specularMap: {
+            name: 'textures/base_floor/diafloor_s',
+            flip: true
+        }
     },
     'textures/base_wall/skpanelt': {
         diffuseMap: 'textures/base_wall/skpanelT_d',
@@ -1411,15 +1429,33 @@ export const MATERIALS = {
         specularMap: 'textures/base_wall/skpanelT_s'
     },
     'models/mapobjects/elevators/elevator': {
-        diffuseMap: 'models/mapobjects/elevators/elevator',
-        normalMap: 'models/mapobjects/elevators/elevator_local',
-        specularMap: 'models/mapobjects/elevators/elevator_s2',
+        diffuseMap: {
+            name: 'models/mapobjects/elevators/elevator',
+            flip: true
+        },
+        normalMap: {
+            name: 'models/mapobjects/elevators/elevator_local',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/mapobjects/elevators/elevator_s2',
+            flip: true
+        },
         specular: 0x808080
     },
     'models/mapobjects/elevators/elevator_cop': {
-        diffuseMap: 'models/mapobjects/elevators/elevator_cop',
-        normalMap: 'models/mapobjects/elevators/elevator_local',
-        specularMap: 'models/mapobjects/elevators/elevator_cop_s',
+        diffuseMap: {
+            name: 'models/mapobjects/elevators/elevator_cop',
+            flip: true
+        },
+        normalMap: {
+            name: 'models/mapobjects/elevators/elevator_local',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/mapobjects/elevators/elevator_cop_s',
+            flip: true
+        },
         specular: 0x808080
     },
     'textures/base_wall/skpanel1a': {
@@ -1612,20 +1648,14 @@ export const MATERIALS = {
     ],
     'gui/addhighlight': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/addhighlight',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/addhighlight',
         transparent: true,
         color: 0x4d6666,
         blending: 'additive'
     },
     'gui/addhighlight2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/addhighlight',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/addhighlight',
         transparent: true,
         opacity: 1.0,
         color: 0x668080,
@@ -1633,10 +1663,7 @@ export const MATERIALS = {
     },
     'gui/addhighlight3': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/addhighlight',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/addhighlight',
         transparent: true,
         opacity: 1.0,
         color: 0x266680,
@@ -1644,10 +1671,7 @@ export const MATERIALS = {
     },
     'gui/addhighlight4': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/addhighlight',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/addhighlight',
         transparent: true,
         color: 0xcccccc,
         blending: 'additive'
@@ -1748,10 +1772,7 @@ export const MATERIALS = {
     },
     'gui/reflect1': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/smdoor/reflect1',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/smdoor/reflect1',
         color: {
             red: {expression: 'table("subtleflick", time * 3)'},
             green: {expression: 'table("subtleflick", time * 3)'},
@@ -1761,30 +1782,72 @@ export const MATERIALS = {
         opacity: 0.1
     },
     'textures/base_door/smdoor1a': {
-        normalMap: 'textures/base_door/smdoor1a_local',
-        diffuseMap: 'textures/base_door/smdoor1a',
-        specularMap: 'textures/base_door/smdoor1a_s'
+        normalMap: {
+            name: 'textures/base_door/smdoor1a_local',
+            flip: true
+        },
+        diffuseMap: {
+            name: 'textures/base_door/smdoor1a',
+            flip: true
+        },
+        specularMap: {
+            name: 'textures/base_door/smdoor1a_s',
+            flip: true
+        }
     },
     'textures/base_door/smdoor1b': {
-        normalMap: 'textures/base_door/smdoor1a_local',
-        diffuseMap: 'textures/base_door/smdoor1b',
-        specularMap: 'textures/base_door/smdoor1b_s',
+        normalMap: {
+            name: 'textures/base_door/smdoor1a_local',
+            flip: true
+        },
+        diffuseMap: {
+            name: 'textures/base_door/smdoor1b',
+            flip: true
+        },
+        specularMap: {
+            name: 'textures/base_door/smdoor1b_s',
+            flip: true
+        },
         specular: 0x808080
     },
     'textures/base_door/delelev1': {
-        normalMap: 'textures/base_door/delelev1_local',
-        diffuseMap: 'textures/base_door/delelev1_d',
-        specularMap: 'textures/base_door/delelev1_s',
+        normalMap: {
+            name: 'textures/base_door/delelev1_local',
+            flip: true
+        },
+        diffuseMap: {
+            name: 'textures/base_door/delelev1_d',
+            flip: true
+        },
+        specularMap: {
+            name: 'textures/base_door/delelev1_s',
+            flip: true
+        },
         specular: 0x808080
     },
     'textures/base_door/delelev2': {
-        normalMap: 'textures/base_door/delelev2_local',
-        diffuseMap: 'textures/base_door/delelev2_d',
-        specularMap: 'textures/base_door/delelev2_s'
+        normalMap: {
+            name: 'textures/base_door/delelev2_local',
+            flip: true
+        },
+        diffuseMap: {
+            name: 'textures/base_door/delelev2_d',
+            flip: true
+        },
+        specularMap: {
+            name: 'textures/base_door/delelev2_s',
+            flip: true
+        }
     },
     'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1': {
-        diffuseMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
-        specularMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
+        diffuseMap: {
+            name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
+            flip: true
+        },
         normalMap: {
             name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_local+techdrpanel1_bmp',
             addNormals: {
@@ -1801,13 +1864,28 @@ export const MATERIALS = {
         normalMap: 'textures/base_door/doorlight_local'
     },
     'models/mapobjects/healthgui/healthgui': {
-        diffuseMap: 'models/mapobjects/healthgui/healthgui',
-        specularMap: 'models/mapobjects/healthgui/healthgui_s',
-        normalMap: 'models/mapobjects/healthgui/healthgui_local'
+        diffuseMap: {
+            name: 'models/mapobjects/healthgui/healthgui',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/mapobjects/healthgui/healthgui_s',
+            flip: true
+        },
+        normalMap: {
+            name: 'models/mapobjects/healthgui/healthgui_local',
+            flip: true
+        }
     },
     'models/mapobjects/healthgui/healthguidirty': {
-        diffuseMap: 'models/mapobjects/healthgui/healthguidirty',
-        specularMap: 'models/mapobjects/healthgui/healthguidirty_s',
+        diffuseMap: {
+            name: 'models/mapobjects/healthgui/healthguidirty',
+            flip: true
+        },
+        specularMap: {
+            name: 'models/mapobjects/healthgui/healthguidirty_s',
+            flip: true
+        },
         normalMap: {
             name: 'models/mapobjects/healthgui/healthgui_local+healthguidirty_b',
             addNormals: {
@@ -1827,10 +1905,7 @@ export const MATERIALS = {
         },
         {
             type: 'shader',
-            diffuseMap: {
-                name: 'guis/assets/health/ekgmatflat',
-                flip: true
-            },
+            diffuseMap: 'guis/assets/health/ekgmatflat',
             transparent: true,
             blending: 'custom',
             blendSrc: 'one_minus_dst_alpha',
@@ -1867,10 +1942,7 @@ export const MATERIALS = {
         },
         {
             type: 'shader',
-            diffuseMap: {
-                name: 'guis/assets/health/ekgmatflat',
-                flip: true
-            },
+            diffuseMap: 'guis/assets/health/ekgmatflat',
             color: 0xff0000,
             transparent: true,
             blending: 'custom',
@@ -1887,10 +1959,7 @@ export const MATERIALS = {
         },
         {
             type: 'shader',
-            diffuseMap: {
-                name: 'guis/assets/health/ekgmatflat',
-                flip: true
-            },
+            diffuseMap: 'guis/assets/health/ekgmatflat',
             transparent: true,
             blending: 'custom',
             blendSrc: 'one_minus_dst_alpha',
@@ -1907,10 +1976,7 @@ export const MATERIALS = {
     'gui/doors/adminbg1': {
         type: 'shader',
         clamp: true,
-        diffuseMap: {
-            name: 'guis/assets/doors/adminbg',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/doors/adminbg',
         color: 0x99cccc,
         transparent: true,
         repeat: [0.9, 0.7]
@@ -1918,10 +1984,7 @@ export const MATERIALS = {
     'gui/doors/adminbg2': {
         type: 'shader',
         clamp: true,
-        diffuseMap: {
-            name: 'guis/assets/doors/adminbg',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/doors/adminbg',
         color: 0x99cccc,
         transparent: true,
         opacity: 1,
@@ -1940,10 +2003,7 @@ export const MATERIALS = {
     'gui/common/titlebar_corner': {
         type: 'shader',
         clamp: true,
-        diffuseMap: {
-            name: 'guis/assets/common/titlebar_corner',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/titlebar_corner',
         color: 0x99ccd9,
         transparent: true,
         opacity: 0.3
@@ -1951,20 +2011,14 @@ export const MATERIALS = {
     'gui/common/titlebar_mid': {
         type: 'shader',
         clamp: true,
-        diffuseMap: {
-            name: 'guis/assets/common/titlebar_mid',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/titlebar_mid',
         color: 0x99ccd9,
         transparent: true,
         opacity: 0.3
     },
     'gui/common/btn_2pxborder_horiz1': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/btn_2pxborder_horiz',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/btn_2pxborder_horiz',
         color: 0x80ffe6,
         transparent: true,
         opacity: 0.2
@@ -1972,10 +2026,7 @@ export const MATERIALS = {
     'gui/common/btn_2pxborder_horiz2': {
         type: 'shader',
         clamp: true,
-        diffuseMap: {
-            name: 'guis/assets/common/btn_2pxborder_horiz',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/btn_2pxborder_horiz',
         color: 0x80ffe6,
         transparent: true,
         opacity: 0.2,
@@ -2021,38 +2072,26 @@ export const MATERIALS = {
     },
     'gui/common/dirt4': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/dirt4',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/dirt4',
         transparent: true,
         opacity: 0.2
     },
     'gui/common/dirt4_2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/dirt4',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/dirt4',
         transparent: true,
         opacity: 0.8
     },
     'gui/common/dirt4_3': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/dirt4',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/dirt4',
         transparent: true,
         opacity: 0.2,
         color: 0xffffff
     },
     'gui/common/dirt2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/dirt2',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/dirt2',
         transparent: true,
         opacity: 0.5
     },
@@ -2082,10 +2121,7 @@ export const MATERIALS = {
     },
     'gui/common/1pxborder_cornersm': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/1pxborder_cornersm',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/1pxborder_cornersm',
         transparent: true
     },
     'gui/common/1pxborder_vert': {
@@ -2100,10 +2136,7 @@ export const MATERIALS = {
     },
     'gui/common/scibox/fillboxcap': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/scibox/fillboxCap',
-            flip: true,
-        },
+        diffuseMap: 'guis/assets/common/scibox/fillboxCap',
         transparent: true,
         color: 0xff0000,
         opacity: 0.2
@@ -2117,10 +2150,7 @@ export const MATERIALS = {
     },
     'gui/caverns/cranebox': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/caverns/cranebox',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/caverns/cranebox',
         transparent: true,
         color: 0,
         clamp: true,
@@ -2128,10 +2158,7 @@ export const MATERIALS = {
     },
     'gui/caverns/cranebox2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/caverns/cranebox',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/caverns/cranebox',
         transparent: true,
         opacity: 0.15,
         color: 0xff0000,
@@ -2161,20 +2188,14 @@ export const MATERIALS = {
     },
     'gui/health/line': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/health/line',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/health/line',
         transparent: true,
         opacity: 0.4,
         color: 0xff0000
     },
     'gui/health/line2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/health/line',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/health/line',
         transparent: true,
         opacity: 0.6,
         color: 0xff0000
@@ -2187,57 +2208,39 @@ export const MATERIALS = {
     },
     'gui/glowborder_horiz': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/glowborder_horiz',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/glowborder_horiz',
         transparent: true,
         color: 0xb3e6ff
     },
     'gui/common/glowborder_corner4': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/glowborder_corner4',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/glowborder_corner4',
         transparent: true,
         color: 0xb3e6ff
     },
     'gui/common/glowborder_corner3': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/common/glowborder_corner3',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/common/glowborder_corner3',
         transparent: true,
         color: 0xb3e6ff
     },
     'gui/airlock/inbgfill': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/airlock/inbgfill',
-            flip: true,
-        },
+        diffuseMap: 'guis/assets/airlock/inbgfill',
         transparent: true,
         opacity: 0.2,
         color: 0x71b4ff
     },
     'gui/health/button2': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/health/button2',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/health/button2',
         transparent: true,
         opacity: 0.5,
         color: 0xcccccc
     },
     'gui/health/button2bar': {
         type: 'shader',
-        diffuseMap: {
-            name: 'guis/assets/health/button2bar',
-            flip: true
-        },
+        diffuseMap: 'guis/assets/health/button2bar',
         transparent: true,
         opacity: 0.2,
         color: 0xffffff
