@@ -43,18 +43,9 @@ export const MATERIALS = {
         side: 'front'
     },
     'models/weapons/berserk/fist': {
-        diffuseMap: {
-            name: 'models/weapons/berserk/fist',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/weapons/berserk/fist_s',
-            flip: true
-        },
-        normalMap: {
-            name: 'models/weapons/berserk/fist_local',
-            flip: true
-        },
+        diffuseMap: 'models/weapons/berserk/fist',
+        specularMap: 'models/weapons/berserk/fist_s',
+        normalMap: 'models/weapons/berserk/fist_local',
         side: 'front'
     },
     'textures/base_wall/snpanel3': {
@@ -1410,18 +1401,9 @@ export const MATERIALS = {
         cubeMap: 'env/desert'
     },
     'textures/base_floor/diafloor': {
-        diffuseMap: {
-            name: 'textures/base_floor/diafloor_d',
-            flip: true
-        },
-        normalMap: {
-            name: 'textures/base_floor/diafloor_local',
-            flip: true
-        },
-        specularMap: {
-            name: 'textures/base_floor/diafloor_s',
-            flip: true
-        }
+        diffuseMap: 'textures/base_floor/diafloor_d',
+        normalMap: 'textures/base_floor/diafloor_local',
+        specularMap: 'textures/base_floor/diafloor_s'
     },
     'textures/base_wall/skpanelt': {
         diffuseMap: 'textures/base_wall/skpanelT_d',
@@ -1429,33 +1411,15 @@ export const MATERIALS = {
         specularMap: 'textures/base_wall/skpanelT_s'
     },
     'models/mapobjects/elevators/elevator': {
-        diffuseMap: {
-            name: 'models/mapobjects/elevators/elevator',
-            flip: true
-        },
-        normalMap: {
-            name: 'models/mapobjects/elevators/elevator_local',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/mapobjects/elevators/elevator_s2',
-            flip: true
-        },
+        diffuseMap: 'models/mapobjects/elevators/elevator',
+        normalMap: 'models/mapobjects/elevators/elevator_local',
+        specularMap: 'models/mapobjects/elevators/elevator_s2',
         specular: 0x808080
     },
     'models/mapobjects/elevators/elevator_cop': {
-        diffuseMap: {
-            name: 'models/mapobjects/elevators/elevator_cop',
-            flip: true
-        },
-        normalMap: {
-            name: 'models/mapobjects/elevators/elevator_local',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/mapobjects/elevators/elevator_cop_s',
-            flip: true
-        },
+        diffuseMap: 'models/mapobjects/elevators/elevator_cop',
+        normalMap: 'models/mapobjects/elevators/elevator_local',
+        specularMap: 'models/mapobjects/elevators/elevator_cop_s',
         specular: 0x808080
     },
     'textures/base_wall/skpanel1a': {
@@ -1782,72 +1746,30 @@ export const MATERIALS = {
         opacity: 0.1
     },
     'textures/base_door/smdoor1a': {
-        normalMap: {
-            name: 'textures/base_door/smdoor1a_local',
-            flip: true
-        },
-        diffuseMap: {
-            name: 'textures/base_door/smdoor1a',
-            flip: true
-        },
-        specularMap: {
-            name: 'textures/base_door/smdoor1a_s',
-            flip: true
-        }
+        normalMap: 'textures/base_door/smdoor1a_local',
+        diffuseMap: 'textures/base_door/smdoor1a',
+        specularMap: 'textures/base_door/smdoor1a_s'
     },
     'textures/base_door/smdoor1b': {
-        normalMap: {
-            name: 'textures/base_door/smdoor1a_local',
-            flip: true
-        },
-        diffuseMap: {
-            name: 'textures/base_door/smdoor1b',
-            flip: true
-        },
-        specularMap: {
-            name: 'textures/base_door/smdoor1b_s',
-            flip: true
-        },
+        normalMap: 'textures/base_door/smdoor1a_local',
+        diffuseMap: 'textures/base_door/smdoor1b',
+        specularMap: 'textures/base_door/smdoor1b_s',
         specular: 0x808080
     },
     'textures/base_door/delelev1': {
-        normalMap: {
-            name: 'textures/base_door/delelev1_local',
-            flip: true
-        },
-        diffuseMap: {
-            name: 'textures/base_door/delelev1_d',
-            flip: true
-        },
-        specularMap: {
-            name: 'textures/base_door/delelev1_s',
-            flip: true
-        },
+        normalMap: 'textures/base_door/delelev1_local',
+        diffuseMap: 'textures/base_door/delelev1_d',
+        specularMap: 'textures/base_door/delelev1_s',
         specular: 0x808080
     },
     'textures/base_door/delelev2': {
-        normalMap: {
-            name: 'textures/base_door/delelev2_local',
-            flip: true
-        },
-        diffuseMap: {
-            name: 'textures/base_door/delelev2_d',
-            flip: true
-        },
-        specularMap: {
-            name: 'textures/base_door/delelev2_s',
-            flip: true
-        }
+        normalMap: 'textures/base_door/delelev2_local',
+        diffuseMap: 'textures/base_door/delelev2_d',
+        specularMap: 'textures/base_door/delelev2_s'
     },
     'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1': {
-        diffuseMap: {
-            name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
-            flip: true
-        },
+        diffuseMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_d',
+        specularMap: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_s',
         normalMap: {
             name: 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1_local+techdrpanel1_bmp',
             addNormals: {
@@ -1864,28 +1786,13 @@ export const MATERIALS = {
         normalMap: 'textures/base_door/doorlight_local'
     },
     'models/mapobjects/healthgui/healthgui': {
-        diffuseMap: {
-            name: 'models/mapobjects/healthgui/healthgui',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/mapobjects/healthgui/healthgui_s',
-            flip: true
-        },
-        normalMap: {
-            name: 'models/mapobjects/healthgui/healthgui_local',
-            flip: true
-        }
+        diffuseMap: 'models/mapobjects/healthgui/healthgui',
+        specularMap: 'models/mapobjects/healthgui/healthgui_s',
+        normalMap: 'models/mapobjects/healthgui/healthgui_local'
     },
     'models/mapobjects/healthgui/healthguidirty': {
-        diffuseMap: {
-            name: 'models/mapobjects/healthgui/healthguidirty',
-            flip: true
-        },
-        specularMap: {
-            name: 'models/mapobjects/healthgui/healthguidirty_s',
-            flip: true
-        },
+        diffuseMap: 'models/mapobjects/healthgui/healthguidirty',
+        specularMap: 'models/mapobjects/healthgui/healthguidirty_s',
         normalMap: {
             name: 'models/mapobjects/healthgui/healthgui_local+healthguidirty_b',
             addNormals: {

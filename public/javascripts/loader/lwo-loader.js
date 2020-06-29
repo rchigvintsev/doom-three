@@ -440,7 +440,7 @@ export class LWOLoader {
                     const vertexIndex = vertexMap.vindex[j];
                     const uv = vertexMap.uvs[j];
                     json.uvs[0][vertexIndex * 2] = math.round(uv[0], 6);
-                    json.uvs[0][vertexIndex * 2 + 1] = math.round(1.0 - uv[1], 6);
+                    json.uvs[0][vertexIndex * 2 + 1] = math.round(uv[1], 6);
                 }
             } else {
                 for (let j = 0; j < vertexMap.pindex.length; j++) {
@@ -456,7 +456,7 @@ export class LWOLoader {
 
                     if (polygonComponent != null) {
                         json.uvs[0].push(vertexMap.uvs[j][0]);
-                        json.uvs[0].push(1.0 - vertexMap.uvs[j][1]);
+                        json.uvs[0].push(vertexMap.uvs[j][1]);
                         polygon.vertexUv[polygonComponent] = (json.uvs[0].length - 2) / 2;
                     }
                 }

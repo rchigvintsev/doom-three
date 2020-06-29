@@ -252,6 +252,7 @@ export class Images {
         const imageData = context.createImageData(normalMap.width, normalMap.height);
         Arrays.copy(normalMap.data, imageData.data);
         Images._addNormalMaps(imageData.data, normalMap, bumpMap);
+        Images.flip(imageData);
         context.putImageData(imageData, 0, 0);
 
         return canvas;

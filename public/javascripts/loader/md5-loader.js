@@ -324,7 +324,7 @@ export class MD5Loader {
                 vertices.push(math.round(vertexPosition.z, 3));
 
                 uvs.push(math.round(vertex.uv.x, 3));
-                uvs.push(math.round(vertex.uv.y, 3));
+                uvs.push(math.round(1.0 - vertex.uv.y, 3));
             }
 
             for (let f = 0; f < mesh.faces.length; f += 3) {
