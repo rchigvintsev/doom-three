@@ -1704,6 +1704,214 @@ export const MATERIALS = {
             return [0.5, 0.5 - this.translate[1]];
         }
     },
+    'gui/spin1': {
+        type: 'shader',
+        clamp: true,
+        transparent: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        rotate:	'time * 0.015',
+        repeat: [0.78, 0.24],
+        translate: [0.11, 0.37],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin1_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x800000,
+        rotate:	'time * 0.015',
+        transparent: true,
+        opacity: 0.5,
+        repeat: [0.78, 0.24],
+        translate: [0.11, 0.37],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.02',
+        repeat: [0.88, 0.34],
+        translate: [0.06, 0.32],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin2_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x800000,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.02',
+        repeat: [0.88, 0.34],
+        translate: [0.06, 0.32],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin3': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.025',
+        repeat: [1, 0.44],
+        translate: [0, 0.27],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin3_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x800000,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.025',
+        repeat: [1, 0.44],
+        translate: [0, 0.27],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin4': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.03',
+        repeat: [1.14, 0.54],
+        translate: [-0.07, 0.22],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin4_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x800000,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.03',
+        repeat: [1.14, 0.54],
+        translate: [-0.07, 0.22],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin5': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.035',
+        repeat: [1.26, 0.64],
+        translate: [-0.13, 0.17],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin5_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x801a1a,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.035',
+        repeat: [1.26, 0.64],
+        translate: [-0.13, 0.17],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin6': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.04',
+        repeat: [1.46, 0.74],
+        translate: [-0.23, 0.12],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin6_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x801a1a,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.04',
+        repeat: [1.46, 0.74],
+        translate: [-0.23, 0.12],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin7': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.045',
+        repeat: [1.66, 0.84],
+        translate: [-0.33, 0.07],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin7_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x801a1a,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.045',
+        repeat: [1.66, 0.84],
+        translate: [-0.33, 0.07],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin8': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        transparent: true,
+        rotate:	'time * 0.05',
+        repeat: [1.86, 0.94],
+        translate: [-0.43, 0.02],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
+    'gui/spin8_2': {
+        type: 'shader',
+        clamp: true,
+        diffuseMap: 'guis/assets/common/securitybg',
+        color: 0x801a1a,
+        transparent: true,
+        opacity: 0.5,
+        rotate:	'time * 0.05',
+        repeat: [1.86, 0.94],
+        translate: [-0.43, 0.02],
+        get center() {
+            return [0.5 - this.translate[0], 0.5 - this.translate[1]];
+        }
+    },
     'gui/test/gui_scanlines': {
         type: 'shader',
         diffuseMap: 'guis/assets/test/gui_scanlines',
@@ -1875,10 +2083,9 @@ export const MATERIALS = {
     ],
     'gui/cpuserver/bgwhite4': {
         type: 'shader',
-        diffuseMap: 'guis/assets/cpuserver/bgWhite4',
         color: 0,
         transparent: true,
-        opacity: 0.9
+        opacity: 0.7
     },
     'gui/doors/adminbg1': {
         type: 'shader',
@@ -1906,6 +2113,12 @@ export const MATERIALS = {
     'gui/bgblack2': {
         type: 'shader',
         color: 0,
+    },
+    'gui/bgblack3': {
+        type: 'shader',
+        color: 0,
+        transparent: true,
+        opacity: 0.7
     },
     'gui/common/titlebar_corner': {
         type: 'shader',

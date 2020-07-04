@@ -730,5 +730,74 @@ export const GUIS = {
                 size: [640, 480]
             }
         ]
+    },
+    pda_door_trigger: {
+        width: 640,
+        height: 480,
+        layers: [
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/bgblack3'
+            },
+            {
+                type: 'regular',
+                size: [646, 481],
+                offset:	[-2, 0],
+                material: 'gui/cpuserver/bgwhite4'
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin1_2',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin2_2'
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin3_2',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin4_2'
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin5_2',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin6_2'
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin7_2',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [630, 339],
+                offset: [0, 8.5],
+                material: 'gui/spin8_2'
+            }
+        ]
     }
 }
