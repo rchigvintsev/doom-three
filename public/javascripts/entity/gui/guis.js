@@ -797,6 +797,67 @@ export const GUIS = {
                 size: [630, 339],
                 offset: [0, 8.5],
                 material: 'gui/spin8_2'
+            },
+            {
+                type: 'regular',
+                size: [660, 82],
+                offset: [1, -194],
+                material: 'gui/cpuserver/bgwhite4_2'
+            },
+            {
+                type: 'regular',
+                size: [660, 71],
+                offset: [2, 198.5],
+                material: 'gui/cpuserver/bgwhite4_2'
+            },
+            {
+                type: 'text',
+                text: '#str_00014',
+                font: 'micro',
+                size: [410, 53],
+                fontSize: 32,
+                transparent: true,
+                opacity: 0.6,
+                offset: [105, -193],
+                scale: [0.78, 1.0],
+                textAlign: 'center'
+            },
+            {
+                type: 'regular',
+                size: [32, 26],
+                offset: [-86.5, -219],
+                material: 'gui/common/titlebar_edge2'
+            },
+            {
+                type: 'regular',
+                size: [347, 26],
+                offset: [102.5, -219],
+                material: 'gui/common/titlebar_mid2'
+            },
+            {
+                type: 'regular',
+                size: [37, 26],
+                offset: [294, -219],
+                material: 'gui/common/titlebar_corner2'
+            },
+            {
+                type: 'regular',
+                size: [32, 26],
+                offset: [-86.5, -168],
+                material: 'gui/common/titlebar_edge2'
+            },
+            {
+                type: 'regular',
+                size: [348, 26],
+                offset: [103, -168],
+                material: 'gui/common/titlebar_mid2'
+            },
+            {
+                type: 'regular',
+                size: [37, 26],
+                offset: [295, -168],
+                material: 'gui/common/titlebar_corner2',
+                rotation: [180, 0]
             }
         ]
     }

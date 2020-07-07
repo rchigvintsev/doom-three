@@ -1,4 +1,4 @@
-export const fonts = {
+export const FONTS = {
     micro: {
         8470: { // №
             size: [1.8, 1],

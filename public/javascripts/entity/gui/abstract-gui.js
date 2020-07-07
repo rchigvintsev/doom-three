@@ -1,6 +1,6 @@
 import {currentTime} from '../../util/common-utils.js';
-import {strings} from '../../strings.js';
-import {fonts} from '../../fonts.js';
+import {STRINGS} from '../../strings.js';
+import {FONTS} from '../../fonts.js';
 import {ScrollingText} from './scrolling-text.js';
 import {MATERIALS} from '../../material/materials.js';
 
@@ -232,7 +232,7 @@ export class AbstractGui extends THREE.Group {
         textLayer.size = new THREE.Vector2();
         const lines = [];
 
-        const textString = strings[textCode] || textCode;
+        const textString = STRINGS[textCode] || textCode;
         let textWidth = 0, textHeight = 0;
         let hOffset = 0, vOffset = 0;
         let lineNumber = 0;
@@ -243,7 +243,7 @@ export class AbstractGui extends THREE.Group {
                 hOffset = 0;
                 lineNumber++;
             } else {
-                const letter = fonts[font][charCode];
+                const letter = FONTS[font][charCode];
                 if (!letter)
                     console.error('Font "' + font + '" does not support character with code ' + charCode);
                 else {

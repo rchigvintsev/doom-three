@@ -2087,6 +2087,13 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.7
     },
+    'gui/cpuserver/bgwhite4_2': {
+        type: 'shader',
+        color: 0,
+        diffuseMap: 'guis/assets/cpuserver/bgWhite4',
+        transparent: true,
+        opacity: 0.9
+    },
     'gui/doors/adminbg1': {
         type: 'shader',
         clamp: true,
@@ -2128,11 +2135,32 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.3
     },
+    'gui/common/titlebar_corner2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/titlebar_corner',
+        color: 0xcc9980,
+        transparent: true,
+        opacity: 0.3
+    },
+    'gui/common/titlebar_edge2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/titlebar_edge',
+        color: 0xcc9980,
+        transparent: true,
+        opacity: 0.3
+    },
     'gui/common/titlebar_mid': {
         type: 'shader',
         clamp: true,
         diffuseMap: 'guis/assets/common/titlebar_mid',
         color: 0x99ccd9,
+        transparent: true,
+        opacity: 0.3
+    },
+    'gui/common/titlebar_mid2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/titlebar_mid',
+        color: 0xcc9980,
         transparent: true,
         opacity: 0.3
     },
