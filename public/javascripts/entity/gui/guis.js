@@ -858,6 +858,91 @@ export const GUIS = {
                 offset: [295, -168],
                 material: 'gui/common/titlebar_corner2',
                 rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [223, 86],
+                offset: [-202.5, -190],
+                material: 'gui/cpuserver/bgwhite'
+            },
+            {
+                type: 'regular',
+                size: [53, 30],
+                offset: [-202.5, -223],
+                material: 'gui/common/1pxborder_horiz2',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-270, -221],
+                material: 'gui/common/1pxborder_cornersm2',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-135, -221],
+                material: 'gui/common/1pxborder_cornersm2',
+                rotation: [180, 180]
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-270, -165],
+                material: 'gui/common/1pxborder_cornersm2'
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-135, -165],
+                material: 'gui/common/1pxborder_cornersm2',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [53, 30],
+                offset: [-202.5, -163],
+                material: 'gui/common/1pxborder_horiz2'
+            },
+            {
+                type: 'regular',
+                size: [82, 26],
+                offset: [-135, -193],
+                material: 'gui/common/1pxborder_vert2',
+                rotation: [180, 180]
+            },
+            {
+                type: 'regular',
+                size: [82, 26],
+                offset: [-270, -193],
+                material: 'gui/common/1pxborder_vert2',
+                rotation: [180, 0]
+            },
+            {
+                type: 'text',
+                text: '#str_01199',
+                font: 'micro',
+                size: [183, 81],
+                offset: [-204.5, -205.5],
+                fontSize: 42,
+                transparent: true,
+                opacity: 0.6,
+                textAlign: 'center',
+                scale: [0.8, 1.0],
+            },
+            {
+                type: 'text',
+                text: '#str_01200',
+                font: 'micro',
+                size: [184, 26],
+                offset: [-210, -172],
+                fontSize: 18,
+                color: 0xff9d43,
+                transparent: true,
+                opacity: 0.6,
+                textAlign: 'center',
+                scale: [0.8, 1.0]
             }
         ]
     }

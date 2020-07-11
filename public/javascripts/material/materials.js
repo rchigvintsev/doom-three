@@ -2081,6 +2081,13 @@ export const MATERIALS = {
             blendDst: 'src_alpha'
         }
     ],
+    'gui/cpuserver/bgwhite': {
+        type: 'shader',
+        color: 0,
+        diffuseMap: 'guis/assets/cpuserver/bgWhite',
+        transparent: true,
+        opacity: 0.9
+    },
     'gui/cpuserver/bgwhite4': {
         type: 'shader',
         color: 0,
@@ -2272,15 +2279,36 @@ export const MATERIALS = {
         diffuseMap: 'guis/assets/common/1pxborder_cornersm',
         transparent: true
     },
+    'gui/common/1pxborder_cornersm2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/1pxborder_cornersm',
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8
+    },
     'gui/common/1pxborder_vert': {
         type: 'shader',
         diffuseMap: 'guis/assets/common/1pxborder_vert',
         transparent: true
     },
+    'gui/common/1pxborder_vert2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/1pxborder_vert',
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8
+    },
     'gui/common/1pxborder_horiz': {
         type: 'shader',
         diffuseMap: 'guis/assets/common/1pxborder_horiz',
         transparent: true
+    },
+    'gui/common/1pxborder_horiz2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/1pxborder_horiz',
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8
     },
     'gui/common/scibox/fillboxcap': {
         type: 'shader',
