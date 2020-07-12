@@ -943,6 +943,63 @@ export const GUIS = {
                 opacity: 0.6,
                 textAlign: 'center',
                 scale: [0.8, 1.0]
+            },
+            {
+                type: 'regular',
+                size: [522, 40],
+                offset: [-1, 219],
+                material: 'gui/common/titlebar_mid2'
+            },
+            {
+                type: 'regular',
+                size: [57, 40],
+                offset: [287.5, 219],
+                material: 'gui/common/titlebar_corner2',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [57, 40],
+                offset: [-289.5, 219],
+                material: 'gui/common/titlebar_corner2',
+                rotation: [180, 180]
+            },
+            {
+                type: 'text',
+                text: '#str_00017',
+                font: 'micro',
+                size: [638, 100],
+                offset: [0, 187],
+                fontSize: 40,
+                color: 0xff0303,
+                transparent: true,
+                opacity: 0.7,
+                textAlign: 'center'
+            },
+            {
+                type: 'regular',
+                size: [48, 52],
+                offset: [290.5, 186],
+                material: 'gui/common/titlebar_edge3',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [135, 52],
+                offset: [199.5, 186],
+                material: 'gui/common/titlebar_mid3'
+            },
+            {
+                type: 'regular',
+                size: [48, 52],
+                offset: [-290.5, 186],
+                material: 'gui/common/titlebar_edge3'
+            },
+            {
+                type: 'regular',
+                size: [135, 52],
+                offset: [-199.5, 186],
+                material: 'gui/common/titlebar_mid3'
             }
         ]
     }

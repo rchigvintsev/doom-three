@@ -2156,6 +2156,13 @@ export const MATERIALS = {
         transparent: true,
         opacity: 0.3
     },
+    'gui/common/titlebar_edge3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/titlebar_edge',
+        color: 0xff3300,
+        transparent: true,
+        opacity: 0.3
+    },
     'gui/common/titlebar_mid': {
         type: 'shader',
         clamp: true,
@@ -2168,6 +2175,13 @@ export const MATERIALS = {
         type: 'shader',
         diffuseMap: 'guis/assets/common/titlebar_mid',
         color: 0xcc9980,
+        transparent: true,
+        opacity: 0.3
+    },
+    'gui/common/titlebar_mid3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/titlebar_mid',
+        color: 0xff3300,
         transparent: true,
         opacity: 0.3
     },
