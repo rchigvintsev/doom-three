@@ -2201,6 +2201,27 @@ export const MATERIALS = {
         opacity: 0.2,
         translate: [0, 0.4]
     },
+    'gui/common/btn_2pxborder_horiz3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/btn_2pxborder_horiz',
+        color: 0xff3300,
+        transparent: true,
+        opacity: 0.5
+    },
+    'gui/common/btn_2pxborder_cornersm3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/btn_2pxborder_cornersm',
+        color: 0xff3300,
+        transparent: true,
+        opacity: 0.5
+    },
+    'gui/common/btn_2pxborder_vert3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/btn_2pxborder_vert',
+        color: 0xff3300,
+        transparent: true,
+        opacity: 0.5
+    },
     'gui/cpuserver/bglow': {
         type: 'shader',
         diffuseMap: 'guis/assets/cpuserver/bglow',

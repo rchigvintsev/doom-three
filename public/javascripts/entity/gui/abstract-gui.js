@@ -121,10 +121,33 @@ export class AbstractGui extends THREE.Group {
                 layerMeshes.push(mesh);
             } else {
                 const scaleY = layer.scale != null ? layer.scale[1] : null;
-                const materials = Array.isArray(MATERIALS[layer.material])
-                    ? MATERIALS[layer.material]
-                    : [MATERIALS[layer.material]];
+                let materials;
+                if (layer.material) {
+                    materials = Array.isArray(MATERIALS[layer.material])
+                        ? MATERIALS[layer.material]
+                        : [MATERIALS[layer.material]];
+                } else {
+                    materials = [{type: 'shader'}];
+                }
+
+                let materialDef = null;
+                if (layer.color != null || layer.transparent != null || layer.opacity != null) {
+                    materialDef = {};
+                    if (layer.color != null) {
+                        materialDef.color = layer.color;
+                    }
+                    if (layer.transparent != null) {
+                        materialDef.transparent = layer.transparent;
+                        if (layer.opacity != null) {
+                            materialDef.opacity = layer.opacity;
+                        }
+                    }
+                }
+
                 for (let material of materials) {
+                    if (materialDef != null) {
+                        material = Object.assign(materialDef, material);
+                    }
                     const mesh = this._createLayer(material, size, position, scaleY);
                     mesh.rotation.set(0, 0, 0);
                     mesh.renderOrder = renderOrder++;

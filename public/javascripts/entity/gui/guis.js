@@ -1000,6 +1000,81 @@ export const GUIS = {
                 size: [135, 52],
                 offset: [-199.5, 186],
                 material: 'gui/common/titlebar_mid3'
+            },
+            {
+                type: 'regular',
+                size: [397, 30],
+                offset: [0.5, 10.5],
+                material: 'gui/common/btn_2pxborder_horiz3',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-238, 12.5],
+                material: 'gui/common/btn_2pxborder_cornersm3',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [239, 12.5],
+                material: 'gui/common/btn_2pxborder_cornersm3',
+                rotation: [180, 180]
+            },
+            {
+                type: 'regular',
+                size: [397, 30],
+                offset: [0.5, 111.5],
+                material: 'gui/common/btn_2pxborder_horiz3'
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [-238, 109.5],
+                material: 'gui/common/btn_2pxborder_cornersm3'
+            },
+            {
+                type: 'regular',
+                size: [82, 30],
+                offset: [239, 109.5],
+                material: 'gui/common/btn_2pxborder_cornersm3',
+                rotation: [0, 180]
+            },
+            {
+                type: 'regular',
+                size: [397, 72],
+                offset: [0.5, 61],
+                color: 0xff3300,
+                transparent: true,
+                opacity: 0.25
+            },
+            {
+                type: 'regular',
+                size: [82, 68],
+                offset: [239, 61],
+                material: 'gui/common/btn_2pxborder_vert3',
+                rotation: [180, 180]
+            },
+            {
+                type: 'regular',
+                size: [82, 68],
+                offset: [-238, 61],
+                material: 'gui/common/btn_2pxborder_vert3',
+                rotation: [180, 0]
+            },
+            {
+                type: 'text',
+                text: '#str_01201',
+                font: 'micro',
+                size: [397, 111],
+                offset: [-0.5, 39],
+                fontSize: 30,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.6,
+                textAlign: 'center',
+                scale: [0.8, 0]
             }
         ]
     }
