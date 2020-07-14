@@ -1640,6 +1640,13 @@ export const MATERIALS = {
         color: 0xcccccc,
         blending: 'additive'
     },
+    'gui/addhighlight5': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/addhighlight',
+        transparent: true,
+        color: 0x806626,
+        blending: 'additive'
+    },
     'gui/spin1alt': {
         clamp: true,
         type: 'basic',
@@ -1919,6 +1926,14 @@ export const MATERIALS = {
         transparent: true,
         blending: 'additive'
     },
+    'gui/test/gui_scanlines2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/test/gui_scanlines',
+        color: 0xffffff,
+        transparent: true,
+        scroll: ['0', 'time * -.04'],
+        blending: 'additive'
+    },
     'gui/test/gui_scanlines5': {
         type: 'shader',
         diffuseMap: 'guis/assets/test/gui_scanlines5',
@@ -1952,6 +1967,13 @@ export const MATERIALS = {
         },
         transparent: true,
         opacity: 0.1
+    },
+    'gui/reflect1_2': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/smdoor/reflect1',
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.05
     },
     'textures/base_door/smdoor1a': {
         normalMap: 'textures/base_door/smdoor1a_local',
@@ -2259,6 +2281,13 @@ export const MATERIALS = {
         type: 'shader',
         diffuseMap: 'guis/assets/common/outershadow',
         transparent: true
+    },
+    'gui/common/dirt3': {
+        type: 'shader',
+        diffuseMap: 'guis/assets/common/dirt3',
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3
     },
     'gui/common/dirt4': {
         type: 'shader',

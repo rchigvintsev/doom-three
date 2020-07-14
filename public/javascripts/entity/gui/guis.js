@@ -1075,6 +1075,50 @@ export const GUIS = {
                 opacity: 0.6,
                 textAlign: 'center',
                 scale: [0.8, 0]
+            },
+            {
+                type: 'regular',
+                size: [660, 500],
+                material: 'gui/static3',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/common/outerglow',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/common/outershadow',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/addhighlight5',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/test/gui_scanlines2',
+                rotation: [180, 0],
+                scale: [1.0, 1.5]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                material: 'gui/common/dirt3',
+                rotation: [180, 0]
+            },
+            {
+                type: 'regular',
+                size: [640, 480],
+                offset: [0, -10],
+                material: 'gui/reflect1_2',
+                rotation: [180, 0]
             }
         ]
     }
