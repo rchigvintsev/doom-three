@@ -1,30 +1,64 @@
-import {currentTime} from '../../util/common-utils.js';
+import {currentTime} from '../../util/time.js';
 import {STRINGS} from '../../strings.js';
 import {FONTS} from '../../fonts.js';
 import {ScrollingText} from './scrolling-text.js';
-import {MATERIALS} from '../../material/materials.js';
+import {Materials, MATERIALS} from '../../material/materials.js';
+
+const Z_OFFSET_STEP = 0.001;
 
 export class AbstractGui extends THREE.Group {
-    constructor(parent, materialIndex, materialBuilder) {
+    constructor(parent, materialIndex, materialFactory, guiDef) {
         super();
 
-        this._materialBuilder = materialBuilder;
-
+        this._materialFactory = materialFactory;
         this._materials = [];
         this._animations = [];
+        this._updatableLayers = [];
 
-        const guiFaces = [];
-        for (let i = 0; i < parent.geometry.faces.length; i++) {
-            const face = parent.geometry.faces[i];
-            if (face.materialIndex === materialIndex)
-                guiFaces.push(face);
+        const screenFaces = this._findScreenFaces(parent, materialIndex);
+        if (screenFaces.length !== 2) {
+            throw 'Two GUI screen faces were expected but found ' + screenFaces.length + ' faces instead';
         }
 
-        if (guiFaces.length !== 2)
-            throw 'Two GUI faces were expected but found ' + guiFaces.length + ' faces instead';
+        this.position.copy(this._determinePosition(screenFaces, parent.geometry));
+        this.rotation.copy(this._determineRotation(this.position, parent.quaternion, screenFaces[0].normal));
 
-        const face1 = guiFaces[0];
-        const face2 = guiFaces[1];
+        const screenSize = new THREE.Vector2(guiDef.width, guiDef.height);
+        this._aspectRatio = this._determineAspectRatio(screenFaces, parent.geometry, screenSize);
+
+        this._initLayers(guiDef);
+    }
+
+    update(time) {
+        for (let material of this._materials) {
+            if (material.update) {
+                material.update(time);
+            }
+        }
+
+        for (let animation of this._animations) {
+            animation.update(time);
+        }
+
+        for (let updatableLayer of this._updatableLayers) {
+            updatableLayer.update(time);
+        }
+    }
+
+    _findScreenFaces(parent, materialIndex) {
+        const screenFaces = [];
+        for (let i = 0; i < parent.geometry.faces.length; i++) {
+            const face = parent.geometry.faces[i];
+            if (face.materialIndex === materialIndex) {
+                screenFaces.push(face);
+            }
+        }
+        return screenFaces;
+    }
+
+    _findScreenFaceVertices(screenFaces, geometry) {
+        const face1 = screenFaces[0];
+        const face2 = screenFaces[1];
 
         const diagonalVertexIndices = [];
         const angularVertexIndices = [];
@@ -39,169 +73,29 @@ export class AbstractGui extends THREE.Group {
             }
         }
 
-        if (diagonalVertexIndices.length !== 2)
+        if (diagonalVertexIndices.length !== 2) {
             throw 'Two diagonal vertices were expected but found ' + diagonalVertexIndices.length + ' vertices instead';
+        }
 
-        const v1 = parent.geometry.vertices[diagonalVertexIndices[0]];
-        const v2 = parent.geometry.vertices[diagonalVertexIndices[1]];
-        const v3 = parent.geometry.vertices[angularVertexIndices[0]];
+        return [
+            geometry.vertices[diagonalVertexIndices[0]],
+            geometry.vertices[diagonalVertexIndices[1]],
+            geometry.vertices[angularVertexIndices[0]]
+        ];
+    }
+
+    _determinePosition(screenFaces, geometry) {
+        const vertices = this._findScreenFaceVertices(screenFaces, geometry);
 
         // To compute screen position we should find half of the diagonal distance
-        const halfDistance = v1.distanceTo(v2) / 2;
+        const halfDistance = vertices[0].distanceTo(vertices[1]) / 2;
         // then find displacement vector
-        const displacement = v1.clone().sub(v2).normalize().multiplyScalar(halfDistance);
+        const displacement = vertices[0].clone().sub(vertices[1]).normalize().multiplyScalar(halfDistance);
         // and finally move one of the diagonal vertices
-        this._position = v1.clone().sub(displacement);
-
-        this._normal = face1.normal;
-        this._rotation = this._computeRotation(this._position, parent.quaternion, this._normal);
-
-        const distance1 = v3.distanceTo(v1);
-        const distance2 = v3.distanceTo(v2);
-
-        const width = Math.max(distance1, distance2);
-        const height = Math.min(distance1, distance2);
-
-        this._ratio = new THREE.Vector2(this._getScreenWidth() / width, this._getScreenHeight() / height);
+        return vertices[0].clone().sub(displacement);
     }
 
-    update(time) {
-        for (let material of this._materials) {
-            if (material.update) {
-                material.update(time);
-            }
-        }
-        for (let animation of this._animations)
-            animation.update(time);
-    }
-
-    _initLayers(guiDef, initialOffset = 0.0, offsetStep = 0.001) {
-        // Prepare position offset to prevent texture flickering
-        const offsetMask = new THREE.Vector3(0, 0, 1);
-        const offset = new THREE.Vector3().setScalar(initialOffset).multiply(offsetMask);
-        offsetStep = new THREE.Vector3().setScalar(offsetStep).multiply(offsetMask)
-
-        let renderOrder = 0;
-
-        for (let layer of guiDef.layers) {
-            const layerMeshes = [];
-
-            const width = layer.size != null ? layer.size[0] : guiDef.width;
-            const height = layer.size != null ? layer.size[1] : guiDef.height;
-
-            const size = new THREE.Vector2(width, height).divide(this._ratio);
-
-            const offsetX = layer.offset != null ? layer.offset[0] : 0;
-            const offsetY = layer.offset != null ? layer.offset[1] : 0;
-
-            const position = new THREE.Vector3()
-                .add(offset)
-                .setX(offsetX / this._ratio.x)
-                .setY(offsetY * -1 / this._ratio.y);
-
-            if (layer.type === 'text' || layer.type === 'scrolling-text') {
-                const scaleX = layer.scale != null ? layer.scale[0] : 0.8;
-                const mesh = this._createTextLayer(layer.text, layer.font, layer.fontSize, layer.color, layer.opacity,
-                    renderOrder++, scaleX);
-                if (layer.textAlign === 'center') {
-                    position.setX(position.x - mesh.size.x / 2)
-                } else if (layer.textAlign === 'right') {
-                    position.setX(position.x + size.x / 2 - mesh.size.x);
-                }
-                mesh.position.copy(position);
-
-                if (layer.type === 'scrolling-text') {
-                    const boundaries = new THREE.Vector2(
-                        this._position.x + layer.boundaries[0] / this._ratio.x,
-                        this._position.x + layer.boundaries[1] / this._ratio.x
-                    );
-                    this._scrollingText = new ScrollingText(mesh, boundaries, size.x, 22000, 2000);
-                }
-
-                layerMeshes.push(mesh);
-            } else {
-                const scaleY = layer.scale != null ? layer.scale[1] : null;
-                let materials;
-                if (layer.material) {
-                    materials = Array.isArray(MATERIALS[layer.material])
-                        ? MATERIALS[layer.material]
-                        : [MATERIALS[layer.material]];
-                } else {
-                    materials = [{type: 'shader'}];
-                }
-
-                let materialDef = null;
-                if (layer.color != null || layer.transparent != null || layer.opacity != null) {
-                    materialDef = {};
-                    if (layer.color != null) {
-                        materialDef.color = layer.color;
-                    }
-                    if (layer.transparent != null) {
-                        materialDef.transparent = layer.transparent;
-                        if (layer.opacity != null) {
-                            materialDef.opacity = layer.opacity;
-                        }
-                    }
-                }
-
-                for (let material of materials) {
-                    if (materialDef != null) {
-                        material = Object.assign(materialDef, material);
-                    }
-                    const mesh = this._createLayer(material, size, position, scaleY);
-                    mesh.rotation.set(0, 0, 0);
-                    mesh.renderOrder = renderOrder++;
-                    this._materials.push(mesh.material);
-                    layerMeshes.push(mesh);
-                }
-
-                if (layer.warp) {
-                    let onUpdate;
-                    if (layer.warp.target === 'visibility') {
-                        onUpdate = function (params) {
-                            const visible = params.opacity >= 0;
-                            for (let mesh of layerMeshes) {
-                                mesh.visible = visible;
-                            }
-                        };
-                    } else {
-                        onUpdate = function (params) {
-                            for (let mesh of layerMeshes) {
-                                mesh.material.uniforms['opacity'].value = params.opacity;
-                            }
-                        };
-                    }
-                    const warpTween = new TWEEN.Tween({opacity: layer.warp.values[0]})
-                        .to({opacity: layer.warp.values[1]}, layer.warp.duration)
-                        .yoyo(true)
-                        .repeat(Infinity)
-                        .onUpdate(onUpdate);
-                    this._animations.push(warpTween);
-                    warpTween.start();
-                }
-            }
-
-            for (let mesh of layerMeshes) {
-                if (layer.rotation != null) {
-                    mesh.rotateX(THREE.Math.degToRad(layer.rotation[0]));
-                    mesh.rotateY(THREE.Math.degToRad(layer.rotation[1]));
-                }
-                this.add(mesh);
-            }
-
-            offset.add(offsetStep);
-        }
-    }
-
-    _getScreenWidth() {
-        throw 'Method "_getScreenWidth" is not implemented';
-    }
-
-    _getScreenHeight() {
-        throw 'Method "_getScreenHeight" is not implemented';
-    }
-
-    _computeRotation(position, quaternion, normal) {
+    _determineRotation(position, quaternion, normal) {
         const direction = new THREE.Vector3();
         direction.addVectors(position, normal);
 
@@ -215,105 +109,251 @@ export class AbstractGui extends THREE.Group {
         q.setFromRotationMatrix(m);
 
         const rotation = new THREE.Euler();
-        rotation.setFromQuaternion(q, undefined, false);
+        rotation.setFromQuaternion(q, undefined);
         return rotation;
     }
 
-    _createLayer(materialDef, size, position, yScale) {
-        let materialBuilder;
-        if (yScale) {
-            const $uper = this._materialBuilder;
-            materialBuilder = $uper.clone();
-            Object.assign(materialBuilder, {
-                _createRepetitionProvider(repeat) {
-                    const provider = $uper._createRepetitionProvider(repeat);
-                    return function (time) {
-                        return provider(time) * yScale;
-                    };
-                }
-            });
-        } else
-            materialBuilder = this._materialBuilder;
+    _determineAspectRatio(screenFaces, geometry, screenSize) {
+        const vertices = this._findScreenFaceVertices(screenFaces, geometry);
+        const distance1 = vertices[2].distanceTo(vertices[0]);
+        const distance2 = vertices[2].distanceTo(vertices[1]);
 
-        const geometry = new THREE.PlaneGeometry(size.x, size.y);
+        // TODO: it may not work for screens with a height exceeding their width
+        const width = Math.max(distance1, distance2);
+        const height = Math.min(distance1, distance2);
+        return new THREE.Vector2(screenSize.x / width, screenSize.y / height);
+    }
+
+    _getInitialZOffset() {
+        return 0.0;
+    }
+
+    _initLayers(guiDef) {
+        // Prepare position offset to prevent texture flickering
+        let zOffset = this._getInitialZOffset();
+        const screenSize = new THREE.Vector2(guiDef.width, guiDef.height);
+        let renderOrder = 0;
+
+        for (let layerDef of guiDef.layers) {
+            this._initLayer(layerDef, screenSize, zOffset, renderOrder++);
+            zOffset += Z_OFFSET_STEP;
+        }
+    }
+
+    _initLayer(layerDef, screenSize, zOffset, renderOrder) {
+        let layerMeshes = [];
+
+        const width = layerDef.size != null ? layerDef.size[0] : screenSize.x;
+        const height = layerDef.size != null ? layerDef.size[1] : screenSize.y;
+        const size = new THREE.Vector2(width, height).divide(this._aspectRatio);
+
+        const xOffset = layerDef.offset != null ? layerDef.offset[0] : 0;
+        const yOffset = layerDef.offset != null ? layerDef.offset[1] : 0;
+
+        const position = new THREE.Vector3()
+            .setX(xOffset / this._aspectRatio.x)
+            .setY(yOffset * -1 / this._aspectRatio.y)
+            .setZ(zOffset);
+
+        if (layerDef.type === 'text' || layerDef.type === 'scrolling-text') {
+            layerMeshes = layerMeshes.concat(this._createTextLayerMeshes(layerDef, size, position, renderOrder));
+        } else {
+            layerMeshes = layerMeshes.concat(this._createRegularLayerMeshes(layerDef, size, position, renderOrder));
+        }
+
+        for (let mesh of layerMeshes) {
+            if (layerDef.rotation != null) {
+                mesh.rotateX(THREE.Math.degToRad(layerDef.rotation[0]));
+                mesh.rotateY(THREE.Math.degToRad(layerDef.rotation[1]));
+            }
+            this.add(mesh);
+        }
+    }
+
+    _createRegularLayerMeshes(layerDef, layerSize, layerPosition, renderOrder) {
+        const layerMeshes = [];
+
+        const materialDefs = this._getLayerMaterialDefs(layerDef);
+        for (let materialDef of materialDefs) {
+            const material = this._createLayerMaterial(materialDef);
+            const mesh = this._createLayerMesh(layerSize, material);
+            mesh.position.copy(layerPosition);
+            mesh.renderOrder = renderOrder;
+            this._materials.push(mesh.material);
+            layerMeshes.push(mesh);
+        }
+
+        if (layerDef.warp) {
+            const warpAnimation = this._createWarpAnimation(layerDef.warp, layerMeshes);
+            this._animations.push(warpAnimation);
+        }
+
+        return layerMeshes;
+    }
+
+    _createTextLayerMeshes(layerDef, layerSize, layerPosition, renderOrder) {
+        let mesh;
+        if (layerDef.type === 'scrolling-text') {
+            mesh = new ScrollingText();
+            this._updatableLayers.push(mesh);
+        } else {
+            mesh = new THREE.Mesh();
+        }
+
+        const scale = layerDef.scale != null ? layerDef.scale : [0.8, 1.0];
+        const textString = STRINGS[layerDef.text] || layerDef.text;
+        const textSize = new THREE.Vector2();
+
+        const letterMeshes = this._createLetterLayerMeshes(layerDef, textString, textSize, scale);
+        for (let letterMesh of letterMeshes) {
+            letterMesh.renderOrder = renderOrder;
+            mesh.add(letterMesh);
+        }
+
+        if (layerDef.textAlign === 'center') {
+            layerPosition.setX(layerPosition.x - textSize.x / 2)
+        } else if (layerDef.textAlign === 'right') {
+            layerPosition.setX(layerPosition.x + layerSize.x / 2 - textSize.x);
+        }
+        mesh.position.copy(layerPosition)
+
+        if (layerDef.type === 'scrolling-text') {
+            const boundaries = new THREE.Vector2(
+                this.position.x + layerDef.boundaries[0] / this._aspectRatio.x,
+                this.position.x + layerDef.boundaries[1] / this._aspectRatio.x
+            );
+            mesh.init(textSize, boundaries, layerSize.x, 22000, 2000);
+        }
+
+        return [mesh];
+    }
+
+    _createLetterLayerMeshes(layerDef, text, textSize, scale) {
+        const letterMeshes = [];
+        const lines = [];
+        const textOffset = new THREE.Vector2();
+        let lineNumber = 0;
+
+        for (let i = 0; i < text.length; i++) {
+            const charCode = text.charCodeAt(i);
+            if (charCode === 10) {
+                textOffset.x = 0;
+                textOffset.y -= 1.5 * layerDef.fontSize / this._aspectRatio.y;
+                lineNumber++;
+            } else {
+                const letterDef = FONTS[layerDef.font][charCode];
+                if (!letterDef) {
+                    console.error('Font "' + layerDef.font + '" does not support character with code ' + charCode);
+                } else {
+                    const letterSize = new THREE.Vector2(
+                        letterDef.size[0] * layerDef.fontSize * scale[0],
+                        letterDef.size[1] * layerDef.fontSize * scale[1]
+                    ).divide(this._aspectRatio);
+
+                    const letterMaterialDef = letterDef.material
+                        ? Materials.override(letterDef.material, layerDef)
+                        : {type: 'basic', transparent: true, opacity: 0};
+                    const letterMaterial = this._createLayerMaterial(letterMaterialDef);
+                    letterMaterial.clipping = true;
+                    this._materials.push(letterMaterial);
+
+                    const letterMesh = this._createLayerMesh(letterSize, letterMaterial);
+                    letterMeshes.push(letterMesh);
+
+                    const letterPosition = new THREE.Vector3(textOffset.x + letterSize.x / 2, textOffset.y, 0);
+                    letterMesh.position.copy(letterPosition);
+
+                    textOffset.x += letterSize.x;
+                    if (textOffset.x > textSize.x) {
+                        textSize.x = textOffset.x;
+                    }
+                    if (textOffset.y > textSize.y) {
+                        textSize.y = textOffset.y;
+                    }
+
+                    if (lines.length === lineNumber) {
+                        lines.push({width: 0, letters: []});
+                    }
+                    lines[lineNumber].letters.push(letterMesh);
+                    lines[lineNumber].width = textOffset.x;
+                }
+            }
+        }
+        this._alignLettersToCenter(lines, textSize);
+
+        return letterMeshes;
+    }
+
+    _alignLettersToCenter(lines, textSize) {
+        for (let line of lines) {
+            if (line.width < textSize.x) {
+                const xOffset = (textSize.x - line.width) / 2;
+                for (let letter of line.letters) {
+                    letter.position.x += xOffset;
+                }
+            }
+        }
+    }
+
+    _getLayerMaterialDefs(layerDef) {
+        let materialDefs;
+        if (layerDef.material) {
+            materialDefs = MATERIALS[layerDef.material];
+        }
+
+        if (!materialDefs) {
+            materialDefs = [{type: 'shader'}];
+        } else {
+            materialDefs = Array.isArray(materialDefs) ? materialDefs : [materialDefs];
+        }
+
+        for (let i = 0; i < materialDefs.length; i++) {
+            materialDefs[i] = Materials.override(materialDefs[i], layerDef);
+        }
+
+        return materialDefs;
+    }
+
+    _createLayerMaterial(materialDef) {
         let material;
         if (materialDef) {
-            material = materialBuilder.build(materialDef.diffuseMap, materialDef);
+            material = this._materialFactory.build(materialDef.diffuseMap, materialDef);
             material.update(currentTime());
         } else {
             material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
         }
-        const layerMesh = new THREE.Mesh(geometry, material);
-        layerMesh.position.copy(position);
-        layerMesh.rotation.copy(this._rotation);
-        return layerMesh;
+        return material;
     }
 
-    _createTextLayer(textCode, font, fontSize, color, opacity, renderOrder, xScale=0.8) {
-        const textLayer = new THREE.Mesh();
-        textLayer.renderOrder = renderOrder;
-        textLayer.size = new THREE.Vector2();
-        const lines = [];
+    _createLayerMesh(size, material) {
+        const geometry = new THREE.PlaneGeometry(size.x, size.y);
+        return new THREE.Mesh(geometry, material);
+    }
 
-        const textString = STRINGS[textCode] || textCode;
-        let textWidth = 0, textHeight = 0;
-        let hOffset = 0, vOffset = 0;
-        let lineNumber = 0;
-        for (let i = 0; i < textString.length; i++) {
-            const charCode = textString.charCodeAt(i);
-            if (charCode === 10) {
-                vOffset -= 1.5 * fontSize / this._ratio.y;
-                hOffset = 0;
-                lineNumber++;
-            } else {
-                const letter = FONTS[font][charCode];
-                if (!letter)
-                    console.error('Font "' + font + '" does not support character with code ' + charCode);
-                else {
-                    const letterSize = new THREE.Vector2(letter.size[0] * fontSize * xScale, letter.size[1] * fontSize)
-                        .divide(this._ratio);
-                    const letterPosition = new THREE.Vector3(hOffset + letterSize.x / 2, vOffset, 0);
-                    let materialDef = null;
-                    if (letter.material) {
-                        materialDef = Object.assign({}, letter.material);
-                        materialDef.opacity = opacity;
-                        if (color !== undefined)
-                            materialDef.color = color;
-                    }
-                    const letterLayer = this._createLayer(materialDef, letterSize, letterPosition);
-                    letterLayer.material.clipping = true;
-                    letterLayer.rotation.set(0, 0, 0);
-                    letterLayer.renderOrder = renderOrder;
-                    textLayer.add(letterLayer);
-                    this._materials.push(letterLayer.material);
-
-                    hOffset += letterSize.x;
-
-                    if (hOffset > textWidth)
-                        textWidth = hOffset;
-                    if (vOffset > textHeight)
-                        textHeight = vOffset;
-
-                    if (lines.length === lineNumber)
-                        lines.push({size: 0, letters: []});
-                    lines[lineNumber].letters.push(letterLayer);
-                    lines[lineNumber].size = hOffset;
+    // TODO: create warp animation in material factory
+    _createWarpAnimation(warpDef, targetMeshes) {
+        let onUpdate;
+        if (warpDef.target === 'visibility') {
+            onUpdate = (params) => {
+                const visible = params.opacity >= 0;
+                for (let mesh of targetMeshes) {
+                    mesh.visible = visible;
                 }
-            }
+            };
+        } else {
+            onUpdate = (params) => {
+                for (let mesh of targetMeshes) {
+                    mesh.material.uniforms['opacity'].value = params.opacity;
+                }
+            };
         }
 
-        textLayer.size.x = textWidth;
-        textLayer.size.y = textHeight;
-
-        // Align text to center
-        for (let line of lines) {
-            if (line.size < textWidth) {
-                const hOffset = (textWidth - line.size) / 2;
-                for (let letter of line.letters)
-                    letter.position.x += hOffset;
-            }
-        }
-
-        return textLayer;
+        const warpTween = new TWEEN.Tween({opacity: warpDef.values[0]})
+            .to({opacity: warpDef.values[1]}, warpDef.duration)
+            .yoyo(true)
+            .repeat(Infinity)
+            .onUpdate(onUpdate);
+        warpTween.start();
+        return warpTween;
     }
 }

@@ -1,5 +1,5 @@
 import {TIME_STEP} from './game-constants.js';
-import {currentTime} from './util/common-utils.js';
+import {currentTime} from './util/time.js';
 import {FeatureDetector} from './feature-detector.js';
 import {Settings} from './settings.js';
 import {AnimationSystem} from './animation/animation-system.js';

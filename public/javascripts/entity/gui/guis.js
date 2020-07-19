@@ -253,8 +253,7 @@ export const GUIS = {
                 type: 'regular',
                 material: 'gui/common/dirt2',
                 size: [610, 460],
-                offset: [0, -7.5],
-                scale: [1.0, 2]
+                offset: [0, -7.5]
             },
             {
                 type: 'regular',
@@ -267,8 +266,7 @@ export const GUIS = {
                 type: 'regular',
                 material: 'gui/common/dirt4_2',
                 size: [610, 450],
-                offset: [0, -7.5],
-                scale: [1.0, 2]
+                offset: [0, -7.5]
             }
         ]
     },

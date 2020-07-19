@@ -2492,3 +2492,23 @@ export const MATERIALS = {
         opacity: 0.0
     }
 };
+
+export class Materials {
+    static override(target, source) {
+        const result = Object.assign({}, target);
+        if (source.color != null) {
+            result.color = source.color;
+        }
+        if (source.transparent != null) {
+            result.transparent = source.transparent;
+
+            if (source.opacity != null) {
+                result.opacity = source.opacity;
+            }
+        }
+        if (source.scale) {
+            result.scale = source.scale;
+        }
+        return result;
+    }
+}

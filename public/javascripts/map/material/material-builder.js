@@ -141,10 +141,17 @@ export class MaterialBuilder {
 
         let xRepeat, yRepeat;
         if (materialDef.repeat) {
-            xRepeat = this._createRepetitionProvider(materialDef.repeat[0]);
-            yRepeat = this._createRepetitionProvider(materialDef.repeat[1]);
-        } else
-            xRepeat = yRepeat = oneProvider;
+            const scale = materialDef.scale ? materialDef.scale : [1.0, 1.0];
+            xRepeat = this._createRepetitionProvider(materialDef.repeat[0], scale[0]);
+            yRepeat = this._createRepetitionProvider(materialDef.repeat[1], scale[1]);
+        } else {
+            if (!materialDef.scale) {
+                xRepeat = yRepeat = oneProvider;
+            } else {
+                xRepeat = () => materialDef.scale[0];
+                yRepeat = () => materialDef.scale[1];
+            }
+        }
 
         let xTranslate, yTranslate;
         if (materialDef.translate) {
@@ -332,7 +339,7 @@ export class MaterialBuilder {
         };
     }
 
-    _createRepetitionProvider(repeat) {
+    _createRepetitionProvider(repeat, scale=1.0) {
         if (repeat.expression) {
             const compiledExpression = math.compile(repeat.expression);
             const tableFunc = function (tableName, value) {
@@ -348,7 +355,7 @@ export class MaterialBuilder {
             };
             return function (time) {
                 const scope = {time: time * 0.004, table: tableFunc};
-                return compiledExpression.eval(scope);
+                return compiledExpression.eval(scope) * scale;
             };
         }
 

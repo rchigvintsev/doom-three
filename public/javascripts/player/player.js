@@ -1,5 +1,5 @@
 import {inherit} from '../util/oop-utils.js';
-import {currentTime} from '../util/common-utils.js';
+import {currentTime} from '../util/time.js';
 import {Settings} from '../settings.js';
 
 var DOOM_THREE = DOOM_THREE || {};

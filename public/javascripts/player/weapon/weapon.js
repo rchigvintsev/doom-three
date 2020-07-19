@@ -1,4 +1,4 @@
-import {currentTime} from '../../util/common-utils.js';
+import {currentTime} from '../../util/time.js';
 import {AnimationUtils} from '../../util/animation-utils.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
