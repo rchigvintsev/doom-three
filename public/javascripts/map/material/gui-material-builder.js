@@ -13,11 +13,12 @@ export class GuiMaterialBuilder extends MaterialBuilder {
         // Some textures may not be loaded in advance. We are going to load them here.
         const textures = this._assetLoader.loadTextures(materialDef);
         materialDef.type = 'shader'; // GUI supports only shader materials
-        const material = super.build(name, materialDef);
-        material.side = THREE.DoubleSide;
-        if (textures[0].diffuseMap)
-            material.uniforms.map.value = textures[0].diffuseMap;
-        return material;
+        const materials = super.build(name, materialDef);
+        materials[0].side = THREE.DoubleSide;
+        if (textures[0].diffuseMap) {
+            materials[0].uniforms.map.value = textures[0].diffuseMap;
+        }
+        return materials;
     }
 
     newShaderMaterial(name, definition) {

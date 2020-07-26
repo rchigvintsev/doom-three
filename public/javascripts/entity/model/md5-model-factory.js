@@ -19,30 +19,34 @@ export class Md5ModelFactory extends ModelFactory {
     _loadModel(modelDef) {
         const model = this._assetLoader.assets[AssetLoader.AssetType.MODELS][modelDef.model];
         const animations = [];
-        for (let i = 0; i < modelDef.animations.length; i++)
+        for (let i = 0; i < modelDef.animations.length; i++) {
             animations.push(this._assetLoader.assets[AssetLoader.AssetType.ANIMATIONS][modelDef.animations[i]]);
+        }
         return this.md5Loader.load(model, animations);
     }
 
     _getMaterials(modelDef, model) {
         const materials = {main: [], additional: [], gui: []};
 
-        if (Settings.showWireframe || Settings.wireframeOnly)
+        if (Settings.showWireframe || Settings.wireframeOnly) {
             materials.main.push(this._createWireframeMaterial());
-        else {
+        } else {
             const declaredMaterials = modelDef.materials || model.materials;
-            if (declaredMaterials)
+            if (declaredMaterials) {
                 for (let i = 0; i < declaredMaterials.length; i++) {
                     const declaredMaterial = declaredMaterials[i];
-                    const materialName = typeof declaredMaterial === 'string' ? declaredMaterial
+                    const materialName = typeof declaredMaterial === 'string'
+                        ? declaredMaterial
                         : declaredMaterial.name;
                     const materialDef = MATERIALS[materialName];
                     if (!materialDef) {
                         console.error('Definition for material ' + materialName + ' is not found');
                         materials.main.push(new THREE.MeshPhongMaterial());
-                    } else
-                        materials.main.push(this._createRegularMaterial(materialName, materialDef));
+                    } else {
+                        materials.main = materials.main.concat(this._createRegularMaterial(materialName, materialDef));
+                    }
                 }
+            }
 
             if (materials.main.length === 0) {
                 console.warn('Materials are not defined for MD5 model ' + modelDef.name);
@@ -74,11 +78,8 @@ export class Md5ModelFactory extends ModelFactory {
 
 class Md5ModelMaterialBuilder extends ModelMaterialBuilder {
     build(name, materialDefinition) {
-        const material = super.build(name, materialDefinition);
-        if (Array.isArray(material))
-            material[0].skinning = true;
-        else
-            material.skinning = true;
-        return material;
+        const materials = super.build(name, materialDefinition);
+        materials[0].skinning = true;
+        return materials;
     }
 }

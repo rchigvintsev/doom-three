@@ -1,10 +1,11 @@
 import {ShaderLib} from './shader/shader-lib.js';
+import {UpdatableShaderMaterial} from "./updatable-shader-material.js";
 
 /**
  * Auxiliary material for light sources to look them more realistic. Its "lightIntensity" parameter allows to adjust
  * how bright the light source will be.
  */
-export class LightBasicMaterial extends THREE.ShaderMaterial {
+export class LightBasicMaterial extends UpdatableShaderMaterial {
     constructor() {
         const lightBasicShader = ShaderLib['light_basic'];
         super({

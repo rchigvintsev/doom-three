@@ -2,6 +2,7 @@ import {AssetLoader} from '../../asset-loader.js';
 import {TABLES} from '../../material/tables.js';
 import {LightBasicMaterial} from '../../material/light-basic-material.js';
 import {TextureImageService} from '../../image/texture-image-service.js';
+import {UpdatableMeshBasicMaterial} from '../../material/updatable-mesh-basic-material.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
@@ -250,13 +251,14 @@ export class MaterialBuilder {
                 console.error('Unsupported blending: ' + materialDef.blending);
         }
 
-        return materials.length === 1 ? material : materials;
+        return materials;
     }
 
     newBasicMaterial(wireframe) {
-        if (wireframe === undefined)
+        if (wireframe === undefined) {
             wireframe = false;
-        return new THREE.MeshBasicMaterial({wireframe: wireframe});
+        }
+        return new UpdatableMeshBasicMaterial({wireframe: wireframe});
     }
 
     newPhongMaterial() {

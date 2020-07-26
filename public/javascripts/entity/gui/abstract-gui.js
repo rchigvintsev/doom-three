@@ -3,6 +3,7 @@ import {STRINGS} from '../../strings.js';
 import {FONTS} from '../../fonts.js';
 import {ScrollingText} from './scrolling-text.js';
 import {Materials, MATERIALS} from '../../material/materials.js';
+import {UpdatableMeshBasicMaterial} from "../../material/updatable-mesh-basic-material.js";
 
 const Z_OFFSET_STEP = 0.001;
 
@@ -31,9 +32,7 @@ export class AbstractGui extends THREE.Group {
 
     update(time) {
         for (let material of this._materials) {
-            if (material.update) {
-                material.update(time);
-            }
+            material.update(time);
         }
 
         for (let animation of this._animations) {
@@ -315,14 +314,12 @@ export class AbstractGui extends THREE.Group {
     }
 
     _createLayerMaterial(materialDef) {
-        let material;
         if (materialDef) {
-            material = this._materialFactory.build(materialDef.diffuseMap, materialDef);
-            material.update(currentTime());
-        } else {
-            material = new THREE.MeshBasicMaterial({transparent: true, opacity: 0});
+            const materials = this._materialFactory.build(materialDef.diffuseMap, materialDef);
+            materials[0].update(currentTime());
+            return materials[0];
         }
-        return material;
+        return new UpdatableMeshBasicMaterial({transparent: true, opacity: 0});
     }
 
     _createLayerMesh(size, material) {
