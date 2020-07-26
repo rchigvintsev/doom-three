@@ -1,4 +1,4 @@
-export class LwoModel extends THREE.Group{
+export class LwoModel extends THREE.Group {
     constructor(geometry, materials) {
         super();
         this._geometry = geometry;
@@ -36,7 +36,11 @@ export class LwoModel extends THREE.Group{
     }
 
     update(time) {
-        for (const gui of this._gui)
+        for (const gui of this._gui) {
             gui.update(time);
+        }
+        for (const material of this._materials) {
+            material.update(time);
+        }
     }
 }

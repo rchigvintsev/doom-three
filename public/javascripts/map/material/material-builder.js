@@ -1,6 +1,7 @@
 import {AssetLoader} from '../../asset-loader.js';
 import {TABLES} from '../../material/tables.js';
 import {LightBasicMaterial} from '../../material/light-basic-material.js';
+import {TextureImageService} from '../../image/texture-image-service.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
@@ -9,6 +10,7 @@ const noOpUpdater = function () {};
 export class MaterialBuilder {
     constructor(assetLoader) {
         this._assetLoader = assetLoader;
+        this._textureImageService = new TextureImageService(assetLoader);
     }
 
     clone() {
@@ -42,82 +44,110 @@ export class MaterialBuilder {
         materials.push(material);
 
         if (materialDef.diffuseMap) {
-            const diffuseMapName = typeof materialDef.diffuseMap === 'string' ? materialDef.diffuseMap
-                : materialDef.diffuseMap.name;
-            let diffuseMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][diffuseMapName];
-            if (!diffuseMap)
-                console.error('Diffuse map ' + diffuseMapName + ' is not found');
-            else {
-                if (materialDef.clamp)
-                    diffuseMap.wrapS = diffuseMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
-                material.map = diffuseMap;
+            const diffuseMap = new THREE.Texture();
+            if (materialDef.clamp) {
+                diffuseMap.wrapS = diffuseMap.wrapT = THREE.ClampToEdgeWrapping;
+            } else {
+                diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
             }
+            material.map = diffuseMap;
+
+            const diffuseMapName = typeof materialDef.diffuseMap === 'string'
+                ? materialDef.diffuseMap
+                : materialDef.diffuseMap.name;
+
+            this._textureImageService.getTextureImage(diffuseMapName)
+                .then(img => {
+                    diffuseMap.image = img;
+                    if (material.uniforms) {
+                        material.uniforms.map.value = diffuseMap;
+                    }
+                    diffuseMap.needsUpdate = true;
+                })
+                .catch(() => console.error('Diffuse map ' + diffuseMapName + ' is not found'));
         }
 
         if (materialDef.normalMap) {
-            const normalMapName = typeof materialDef.normalMap === 'string' ? materialDef.normalMap
-                : materialDef.normalMap.name;
-            let normalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][normalMapName];
-            if (!normalMap)
-                console.error('Normal map ' + normalMapName + ' is not found');
-            else {
-                if (materialDef.clamp)
-                    normalMap.wrapS = normalMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
-                material.normalMap = normalMap;
+            const normalMap = new THREE.Texture();
+            if (materialDef.clamp) {
+                normalMap.wrapS = normalMap.wrapT = THREE.ClampToEdgeWrapping;
+            } else {
+                normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
             }
+            material.normalMap = normalMap;
+
+            const normalMapName = typeof materialDef.normalMap === 'string'
+                ? materialDef.normalMap
+                : materialDef.normalMap.name;
+
+            this._textureImageService.getTextureImage(normalMapName)
+                .then(img => {
+                    normalMap.image = img;
+                    normalMap.needsUpdate = true;
+                })
+                .catch(() => console.error('Normal map ' + normalMapName + ' is not found'));
         }
 
         if (materialDef.specularMap) {
-            const specularMapName = typeof materialDef.specularMap === 'string' ? materialDef.specularMap
+            const specularMap = new THREE.Texture();
+            if (materialDef.clamp)
+                specularMap.wrapS = specularMap.wrapT = THREE.ClampToEdgeWrapping;
+            else
+                specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
+            material.specularMap = specularMap;
+
+            const specularMapName = typeof materialDef.specularMap === 'string'
+                ? materialDef.specularMap
                 : materialDef.specularMap.name;
-            let specularMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][specularMapName];
-            if (!specularMap)
-                console.error('Specular map ' + specularMapName + ' is not found');
-            else {
-                if (materialDef.clamp)
-                    specularMap.wrapS = specularMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
-                material.specularMap = specularMap;
-            }
+
+            this._textureImageService.getTextureImage(specularMapName)
+                .then(img => {
+                    specularMap.image = img;
+                    specularMap.needsUpdate = true;
+                })
+                .catch(() => console.error('Specular map ' + specularMapName + ' is not found'));
         }
 
         if (materialDef.alphaMap) {
-            const alphaMapName = typeof materialDef.alphaMap === 'string' ? materialDef.alphaMap
+            const alphaMap = new THREE.Texture();
+            if (materialDef.clamp)
+                alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
+            else
+                alphaMap.wrapS = alphaMap.wrapT = THREE.RepeatWrapping;
+            material.alphaMap = alphaMap;
+
+            const alphaMapName = typeof materialDef.alphaMap === 'string'
+                ? materialDef.alphaMap
                 : materialDef.alphaMap.name;
-            const alphaMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][alphaMapName];
-            if (!alphaMap)
-                console.error('Alpha map ' + alphaMapName + ' is not found');
-            else {
-                if (materialDef.clamp)
-                    alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    alphaMap.wrapS = alphaMap.wrapT = THREE.RepeatWrapping;
-                material.alphaMap = alphaMap;
-            }
+
+            this._textureImageService.getTextureImage(alphaMapName)
+                .then(img => {
+                    alphaMap.image = img;
+                    alphaMap.needsUpdate = true;
+                })
+                .catch(() => console.error('Alpha map ' + alphaMapName + ' is not found'))
         }
 
         if (materialDef.additionalMap) {
-            let additionalMap = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][materialDef.additionalMap];
-            if (!additionalMap)
-                console.error('Additional map ' + materialDef.additionalMap + ' is not found');
-            else {
-                if (materialDef.clamp)
-                    additionalMap.wrapS = additionalMap.wrapT = THREE.ClampToEdgeWrapping;
-                else
-                    additionalMap.wrapS = additionalMap.wrapT = THREE.RepeatWrapping;
-                const additionalMaterial = new THREE.MeshBasicMaterial({transparent: true});
-                additionalMaterial.blending = THREE.CustomBlending;
-                additionalMaterial.blendEquation = THREE.AddEquation;
-                additionalMaterial.blendSrc = THREE.SrcAlphaFactor;
-                additionalMaterial.blendDst = THREE.OneMinusSrcColorFactor;
-                additionalMaterial.map = additionalMap;
-                materials.push(additionalMaterial);
-            }
+            const additionalMap = new THREE.Texture();
+            if (materialDef.clamp)
+                additionalMap.wrapS = additionalMap.wrapT = THREE.ClampToEdgeWrapping;
+            else
+                additionalMap.wrapS = additionalMap.wrapT = THREE.RepeatWrapping;
+            const additionalMaterial = new THREE.MeshBasicMaterial({transparent: true});
+            additionalMaterial.blending = THREE.CustomBlending;
+            additionalMaterial.blendEquation = THREE.AddEquation;
+            additionalMaterial.blendSrc = THREE.SrcAlphaFactor;
+            additionalMaterial.blendDst = THREE.OneMinusSrcColorFactor;
+            additionalMaterial.map = additionalMap;
+            materials.push(additionalMaterial);
+
+            this._textureImageService.getTextureImage(materialDef.additionalMap)
+                .then(img => {
+                    additionalMap.image = img;
+                    additionalMap.needsUpdate = true;
+                })
+                .catch(() => console.error('Additional map ' + materialDef.additionalMap + ' is not found'));
         }
 
         if (materialDef.color !== undefined) {
@@ -227,25 +257,24 @@ export class MaterialBuilder {
         const updaters = [];
 
         for (let i = 0; i < definition.textures.length; i++) {
-            let textureDefinition = definition.textures[i];
-            let texture;
+            let textureDef = definition.textures[i];
+            let textureName;
+            if (typeof textureDef === 'string') {
+                textureName = textureDef;
+            } else {
+                textureName = textureDef.name;
 
-            if (typeof textureDefinition === 'string')
-                texture = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][textureDefinition];
-            else {
-                texture = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES][textureDefinition.name];
-
-                if (textureDefinition.repeat) {
-                    const offsetRepeat = new THREE.Vector4(0, 0, textureDefinition.repeat[0],
-                        textureDefinition.repeat[1]);
+                if (textureDef.repeat) {
+                    const offsetRepeat = new THREE.Vector4(0, 0, textureDef.repeat[0],
+                        textureDef.repeat[1]);
                     uniforms['u_offsetRepeat' + (i + 1)] = {value: offsetRepeat};
                 }
 
-                if (textureDefinition.rotate) {
+                if (textureDef.rotate) {
                     const rotationUniformName = 'u_rotation' + (i + 1);
                     uniforms[rotationUniformName] = {type: 'f', value: 0};
 
-                    const rotateExpr = math.compile(textureDefinition.rotate);
+                    const rotateExpr = math.compile(textureDef.rotate);
                     updaters.push((function (rotateExpr, rotationUniformName) {
                         return function (material) {
                             const now = performance.now();
@@ -256,8 +285,15 @@ export class MaterialBuilder {
                 }
             }
 
+            let texture = new THREE.Texture();
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             uniforms['u_texture' + (i + 1)] = {type: 't', value: texture};
+
+            this._textureImageService.getTextureImage(textureName)
+                .then(img => {
+                    texture.image = img;
+                    texture.needsUpdate = true;
+                });
         }
 
         const material = new THREE.ShaderMaterial({
@@ -265,8 +301,9 @@ export class MaterialBuilder {
             vertexShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].vertex,
             fragmentShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].fragment
         });
-        if (material.__updaters !== undefined)
+        if (material.__updaters !== undefined) {
             throw 'Attribute "__updaters" is already defined';
+        }
         material.__updaters = updaters;
         return material;
     }

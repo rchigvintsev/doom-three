@@ -310,48 +310,70 @@ class TextureSource {
     }
 
     load(onLoad, onError) {
-        const $this = this.$this;
-        let texture = $this._assets[AssetLoader.AssetType.TEXTURES][this._name];
-        if (texture) {
+        const texture = new THREE.Texture();
+        const image = this.$this._assets[AssetLoader.AssetType.TEXTURES][this._name];
+        if (image instanceof Promise) {
+            image.then(img => {
+                texture.image = img;
+                texture.needsUpdate = true;
+                if (onLoad) {
+                    onLoad(img);
+                }
+            }).catch(reason => {
+                if (onError) {
+                    onError(reason);
+                }
+            })
+        } if (image) {
             if (onLoad) {
-                onLoad(texture);
+                onLoad(image);
             }
         } else {
-            if (this._addNormals) {
-                texture = new THREE.Texture();
-                const normalMap = this._addNormals.normalMap;
-                const bumpMap = this._addNormals.bumpMap;
-                const scale = this._addNormals.scale;
-                $this._loadAllBinaryFiles([normalMap + '.tga', bumpMap + '.tga'], (normalMapBuf, bumpMapBuf) => {
-                    texture.image = Images.addNormals(normalMapBuf, bumpMapBuf, scale);
+            this.$this._assets[AssetLoader.AssetType.TEXTURES][this._name] = new Promise((resolve, reject) => {
+                const afterLoad = (img) => {
+                    this.$this._assets[AssetLoader.AssetType.TEXTURES][this._name] = img;
+                    texture.image = img;
                     texture.needsUpdate = true;
+                    resolve(img);
                     if (onLoad) {
-                        onLoad(texture);
+                        onLoad(img);
                     }
-                }, onError);
-            } else if (this._negate) {
-                texture = new THREE.Texture();
-                $this._loadAllBinaryFiles([this._name + '.tga'], (mapBuf) => {
-                    texture.image = Images.negate(mapBuf);
-                    texture.needsUpdate = true;
-                    if (onLoad)
-                        onLoad(texture);
-                }, onError);
-            } else {
-                texture = $this._tgaLoader.load(this._name + '.tga', () => {
-                    if (this._flip) {
-                        const canvas = texture.image;
-                        const context = canvas.getContext('2d');
-                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                        Images.flip(imageData);
-                        context.putImageData(imageData, 0, 0);
+                };
+                const handleError = (error) => {
+                    reject(error);
+                    if (onError) {
+                        onError(error);
                     }
-                    if (onLoad) {
-                        onLoad(texture);
-                    }
-                }, () => {}, onError);
-            }
-            $this._assets[AssetLoader.AssetType.TEXTURES][this._name] = texture;
+                };
+
+                if (this._addNormals) {
+                    const normalMap = this._addNormals.normalMap;
+                    const bumpMap = this._addNormals.bumpMap;
+                    const scale = this._addNormals.scale;
+
+                    this.$this._loadAllBinaryFiles([normalMap + '.tga', bumpMap + '.tga'], (normalMapBuf, bumpMapBuf) => {
+                        const img = Images.addNormals(normalMapBuf, bumpMapBuf, scale);
+                        afterLoad(img);
+                    }, handleError);
+                } else if (this._negate) {
+                    this.$this._loadAllBinaryFiles([this._name + '.tga'], (mapBuf) => {
+                        const img = Images.negate(mapBuf);
+                        afterLoad(img)
+                    }, handleError);
+                } else {
+                    this.$this._tgaLoader.load(this._name + '.tga', (tga) => {
+                        if (this._flip) {
+                            const canvas = tga.image;
+                            const context = canvas.getContext('2d');
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            Images.flip(imageData);
+                            context.putImageData(imageData, 0, 0);
+                        }
+                        afterLoad(tga.image);
+                    }, () => {
+                    }, handleError);
+                }
+            });
         }
         return texture;
     }

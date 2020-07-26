@@ -19,6 +19,7 @@ import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {TechDoorPanel} from './tech-door-panel.js';
 import {LwoModel} from './lwo-model.js';
 import {HealthGui} from './health-gui.js';
+import {UpdatableMeshPhongMaterial} from '../../material/updatable-mesh-phong-material.js';
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
@@ -157,7 +158,7 @@ export class LwoModelFactory extends ModelFactory {
                         const materialDef = MATERIALS[materialName];
                         if (!materialDef) {
                             console.error('Definition for material ' + materialName + ' is not found');
-                            const fallbackMaterial = new THREE.MeshPhongMaterial();
+                            const fallbackMaterial = new UpdatableMeshPhongMaterial();
                             fallbackMaterial.name = materialName;
                             materials.main.push(fallbackMaterial);
                         } else {

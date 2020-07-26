@@ -1,12 +1,12 @@
 import {MATERIALS} from '../../material/materials.js';
-import {AssetLoader} from '../../asset-loader.js';
+import {TextureImageService} from "../../image/texture-image-service.js";
 
 export class SkyboxFactory {
     constructor(assetLoader) {
         if (assetLoader == null) {
             throw new Error('Asset loader must not be null');
         }
-        this._assetLoader = assetLoader;
+        this._textureImageService = new TextureImageService(assetLoader);
     }
 
     createSkybox(skyboxDef) {
@@ -20,21 +20,18 @@ export class SkyboxFactory {
             return;
         }
 
-        const textures = this._assetLoader.assets[AssetLoader.AssetType.TEXTURES];
         const images = [];
-        ['_right', '_left', '_up', '_down', '_forward', '_back'].forEach(function (postfix) {
-            const texture = textures[materialDef.cubeMap + postfix];
-            if (!texture) {
-                console.error('Texture "' + materialDef.cubeMap + postfix + '" is not found');
-            } else {
-                images.push(texture.image);
-            }
+        ['_right', '_left', '_up', '_down', '_forward', '_back'].forEach((postfix) => {
+            this._textureImageService.getTextureImage(materialDef.cubeMap + postfix)
+                .then(img => {
+                    images.push(img);
+                    cubeTexture.needsUpdate = true;
+                })
+                .catch(() => console.error('Texture "' + materialDef.cubeMap + postfix + '" is not found'))
         });
-
         const cubeTexture = new THREE.CubeTexture();
         cubeTexture.images = images;
         cubeTexture.format = THREE.RGBFormat;
-        cubeTexture.needsUpdate = true;
         return cubeTexture;
     }
 }
