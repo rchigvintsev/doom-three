@@ -5,7 +5,6 @@ import {TextureImageService} from '../../image/texture-image-service.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
-const noOpUpdater = function () {};
 
 export class MaterialBuilder {
     constructor(assetLoader) {
@@ -199,8 +198,20 @@ export class MaterialBuilder {
         else
             rotate = zeroProvider;
 
-        updaters.push(this._createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate,
-            materialDef.center));
+        if (material.map) {
+            material.map.matrixAutoUpdate = false;
+            if (material.normalMap) {
+                material.normalMap.matrixAutoUpdate = false;
+            }
+            if (material.specularMap) {
+                material.specularMap.matrixAutoUpdate = false;
+            }
+            if (material.alphaMap) {
+                material.alphaMap.matrixAutoUpdate = false;
+            }
+            updaters.push(this._createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate,
+                materialDef.center));
+        }
 
         if (materialDef.side === 'double')
             material.side = THREE.DoubleSide;
@@ -353,8 +364,39 @@ export class MaterialBuilder {
         };
     }
 
-    _createTransformUpdater() {
-        return noOpUpdater;
+    _createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate, center) {
+        if (!center) {
+            center = [0.5, 0.5];
+        }
+
+        return (material, time) => {
+            if (!time) {
+                return;
+            }
+
+            if (material.map.image) {
+                const updatedMatrix = material.map.matrix.identity()
+                    .scale(xRepeat(time), yRepeat(time))
+                    .translate(-center[0], -center[1])
+                    .rotate(rotate(time))
+                    .translate(center[0], center[1])
+                    .translate(xTranslate(time), yTranslate(time));
+
+                material.map.matrix.copy(updatedMatrix);
+
+                if (material.normalMap && material.normalMap.image) {
+                    material.normalMap.matrix.copy(updatedMatrix);
+                }
+
+                if (material.specularMap && material.specularMap.image) {
+                    material.specularMap.matrix.copy(updatedMatrix);
+                }
+
+                if (material.alphaMap && material.alphaMap.image) {
+                    material.alphaMap.matrix.copy(updatedMatrix);
+                }
+            }
+        };
     }
 
     _createOpacityUpdater(expression) {
