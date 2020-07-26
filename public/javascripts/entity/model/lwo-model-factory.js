@@ -145,6 +145,9 @@ export class LwoModelFactory extends ModelFactory {
                 for (let i = 0; i < declaredMaterials.length; i++) {
                     let declaredMaterial = declaredMaterials[i];
                     let materialName = typeof declaredMaterial === 'string' ? declaredMaterial : declaredMaterial.name;
+                    if (materialName.endsWith('.tga')) {
+                        materialName = materialName.substring(0, materialName.length - 4);
+                    }
                     if (skin && skin[materialName])
                         materialName = skin[materialName]; // Override material
                     const match = materialName.match(ENTITY_GUI_MATERIAL_PATTERN);

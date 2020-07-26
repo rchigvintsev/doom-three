@@ -1248,18 +1248,10 @@ export const MATERIALS = {
         normalMap: 'textures/base_wall/a_sopanel2a_local'
     },
     'textures/hell/anustubescroll': {
-        diffuseMap: {
-            name: 'textures/hell/anustubescroll',
-            translate: ['time * 0.01', 'time * 0.025']
-        },
-        specularMap: {
-            name: 'textures/hell/anustubescroll_s',
-            translate: ['time * 0.01', 'time * 0.025']
-        },
-        normalMap: {
-            name: 'textures/hell/anustubescroll_local',
-            translate: ['time * 0.01', 'time * 0.025']
-        },
+        diffuseMap: 'textures/hell/anustubescroll',
+        specularMap: 'textures/hell/anustubescroll_s',
+        normalMap: 'textures/hell/anustubescroll_local',
+        translate: ['time * 0.01', 'time * 0.025'],
         specular: 0xffffff,
         shininess: 68,
         cast_shadow: false
@@ -1363,12 +1355,17 @@ export const MATERIALS = {
     },
     'textures/rock/skysandnew_sharprock': {},
     'textures/hell/treerootsgrey': {
-        diffuseMap: {
-            name: 'textures/hell/treerootsgrey',
-            translate: ['0', 'time * -0.025']
-        },
+        diffuseMap: 'textures/hell/treerootsgrey',
         specularMap: 'textures/hell/treeroots_s',
-        normalMap: 'textures/hell/treeroots_local',
+        normalMap: {
+            name: 'textures/hell/treeroots_local+textures/hell/treeroots_h',
+            addNormals: {
+                normalMap: 'textures/hell/treeroots_local',
+                bumpMap: 'textures/hell/treeroots_h',
+                scale: 10
+            }
+        },
+        translate: ['0', 'time * -0.025'],
         specular: 0xffffff,
         shininess: 100,
         cast_shadow: false
@@ -2490,6 +2487,21 @@ export const MATERIALS = {
         color: 0x660000,
         transparent: true,
         opacity: 0.0
+    },
+    'textures/hell/treeroots_blend': {
+        diffuseMap: 'textures/hell/treerootsgrey',
+        normalMap: 'textures/hell/treeroots2_local',
+        specularMap: 'textures/hell/treeroots_s',
+        translate: ['0.0', 'time * -0.025'],
+        specular: 0xffffff,
+        shininess: 100
+    },
+    'textures/hell/wirestreerootsgrey_blend': {
+        diffuseMap: 'textures/hell/wires2_d',
+        normalMap: 'textures/hell/wires2_local',
+        specularMap: 'textures/hell/wires2_s',
+        specular: 0xffffff,
+        shininess: 100
     }
 };
 
