@@ -50,6 +50,9 @@ export class MaterialBuilder {
             } else {
                 diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
             }
+            if (materialDef.diffuseMap.alphaTest) {
+                material.alphaTest = materialDef.diffuseMap.alphaTest;
+            }
             material.map = diffuseMap;
 
             const diffuseMapName = typeof materialDef.diffuseMap === 'string'

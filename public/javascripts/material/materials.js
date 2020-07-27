@@ -508,10 +508,12 @@ export const MATERIALS = {
         }
     },
     'textures/outside/outfactory3': {
-        diffuseMap: 'textures/outside/outfactory3_d',
+        diffuseMap: {
+            name: 'textures/outside/outfactory3_d',
+            alphaTest: 0.35
+        },
         normalMap: 'textures/outside/outfactory3_local',
-        transparent: true,
-        alpha_test: 0.5
+        transparent: true
     },
     'textures/base_trim/ghoventtrim2': {
         diffuseMap: 'textures/base_trim/ghoventtrim2_d',
@@ -1353,7 +1355,17 @@ export const MATERIALS = {
         specularMap: 'textures/base_floor/sflgrate2mini_s',
         normalMap: 'textures/base_floor/sflgrate2mini_local'
     },
-    'textures/rock/skysandnew_sharprock': {},
+    'textures/rock/skysandnew_sharprock': {
+        diffuseMap: 'textures/rock/skysand2',
+        normalMap: {
+            name: 'textures/rock/skysand1_local+textures/rock/skysand2_bmp',
+            addNormals: {
+                normalMap: 'textures/rock/skysand1_local',
+                bumpMap: 'textures/rock/skysand2_bmp',
+                scale: 4
+            }
+        }
+    },
     'textures/hell/treerootsgrey': {
         diffuseMap: 'textures/hell/treerootsgrey',
         specularMap: 'textures/hell/treeroots_s',
@@ -2502,6 +2514,66 @@ export const MATERIALS = {
         specularMap: 'textures/hell/wires2_s',
         specular: 0xffffff,
         shininess: 100
+    },
+    'textures/rock/skysand1': {
+        diffuseMap: 'textures/rock/skysand1_d',
+        normalMap: {
+            name: 'textures/rock/skysand1_local+textures/rock/skysand1_bmp',
+            addNormals: {
+                normalMap: 'textures/rock/skysand1_local',
+                bumpMap: 'textures/rock/skysand1_bmp',
+                scale: 4
+            }
+        }
+    },
+    'textures/enpro/enwall19f': {
+        diffuseMap: 'textures/enpro/enwall19f',
+        normalMap: 'textures/base_wall/stepanel5_local',
+        specularMap: 'textures/enpro/enwall19_s'
+    },
+    'models/mapobjects/lab/cscope/cscopebase': {
+        diffuseMap: 'models/mapobjects/lab/cscope/cscopebase_d',
+        normalMap: {
+            name: 'models/mapobjects/lab/cscope/cscopebase_local+models/mapobjects/lab/cscope/cscopebase_bmp',
+            addNormals: {
+                normalMap: 'models/mapobjects/lab/cscope/cscopebase_local',
+                bumpMap: 'models/mapobjects/lab/cscope/cscopebase_bmp',
+                scale: 3
+            }
+        },
+        specularMap: 'models/mapobjects/lab/cscope/cscopebase_s',
+        additionalMap: 'models/mapobjects/lab/cscope/cscopebase_add'
+    },
+    'models/mapobjects/lab/cscope/cscopearm': {
+        diffuseMap: 'models/mapobjects/lab/cscope/cscopearm_d',
+        normalMap: {
+            name: 'models/mapobjects/lab/cscope/cscopearm_local+models/mapobjects/lab/cscope/cscopearm_bmp',
+            addNormals: {
+                normalMap: 'models/mapobjects/lab/cscope/cscopearm_local',
+                bumpMap: 'models/mapobjects/lab/cscope/cscopearm_bmp',
+                scale: 3
+            }
+        },
+        specularMap: 'models/mapobjects/lab/cscope/cscopearm_s'
+    },
+    'models/mapobjects/turrets/ceilingturret1': {
+        diffuseMap: 'models/mapobjects/turrets/ceilingturret1',
+        normalMap: 'models/mapobjects/turrets/ceilingturret1_local',
+        specularMap: 'models/mapobjects/turrets/ceilingturret1_s'
+    },
+    'models/mapobjects/utility/inhaler/inhaler': {
+        diffuseMap: 'models/mapobjects/utility/inhaler/inhaler_d',
+        normalMap: 'models/mapobjects/utility/inhaler/inhaler_local',
+        specularMap: 'models/mapobjects/utility/inhaler/inhaler_s'
+    },
+    'textures/base_trim/reactorgirder1': {
+        diffuseMap: {
+            name: 'textures/base_trim/reactorgirder1_d',
+            alphaTest: 0.5
+        },
+        normalMap: 'textures/base_trim/reactorgirder1_local',
+        specularMap: 'textures/base_trim/reactorgirder1_s',
+        transparent: true
     }
 };
 
