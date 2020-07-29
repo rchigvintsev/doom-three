@@ -17,8 +17,9 @@ export class SurfaceFactory extends MeshFactory {
 
     create(surfaceDef, scale=true) {
         let body = null;
-        const collisionModel = this._collisionModelFactory.createCollisionModel(surfaceDef);
-        if (collisionModel) {
+
+        if (surfaceDef.cm) {
+            const collisionModel = this._collisionModelFactory.createCollisionModel(surfaceDef.cm);
             body = new SurfaceBody(collisionModel);
         }
 

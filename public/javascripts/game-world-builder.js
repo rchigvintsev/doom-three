@@ -128,24 +128,21 @@ export class GameWorldBuilder {
             this.scene.add(boxes[i]);
 
             const cm = factories.collisionModelFactory.createCollisionModel({
-                material: 'test_box',
-                cm: {
-                    bodies: [
-                        {
-                            mass: i === 2 ? 5 : 100,
-                            position: [0, boxSize * (i + 5), 0],
-                            name: 'box' + (i + 1),
-                            shapes: [
-                                {
-                                    type: 'box',
-                                    width: boxSize,
-                                    height: boxSize,
-                                    depth: boxSize
-                                }
-                            ]
-                        }
-                    ]
-                }
+                bodies: [
+                    {
+                        mass: i === 2 ? 5 : 100,
+                        position: [0, boxSize * (i + 5), 0],
+                        name: 'box' + (i + 1),
+                        shapes: [
+                            {
+                                type: 'box',
+                                width: boxSize,
+                                height: boxSize,
+                                depth: boxSize
+                            }
+                        ]
+                    }
+                ]
             });
 
             cm.attachMesh(cm.bodies[0], boxes[i]);
@@ -192,7 +189,7 @@ class PlayerBuilder {
     build(factories, weapons) {
         const sounds = factories.soundFactory.createSounds(Player.definition);
 
-        const collisionModel = factories.collisionModelFactory.createCollisionModel(Player.definition);
+        const collisionModel = factories.collisionModelFactory.createCollisionModel(Player.definition.cm);
         const body = new PlayerBody(collisionModel);
 
         return new Player(weapons, sounds, body);

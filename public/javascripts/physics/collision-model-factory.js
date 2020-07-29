@@ -1,7 +1,7 @@
 import {CollisionModel} from './collision-model.js';
 import {GameWorld} from '../game-world.js';
 import {Settings} from '../settings.js';
-import {SystemType} from "../game-context.js";
+import {SystemType} from '../game-context.js';
 
 export class CollisionModelFactory {
     constructor(systems) {
@@ -9,16 +9,13 @@ export class CollisionModelFactory {
         this.physicsMaterials = physicsSystem.materials;
     }
 
-    createCollisionModel(objectDef) {
-        if (!objectDef.cm)
-            return null;
-        const self = this;
+    createCollisionModel(collisionModelDef) {
         const collisionModel = new CollisionModel();
-        for (let i = 0; i < objectDef.cm.bodies.length; i++) {
-            const body = self.createBody(objectDef.cm.bodies[i]);
+        for (const bodyDef of collisionModelDef.bodies) {
+            const body = this.createBody(bodyDef);
             collisionModel.addBody(body);
             if (Settings.showCollisionModel) {
-                const mesh = self.bodyToMesh(body);
+                const mesh = this.bodyToMesh(body);
                 collisionModel.attachMesh(body, mesh);
             }
         }
@@ -73,8 +70,11 @@ export class CollisionModelFactory {
                 for (let v = 0; v < shapeDef.vertices.length; v++)
                     scaledVertices.push(shapeDef.vertices[v] * GameWorld.WORLD_SCALE);
                 shape = new CANNON.Trimesh(scaledVertices, shapeDef.indices);
-            } else
+            } else if (shapeDef.type === 'heightfield') {
+                shape = new CANNON.Heightfield(shapeDef.matrix, {elementSize: shapeDef.elementSize});
+            } else {
                 throw 'Unsupported shape type: ' + shapeDef.type;
+            }
 
             if (shapeDef.name)
                 shape.name = shapeDef.name;

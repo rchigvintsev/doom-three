@@ -20,6 +20,7 @@ import {TechDoorPanel} from './tech-door-panel.js';
 import {LwoModel} from './lwo-model.js';
 import {HealthGui} from './health-gui.js';
 import {UpdatableMeshPhongMaterial} from '../../material/updatable-mesh-phong-material.js';
+import {COLLISION_MODELS} from '../../physics/collision-models.js';
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
@@ -37,7 +38,6 @@ export class LwoModelFactory extends ModelFactory {
     static isLWOModel(modelName) {
         return modelName.toLowerCase().indexOf('.lwo') > 0;
     }
-
 
     create(entityDef) {
         const modelMesh = super.create(entityDef);
@@ -82,9 +82,11 @@ export class LwoModelFactory extends ModelFactory {
 
         mesh.name = modelDef.name;
 
-        const collisionModel = this._collisionModelFactory.createCollisionModel(modelDef);
-        if (collisionModel)
+        const collisionModelDef = COLLISION_MODELS[modelDef.model];
+        if (collisionModelDef) {
+            const collisionModel = this._collisionModelFactory.createCollisionModel(collisionModelDef);
             mesh.body = new CommonBody(collisionModel);
+        }
 
         // It is necessary to set right rotation before GUI construction
         mesh.rotation.copy(this._computeMeshRotation(modelDef.rotation));
