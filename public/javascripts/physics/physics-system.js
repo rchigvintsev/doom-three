@@ -24,7 +24,7 @@ var DOOM_THREE = DOOM_THREE || {};
         this.materials['floor'] = floorMaterial;
 
         this.world.addContactMaterial(new CANNON.ContactMaterial(playerMaterial, this.world.defaultMaterial,
-            {friction: 0.03, restitution: 0, frictionEquationRelaxation: 30}));
+            {friction: 0.02, restitution: 0, frictionEquationRelaxation: 20}));
         this.world.addContactMaterial(new CANNON.ContactMaterial(playerMaterial, floorMaterial,
             {restitution: 0, frictionEquationRelaxation: 0.1}));
 
