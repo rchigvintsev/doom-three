@@ -185,5 +185,23 @@ export const COLLISION_MODELS = {
                 ]
             }
         ]
+    },
+    'models/mapobjects/hell/site3/entrance/wires.lwo': {
+        bodies: [
+            {
+                mass: 0,
+                material: 'default',
+                shapes: [
+                    {
+                        type: 'box',
+                        width: 10,
+                        height: 90,
+                        depth: 128,
+                        offset: [0, 15, -66],
+                        rotation: [0, -8, 0]
+                    }
+                ]
+            }
+        ]
     }
 };

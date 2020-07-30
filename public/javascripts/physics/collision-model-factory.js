@@ -9,12 +9,12 @@ export class CollisionModelFactory {
         this.physicsMaterials = physicsSystem.materials;
     }
 
-    createCollisionModel(collisionModelDef) {
+    createCollisionModel(collisionModelDef, showCollisionModel=false) {
         const collisionModel = new CollisionModel();
         for (const bodyDef of collisionModelDef.bodies) {
             const body = this.createBody(bodyDef);
             collisionModel.addBody(body);
-            if (Settings.showCollisionModel) {
+            if (Settings.showCollisionModel || showCollisionModel) {
                 const mesh = this.bodyToMesh(body);
                 collisionModel.attachMesh(body, mesh);
             }
