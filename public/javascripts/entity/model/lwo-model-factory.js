@@ -140,8 +140,9 @@ export class LwoModelFactory extends ModelFactory {
                 let skin = null;
                 if (modelDef.skin) {
                     skin = SKINS[modelDef.skin];
-                    if (!skin)
+                    if (!skin) {
                         console.error('Skin "' + modelDef.skin + '" is not found');
+                    }
                 }
 
                 for (let i = 0; i < declaredMaterials.length; i++) {

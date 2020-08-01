@@ -8,5 +8,11 @@ export const SKINS = {
     },
     'skins/healthguidirty': {
         'models/mapobjects/healthgui/healthgui': 'models/mapobjects/healthgui/healthguidirty'
+    },
+    'skins/techdr2lft_cop': {
+        'models/mapobjects/doors/techdoor2/techdr2lft':	'models/mapobjects/doors/techdoor2/techdr2lft_cop'
+    },
+    'skins/techdr2frame_cop': {
+        'models/mapobjects/doors/techdoor2/techdr2frame': 'models/mapobjects/doors/techdoor2/techdr2frame_cop'
     }
 };

@@ -2574,6 +2574,28 @@ export const MATERIALS = {
         normalMap: 'textures/base_trim/reactorgirder1_local',
         specularMap: 'textures/base_trim/reactorgirder1_s',
         transparent: true
+    },
+    'models/mapobjects/doors/techdoor2/techdr2lft': {
+        diffuseMap: 'models/mapobjects/doors/techdoor2/techdr2cb_d',
+        normalMap: {
+            name: 'models/mapobjects/doors/techdoor2/techdr2cb_local+models/mapobjects/doors/techdoor2/techdr2cb_bmp',
+            addNormals: {
+                normalMap: 'models/mapobjects/doors/techdoor2/techdr2cb_local',
+                bumpMap: 'models/mapobjects/doors/techdoor2/techdr2cb_bmp',
+                scale: 3
+            }
+        },
+        specularMap: 'models/mapobjects/doors/techdoor2/techdr2cb_s'
+    },
+    'models/mapobjects/doors/techdoor2/techdr2lft_cop': {
+        diffuseMap: 'models/mapobjects/doors/techdoor2/techdr2cb_cop_d',
+        normalMap: 'models/mapobjects/doors/techdoor2/techdr2cb_local',
+        specularMap: 'models/mapobjects/doors/techdoor2/techdr2cb_cop_s'
+    },
+    'models/mapobjects/doors/techdoor2/techdr2frame_cop': {
+        diffuseMap: 'models/mapobjects/doors/techdoor2/techdr2frame_cop_d',
+        normalMap: 'models/mapobjects/doors/techdoor2/techdr2frame_local',
+        specularMap: 'models/mapobjects/doors/techdoor2/techdr2frame_cop_s'
     }
 };
 
