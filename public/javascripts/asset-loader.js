@@ -149,8 +149,9 @@ export class AssetLoader {
                     if (this._soundsToLoad.indexOf(soundSrc) < 0)
                         this._soundsToLoad.push(soundSrc);
                 }
-            } else
+            } else {
                 console.error('Definition of sound "' + soundName + '" is not found');
+            }
         });
     }
 

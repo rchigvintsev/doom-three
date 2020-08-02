@@ -60,5 +60,17 @@ export const SOUNDS = {
             'sound/ed/sfx/wrench_impact1.ogg',
             'sound/ed/sfx/wrench_impact2.ogg'
         ]
+    },
+    base_door_open: {
+        type: 'positional',
+        sources: [
+            'sound/ed/doors/_door_silver_sliding_twoparted/sliding_door_open_test3a.ogg',
+        ]
+    },
+    base_door_close: {
+        type: 'positional',
+        sources: [
+            'sound/ed/doors/_door_silver_sliding_twoparted/sliding_door_close_test3a.ogg',
+        ]
     }
 };
