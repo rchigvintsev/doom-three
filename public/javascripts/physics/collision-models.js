@@ -86,6 +86,40 @@ export const COLLISION_MODELS = {
             }
         ]
     },
+    'models/mapobjects/doors/techdoor2/techdr2lft.lwo': {
+        bodies: [
+            {
+                mass: 0,
+                material: 'default',
+                shapes: [
+                    {
+                        type: 'box',
+                        width: 10,
+                        height: 60,
+                        depth: 128,
+                        offset: [0, 30, -64]
+                    }
+                ]
+            }
+        ]
+    },
+    'models/mapobjects/doors/techdoor2/techdr2rt.lwo': {
+        bodies: [
+            {
+                mass: 0,
+                material: 'default',
+                shapes: [
+                    {
+                        type: 'box',
+                        width: 10,
+                        height: 60,
+                        depth: 128,
+                        offset: [0, -30, -64]
+                    }
+                ]
+            }
+        ]
+    },
     'models/mapobjects/doors/delelev/delelevlf.lwo': {
         bodies: [
             {
