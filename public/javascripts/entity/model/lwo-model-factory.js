@@ -2,25 +2,25 @@ import {LWOLoader} from '../../loader/lwo-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
 import {Settings} from '../../settings.js';
 import {MATERIALS} from '../../material/materials.js';
+import {SKINS} from '../../material/skins.js';
+import {MODELS} from './models.js';
+import {COLLISION_MODELS} from '../../physics/collision-models.js';
+import {GameConstants} from '../../doom-three.js';
 import {GameWorld} from '../../game-world.js';
 import {Elevator} from './elevator.js';
 import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
-import {ElevatorDoor} from './elevator-door.js';
-import {SKINS} from '../../material/skins.js';
 import {CommonBody} from '../../physics/common-body.js';
-import {MODELS} from './models.js';
 import {ModelFactory} from './model-factory.js';
-import {GameConstants} from '../../doom-three.js';
 import {LightFactory} from '../light/light-factory.js';
 import {SoundFactory} from '../../audio/sound-factory.js';
 import {SurfaceFactory} from '../surface/surface-factory.js';
 import {GuiFactory} from '../gui/gui-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
+import {SlidingDoor} from './sliding-door.js';
 import {TechDoorPanel} from './tech-door-panel.js';
 import {LwoModel} from './lwo-model.js';
 import {HealthGui} from './health-gui.js';
 import {UpdatableMeshPhongMaterial} from '../../material/updatable-mesh-phong-material.js';
-import {COLLISION_MODELS} from '../../physics/collision-models.js';
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
@@ -61,8 +61,10 @@ export class LwoModelFactory extends ModelFactory {
                 break;
             case 'models/mapobjects/elevators/elevator_door.lwo':
             case 'models/mapobjects/doors/delelev/delelevlf.lwo':
-            case 'models/mapobjects/doors/delelev/delelevrt.lwo': {
-                const elevatorDoor = new ElevatorDoor(model.geometry, materials.main);
+            case 'models/mapobjects/doors/delelev/delelevrt.lwo':
+            case 'models/mapobjects/doors/techdoor2/techdr2lft.lwo':
+            case 'models/mapobjects/doors/techdoor2/techdr2rt.lwo': {
+                const elevatorDoor = new SlidingDoor(model.geometry, materials.main);
                 elevatorDoor.moveDirection = modelDef.moveDirection;
                 elevatorDoor.time = modelDef.time;
                 elevatorDoor.team = modelDef.team;
