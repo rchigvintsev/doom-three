@@ -780,7 +780,7 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_sopbox2_d01',
         specularMap: 'textures/object/a_sopbox2_s01',
         normalMap: {
-            name: 'textures/object/a_sopbox2_local+a_sopbox2_b01',
+            name: 'textures/object/a_sopbox2_local+textures/object/a_sopbox2_b01',
             addNormals: {
                 normalMap: 'textures/object/a_sopbox2_local',
                 bumpMap: 'textures/object/a_sopbox2_b01',
@@ -791,7 +791,14 @@ export const MATERIALS = {
     'textures/base_wall/gotendo1': {
         diffuseMap: 'textures/base_wall/gotendo1_d',
         specularMap: 'textures/base_wall/gotendo1_s',
-        normalMap: 'textures/base_wall/textures_base_wall_gotendo1_bmp_4'
+        normalMap: {
+            name: 'textures/base_wall/gotendo1_local+textures/base_wall/gotendo1_bmp',
+            addNormals: {
+                normalMap: 'textures/base_wall/gotendo1_local',
+                bumpMap: 'textures/base_wall/gotendo1_bmp',
+                scale: 4
+            }
+        }
     },
     'textures/enpro/enwall18d': {
         diffuseMap: 'textures/enpro/enwall18d',
@@ -1405,7 +1412,8 @@ export const MATERIALS = {
             }
         }
     },
-    'textures/sfx/flare': {},
+    'textures/sfx/flare': {
+    },
     'textures/skies/desert': {
         cubeMap: 'env/desert'
     },
@@ -2596,6 +2604,14 @@ export const MATERIALS = {
         diffuseMap: 'models/mapobjects/doors/techdoor2/techdr2frame_cop_d',
         normalMap: 'models/mapobjects/doors/techdoor2/techdr2frame_local',
         specularMap: 'models/mapobjects/doors/techdoor2/techdr2frame_cop_s'
+    },
+    'textures/decals/alphabet1': {
+        diffuseMap: 'textures/decals/alphabet1_d'
+    },
+    'textures/base_door/doorlight_red_to_green': {
+        type: 'basic',
+        diffuseMap: 'textures/base_door/doorlight_red',
+        normalMap: 'textures/base_door/doorlight_local'
     }
 };
 
