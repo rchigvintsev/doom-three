@@ -64,12 +64,13 @@ export class LwoModelFactory extends ModelFactory {
             case 'models/mapobjects/doors/delelev/delelevrt.lwo':
             case 'models/mapobjects/doors/techdoor2/techdr2lft.lwo':
             case 'models/mapobjects/doors/techdoor2/techdr2rt.lwo': {
-                const elevatorDoor = new SlidingDoor(model.geometry, materials.main);
-                elevatorDoor.moveDirection = modelDef.moveDirection;
-                elevatorDoor.time = modelDef.time;
-                elevatorDoor.team = modelDef.team;
-                elevatorDoor.sounds = this._soundFactory.createSounds(modelDef);
-                mesh = elevatorDoor;
+                const slidingDoor = new SlidingDoor(model.geometry, materials.main);
+                slidingDoor.moveDirection = modelDef.moveDirection;
+                slidingDoor.time = modelDef.time;
+                slidingDoor.team = modelDef.team;
+                slidingDoor.locked = modelDef.locked;
+                slidingDoor.sounds = this._soundFactory.createSounds(modelDef);
+                mesh = slidingDoor;
                 break;
             }
             case 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1.lwo':

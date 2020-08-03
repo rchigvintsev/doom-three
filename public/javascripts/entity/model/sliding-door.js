@@ -63,6 +63,14 @@ export class SlidingDoor extends LwoModel {
         this._team = team;
     }
 
+    get locked() {
+        return this._locked;
+    }
+
+    set locked(locked) {
+        this._locked = locked;
+    }
+
     get moveDirection() {
         return this._moveDirection;
     }
