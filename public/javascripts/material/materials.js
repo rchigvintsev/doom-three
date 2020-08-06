@@ -2610,7 +2610,14 @@ export const MATERIALS = {
     },
     'textures/base_door/doorlight_red_to_green': {
         type: 'basic',
-        diffuseMap: 'textures/base_door/doorlight_red',
+        diffuseMap: {
+            name: {
+                parm7: {
+                    0: 'textures/base_door/doorlight_grn',
+                    1: 'textures/base_door/doorlight_red'
+                }
+            }
+        },
         normalMap: 'textures/base_door/doorlight_local'
     }
 };
@@ -2630,6 +2637,9 @@ export class Materials {
         }
         if (source.scale) {
             result.scale = source.scale;
+        }
+        if (source.parameters) {
+            result.parameters = source.parameters;
         }
         return result;
     }

@@ -2,7 +2,7 @@ import {Surface} from './surface.js';
 import {SurfaceBody} from '../../physics/surface-body.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
-import {MATERIALS} from '../../material/materials.js';
+import {Materials, MATERIALS} from '../../material/materials.js';
 import {ProjectiveTextureMaterialBuilder} from '../../map/material/projective-texture-material-builder.js';
 import {MeshFactory} from '../mesh-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
@@ -28,12 +28,8 @@ export class SurfaceFactory extends MeshFactory {
         if (Settings.wireframeOnly) {
             surface = new Surface(geometry, [this._createWireframeMaterial()], body);
         } else {
-            const materialName = surfaceDef.material;
-            let materialDef = MATERIALS[materialName];
-            if (!materialDef) {
-                console.error('Definition for material ' + materialName + ' is not found');
-                materialDef = FALLBACK_MATERIAL_DEF;
-            }
+            const materialName = this._getMaterialName(surfaceDef);
+            const materialDef = this._getMaterialDefinition(surfaceDef);
             let materials = [];
             if (Array.isArray(materialDef)) {
                 for (let md of materialDef) {
@@ -83,5 +79,23 @@ export class SurfaceFactory extends MeshFactory {
         geometry.computeVertexNormals();
 
         return geometry;
+    }
+
+    _getMaterialDefinition(surfaceDef) {
+        const materialName = this._getMaterialName(surfaceDef);
+        let materialDef = MATERIALS[materialName];
+        if (materialDef) {
+            if (typeof surfaceDef.material !== 'string') {
+                materialDef = Materials.override(materialDef, surfaceDef.material);
+            }
+        } else {
+            console.error('Definition for material ' + materialName + ' is not found');
+            materialDef = FALLBACK_MATERIAL_DEF;
+        }
+        return materialDef;
+    }
+
+    _getMaterialName(surfaceDef) {
+        return typeof surfaceDef.material === 'string' ? surfaceDef.material : surfaceDef.material.name;
     }
 }

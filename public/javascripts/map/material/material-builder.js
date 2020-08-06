@@ -55,10 +55,7 @@ export class MaterialBuilder {
             }
             material.map = diffuseMap;
 
-            const diffuseMapName = typeof materialDef.diffuseMap === 'string'
-                ? materialDef.diffuseMap
-                : materialDef.diffuseMap.name;
-
+            const diffuseMapName = this._getTextureName(materialDef.diffuseMap, materialDef.parameters);
             this._textureImageService.getTextureImage(diffuseMapName)
                 .then(img => {
                     diffuseMap.image = img;
@@ -79,10 +76,7 @@ export class MaterialBuilder {
             }
             material.normalMap = normalMap;
 
-            const normalMapName = typeof materialDef.normalMap === 'string'
-                ? materialDef.normalMap
-                : materialDef.normalMap.name;
-
+            const normalMapName = this._getTextureName(materialDef.normalMap, materialDef.parameters);
             this._textureImageService.getTextureImage(normalMapName)
                 .then(img => {
                     normalMap.image = img;
@@ -99,10 +93,7 @@ export class MaterialBuilder {
                 specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
             material.specularMap = specularMap;
 
-            const specularMapName = typeof materialDef.specularMap === 'string'
-                ? materialDef.specularMap
-                : materialDef.specularMap.name;
-
+            const specularMapName = this._getTextureName(materialDef.specularMap, materialDef.parameters);
             this._textureImageService.getTextureImage(specularMapName)
                 .then(img => {
                     specularMap.image = img;
@@ -119,10 +110,7 @@ export class MaterialBuilder {
                 alphaMap.wrapS = alphaMap.wrapT = THREE.RepeatWrapping;
             material.alphaMap = alphaMap;
 
-            const alphaMapName = typeof materialDef.alphaMap === 'string'
-                ? materialDef.alphaMap
-                : materialDef.alphaMap.name;
-
+            const alphaMapName = this._getTextureName(materialDef.alphaMap, materialDef.parameters);
             this._textureImageService.getTextureImage(alphaMapName)
                 .then(img => {
                     alphaMap.image = img;
@@ -494,6 +482,29 @@ export class MaterialBuilder {
 
     _setOpacity(material, opacity) {
         material.opacity = opacity;
+    }
+
+    _getTextureName(mapDef, parameters) {
+        if (typeof mapDef === 'string') {
+            return mapDef;
+        }
+        if (typeof mapDef.name === 'string') {
+            return mapDef.name;
+        }
+        if (!parameters) {
+            throw 'Failed to determine parameterized texture name: parameters are not provided';
+        }
+        const paramName = Object.keys(mapDef.name)[0];
+        if (!paramName) {
+            throw 'Invalid material map definition: parameter is not defined for parameterized texture name';
+        }
+        const paramValue = parameters[paramName];
+        const textureName = mapDef.name[paramName][paramValue];
+        if (!textureName) {
+            throw 'Failed to determine parameterized texture name: texture name is not defined for value "'
+            + paramValue + '" of parameter "' + paramName + '"';
+        }
+        return textureName;
     }
 
     static _blendFactorForName(name) {

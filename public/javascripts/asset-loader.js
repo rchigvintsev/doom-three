@@ -61,18 +61,13 @@ export class AssetLoader {
     }
 
     loadTextures(materialDef) {
-        const result = [];
-        if (!materialDef)
-            return result;
-        const textureSources = this._createTextureSources(materialDef);
-        for (let namedSources of textureSources) {
-            const textures = {};
-            result.push(textures);
-            for (let key of Object.keys(namedSources)) {
-                textures[key] = namedSources[key].load();
-            }
+        if (!materialDef) {
+            return;
         }
-        return result;
+        const textureSources = this._createTextureSources(materialDef);
+        for (let textureSrc of textureSources) {
+            textureSrc.load();
+        }
     }
 
     get assets() {
@@ -129,8 +124,7 @@ export class AssetLoader {
             console.error('Definition of material ' + materialName + ' is not found');
             return;
         }
-        for (let namedSources of this._createTextureSources(materialDef))
-            this._texturesToLoad = this._texturesToLoad.concat(Object.values(namedSources));
+        this._texturesToLoad = this._texturesToLoad.concat(this._createTextureSources(materialDef));
     }
 
     _registerShadersToLoad(materialName) {
@@ -158,38 +152,40 @@ export class AssetLoader {
     _createTextureSources(materialDefs) {
         const result = [];
 
-        if (!Array.isArray(materialDefs))
+        if (!Array.isArray(materialDefs)) {
             materialDefs = [materialDefs];
+        }
 
         for (let materialDef of materialDefs) {
-            const namedSources = {};
-            result.push(namedSources);
-
-            if (materialDef.diffuseMap)
-                namedSources.diffuseMap = new TextureSource(this, materialDef.diffuseMap);
-            if (materialDef.specularMap)
-                namedSources.specularMap = new TextureSource(this, materialDef.specularMap);
-            if (materialDef.normalMap)
-                namedSources.normalMap = new TextureSource(this, materialDef.normalMap);
-            if (materialDef.bumpMap)
-                namedSources.bumpMap = new TextureSource(this, materialDef.bumpMap);
-            if (materialDef.alphaMap)
-                namedSources.alphaMap = new TextureSource(this, materialDef.alphaMap);
-            if (materialDef.additionalMap)
-                namedSources.additionalMap = new TextureSource(this, materialDef.additionalMap);
-
-            if (materialDef.cubeMap) {
-                namedSources.cubeMap_right = new TextureSource(this, {name: materialDef.cubeMap + '_right'});
-                namedSources.cubeMap_left = new TextureSource(this, {name: materialDef.cubeMap + '_left'});
-                namedSources.cubeMap_up = new TextureSource(this, {name: materialDef.cubeMap + '_up'});
-                namedSources.cubeMap_down = new TextureSource(this, {name: materialDef.cubeMap + '_down'});
-                namedSources.cubeMap_forward = new TextureSource(this, {name: materialDef.cubeMap + '_forward'});
-                namedSources.cubeMap_back = new TextureSource(this, {name: materialDef.cubeMap + '_back'});
+            let mapDefs = [
+                materialDef.diffuseMap,
+                materialDef.specularMap,
+                materialDef.normalMap,
+                materialDef.bumpMap,
+                materialDef.alphaMap,
+                materialDef.additionalMap
+            ];
+            if (materialDef.textures) {
+                mapDefs = mapDefs.concat(materialDef.textures);
             }
 
-            if (materialDef.textures) {
-                namedSources.textures = [];
-                materialDef.textures.forEach((texture) => namedSources.textures.push(new TextureSource(this, texture)));
+            for (const mapDef of mapDefs) {
+                if (!mapDef) {
+                    continue;
+                }
+                const textureNames = this._getTextureNames(mapDef);
+                for (const textureName of textureNames) {
+                    result.push(new TextureSource(this, textureName, mapDef.addNormals, mapDef.negate, mapDef.flip));
+                }
+            }
+
+            if (materialDef.cubeMap) {
+                result.push(new TextureSource(this, materialDef.cubeMap + '_right'));
+                result.push(new TextureSource(this, materialDef.cubeMap + '_left'));
+                result.push(new TextureSource(this, materialDef.cubeMap + '_up'));
+                result.push(new TextureSource(this, materialDef.cubeMap + '_down'));
+                result.push(new TextureSource(this, materialDef.cubeMap + '_forward'));
+                result.push(new TextureSource(this, materialDef.cubeMap + '_back'));
             }
         }
 
@@ -295,6 +291,21 @@ export class AssetLoader {
         if (this.assetsToLoad === 0)
             this.dispatchEvent({type: 'load'});
     }
+
+    _getTextureNames(mapDef) {
+        if (typeof mapDef === 'string') {
+            return [mapDef];
+        }
+        if (typeof mapDef.name === 'string') {
+            return [mapDef.name];
+        }
+        let textureNames = [];
+        for (const paramName of Object.keys(mapDef.name)) {
+            const paramOptions = mapDef.name[paramName];
+            textureNames = textureNames.concat(Object.values(paramOptions));
+        }
+        return textureNames;
+    }
 }
 
 AssetLoader.AssetType = Object.freeze(AssetType);
@@ -302,12 +313,12 @@ AssetLoader.AssetType = Object.freeze(AssetType);
 Object.assign(AssetLoader.prototype, THREE.EventDispatcher.prototype);
 
 class TextureSource {
-    constructor($this, textureDef) {
+    constructor($this, textureName, addNormals = null, negate = false, flip = false) {
         this.$this = $this;
-        this._name = typeof textureDef === 'string' ? textureDef : textureDef.name;
-        this._addNormals = textureDef.addNormals;
-        this._negate = textureDef.negate;
-        this._flip = textureDef.flip;
+        this._name = textureName;
+        this._addNormals = addNormals;
+        this._negate = negate;
+        this._flip = flip;
     }
 
     load(onLoad, onError) {
