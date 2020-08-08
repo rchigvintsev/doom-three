@@ -17,10 +17,12 @@ import {SurfaceFactory} from '../surface/surface-factory.js';
 import {GuiFactory} from '../gui/gui-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 import {SlidingDoor} from './sliding-door.js';
+import {ElevatorDoor} from './elevator-door.js';
 import {TechDoorPanel} from './tech-door-panel.js';
 import {LwoModel} from './lwo-model.js';
 import {HealthGui} from './health-gui.js';
 import {UpdatableMeshPhongMaterial} from '../../material/updatable-mesh-phong-material.js';
+import {EventBus} from '../../event/event-bus.js';
 
 const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
@@ -62,17 +64,27 @@ export class LwoModelFactory extends ModelFactory {
             case 'models/mapobjects/elevators/elevator_door.lwo':
             case 'models/mapobjects/doors/delelev/delelevlf.lwo':
             case 'models/mapobjects/doors/delelev/delelevrt.lwo':
-            case 'models/mapobjects/doors/techdoor2/techdr2lft.lwo':
-            case 'models/mapobjects/doors/techdoor2/techdr2rt.lwo': {
-                const slidingDoor = new SlidingDoor(model.geometry, materials.main);
-                slidingDoor.moveDirection = modelDef.moveDirection;
-                slidingDoor.time = modelDef.time;
-                slidingDoor.team = modelDef.team;
-                slidingDoor.locked = modelDef.locked;
-                slidingDoor.sounds = this._soundFactory.createSounds(modelDef);
-                mesh = slidingDoor;
+                mesh = new ElevatorDoor({
+                    geometry: model.geometry,
+                    materials: materials.main,
+                    moveDirection: modelDef.moveDirection,
+                    team: modelDef.team,
+                    time: modelDef.time || 1,
+                    sounds: this._soundFactory.createSounds(modelDef)
+                });
                 break;
-            }
+            case 'models/mapobjects/doors/techdoor2/techdr2lft.lwo':
+            case 'models/mapobjects/doors/techdoor2/techdr2rt.lwo':
+                mesh = new SlidingDoor({
+                    geometry: model.geometry,
+                    materials: materials.main,
+                    moveDirection: modelDef.moveDirection,
+                    team: modelDef.team,
+                    time: modelDef.time || 0.8,
+                    locked: modelDef.locked,
+                    sounds: this._soundFactory.createSounds(modelDef)
+                });
+                break;
             case 'models/mapobjects/guiobjects/techdrpanel1/techdrpanel1.lwo':
                 mesh = new TechDoorPanel(model.geometry, materials.main);
                 break;
@@ -85,11 +97,11 @@ export class LwoModelFactory extends ModelFactory {
 
         mesh.name = modelDef.name;
 
-        const collisionModelDef = COLLISION_MODELS[modelDef.model];
-        if (collisionModelDef) {
-            const collisionModel = this._collisionModelFactory.createCollisionModel(collisionModelDef);
-            mesh.body = new CommonBody(collisionModel);
+        let collisionListener = null;
+        if (mesh.team && mesh.onTrigger) {
+            collisionListener = () => EventBus.post({name: mesh.team + '.ontrigger'});
         }
+        mesh.body = this._createPhysicsBody(modelDef.model, collisionListener);
 
         // It is necessary to set right rotation before GUI construction
         mesh.rotation.copy(this._computeMeshRotation(modelDef.rotation));
@@ -189,6 +201,15 @@ export class LwoModelFactory extends ModelFactory {
         }
 
         return materials;
+    }
+
+    _createPhysicsBody(modelName, collisionListener) {
+        let collisionModel = null;
+        const collisionModelDef = COLLISION_MODELS[modelName];
+        if (collisionModelDef) {
+            collisionModel = this._collisionModelFactory.createCollisionModel(collisionModelDef, collisionListener);
+        }
+        return collisionModel ? new CommonBody(collisionModel) : null;
     }
 
     _positionMesh(mesh, position) {

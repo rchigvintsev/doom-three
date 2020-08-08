@@ -26,7 +26,8 @@ var DOOM_THREE = DOOM_THREE || {};
                     name: 'head',
                     radius: 6,
                     offset: [0, 51, 0]
-                }]
+                }],
+                collisionFilterGroup: 1 | 2
             }]
         },
         sounds: {

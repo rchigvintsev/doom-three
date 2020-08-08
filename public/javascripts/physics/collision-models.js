@@ -117,6 +117,21 @@ export const COLLISION_MODELS = {
                         offset: [0, -30, -64]
                     }
                 ]
+            },
+            {
+                mass: 0,
+                material: 'default',
+                shapes: [
+                    {
+                        type: 'box',
+                        width: 160,
+                        height: 160,
+                        depth: 10,
+                        offset: [0, 0, 5]
+                    }
+                ],
+                collisionFilterMask: 2, // Collide only with player
+                trigger: true
             }
         ]
     },

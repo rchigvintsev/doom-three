@@ -2,6 +2,7 @@ import {CollisionModel} from './collision-model.js';
 import {GameWorld} from '../game-world.js';
 import {Settings} from '../settings.js';
 import {SystemType} from '../game-context.js';
+import {CannonBody} from './cannon/cannon-body.js';
 
 export class CollisionModelFactory {
     constructor(systems) {
@@ -9,22 +10,37 @@ export class CollisionModelFactory {
         this.physicsMaterials = physicsSystem.materials;
     }
 
-    createCollisionModel(collisionModelDef, showCollisionModel=false) {
+    createCollisionModel(collisionModelDef, collisionListener, showCollisionModel=false) {
         const collisionModel = new CollisionModel();
         for (const bodyDef of collisionModelDef.bodies) {
-            const body = this.createBody(bodyDef);
+            const body = this.createBody(bodyDef, collisionListener);
             collisionModel.addBody(body);
             if (Settings.showCollisionModel || showCollisionModel) {
                 const mesh = this.bodyToMesh(body);
+                if (bodyDef.trigger) {
+                    mesh.userData.fixedPosition = true;
+                }
                 collisionModel.attachMesh(body, mesh);
             }
         }
         return collisionModel;
     }
 
-    createBody(bodyDef) {
+    createBody(bodyDef, collisionListener) {
         const material = this.physicsMaterials[bodyDef.material] || this.physicsMaterials['default'];
-        const body = new CANNON.Body({mass: bodyDef.mass, material: material});
+        const body = new CannonBody({
+            mass: bodyDef.mass,
+            collisionFilterGroup: bodyDef.collisionFilterGroup,
+            collisionFilterMask: bodyDef.collisionFilterMask,
+            material: material
+        });
+
+        if (bodyDef.trigger) {
+            body.fixedPosition = true;
+            if (collisionListener) {
+                body.addEventListener('collide', collisionListener);
+            }
+        }
 
         if (bodyDef.position) {
             const position = new THREE.Vector3();
