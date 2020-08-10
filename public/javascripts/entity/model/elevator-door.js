@@ -8,4 +8,8 @@ export class ElevatorDoor extends SlidingDoor {
         }
         super(options);
     }
+
+    close() {
+        return true;
+    }
 }

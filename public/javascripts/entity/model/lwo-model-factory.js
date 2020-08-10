@@ -80,7 +80,7 @@ export class LwoModelFactory extends ModelFactory {
                     materials: materials.main,
                     moveDirection: modelDef.moveDirection,
                     team: modelDef.team,
-                    time: modelDef.time || 0.8,
+                    time: modelDef.time || 0.6,
                     locked: modelDef.locked,
                     sounds: this._soundFactory.createSounds(modelDef)
                 });
@@ -96,12 +96,9 @@ export class LwoModelFactory extends ModelFactory {
         }
 
         mesh.name = modelDef.name;
-
-        let collisionListener = null;
-        if (mesh.team && mesh.onTrigger) {
-            collisionListener = () => EventBus.post({name: mesh.team + '.ontrigger'});
-        }
-        mesh.body = this._createPhysicsBody(modelDef.model, collisionListener);
+        const contactStartListener = this._getContactStartListener(mesh);
+        const contactEndListener = this._getContactEndListener(mesh);
+        mesh.body = this._createPhysicsBody(modelDef.model, contactStartListener, contactEndListener);
 
         // It is necessary to set right rotation before GUI construction
         mesh.rotation.copy(this._computeMeshRotation(modelDef.rotation));
@@ -203,11 +200,26 @@ export class LwoModelFactory extends ModelFactory {
         return materials;
     }
 
-    _createPhysicsBody(modelName, collisionListener) {
+    _getContactStartListener(mesh) {
+        if (mesh.team && mesh.onTriggerEnter) {
+            return () => EventBus.post({name: mesh.team + '.triggerEnter'});
+        }
+        return true;
+    }
+
+    _getContactEndListener(mesh) {
+        if (mesh.team && mesh.onTriggerExit) {
+            return () => EventBus.post({name: mesh.team + '.triggerExit'});
+        }
+        return null;
+    }
+
+    _createPhysicsBody(modelName, contactStartListener, contactEndListener) {
         let collisionModel = null;
         const collisionModelDef = COLLISION_MODELS[modelName];
         if (collisionModelDef) {
-            collisionModel = this._collisionModelFactory.createCollisionModel(collisionModelDef, collisionListener);
+            collisionModel = this._collisionModelFactory.createCollisionModel(collisionModelDef, contactStartListener,
+                contactEndListener);
         }
         return collisionModel ? new CommonBody(collisionModel) : null;
     }

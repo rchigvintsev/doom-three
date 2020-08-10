@@ -6,6 +6,12 @@ export class CommonBody {
         this._positionInitialized = false;
     }
 
+    update() {
+        for (const body of this._collisionModel.bodies) {
+            body.update();
+        }
+    }
+
     get collisionModel() {
         return this._collisionModel;
     }

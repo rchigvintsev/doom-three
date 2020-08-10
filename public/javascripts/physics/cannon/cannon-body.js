@@ -4,10 +4,10 @@ export class CannonBody extends CANNON.Body {
     }
 
     get fixedPosition() {
-        return this._fixedPosition;
+        return false;
     }
 
-    set fixedPosition(fixedPosition) {
-        this._fixedPosition = fixedPosition;
+    update() {
+        // Do nothing
     }
 }

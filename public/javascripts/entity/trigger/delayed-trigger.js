@@ -9,8 +9,9 @@ export class DelayedTrigger {
         const targets = this._collectTargets(gameWorld);
         if (targets.length > 0)
             setTimeout(function () {
-                for (let i = 0; i < targets.length; i++)
-                    targets[i].onTrigger();
+                for (let i = 0; i < targets.length; i++) {
+                    targets[i].onTriggerEnter();
+                }
             }, this._delay * 1000);
     }
 
@@ -29,10 +30,11 @@ export class DelayedTrigger {
                     team = [target];
                 for (let j = 0; j < team.length; j++) {
                     const member = team[j];
-                    if (member.onTrigger)
+                    if (member.onTriggerEnter) {
                         result.push(member);
-                    else
+                    } else {
                         console.warn('Target "' + member.name + '" does not support activation by trigger');
+                    }
                 }
             }
         }

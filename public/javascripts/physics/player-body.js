@@ -43,18 +43,19 @@ var DOOM_THREE = DOOM_THREE || {};
         },
 
         get groundContacts() {
-            var world = this._body.world;
-            for (var i = 0; i < world.contacts.length; i++) {
-                var contact = world.contacts[i];
+            const world = this._body.world;
+            for (const contact of world.contacts) {
                 if (contact.bi.id === this._body.id || contact.bj.id === this._body.id) {
-                    if (contact.bi.id === this._body.id)
+                    if (contact.bi.id === this._body.id) {
                         contact.ni.negate(_contactNormal); // Flip contact normal
-                    else
+                    } else {
                         _contactNormal.copy(contact.ni); // Keep contact normal as it is
+                    }
                     // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat
                     // in the up direction.
-                    if (_contactNormal.dot(_upAxis) > 0.5) // Use a "good" threshold value between 0 and 1 here!
+                    if (_contactNormal.dot(_upAxis) > 0.5) { // Use a "good" threshold value between 0 and 1 here!
                         return true;
+                    }
                 }
             }
             return false;

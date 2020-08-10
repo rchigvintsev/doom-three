@@ -2,6 +2,11 @@ import {LwoModel} from './lwo-model.js';
 import {GameWorld} from '../../game-world.js';
 import {EventBus} from '../../event/event-bus.js';
 
+const STATE_OPENED = 1;
+const STATE_OPENING = 2;
+const STATE_CLOSED = 3;
+const STATE_CLOSING = 4;
+
 export class SlidingDoor extends LwoModel {
     constructor(options = {}) {
         super(options.geometry, options.materials);
@@ -20,36 +25,52 @@ export class SlidingDoor extends LwoModel {
             .multiply(direction);
 
         if (this._team) {
-            EventBus.subscribe(this._team + '.ontrigger', this.onTrigger)
+            EventBus.subscribe(this._team + '.triggerEnter', this.onTriggerEnter);
+            EventBus.subscribe(this._team + '.triggerExit', this.onTriggerExit);
         }
     }
 
     init() {
         super.init();
-        this._opened = false;
-        if (this._sounds && this._sounds['open']) {
-            this._soundOpen = this._sounds['open'][0];
-            this.add(this._soundOpen);
+        this._state = STATE_CLOSED;
+        if (this._sounds) {
+            if (this._sounds['open']) {
+                this._soundOpen = this._sounds['open'][0];
+                this.add(this._soundOpen);
+            }
+            if (this._sounds['close']) {
+                this._soundClose = this._sounds['close'][0];
+                this.add(this._soundClose);
+            }
         }
     }
 
     open() {
-        if (this._opened || this._locked) {
-            return;
+        if (this._locked || this._state !== STATE_CLOSED) {
+            return false;
         }
 
+        this._state = STATE_OPENING;
         const targetPosition = this.position.clone().add(this._speedVector);
-        this._animation = new TWEEN.Tween({x: this.position.x, y: this.position.y, z: this.position.z})
-            .to({x: targetPosition.x, y: targetPosition.y, z: targetPosition.z}, this._time * 1000)
-            .onUpdate(params => {
-                this.position.set(params.x, params.y, params.z);
-                this._body.position = this.position;
-            }).onComplete(() => this._opened = true);
-        this._animation.start();
-
+        this._slide(targetPosition, STATE_OPENED);
         if (this._soundOpen && !this._soundOpen.isPlaying) {
             this._soundOpen.play();
         }
+        return true;
+    }
+
+    close() {
+        if (this._state !== STATE_OPENED) {
+            return false;
+        }
+
+        this._state = STATE_CLOSING;
+        const targetPosition = this.position.clone().sub(this._speedVector);
+        this._slide(targetPosition, STATE_CLOSED);
+        if (this._soundClose && !this._soundClose.isPlaying) {
+            this._soundClose.play();
+        }
+        return true;
     }
 
     update(time) {
@@ -57,13 +78,33 @@ export class SlidingDoor extends LwoModel {
         if (this._animation) {
             this._animation.update(time);
         }
+        this._body.update();
     }
 
-    onTrigger = () => {
+    onTriggerEnter = () => {
+        if (this._closeTimeoutHandle) {
+            clearTimeout(this._closeTimeoutHandle);
+        }
         this.open();
+    };
+
+    onTriggerExit = () => {
+        if (!this._locked) {
+            this._closeTimeoutHandle = setTimeout(() => this.close(), 3000);
+        }
     };
 
     get team() {
         return this._team;
+    }
+
+    _slide(targetPosition, finalState) {
+        this._animation = new TWEEN.Tween({x: this.position.x, y: this.position.y, z: this.position.z})
+            .to({x: targetPosition.x, y: targetPosition.y, z: targetPosition.z}, this._time * 1000)
+            .onUpdate(params => {
+                this.position.set(params.x, params.y, params.z);
+                this._body.position = this.position;
+            }).onComplete(() => this._state = finalState);
+        this._animation.start();
     }
 }

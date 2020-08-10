@@ -23,8 +23,10 @@ export class EventBus {
 
     static post(event) {
         const listeners = this._eventListeners[event.name];
-        for (const listener of listeners) {
-            listener(event);
+        if (listeners) {
+            for (const listener of listeners) {
+                listener(event);
+            }
         }
     }
 }

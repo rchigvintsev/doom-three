@@ -3,6 +3,7 @@ import {GameWorld} from '../game-world.js';
 import {Settings} from '../settings.js';
 import {SystemType} from '../game-context.js';
 import {CannonBody} from './cannon/cannon-body.js';
+import {TriggerBody} from './cannon/trigger-body.js';
 
 export class CollisionModelFactory {
     constructor(systems) {
@@ -10,10 +11,10 @@ export class CollisionModelFactory {
         this.physicsMaterials = physicsSystem.materials;
     }
 
-    createCollisionModel(collisionModelDef, collisionListener, showCollisionModel=false) {
+    createCollisionModel(collisionModelDef, contactStartListener, contactEndListener, showCollisionModel=false) {
         const collisionModel = new CollisionModel();
         for (const bodyDef of collisionModelDef.bodies) {
-            const body = this.createBody(bodyDef, collisionListener);
+            const body = this.createBody(bodyDef, contactStartListener, contactEndListener);
             collisionModel.addBody(body);
             if (Settings.showCollisionModel || showCollisionModel) {
                 const mesh = this.bodyToMesh(body);
@@ -26,20 +27,24 @@ export class CollisionModelFactory {
         return collisionModel;
     }
 
-    createBody(bodyDef, collisionListener) {
+    createBody(bodyDef, contactStartListener, contactEndListener) {
         const material = this.physicsMaterials[bodyDef.material] || this.physicsMaterials['default'];
-        const body = new CannonBody({
+        const bodyOptions = {
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup,
             collisionFilterMask: bodyDef.collisionFilterMask,
             material: material
-        });
-
-        if (bodyDef.trigger) {
-            body.fixedPosition = true;
-            if (collisionListener) {
-                body.addEventListener('collide', collisionListener);
-            }
+        };
+        const body = bodyDef.trigger ? new TriggerBody(bodyOptions) : new CannonBody(bodyOptions);
+        if (contactStartListener) {
+            body.addEventListener('contactStart', e => {
+                contactStartListener(e);
+            });
+        }
+        if (contactEndListener) {
+            body.addEventListener('contactEnd', e => {
+                contactEndListener(e);
+            })
         }
 
         if (bodyDef.position) {
@@ -49,23 +54,25 @@ export class CollisionModelFactory {
             body.position.copy(position);
         }
 
-        if (bodyDef.rotation)
-            body.quaternion.setFromEuler(bodyDef.rotation[0], bodyDef.rotation[1],
-                bodyDef.rotation[2]);
-        else if (bodyDef.quaternion)
+        if (bodyDef.rotation) {
+            body.quaternion.setFromEuler(bodyDef.rotation[0], bodyDef.rotation[1], bodyDef.rotation[2]);
+        } else if (bodyDef.quaternion) {
             body.quaternion.set(bodyDef.quaternion[0],
                 bodyDef.quaternion[1],
                 bodyDef.quaternion[2],
                 bodyDef.quaternion[3]);
+        }
 
         if (bodyDef.fixedRotation !== undefined)
             body.fixedRotation = bodyDef.fixedRotation;
 
         if (bodyDef.mass > 0) {
-            if (bodyDef.allowSleep !== undefined)
+            if (bodyDef.allowSleep !== undefined) {
                 body.allowSleep = bodyDef.allowSleep;
-            if (body.allowSleep)
+            }
+            if (body.allowSleep) {
                 body.sleepSpeedLimit = 0.2;
+            }
         }
 
         bodyDef.shapes.forEach(function (shapeDef) {
@@ -92,8 +99,9 @@ export class CollisionModelFactory {
                 throw 'Unsupported shape type: ' + shapeDef.type;
             }
 
-            if (shapeDef.name)
+            if (shapeDef.name) {
                 shape.name = shapeDef.name;
+            }
 
             let offset = null;
             if (shapeDef.offset) {
