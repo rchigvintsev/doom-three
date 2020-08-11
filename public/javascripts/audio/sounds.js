@@ -72,5 +72,11 @@ export const SOUNDS = {
         sources: [
             'sound/ed/doors/_door_silver_sliding_twoparted/sliding_door_close_test3a.ogg',
         ]
+    },
+    default_door_locked: {
+        type: 'positional',
+        sources: [
+            'sound/xian/beeps/error_02.ogg',
+        ]
     }
 };

@@ -14,6 +14,7 @@ export class SlidingDoor extends LwoModel {
         this._locked = options.locked || false;
         this._team = options.team;
         this._sounds = options.sounds;
+        this._lastLockedSoundPlayTime = 0;
 
         const zAxis = new THREE.Vector3(0, 0, 1);
         const yAxis = new THREE.Vector3(0, 1, 0);
@@ -42,20 +43,29 @@ export class SlidingDoor extends LwoModel {
                 this._soundClose = this._sounds['close'][0];
                 this.add(this._soundClose);
             }
+            if (this._sounds['locked']) {
+                this._soundLocked = this._sounds['locked'][0];
+                this.add(this._soundLocked);
+            }
         }
     }
 
     open() {
-        if (this._locked || this._state !== STATE_CLOSED) {
+        if (this._state !== STATE_CLOSED) {
+            return false;
+        }
+
+        if (this._locked) {
+            if (this._playSound(this._soundLocked, this._lastLockedSoundPlayTime, 10000)) {
+                this._lastLockedSoundPlayTime = Date.now();
+            }
             return false;
         }
 
         this._state = STATE_OPENING;
         const targetPosition = this.position.clone().add(this._speedVector);
         this._slide(targetPosition, STATE_OPENED);
-        if (this._soundOpen && !this._soundOpen.isPlaying) {
-            this._soundOpen.play();
-        }
+        this._playSound(this._soundOpen);
         return true;
     }
 
@@ -67,9 +77,7 @@ export class SlidingDoor extends LwoModel {
         this._state = STATE_CLOSING;
         const targetPosition = this.position.clone().sub(this._speedVector);
         this._slide(targetPosition, STATE_CLOSED);
-        if (this._soundClose && !this._soundClose.isPlaying) {
-            this._soundClose.play();
-        }
+        this._playSound(this._soundClose);
         return true;
     }
 
@@ -106,5 +114,19 @@ export class SlidingDoor extends LwoModel {
                 this._body.position = this.position;
             }).onComplete(() => this._state = finalState);
         this._animation.start();
+    }
+
+    _playSound(sound, lastPlayTime, timeout) {
+        if (sound && !sound.isPlaying) {
+            let allowedToPlay = true;
+            if (lastPlayTime && timeout) {
+                allowedToPlay = (Date.now() - lastPlayTime) > timeout;
+            }
+            if (allowedToPlay) {
+                sound.play();
+                return true;
+            }
+        }
+        return false;
     }
 }
