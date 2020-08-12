@@ -1315,22 +1315,19 @@ export const MATERIALS = {
     },
     'textures/decals/blood_drip1': {
         type: 'basic',
-        diffuseMap: {
-            name: 'textures/decals/blood_drip1',
-            translate: ['1', 'time * 0.1']
-        },
-        transparent: true,
+        diffuseMap: 'textures/decals/blood_drip1',
         blending: 'custom',
         blendSrc: 'dst_color',
         blendDst: 'zero',
-        /*additionalMap: {
+        transparent: true,
+        translate: ['1', 'time * 0.1'],
+        additionalMap: {
             name: 'textures/decals/blood_drip1a',
-            translate: ['1', 'time * 0.02'],
             blending: 'custom',
             blendSrc: 'dst_color',
-            blendDst: 'zero'
-        },*/
-        depthWrite: false
+            blendDst: 'zero',
+            translate: ['1', 'time * 0.02']
+        }
     },
     'textures/hell/scowall': {
         diffuseMap: 'textures/hell/scowall',

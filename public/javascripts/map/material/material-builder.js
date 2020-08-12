@@ -121,24 +121,48 @@ export class MaterialBuilder {
 
         if (materialDef.additionalMap) {
             const additionalMap = new THREE.Texture();
-            if (materialDef.clamp)
+            if (materialDef.clamp) {
                 additionalMap.wrapS = additionalMap.wrapT = THREE.ClampToEdgeWrapping;
-            else
+            } else {
                 additionalMap.wrapS = additionalMap.wrapT = THREE.RepeatWrapping;
-            const additionalMaterial = new THREE.MeshBasicMaterial({transparent: true});
-            additionalMaterial.blending = THREE.CustomBlending;
-            additionalMaterial.blendEquation = THREE.AddEquation;
-            additionalMaterial.blendSrc = THREE.SrcAlphaFactor;
-            additionalMaterial.blendDst = THREE.OneMinusSrcColorFactor;
+            }
+            const additionalMaterial = new THREE.MeshBasicMaterial({transparent: true, side: THREE.BackSide});
+
+            if (materialDef.additionalMap.blending) {
+                this._setBlending(materialDef.additionalMap, additionalMaterial);
+            } else {
+                additionalMaterial.blending = THREE.CustomBlending;
+                additionalMaterial.blendEquation = THREE.AddEquation;
+                additionalMaterial.blendSrc = THREE.SrcAlphaFactor;
+                additionalMaterial.blendDst = THREE.OneMinusSrcColorFactor;
+            }
             additionalMaterial.map = additionalMap;
             materials.push(additionalMaterial);
 
-            this._textureImageService.getTextureImage(materialDef.additionalMap)
+            const additionalMapName = this._getTextureName(materialDef.additionalMap, materialDef.parameters);
+            this._textureImageService.getTextureImage(additionalMapName)
                 .then(img => {
                     additionalMap.image = img;
                     additionalMap.needsUpdate = true;
                 })
-                .catch(() => console.error('Additional map ' + materialDef.additionalMap + ' is not found'));
+                .catch(() => console.error('Additional map ' + additionalMapName + ' is not found'));
+
+            const additionalMaterialUpdaters = [];
+            if (materialDef.additionalMap.translate) {
+                additionalMaterial.map.matrixAutoUpdate = false;
+                const xTranslate = this._createTranslationProvider(materialDef.additionalMap.translate[0]);
+                const yTranslate = this._createTranslationProvider(materialDef.additionalMap.translate[1]);
+                additionalMaterialUpdaters.push(this._createTransformUpdater(oneProvider, oneProvider, zeroProvider,
+                    xTranslate, yTranslate));
+            }
+
+            Object.assign(additionalMaterial, {
+                update(time) {
+                    for (const updater of additionalMaterialUpdaters) {
+                        updater(additionalMaterial, time);
+                    }
+                }
+            });
         }
 
         if (materialDef.color !== undefined) {
@@ -225,21 +249,7 @@ export class MaterialBuilder {
             material.depthWrite = materialDef.depthWrite;
 
         if (materialDef.blending) {
-            if (materialDef.blending === 'custom') {
-                material.blending = THREE.CustomBlending;
-                material.blendEquation = THREE.AddEquation;
-                if (materialDef.blendSrc)
-                    material.blendSrc = MaterialBuilder._blendFactorForName(materialDef.blendSrc);
-                if (materialDef.blendDst)
-                    material.blendDst = MaterialBuilder._blendFactorForName(materialDef.blendDst);
-            } else if (materialDef.blending === 'additive')
-                material.blending = THREE.AdditiveBlending;
-            else if (materialDef.blending === 'subtractive')
-                material.blending = THREE.SubtractiveBlending;
-            else if (materialDef.blending === 'multiply')
-                material.blending = THREE.MultiplyBlending;
-            else
-                console.error('Unsupported blending: ' + materialDef.blending);
+            this._setBlending(materialDef, material);
         }
 
         return materials;
@@ -453,7 +463,7 @@ export class MaterialBuilder {
             return table.values[Math.floor(v)];
         };
         return function(time) {
-            const scope = {time: time * 0.002, table: tableFunc};
+            const scope = {time: time * 0.001, table: tableFunc};
             return compiledExpression.eval(scope);
         };
     }
@@ -505,6 +515,27 @@ export class MaterialBuilder {
             + paramValue + '" of parameter "' + paramName + '"';
         }
         return textureName;
+    }
+
+    _setBlending(materialDef, material) {
+        if (materialDef.blending === 'custom') {
+            material.blending = THREE.CustomBlending;
+            material.blendEquation = THREE.AddEquation;
+            if (materialDef.blendSrc) {
+                material.blendSrc = MaterialBuilder._blendFactorForName(materialDef.blendSrc);
+            }
+            if (materialDef.blendDst) {
+                material.blendDst = MaterialBuilder._blendFactorForName(materialDef.blendDst);
+            }
+        } else if (materialDef.blending === 'additive') {
+            material.blending = THREE.AdditiveBlending;
+        } else if (materialDef.blending === 'subtractive') {
+            material.blending = THREE.SubtractiveBlending;
+        } else if (materialDef.blending === 'multiply') {
+            material.blending = THREE.MultiplyBlending;
+        } else {
+            console.error('Unsupported blending: ' + materialDef.blending);
+        }
     }
 
     static _blendFactorForName(name) {

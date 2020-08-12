@@ -1,6 +1,7 @@
 export class Surface extends THREE.Mesh {
     constructor(geometry, materials, body) {
         super(geometry, materials[0]);
+        this._materials = materials;
         for (let i = 1; i < materials.length; i++) {
             this.add(new THREE.Mesh(geometry, materials[i]));
         }
@@ -12,7 +13,9 @@ export class Surface extends THREE.Mesh {
     }
 
     update(time) {
-        this.material.update(time);
+        for (const material of this._materials) {
+            material.update(time);
+        }
     }
 
     takePunch(force, worldPoint) {
