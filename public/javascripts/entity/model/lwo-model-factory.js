@@ -8,7 +8,7 @@ import {COLLISION_MODELS} from '../../physics/collision-models.js';
 import {GameConstants} from '../../doom-three.js';
 import {GameWorld} from '../../game-world.js';
 import {Elevator} from './elevator.js';
-import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
+import {ModelMaterialFactory} from '../../material/factory/model-material-factory.js';
 import {CommonBody} from '../../physics/common-body.js';
 import {ModelFactory} from './model-factory.js';
 import {LightFactory} from '../light/light-factory.js';
@@ -28,7 +28,7 @@ const ENTITY_GUI_MATERIAL_PATTERN = /textures\/common\/entitygui(\d*)/;
 
 export class LwoModelFactory extends ModelFactory {
     constructor(assetLoader, systems) {
-        super('LWO', assetLoader, new ModelMaterialBuilder(assetLoader));
+        super('LWO', assetLoader, new ModelMaterialFactory(assetLoader));
         this._lightFactory = new LightFactory(assetLoader);
         this._soundFactory = new SoundFactory(assetLoader);
         this._surfaceFactory = new SurfaceFactory(assetLoader, systems);

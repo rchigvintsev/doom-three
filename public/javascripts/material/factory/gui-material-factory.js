@@ -1,24 +1,24 @@
-import {MaterialBuilder} from './material-builder.js';
+import {BaseMaterialFactory} from './base-material-factory.js';
 
-export class GuiMaterialBuilder extends MaterialBuilder {
+export class GuiMaterialFactory extends BaseMaterialFactory {
     constructor(assetLoader) {
         super(assetLoader);
     }
 
     clone() {
-        return new GuiMaterialBuilder(this._assetLoader);
+        return new GuiMaterialFactory(this._assetLoader);
     }
 
-    build(name, materialDef) {
+    create(name, materialDef) {
         // Some textures may not be loaded in advance. We are going to load them here.
         this._assetLoader.loadTextures(materialDef);
         materialDef.type = 'shader'; // GUI supports only shader materials
-        const materials = super.build(name, materialDef);
+        const materials = super.create(name, materialDef);
         materials[0].side = THREE.DoubleSide;
         return materials;
     }
 
-    newShaderMaterial(name, definition) {
+    _createShaderMaterial(name, definition) {
         const basicShaderLib = THREE.ShaderLib['basic'];
         return new THREE.ShaderMaterial({
             uniforms: THREE.UniformsUtils.clone(basicShaderLib.uniforms),

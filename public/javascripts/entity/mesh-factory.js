@@ -7,10 +7,10 @@ export class MeshFactory extends EntityFactory {
     }
 
     _createRegularMaterial(name, materialDef) {
-        return this._materialBuilder.build(name, materialDef);
+        return this._materialBuilder.create(name, materialDef);
     }
 
     _createWireframeMaterial() {
-        return this._materialBuilder.newBasicMaterial(true);
+        return this._materialBuilder._createBasicMaterial(true);
     }
 }

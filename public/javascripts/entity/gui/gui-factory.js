@@ -1,4 +1,4 @@
-import {GuiMaterialBuilder} from '../../map/material/gui-material-builder.js';
+import {GuiMaterialFactory} from '../../material/factory/gui-material-factory.js';
 import {Malfunction2Gui} from './malfunction2-gui.js';
 import {EnterSite3Gui} from './enter-site3-gui.js';
 import {MeshFactory} from '../mesh-factory.js';
@@ -7,7 +7,7 @@ import {PdaDoorTriggerGui} from "./pda-door-trigger-gui.js";
 
 export class GuiFactory extends MeshFactory {
     constructor(assetLoader) {
-        super(assetLoader, new GuiMaterialBuilder(assetLoader));
+        super(assetLoader, new GuiMaterialFactory(assetLoader));
     }
 
     create(guiDef, parent) {

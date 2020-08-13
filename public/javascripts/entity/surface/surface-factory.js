@@ -3,7 +3,7 @@ import {SurfaceBody} from '../../physics/surface-body.js';
 import {GameWorld} from '../../game-world.js';
 import {Settings} from '../../settings.js';
 import {Materials, MATERIALS} from '../../material/materials.js';
-import {ProjectiveTextureMaterialBuilder} from '../../map/material/projective-texture-material-builder.js';
+import {ProjectiveTextureMaterialFactory} from '../../material/factory/projective-texture-material-factory.js';
 import {MeshFactory} from '../mesh-factory.js';
 import {CollisionModelFactory} from '../../physics/collision-model-factory.js';
 
@@ -11,7 +11,7 @@ const FALLBACK_MATERIAL_DEF = {};
 
 export class SurfaceFactory extends MeshFactory {
     constructor(assetLoader, systems) {
-        super(assetLoader, new ProjectiveTextureMaterialBuilder(assetLoader));
+        super(assetLoader, new ProjectiveTextureMaterialFactory(assetLoader));
         this._collisionModelFactory = new CollisionModelFactory(systems);
     }
 

@@ -1,36 +1,27 @@
 import {AssetLoader} from '../../asset-loader.js';
-import {TABLES} from '../../material/tables.js';
-import {LightBasicMaterial} from '../../material/light-basic-material.js';
+import {TABLES} from '../tables.js';
+import {LightBasicMaterial} from '../light-basic-material.js';
 import {TextureImageService} from '../../image/texture-image-service.js';
-import {UpdatableMeshBasicMaterial} from '../../material/updatable-mesh-basic-material.js';
+import {UpdatableMeshBasicMaterial} from '../updatable-mesh-basic-material.js';
+import {UpdatableMeshPhongMaterial} from '../updatable-mesh-phong-material.js';
+import {UpdatableShaderMaterial} from '../updatable-shader-material.js';
 
 const zeroProvider = function () { return 0; };
 const oneProvider = function () { return 1; };
 
-export class MaterialBuilder {
+export class BaseMaterialFactory {
     constructor(assetLoader) {
         this._assetLoader = assetLoader;
         this._textureImageService = new TextureImageService(assetLoader);
     }
 
     clone() {
-        return new MaterialBuilder(this._assetLoader);
+        return new BaseMaterialFactory(this._assetLoader);
     }
 
-    build(name, materialDef) {
+    create(name, materialDef) {
         const materials = [];
-
-        let material;
-        if (materialDef.type === 'basic')
-            material = this.newBasicMaterial();
-        else if (materialDef.type === 'light_basic')
-            material = new LightBasicMaterial();
-        else if (materialDef.type === 'shader')
-            material = this.newShaderMaterial(name, materialDef);
-        else
-            material = this.newPhongMaterial();
-
-        material.name = name;
+        const material = this._createMaterial(name, materialDef);
 
         const updaters = [];
         const updateMixin = {
@@ -255,54 +246,54 @@ export class MaterialBuilder {
         return materials;
     }
 
-    newBasicMaterial(wireframe) {
-        if (wireframe === undefined) {
+    _createMaterial(name, materialDef) {
+        let material;
+        if (materialDef.type === 'basic') {
+            material = this._createBasicMaterial();
+        } else if (materialDef.type === 'light_basic') {
+            material = this._createLightBasicMaterial();
+        } else if (materialDef.type === 'shader') {
+            material = this._createShaderMaterial(name, materialDef);
+        } else {
+            material = this._createPhongMaterial();
+        }
+        material.name = name;
+        return material;
+    }
+
+    _createBasicMaterial(wireframe) {
+        if (wireframe == null) {
             wireframe = false;
         }
         return new UpdatableMeshBasicMaterial({wireframe: wireframe});
     }
 
-    newPhongMaterial() {
-        return new THREE.MeshPhongMaterial();
+    _createLightBasicMaterial() {
+        return new LightBasicMaterial();
     }
 
-    newShaderMaterial(name, definition) {
+    _createShaderMaterial(name, materialDef) {
         const uniforms = {};
-        const updaters = [];
+        const rotateExpressions = [];
 
-        for (let i = 0; i < definition.textures.length; i++) {
-            let textureDef = definition.textures[i];
-            let textureName;
-            if (typeof textureDef === 'string') {
-                textureName = textureDef;
-            } else {
-                textureName = textureDef.name;
+        for (let i = 0; i < materialDef.textures.length; i++) {
+            const textureDef = materialDef.textures[i];
 
-                if (textureDef.repeat) {
-                    const offsetRepeat = new THREE.Vector4(0, 0, textureDef.repeat[0],
-                        textureDef.repeat[1]);
-                    uniforms['u_offsetRepeat' + (i + 1)] = {value: offsetRepeat};
-                }
-
-                if (textureDef.rotate) {
-                    const rotationUniformName = 'u_rotation' + (i + 1);
-                    uniforms[rotationUniformName] = {type: 'f', value: 0};
-
-                    const rotateExpr = math.compile(textureDef.rotate);
-                    updaters.push((function (rotateExpr, rotationUniformName) {
-                        return function (material) {
-                            const now = performance.now();
-                            const scope = {time: now * 0.01};
-                            material.uniforms[rotationUniformName].value = rotateExpr.eval(scope);
-                        }
-                    })(rotateExpr, rotationUniformName));
-                }
+            if (textureDef.repeat) {
+                const offsetRepeat = new THREE.Vector4(0, 0, textureDef.repeat[0], textureDef.repeat[1]);
+                uniforms['u_offsetRepeat' + (i + 1)] = {value: offsetRepeat};
             }
 
-            let texture = new THREE.Texture();
+            if (textureDef.rotate) {
+                uniforms['u_rotation' + (i + 1)] = {type: 'f', value: 0};
+                rotateExpressions.push(math.compile(textureDef.rotate));
+            }
+
+            const texture = new THREE.Texture();
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             uniforms['u_texture' + (i + 1)] = {type: 't', value: texture};
 
+            const textureName = this._getTextureName(textureDef);
             this._textureImageService.getTextureImage(textureName)
                 .then(img => {
                     texture.image = img;
@@ -310,16 +301,17 @@ export class MaterialBuilder {
                 });
         }
 
-        const material = new THREE.ShaderMaterial({
+        const material = new UpdatableShaderMaterial({
             uniforms: uniforms,
             vertexShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].vertex,
             fragmentShader: this._assetLoader.assets[AssetLoader.AssetType.SHADERS][name].fragment
         });
-        if (material.__updaters !== undefined) {
-            throw 'Attribute "__updaters" is already defined';
-        }
-        material.__updaters = updaters;
+        material.rotateExpressions = rotateExpressions;
         return material;
+    }
+
+    _createPhongMaterial() {
+        return new UpdatableMeshPhongMaterial();
     }
 
     _createScalarColorUpdater(expression) {
@@ -522,10 +514,10 @@ export class MaterialBuilder {
             material.blending = THREE.CustomBlending;
             material.blendEquation = THREE.AddEquation;
             if (materialDef.blendSrc) {
-                material.blendSrc = MaterialBuilder._blendFactorForName(materialDef.blendSrc);
+                material.blendSrc = BaseMaterialFactory._blendFactorForName(materialDef.blendSrc);
             }
             if (materialDef.blendDst) {
-                material.blendDst = MaterialBuilder._blendFactorForName(materialDef.blendDst);
+                material.blendDst = BaseMaterialFactory._blendFactorForName(materialDef.blendDst);
             }
         } else if (materialDef.blending === 'additive') {
             material.blending = THREE.AdditiveBlending;

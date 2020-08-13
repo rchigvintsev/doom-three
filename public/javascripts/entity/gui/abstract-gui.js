@@ -315,7 +315,7 @@ export class AbstractGui extends THREE.Group {
 
     _createLayerMaterial(materialDef) {
         if (materialDef) {
-            const materials = this._materialFactory.build(materialDef.diffuseMap, materialDef);
+            const materials = this._materialFactory.create(materialDef.diffuseMap, materialDef);
             materials[0].update(currentTime());
             return materials[0];
         }

@@ -1,6 +1,6 @@
 import {MD5Loader} from '../../loader/md5-loader.js';
 import {AssetLoader} from '../../asset-loader.js';
-import {ModelMaterialBuilder} from '../../map/material/model-material-builder.js';
+import {ModelMaterialFactory} from '../../material/factory/model-material-factory.js';
 import {Settings} from '../../settings.js';
 import {MATERIALS} from '../../material/materials.js';
 import {ModelFactory} from './model-factory.js';
@@ -8,7 +8,7 @@ import {GameWorld} from '../../game-world.js';
 
 export class Md5ModelFactory extends ModelFactory {
     constructor(assetLoader) {
-        super('MD5', assetLoader, new Md5ModelMaterialBuilder(assetLoader));
+        super('MD5', assetLoader, new Md5ModelMaterialFactory(assetLoader));
         this.md5Loader = new MD5Loader();
     }
 
@@ -76,9 +76,9 @@ export class Md5ModelFactory extends ModelFactory {
     }
 }
 
-class Md5ModelMaterialBuilder extends ModelMaterialBuilder {
-    build(name, materialDefinition) {
-        const materials = super.build(name, materialDefinition);
+class Md5ModelMaterialFactory extends ModelMaterialFactory {
+    create(name, materialDefinition) {
+        const materials = super.create(name, materialDefinition);
         materials[0].skinning = true;
         return materials;
     }
