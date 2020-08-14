@@ -359,8 +359,17 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_light/sterlightdecal_d',
         specularMap: 'textures/base_light/sterlightdecal_s',
         normalMap: 'textures/base_light/sterlightdecal_local',
-        additionalMap: 'textures/base_light/sterlightdecalred_add',
-        transparent: true
+        transparent: true,
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_light/sterlightdecalred_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_floor/grill_floor2': {
         diffuseMap: 'textures/base_floor/grill_floor_d',
@@ -467,7 +476,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel4blk_d',
         specularMap: 'textures/object/a_conpanel4_s',
         normalMap: 'textures/object/a_conpanel4_local',
-        additionalMap: 'textures/object/a_conpanel4_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/object/a_conpanel4_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_floor/floorvent02': {
         diffuseMap: 'textures/base_floor/floorvent02_d',
@@ -508,12 +526,10 @@ export const MATERIALS = {
         }
     },
     'textures/outside/outfactory3': {
-        diffuseMap: {
-            name: 'textures/outside/outfactory3_d',
-            alphaTest: 0.35
-        },
+        diffuseMap: 'textures/outside/outfactory3_d',
         normalMap: 'textures/outside/outfactory3_local',
-        transparent: true
+        transparent: true,
+        alphaTest: 0.35
     },
     'textures/base_trim/ghoventtrim2': {
         diffuseMap: 'textures/base_trim/ghoventtrim2_d',
@@ -531,7 +547,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel3blk_d01',
         specularMap: 'textures/object/a_conpanel3_s01',
         normalMap: 'textures/object/a_conpanel3_local',
-        additionalMap: 'textures/object/a_conpanel3_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/object/a_conpanel3_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/caves/cavwafpanel1win': {
         diffuseMap: 'textures/caves/cavwafpanel1win_d',
@@ -554,7 +579,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel2blk_d01',
         specularMap: 'textures/object/a_conpanel2_s01',
         normalMap: 'textures/object/a_conpanel2_local',
-        additionalMap: 'textures/object/a_conpanel2_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/object/a_conpanel2_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/enpro/enwall14': {
         diffuseMap: 'textures/enpro/enwall14',
@@ -674,7 +708,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conpanel6blk_d',
         specularMap: 'textures/object/a_conpanel6_s',
         normalMap: 'textures/object/a_conpanel6_local',
-        additionalMap: 'textures/object/a_conpanel6_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/object/a_conpanel6_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_trim/steslashtrim2': {
         diffuseMap: 'textures/base_trim/steslashtrim2_d',
@@ -700,7 +743,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/object/a_conmonitorxl1blk_d',
         specularMap: 'textures/object/a_conmonitorxl1_s',
         normalMap: 'textures/object/a_conmonitorxl1_local',
-        additionalMap: 'textures/object/a_conmonitorxl1_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/object/a_conmonitorxl1_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_floor/a_skpanel5_03': {
         diffuseMap: 'textures/base_floor/a_skpanel5_d03',
@@ -717,7 +769,6 @@ export const MATERIALS = {
     'textures/base_light/striplight5a_ed': {
         diffuseMap: 'textures/base_light/striplight5a_d',
         specularMap: 'textures/base_light/striplight5a_s',
-        additionalMap: 'textures/base_light/striplight5aadd',
         normalMap: {
             name: 'textures/base_light/striplight2_local+striplight5a_b',
             addNormals: {
@@ -725,7 +776,17 @@ export const MATERIALS = {
                 bumpMap: 'textures/base_light/striplight5a_b',
                 scale: 3
             }
-        }
+        },
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_light/striplight5aadd',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_floor/sflgratetrans2': {
         diffuseMap: 'textures/base_floor/sflgratetrans2_d',
@@ -855,7 +916,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_light/stehalllight_d',
         specularMap: 'textures/base_light/stehalllight_s',
         normalMap: 'textures/base_light/stehalllight_local',
-        additionalMap: 'textures/base_light/stehalllight_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_light/stehalllight_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/glass/outdoor_glass1': {
         color: 0xa3a3a3,
@@ -1053,7 +1123,16 @@ export const MATERIALS = {
         diffuseMap: 'textures/base_wall/skpanel7_d',
         specularMap: 'textures/base_wall/skpanel7_s',
         normalMap: 'textures/base_wall/skpanel7_local',
-        additionalMap: 'textures/base_wall/skpanel7_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_wall/skpanel7_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_trim/hose01': {
         diffuseMap: 'textures/base_trim/hose01_d',
@@ -1070,7 +1149,16 @@ export const MATERIALS = {
     'textures/object/elec_box1': {
         diffuseMap: 'textures/base_trim/elec_box1_d',
         normalMap: 'textures/base_trim/elec_box1_local',
-        additionalMap: 'textures/base_trim/elec_box1_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_trim/elec_box1_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/object/elec_box1s': {
         diffuseMap: 'textures/base_trim/elec_box1s_d',
@@ -1249,7 +1337,16 @@ export const MATERIALS = {
     'textures/base_light/snpanel15light': {
         diffuseMap: 'textures/base_light/snpanel15light_d',
         normalMap: 'textures/base_light/snpanel15light_local',
-        additionalMap: 'textures/base_light/snpanel15light_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_light/snpanel15light_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'src_alpha',
+                blendDst: 'one_minus_src_color',
+            }
+        ]
     },
     'textures/base_wall/a_sopanel2a_d01b': {
         diffuseMap: 'textures/base_wall/a_sopanel2a_d01b',
@@ -1321,13 +1418,17 @@ export const MATERIALS = {
         blendDst: 'zero',
         transparent: true,
         translate: ['1', 'time * 0.1'],
-        additionalMap: {
-            name: 'textures/decals/blood_drip1a',
-            blending: 'custom',
-            blendSrc: 'dst_color',
-            blendDst: 'zero',
-            translate: ['1', 'time * 0.02']
-        }
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/decals/blood_drip1a',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'dst_color',
+                blendDst: 'zero',
+                translate: ['1', 'time * 0.02']
+            }
+        ]
     },
     'textures/hell/scowall': {
         diffuseMap: 'textures/hell/scowall',
@@ -1445,7 +1546,17 @@ export const MATERIALS = {
         normalMap: 'textures/base_light/striplight3_local',
         diffuseMap: 'textures/base_light/striplight3_d',
         specularMap: 'textures/base_light/striplight3_s',
-        additionalMap: 'textures/base_light/striplight3_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'textures/base_light/striplight3_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'dst_color',
+                blendDst: 'zero',
+                translate: ['1', 'time * 0.02']
+            }
+        ]
     },
     'gui/faces5': [
         {
@@ -2547,7 +2658,17 @@ export const MATERIALS = {
             }
         },
         specularMap: 'models/mapobjects/lab/cscope/cscopebase_s',
-        additionalMap: 'models/mapobjects/lab/cscope/cscopebase_add'
+        children: [
+            {
+                type: 'basic',
+                diffuseMap: 'models/mapobjects/lab/cscope/cscopebase_add',
+                transparent: true,
+                blending: 'custom',
+                blendSrc: 'dst_color',
+                blendDst: 'zero',
+                translate: ['1', 'time * 0.02']
+            }
+        ]
     },
     'models/mapobjects/lab/cscope/cscopearm': {
         diffuseMap: 'models/mapobjects/lab/cscope/cscopearm_d',
@@ -2572,13 +2693,11 @@ export const MATERIALS = {
         specularMap: 'models/mapobjects/utility/inhaler/inhaler_s'
     },
     'textures/base_trim/reactorgirder1': {
-        diffuseMap: {
-            name: 'textures/base_trim/reactorgirder1_d',
-            alphaTest: 0.5
-        },
+        diffuseMap: 'textures/base_trim/reactorgirder1_d',
         normalMap: 'textures/base_trim/reactorgirder1_local',
         specularMap: 'textures/base_trim/reactorgirder1_s',
-        transparent: true
+        transparent: true,
+        alphaTest: 0.5
     },
     'models/mapobjects/doors/techdoor2/techdr2lft': {
         diffuseMap: 'models/mapobjects/doors/techdoor2/techdr2cb_d',

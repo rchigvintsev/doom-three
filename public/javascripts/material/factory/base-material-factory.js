@@ -20,8 +20,10 @@ export class BaseMaterialFactory {
     }
 
     create(name, materialDef) {
-        const materials = [];
+        let materials = [];
+
         const material = this._createMaterial(name, materialDef);
+        materials.push(material);
 
         const updaters = [];
         const updateMixin = {
@@ -32,128 +34,30 @@ export class BaseMaterialFactory {
         };
         Object.assign(material, updateMixin);
 
-        materials.push(material);
+        const clamp = materialDef.clamp;
+        const materialParams = materialDef.parameters;
 
         if (materialDef.diffuseMap) {
-            const diffuseMap = new THREE.Texture();
-            if (materialDef.clamp) {
-                diffuseMap.wrapS = diffuseMap.wrapT = THREE.ClampToEdgeWrapping;
-            } else {
-                diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
-            }
-            if (materialDef.diffuseMap.alphaTest) {
-                material.alphaTest = materialDef.diffuseMap.alphaTest;
-            }
-            material.map = diffuseMap;
-
-            const diffuseMapName = this._getTextureName(materialDef.diffuseMap, materialDef.parameters);
-            this._textureImageService.getTextureImage(diffuseMapName)
-                .then(img => {
-                    diffuseMap.image = img;
-                    if (material.uniforms) {
-                        material.uniforms.map.value = diffuseMap;
-                    }
-                    diffuseMap.needsUpdate = true;
-                })
-                .catch(() => console.error('Diffuse map ' + diffuseMapName + ' is not found'));
+            material.map = this._createTexture(materialDef.diffuseMap, clamp, materialParams, material.uniforms);
         }
-
         if (materialDef.normalMap) {
-            const normalMap = new THREE.Texture();
-            if (materialDef.clamp) {
-                normalMap.wrapS = normalMap.wrapT = THREE.ClampToEdgeWrapping;
-            } else {
-                normalMap.wrapS = normalMap.wrapT = THREE.RepeatWrapping;
-            }
-            material.normalMap = normalMap;
-
-            const normalMapName = this._getTextureName(materialDef.normalMap, materialDef.parameters);
-            this._textureImageService.getTextureImage(normalMapName)
-                .then(img => {
-                    normalMap.image = img;
-                    normalMap.needsUpdate = true;
-                })
-                .catch(() => console.error('Normal map ' + normalMapName + ' is not found'));
+            material.normalMap = this._createTexture(materialDef.normalMap, clamp, materialParams);
         }
-
         if (materialDef.specularMap) {
-            const specularMap = new THREE.Texture();
-            if (materialDef.clamp)
-                specularMap.wrapS = specularMap.wrapT = THREE.ClampToEdgeWrapping;
-            else
-                specularMap.wrapS = specularMap.wrapT = THREE.RepeatWrapping;
-            material.specularMap = specularMap;
-
-            const specularMapName = this._getTextureName(materialDef.specularMap, materialDef.parameters);
-            this._textureImageService.getTextureImage(specularMapName)
-                .then(img => {
-                    specularMap.image = img;
-                    specularMap.needsUpdate = true;
-                })
-                .catch(() => console.error('Specular map ' + specularMapName + ' is not found'));
+            material.specularMap = this._createTexture(materialDef.specularMap, clamp, materialParams);
         }
-
         if (materialDef.alphaMap) {
-            const alphaMap = new THREE.Texture();
-            if (materialDef.clamp)
-                alphaMap.wrapS = alphaMap.wrapT = THREE.ClampToEdgeWrapping;
-            else
-                alphaMap.wrapS = alphaMap.wrapT = THREE.RepeatWrapping;
-            material.alphaMap = alphaMap;
-
-            const alphaMapName = this._getTextureName(materialDef.alphaMap, materialDef.parameters);
-            this._textureImageService.getTextureImage(alphaMapName)
-                .then(img => {
-                    alphaMap.image = img;
-                    alphaMap.needsUpdate = true;
-                })
-                .catch(() => console.error('Alpha map ' + alphaMapName + ' is not found'))
+            material.alphaMap = this._createTexture(materialDef.alphaMap, clamp, materialParams);
         }
 
-        if (materialDef.additionalMap) {
-            const additionalMap = new THREE.Texture();
-            if (materialDef.clamp) {
-                additionalMap.wrapS = additionalMap.wrapT = THREE.ClampToEdgeWrapping;
-            } else {
-                additionalMap.wrapS = additionalMap.wrapT = THREE.RepeatWrapping;
+        if (materialDef.children) {
+            for (const childDef of materialDef.children) {
+                materials = materials.concat(this.create(null, childDef));
             }
-            const additionalMaterial = new THREE.MeshBasicMaterial({transparent: true, side: THREE.BackSide});
+        }
 
-            if (materialDef.additionalMap.blending) {
-                this._setBlending(materialDef.additionalMap, additionalMaterial);
-            } else {
-                additionalMaterial.blending = THREE.CustomBlending;
-                additionalMaterial.blendEquation = THREE.AddEquation;
-                additionalMaterial.blendSrc = THREE.SrcAlphaFactor;
-                additionalMaterial.blendDst = THREE.OneMinusSrcColorFactor;
-            }
-            additionalMaterial.map = additionalMap;
-            materials.push(additionalMaterial);
-
-            const additionalMapName = this._getTextureName(materialDef.additionalMap, materialDef.parameters);
-            this._textureImageService.getTextureImage(additionalMapName)
-                .then(img => {
-                    additionalMap.image = img;
-                    additionalMap.needsUpdate = true;
-                })
-                .catch(() => console.error('Additional map ' + additionalMapName + ' is not found'));
-
-            const additionalMaterialUpdaters = [];
-            if (materialDef.additionalMap.translate) {
-                additionalMaterial.map.matrixAutoUpdate = false;
-                const xTranslate = this._createTranslationProvider(materialDef.additionalMap.translate[0]);
-                const yTranslate = this._createTranslationProvider(materialDef.additionalMap.translate[1]);
-                additionalMaterialUpdaters.push(this._createTransformUpdater(oneProvider, oneProvider, zeroProvider,
-                    xTranslate, yTranslate));
-            }
-
-            Object.assign(additionalMaterial, {
-                update(time) {
-                    for (const updater of additionalMaterialUpdaters) {
-                        updater(additionalMaterial, time);
-                    }
-                }
-            });
+        if (materialDef.alphaTest) {
+            material.alphaTest = materialDef.alphaTest;
         }
 
         if (materialDef.color !== undefined) {
@@ -507,6 +411,26 @@ export class BaseMaterialFactory {
             + paramValue + '" of parameter "' + paramName + '"';
         }
         return textureName;
+    }
+
+    _createTexture(textureDef, clamp, parameters, uniforms) {
+        const texture = new THREE.Texture();
+        if (clamp) {
+            texture.wrapS = texture.wrapT = THREE.ClampToEdgeWrapping;
+        } else {
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        }
+        const textureName = this._getTextureName(textureDef, parameters);
+        this._textureImageService.getTextureImage(textureName)
+            .then(img => {
+                texture.image = img;
+                if (uniforms) {
+                    uniforms.map.value = texture;
+                }
+                texture.needsUpdate = true;
+            })
+            .catch(() => console.error('Texture ' + textureName + ' is not found'));
+        return texture;
     }
 
     _setBlending(materialDef, material) {

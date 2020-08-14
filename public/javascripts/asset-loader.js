@@ -156,19 +156,8 @@ export class AssetLoader {
             materialDefs = [materialDefs];
         }
 
-        for (let materialDef of materialDefs) {
-            let mapDefs = [
-                materialDef.diffuseMap,
-                materialDef.specularMap,
-                materialDef.normalMap,
-                materialDef.bumpMap,
-                materialDef.alphaMap,
-                materialDef.additionalMap
-            ];
-            if (materialDef.textures) {
-                mapDefs = mapDefs.concat(materialDef.textures);
-            }
-
+        for (const materialDef of materialDefs) {
+            const mapDefs = this._collectMapDefinitions(materialDef);
             for (const mapDef of mapDefs) {
                 if (!mapDef) {
                     continue;
@@ -190,6 +179,25 @@ export class AssetLoader {
         }
 
         return result;
+    }
+
+    _collectMapDefinitions(materialDef) {
+        let mapDefs = [
+            materialDef.diffuseMap,
+            materialDef.specularMap,
+            materialDef.normalMap,
+            materialDef.bumpMap,
+            materialDef.alphaMap
+        ];
+        if (materialDef.textures) {
+            mapDefs = mapDefs.concat(materialDef.textures);
+        }
+        if (materialDef.children) {
+            for (const childDef of materialDef.children) {
+                mapDefs = mapDefs.concat(this._collectMapDefinitions(childDef));
+            }
+        }
+        return mapDefs;
     }
 
     _getNumberOfAssetsToLoad() {
