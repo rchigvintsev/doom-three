@@ -50,24 +50,28 @@ export class BaseMaterialFactory {
             material.alphaMap = this._createTexture(materialDef.alphaMap, clamp, materialParams);
         }
 
+        if (materialDef.alphaTest != null) {
+            material.alphaTest = materialDef.alphaTest;
+        }
+
+        if (materialDef.color != null) {
+            if (materialDef.color.expression) {
+                material.colorExpressions = [math.compile(materialDef.color.expression)];
+            } else if (materialDef.color.red && materialDef.color.green && materialDef.color.blue) {
+                material.colorExpressions = [
+                    math.compile(materialDef.color.red.expression),
+                    math.compile(materialDef.color.green.expression),
+                    math.compile(materialDef.color.blue.expression)
+                ];
+            } else {
+                material.colorValue = materialDef.color;
+            }
+        }
+
         if (materialDef.children) {
             for (const childDef of materialDef.children) {
                 materials = materials.concat(this.create(null, childDef));
             }
-        }
-
-        if (materialDef.alphaTest) {
-            material.alphaTest = materialDef.alphaTest;
-        }
-
-        if (materialDef.color !== undefined) {
-            if (materialDef.color.expression)
-                updaters.push(this._createScalarColorUpdater(materialDef.color.expression));
-            else if (materialDef.color.red && materialDef.color.green && materialDef.color.blue)
-                updaters.push(this._createRgbColorUpdater(materialDef.color.red, materialDef.color.green,
-                    materialDef.color.blue));
-            else
-                this._setColor(material, materialDef.color);
         }
 
         if (materialDef.specular)
@@ -218,51 +222,6 @@ export class BaseMaterialFactory {
         return new UpdatableMeshPhongMaterial();
     }
 
-    _createScalarColorUpdater(expression) {
-        const compiledExpression = math.compile(expression);
-        const tableFunc = function (tableName, value) {
-            const table = TABLES[tableName];
-            const val = value % table.values.length;
-            let floor = Math.floor(val);
-            let ceil = Math.ceil(val);
-            if (ceil >= table.values.length)
-                ceil = 0;
-            const floorColor = table.values[floor];
-            const ceilColor = table.values[ceil];
-            return floorColor + (val - floor) * 100 * ((ceilColor - floorColor) / 100);
-        };
-        return function (material, time) {
-            const scope = {time: time * 0.0025, table: tableFunc};
-            material.color.setScalar(compiledExpression.eval(scope));
-        };
-    }
-
-    _createRgbColorUpdater(red, green, blue) {
-        const compiledRedExpr = math.compile(red.expression);
-        const compiledGreenExpr = math.compile(green.expression);
-        const compiledBlueExpr = math.compile(blue.expression);
-
-        const tableFunc = function (tableName, value) {
-            const table = TABLES[tableName];
-            const val = value % table.values.length;
-            let floor = Math.floor(val);
-            let ceil = Math.ceil(val);
-            if (ceil >= table.values.length)
-                ceil = 0;
-            const floorColor = table.values[floor];
-            const ceilColor = table.values[ceil];
-            return floorColor + (val - floor) * 100 * ((ceilColor - floorColor) / 100);
-        };
-
-        return function (material, time) {
-            const scope = {time: time * 0.0025, table: tableFunc};
-            const redColor = compiledRedExpr.eval(scope);
-            const greenColor = compiledGreenExpr.eval(scope);
-            const blueColor = compiledBlueExpr.eval(scope);
-            material.color.setRGB(redColor, greenColor, blueColor);
-        };
-    }
-
     _createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate, center) {
         if (!center) {
             center = [0.5, 0.5];
@@ -380,10 +339,6 @@ export class BaseMaterialFactory {
             const scope = {time: time * 0.0075};
             return expression.eval(scope) * -1;
         }
-    }
-
-    _setColor(material, color) {
-        material.color.setHex(color);
     }
 
     _setOpacity(material, opacity) {

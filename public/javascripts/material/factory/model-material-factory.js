@@ -8,12 +8,12 @@ export class ModelMaterialFactory extends ProjectiveTextureMaterialFactory {
     create(name, materialDef) {
         // Some textures may not be loaded in advance. We are going to load them here.
         this._assetLoader.loadTextures(materialDef);
-
         const material = super.create(name, materialDef);
-        if (Array.isArray(material))
+        if (Array.isArray(material)) {
             material[0].side = THREE.FrontSide;
-        else
+        } else {
             material.side = THREE.FrontSide;
+        }
         return material;
     }
 }

@@ -1,4 +1,5 @@
 import {BaseMaterialFactory} from './base-material-factory.js';
+import {UpdatableShaderMaterial} from '../updatable-shader-material.js';
 
 export class GuiMaterialFactory extends BaseMaterialFactory {
     constructor(assetLoader) {
@@ -20,29 +21,11 @@ export class GuiMaterialFactory extends BaseMaterialFactory {
 
     _createShaderMaterial(name, definition) {
         const basicShaderLib = THREE.ShaderLib['basic'];
-        return new THREE.ShaderMaterial({
+        return new UpdatableShaderMaterial({
             uniforms: THREE.UniformsUtils.clone(basicShaderLib.uniforms),
             vertexShader: basicShaderLib.vertexShader,
             fragmentShader: basicShaderLib.fragmentShader
         });
-    }
-
-    _createScalarColorUpdater(tableName, expression) {
-        const updater = super._createScalarColorUpdater(tableName, expression);
-        const dummyMaterial = new THREE.MeshBasicMaterial();
-        return function (material, time) {
-            updater(dummyMaterial, time);
-            material.uniforms['diffuse'].value = dummyMaterial.color;
-        };
-    }
-
-    _createRgbColorUpdater(red, green, blue) {
-        const updater = super._createRgbColorUpdater(red, green, blue);
-        const dummyMaterial = new THREE.MeshBasicMaterial();
-        return function (material, time) {
-            updater(dummyMaterial, time);
-            material.uniforms['diffuse'].value = dummyMaterial.color;
-        }
     }
 
     _createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate, center) {
@@ -65,10 +48,6 @@ export class GuiMaterialFactory extends BaseMaterialFactory {
             updater(material, time);
             material.uniforms['opacity'].value = material.opacity;
         }
-    }
-
-    _setColor(material, color) {
-        material.uniforms['diffuse'].value = new THREE.Color().setHex(color);
     }
 
     _setOpacity(material, opacity) {

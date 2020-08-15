@@ -1,9 +1,11 @@
-export class UpdatableMeshBasicMaterial extends THREE.MeshBasicMaterial {
+import {UpdatableMaterialMixin} from './updatable-material-mixin.js';
+
+export class UpdatableMeshBasicMaterial extends UpdatableMaterialMixin(THREE.MeshBasicMaterial) {
     constructor(parameters) {
         super(parameters);
     }
 
     update(time) {
-        // Do nothing
+        this._updateColor(time);
     }
 }

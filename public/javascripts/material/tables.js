@@ -11,3 +11,18 @@ export const TABLES = {
     pdflick: {snap: false, values: [1, .85]},
     subtleflick: {snap: false, values: [1, .92]},
 };
+
+export class Tables {
+    static getTableValue(tableName, value) {
+        const table = TABLES[tableName];
+        const val = value % table.values.length;
+        let floor = Math.floor(val);
+        let ceil = Math.ceil(val);
+        if (ceil >= table.values.length) {
+            ceil = 0;
+        }
+        const floorColor = table.values[floor];
+        const ceilColor = table.values[ceil];
+        return floorColor + (val - floor) * 100 * ((ceilColor - floorColor) / 100);
+    }
+}
