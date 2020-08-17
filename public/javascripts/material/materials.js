@@ -1774,7 +1774,7 @@ export const MATERIALS = {
     },
     'gui/spin1alt': {
         clamp: true,
-        type: 'basic',
+        type: 'shader',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * -0.015',
         transparent: true,
@@ -1790,7 +1790,7 @@ export const MATERIALS = {
     },
     'gui/spin2alt': {
         clamp: true,
-        type: 'basic',
+        type: 'shader',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * 0.02',
         transparent: true,
@@ -1806,7 +1806,7 @@ export const MATERIALS = {
     },
     'gui/spin3alt': {
         clamp: true,
-        type: 'basic',
+        type: 'shader',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * -0.025',
         transparent: true,
@@ -1822,7 +1822,7 @@ export const MATERIALS = {
     },
     'gui/spin4alt': {
         clamp: true,
-        type: 'basic',
+        type: 'shader',
         diffuseMap: 'guis/assets/rodstat/circle2',
         rotate: 'time * 0.03',
         transparent: true,

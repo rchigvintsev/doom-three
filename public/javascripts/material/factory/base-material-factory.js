@@ -37,100 +37,24 @@ export class BaseMaterialFactory {
             material.alphaMap = this._createTexture(materialDef.alphaMap, clamp, materialParams);
         }
 
+        this._setColor(materialDef, material);
+        this._setTransparency(materialDef, material);
         if (materialDef.alphaTest != null) {
             material.alphaTest = materialDef.alphaTest;
         }
-
-        if (materialDef.color != null) {
-            if (materialDef.color.expression) {
-                material.colorExpressions = [math.compile(materialDef.color.expression)];
-            } else if (materialDef.color.red && materialDef.color.green && materialDef.color.blue) {
-                material.colorExpressions = [
-                    math.compile(materialDef.color.red.expression),
-                    math.compile(materialDef.color.green.expression),
-                    math.compile(materialDef.color.blue.expression)
-                ];
-            } else {
-                material.colorValue = materialDef.color;
-            }
-        }
-
-        if (materialDef.transparent) {
-            material.transparent = true;
-            if (materialDef.opacity != null) {
-                if (materialDef.opacity.expression) {
-                    material.opacityExpression = math.compile(materialDef.opacity.expression);
-                } else {
-                    material.opacityValue = materialDef.opacity;
-                }
-            }
-        }
-
-        if (materialDef.blending) {
-            this._setBlending(materialDef, material);
-        }
-
-        if (materialDef.specular != null) {
-            material.specular = new THREE.Color().setHex(materialDef.specular);
-        }
+        this._setSpecular(materialDef, material);
         if (materialDef.shininess != null) {
             material.shininess = materialDef.shininess;
         }
-        if (materialDef.scale != null) {
-            material.scale = materialDef.scale;
+        this._setBlending(materialDef, material);
+        this._setScale(materialDef, material);
+        this._setRepeat(materialDef, material);
+        this._setCenter(materialDef, material);
+        this._setRotate(materialDef, material);
+        if (!this._setTranslate(materialDef, material)) {
+            this._setScroll(materialDef, material);
         }
-
-        if (materialDef.repeat) {
-            const repeat = [materialDef.repeat[0], materialDef.repeat[1]];
-            const repeatExpressions = [];
-            if (repeat[0].expression) {
-                repeatExpressions[0] = math.compile(repeat[0].expression);
-                repeat[0] = 1.0;
-            }
-            if (repeat[1].expression) {
-                repeatExpressions[1] = math.compile(repeat[1].expression);
-                repeat[1] = 1.0;
-            }
-            material.repeat = repeat;
-            if (repeatExpressions.length > 0) {
-                material.repeatExpressions = repeatExpressions;
-            }
-
-            this._disableMatrixAutoUpdate(material);
-        }
-
-        if (materialDef.center != null) {
-            material.center = materialDef.center;
-            this._disableMatrixAutoUpdate(material);
-        }
-
-        if (materialDef.rotate != null) {
-            material.rotateExpression = math.compile(materialDef.rotate);
-            this._disableMatrixAutoUpdate(material);
-        }
-
-        if (materialDef.translate) {
-            material.translateExpressions = [
-                math.compile(materialDef.translate[0]),
-                math.compile(materialDef.translate[1])
-            ];
-            this._disableMatrixAutoUpdate(material);
-        } else if (materialDef.scroll) {
-            material.scrollExpressions = [
-                math.compile(materialDef.scroll[0]),
-                math.compile(materialDef.scroll[1])
-            ];
-            this._disableMatrixAutoUpdate(material);
-        }
-
-        if (materialDef.side === 'double') {
-            material.side = THREE.DoubleSide;
-        } else if (materialDef.side === 'front') {
-            material.side = THREE.FrontSide;
-        } else {
-            material.side = THREE.BackSide;
-        }
-
+        this._setSide(materialDef, material);
         if (materialDef.depthWrite != null) {
             material.depthWrite = materialDef.depthWrite;
         }
@@ -273,24 +197,134 @@ export class BaseMaterialFactory {
         return texture;
     }
 
+    _setColor(materialDef, material) {
+        if (materialDef.color != null) {
+            if (materialDef.color.expression) {
+                material.colorExpressions = [math.compile(materialDef.color.expression)];
+            } else if (materialDef.color.red && materialDef.color.green && materialDef.color.blue) {
+                material.colorExpressions = [
+                    math.compile(materialDef.color.red.expression),
+                    math.compile(materialDef.color.green.expression),
+                    math.compile(materialDef.color.blue.expression)
+                ];
+            } else {
+                material.colorValue = materialDef.color;
+            }
+        }
+    }
+
+    _setTransparency(materialDef, material) {
+        if (materialDef.transparent) {
+            material.transparent = true;
+            if (materialDef.opacity != null) {
+                if (materialDef.opacity.expression) {
+                    material.opacityExpression = math.compile(materialDef.opacity.expression);
+                } else {
+                    material.opacityValue = materialDef.opacity;
+                }
+            }
+        }
+    }
+
+    _setSpecular(materialDef, material) {
+        if (materialDef.specular != null) {
+            material.specular = new THREE.Color().setHex(materialDef.specular);
+        }
+    }
+
     _setBlending(materialDef, material) {
-        if (materialDef.blending === 'custom') {
-            material.blending = THREE.CustomBlending;
-            material.blendEquation = THREE.AddEquation;
-            if (materialDef.blendSrc) {
-                material.blendSrc = BaseMaterialFactory._blendFactorForName(materialDef.blendSrc);
+        if (materialDef.blending) {
+            if (materialDef.blending === 'custom') {
+                material.blending = THREE.CustomBlending;
+                material.blendEquation = THREE.AddEquation;
+                if (materialDef.blendSrc) {
+                    material.blendSrc = BaseMaterialFactory._blendFactorForName(materialDef.blendSrc);
+                }
+                if (materialDef.blendDst) {
+                    material.blendDst = BaseMaterialFactory._blendFactorForName(materialDef.blendDst);
+                }
+            } else if (materialDef.blending === 'additive') {
+                material.blending = THREE.AdditiveBlending;
+            } else if (materialDef.blending === 'subtractive') {
+                material.blending = THREE.SubtractiveBlending;
+            } else if (materialDef.blending === 'multiply') {
+                material.blending = THREE.MultiplyBlending;
+            } else {
+                console.error('Unsupported blending: ' + materialDef.blending);
             }
-            if (materialDef.blendDst) {
-                material.blendDst = BaseMaterialFactory._blendFactorForName(materialDef.blendDst);
+        }
+    }
+
+    _setScale(materialDef, material) {
+        if (materialDef.scale != null) {
+            material.scale = materialDef.scale;
+            this._disableMatrixAutoUpdate(material);
+        }
+    }
+
+    _setRepeat(materialDef, material) {
+        if (materialDef.repeat) {
+            const repeat = [materialDef.repeat[0], materialDef.repeat[1]];
+            const repeatExpressions = [];
+            if (repeat[0].expression) {
+                repeatExpressions[0] = math.compile(repeat[0].expression);
+                repeat[0] = 1.0;
             }
-        } else if (materialDef.blending === 'additive') {
-            material.blending = THREE.AdditiveBlending;
-        } else if (materialDef.blending === 'subtractive') {
-            material.blending = THREE.SubtractiveBlending;
-        } else if (materialDef.blending === 'multiply') {
-            material.blending = THREE.MultiplyBlending;
+            if (repeat[1].expression) {
+                repeatExpressions[1] = math.compile(repeat[1].expression);
+                repeat[1] = 1.0;
+            }
+            material.repeat = repeat;
+            if (repeatExpressions.length > 0) {
+                material.repeatExpressions = repeatExpressions;
+            }
+            this._disableMatrixAutoUpdate(material);
+        }
+    }
+
+    _setCenter(materialDef, material) {
+        if (materialDef.center != null) {
+            material.center = materialDef.center;
+            this._disableMatrixAutoUpdate(material);
+        }
+    }
+
+    _setRotate(materialDef, material) {
+        if (materialDef.rotate != null) {
+            material.rotateExpression = math.compile(materialDef.rotate);
+            this._disableMatrixAutoUpdate(material);
+        }
+    }
+
+    _setTranslate(materialDef, material) {
+        if (materialDef.translate) {
+            material.translateExpressions = [
+                math.compile(materialDef.translate[0]),
+                math.compile(materialDef.translate[1])
+            ];
+            this._disableMatrixAutoUpdate(material);
+            return true;
+        }
+        return false;
+    }
+
+    _setScroll(materialDef, material) {
+        if (materialDef.scroll) {
+            material.scrollExpressions = [
+                math.compile(materialDef.scroll[0]),
+                math.compile(materialDef.scroll[1])
+            ];
+            this._disableMatrixAutoUpdate(material);
+        }
+    }
+
+    _setSide(materialDef, material) {
+        if (materialDef.side === 'double') {
+            material.side = THREE.DoubleSide;
+        } else if (materialDef.side === 'front') {
+            material.side = THREE.FrontSide;
         } else {
-            console.error('Unsupported blending: ' + materialDef.blending);
+            material.side = THREE.BackSide;
         }
     }
 

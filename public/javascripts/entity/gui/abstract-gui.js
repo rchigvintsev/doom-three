@@ -251,7 +251,7 @@ export class AbstractGui extends THREE.Group {
 
                     const letterMaterialDef = letterDef.material
                         ? Materials.override(letterDef.material, layerDef)
-                        : {type: 'basic', transparent: true, opacity: 0};
+                        : {type: 'shader', transparent: true, opacity: 0};
                     const letterMaterial = this._createLayerMaterial(letterMaterialDef);
                     letterMaterial.clipping = true;
                     this._materials.push(letterMaterial);

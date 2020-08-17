@@ -13,10 +13,7 @@ export class GuiMaterialFactory extends BaseMaterialFactory {
     create(name, materialDef) {
         // Some textures may not be loaded in advance. We are going to load them here.
         this._assetLoader.loadTextures(materialDef);
-        materialDef.type = 'shader'; // GUI supports only shader materials
-        const materials = super.create(name, materialDef);
-        materials[0].side = THREE.DoubleSide;
-        return materials;
+        return super.create(name, materialDef);
     }
 
     _createShaderMaterial(name, definition) {
@@ -26,5 +23,9 @@ export class GuiMaterialFactory extends BaseMaterialFactory {
             vertexShader: basicShaderLib.vertexShader,
             fragmentShader: basicShaderLib.fragmentShader
         });
+    }
+
+    _setSide(materialDef, material) {
+        material.side = THREE.DoubleSide;
     }
 }
