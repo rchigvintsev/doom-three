@@ -6,8 +6,10 @@ export class UpdatableShaderMaterial extends UpdatableMaterialMixin(THREE.Shader
     }
 
     update(time) {
-        this._updateRotation(time);
         this._updateColor(time);
+        this._updateOpacity(time);
+        this._updateTransformMatrices(time);
+        this._updateRotation(time);
     }
 
     set colorValue(colorValue) {
@@ -19,8 +21,29 @@ export class UpdatableShaderMaterial extends UpdatableMaterialMixin(THREE.Shader
         }
     }
 
+    set opacityValue(opacity) {
+        this.uniforms['opacity'].value = opacity;
+    }
+
     set rotateExpressions(rotateExpressions) {
         this._rotateExpressions = rotateExpressions;
+    }
+
+    _updateTransformMatrices(time) {
+        if (this.map && !this.map.matrixAutoUpdate) {
+            const scale = this._getScale(time);
+            const center = this._getCenter();
+            const rotation = this._getRotation(time);
+            const translation = this._getTranslation(scale, time);
+
+            const transformMatrix = this.uniforms['uvTransform'].value;
+            transformMatrix.identity()
+                .scale(scale.x, scale.y)
+                .translate(-center.x, -center.y)
+                .rotate(rotation)
+                .translate(center.x, center.y)
+                .translate(translation.x, translation.y);
+        }
     }
 
     _updateRotation(time) {

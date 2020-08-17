@@ -1,13 +1,9 @@
 import {AssetLoader} from '../../asset-loader.js';
-import {TABLES} from '../tables.js';
 import {LightBasicMaterial} from '../light-basic-material.js';
 import {TextureImageService} from '../../image/texture-image-service.js';
 import {UpdatableMeshBasicMaterial} from '../updatable-mesh-basic-material.js';
 import {UpdatableMeshPhongMaterial} from '../updatable-mesh-phong-material.js';
 import {UpdatableShaderMaterial} from '../updatable-shader-material.js';
-
-const zeroProvider = function () { return 0; };
-const oneProvider = function () { return 1; };
 
 export class BaseMaterialFactory {
     constructor(assetLoader) {
@@ -24,15 +20,6 @@ export class BaseMaterialFactory {
 
         const material = this._createMaterial(name, materialDef);
         materials.push(material);
-
-        const updaters = [];
-        const updateMixin = {
-            update(time) {
-                for (let updater of updaters)
-                    updater(material, time);
-            }
-        };
-        Object.assign(material, updateMixin);
 
         const clamp = materialDef.clamp;
         const materialParams = materialDef.parameters;
@@ -68,90 +55,108 @@ export class BaseMaterialFactory {
             }
         }
 
+        if (materialDef.transparent) {
+            material.transparent = true;
+            if (materialDef.opacity != null) {
+                if (materialDef.opacity.expression) {
+                    material.opacityExpression = math.compile(materialDef.opacity.expression);
+                } else {
+                    material.opacityValue = materialDef.opacity;
+                }
+            }
+        }
+
+        if (materialDef.blending) {
+            this._setBlending(materialDef, material);
+        }
+
+        if (materialDef.specular != null) {
+            material.specular = new THREE.Color().setHex(materialDef.specular);
+        }
+        if (materialDef.shininess != null) {
+            material.shininess = materialDef.shininess;
+        }
+        if (materialDef.scale != null) {
+            material.scale = materialDef.scale;
+        }
+
+        if (materialDef.repeat) {
+            const repeat = [materialDef.repeat[0], materialDef.repeat[1]];
+            const repeatExpressions = [];
+            if (repeat[0].expression) {
+                repeatExpressions[0] = math.compile(repeat[0].expression);
+                repeat[0] = 1.0;
+            }
+            if (repeat[1].expression) {
+                repeatExpressions[1] = math.compile(repeat[1].expression);
+                repeat[1] = 1.0;
+            }
+            material.repeat = repeat;
+            if (repeatExpressions.length > 0) {
+                material.repeatExpressions = repeatExpressions;
+            }
+
+            this._disableMatrixAutoUpdate(material);
+        }
+
+        if (materialDef.center != null) {
+            material.center = materialDef.center;
+            this._disableMatrixAutoUpdate(material);
+        }
+
+        if (materialDef.rotate != null) {
+            material.rotateExpression = math.compile(materialDef.rotate);
+            this._disableMatrixAutoUpdate(material);
+        }
+
+        if (materialDef.translate) {
+            material.translateExpressions = [
+                math.compile(materialDef.translate[0]),
+                math.compile(materialDef.translate[1])
+            ];
+            this._disableMatrixAutoUpdate(material);
+        } else if (materialDef.scroll) {
+            material.scrollExpressions = [
+                math.compile(materialDef.scroll[0]),
+                math.compile(materialDef.scroll[1])
+            ];
+            this._disableMatrixAutoUpdate(material);
+        }
+
+        if (materialDef.side === 'double') {
+            material.side = THREE.DoubleSide;
+        } else if (materialDef.side === 'front') {
+            material.side = THREE.FrontSide;
+        } else {
+            material.side = THREE.BackSide;
+        }
+
+        if (materialDef.depthWrite != null) {
+            material.depthWrite = materialDef.depthWrite;
+        }
+
         if (materialDef.children) {
             for (const childDef of materialDef.children) {
                 materials = materials.concat(this.create(null, childDef));
             }
         }
 
-        if (materialDef.specular)
-            material.specular = new THREE.Color().setHex(materialDef.specular);
+        return materials;
+    }
 
-        if (materialDef.shininess)
-            material.shininess = materialDef.shininess;
-
-        if (materialDef.lightIntensity)
-            material.lightIntensity = materialDef.lightIntensity;
-
-        let xRepeat, yRepeat;
-        if (materialDef.repeat) {
-            const scale = materialDef.scale ? materialDef.scale : [1.0, 1.0];
-            xRepeat = this._createRepetitionProvider(materialDef.repeat[0], scale[0]);
-            yRepeat = this._createRepetitionProvider(materialDef.repeat[1], scale[1]);
-        } else {
-            if (!materialDef.scale) {
-                xRepeat = yRepeat = oneProvider;
-            } else {
-                xRepeat = () => materialDef.scale[0];
-                yRepeat = () => materialDef.scale[1];
-            }
-        }
-
-        let xTranslate, yTranslate;
-        if (materialDef.translate) {
-            xTranslate = this._createTranslationProvider(materialDef.translate[0]);
-            yTranslate = this._createTranslationProvider(materialDef.translate[1]);
-        } else if (materialDef.scroll) {
-            xTranslate = this._createScrollingProvider(materialDef.scroll[0]);
-            yTranslate = this._createScrollingProvider(materialDef.scroll[1], yRepeat);
-        } else
-            xTranslate = yTranslate = zeroProvider;
-
-        let rotate;
-        if (materialDef.rotate)
-            rotate = this._createRotationProvider(materialDef.rotate);
-        else
-            rotate = zeroProvider;
-
+    _disableMatrixAutoUpdate(material) {
         if (material.map) {
             material.map.matrixAutoUpdate = false;
-            if (material.normalMap) {
-                material.normalMap.matrixAutoUpdate = false;
-            }
-            if (material.specularMap) {
-                material.specularMap.matrixAutoUpdate = false;
-            }
-            if (material.alphaMap) {
-                material.alphaMap.matrixAutoUpdate = false;
-            }
-            updaters.push(this._createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate,
-                materialDef.center));
         }
-
-        if (materialDef.side === 'double')
-            material.side = THREE.DoubleSide;
-        else if (materialDef.side === 'front')
-            material.side = THREE.FrontSide;
-        else
-            material.side = THREE.BackSide;
-
-        if (materialDef.transparent) {
-            material.transparent = true;
-            if (materialDef.opacity !== undefined)
-                if (materialDef.opacity.expression)
-                    updaters.push(this._createOpacityUpdater(materialDef.opacity.expression));
-                else
-                    this._setOpacity(material, materialDef.opacity);
+        if (material.normalMap) {
+            material.normalMap.matrixAutoUpdate = false;
         }
-
-        if (materialDef.depthWrite !== undefined)
-            material.depthWrite = materialDef.depthWrite;
-
-        if (materialDef.blending) {
-            this._setBlending(materialDef, material);
+        if (material.specularMap) {
+            material.specularMap.matrixAutoUpdate = false;
         }
-
-        return materials;
+        if (material.alphaMap) {
+            material.alphaMap.matrixAutoUpdate = false;
+        }
     }
 
     _createMaterial(name, materialDef) {
@@ -160,6 +165,9 @@ export class BaseMaterialFactory {
             material = this._createBasicMaterial();
         } else if (materialDef.type === 'light_basic') {
             material = this._createLightBasicMaterial();
+            if (materialDef.lightIntensity != null) {
+                material.lightIntensity = materialDef.lightIntensity;
+            }
         } else if (materialDef.type === 'shader') {
             material = this._createShaderMaterial(name, materialDef);
         } else {
@@ -220,129 +228,6 @@ export class BaseMaterialFactory {
 
     _createPhongMaterial() {
         return new UpdatableMeshPhongMaterial();
-    }
-
-    _createTransformUpdater(xRepeat, yRepeat, rotate, xTranslate, yTranslate, center) {
-        if (!center) {
-            center = [0.5, 0.5];
-        }
-
-        return (material, time) => {
-            if (!time) {
-                return;
-            }
-
-            if (material.map.image) {
-                const updatedMatrix = material.map.matrix.identity()
-                    .scale(xRepeat(time), yRepeat(time))
-                    .translate(-center[0], -center[1])
-                    .rotate(rotate(time))
-                    .translate(center[0], center[1])
-                    .translate(xTranslate(time), yTranslate(time));
-
-                material.map.matrix.copy(updatedMatrix);
-
-                if (material.normalMap && material.normalMap.image) {
-                    material.normalMap.matrix.copy(updatedMatrix);
-                }
-
-                if (material.specularMap && material.specularMap.image) {
-                    material.specularMap.matrix.copy(updatedMatrix);
-                }
-
-                if (material.alphaMap && material.alphaMap.image) {
-                    material.alphaMap.matrix.copy(updatedMatrix);
-                }
-            }
-        };
-    }
-
-    _createOpacityUpdater(expression) {
-        const compiledExpression = math.compile(expression);
-        const tableFunc = function (tableName, value) {
-            const table = TABLES[tableName];
-            const v = value % table.values.length;
-            let floor = Math.floor(v);
-            let ceil = Math.ceil(v);
-            if (ceil >= table.values.length)
-                ceil = 0;
-            const floorOpacity = table.values[floor];
-            const ceilOpacity = table.values[ceil];
-            return floorOpacity + (v - floor) * 100 * ((ceilOpacity - floorOpacity) / 100);
-        };
-        return function (material, time) {
-            const scope = {time: time * 0.01, table: tableFunc};
-            material.opacity = compiledExpression.eval(scope);
-        };
-    }
-
-    _createRepetitionProvider(repeat, scale=1.0) {
-        if (repeat.expression) {
-            const compiledExpression = math.compile(repeat.expression);
-            const tableFunc = function (tableName, value) {
-                const table = TABLES[tableName];
-                const val = value % table.values.length;
-                let floor = Math.floor(val);
-                let ceil = Math.ceil(val);
-                if (ceil >= table.values.length)
-                    ceil = 0;
-                const floorRepeat = table.values[floor];
-                const ceilRepeat = table.values[ceil];
-                return floorRepeat + (val - floor) * 100 * ((ceilRepeat - floorRepeat) / 100);
-            };
-            return function (time) {
-                const scope = {time: time * 0.004, table: tableFunc};
-                return compiledExpression.eval(scope) * scale;
-            };
-        }
-
-        return function () {
-            return repeat;
-        };
-    }
-
-    _createTranslationProvider(expression) {
-        const compiledExpression = math.compile(expression);
-        const tableFunc = function (tableName, value) {
-            const table = TABLES[tableName];
-            const v = value % table.values.length;
-            if (!table.snap) {
-                let floor = Math.floor(v);
-                let ceil = Math.ceil(v);
-                if (ceil >= table.values.length)
-                    ceil = 0;
-                const floorTranslation = table.values[floor];
-                const ceilTranslation = table.values[ceil];
-                return floorTranslation + (v - floor) * 100 * ((ceilTranslation - floorTranslation) / 100);
-            }
-            return table.values[Math.floor(v)];
-        };
-        return function(time) {
-            const scope = {time: time * 0.001, table: tableFunc};
-            return compiledExpression.eval(scope);
-        };
-    }
-
-    _createScrollingProvider(scroll, timeModifier) {
-        const expression = math.compile(scroll);
-        return function (time) {
-            if (timeModifier)
-                time *= timeModifier(time);
-            const scope = {time: time * 0.001};
-            return expression.eval(scope);
-        };
-    }
-
-    _createRotationProvider(rotate) {
-        const expression = math.compile(rotate);
-        return function (time) {
-            const scope = {time: time * 0.0075};
-            return expression.eval(scope) * -1;
-        }
-    }
-
-    _setOpacity(material, opacity) {
-        material.opacity = opacity;
     }
 
     _getTextureName(mapDef, parameters) {

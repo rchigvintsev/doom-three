@@ -16,13 +16,16 @@ export class Tables {
     static getTableValue(tableName, value) {
         const table = TABLES[tableName];
         const val = value % table.values.length;
-        let floor = Math.floor(val);
-        let ceil = Math.ceil(val);
-        if (ceil >= table.values.length) {
-            ceil = 0;
+        if (!table.snap) {
+            let floor = Math.floor(val);
+            let ceil = Math.ceil(val);
+            if (ceil >= table.values.length) {
+                ceil = 0;
+            }
+            const floorVal = table.values[floor];
+            const ceilVal = table.values[ceil];
+            return floorVal + (val - floor) * 100 * ((ceilVal - floorVal) / 100);
         }
-        const floorColor = table.values[floor];
-        const ceilColor = table.values[ceil];
-        return floorColor + (val - floor) * 100 * ((ceilColor - floorColor) / 100);
+        return table.values[Math.floor(val)];
     }
 }

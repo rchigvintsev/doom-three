@@ -7,5 +7,7 @@ export class UpdatableMeshBasicMaterial extends UpdatableMaterialMixin(THREE.Mes
 
     update(time) {
         this._updateColor(time);
+        this._updateOpacity(time);
+        this._updateTransformMatrices(time);
     }
 }
