@@ -14,5 +14,14 @@ export const SKINS = {
     },
     'skins/techdr2frame_cop': {
         'models/mapobjects/doors/techdoor2/techdr2frame': 'models/mapobjects/doors/techdoor2/techdr2frame_cop'
+    },
+    'skins/techdr1frame_cop': {
+        'models/mapobjects/doors/techdoor1/techdr1frame': 'models/mapobjects/doors/techdoor1/techdr1frame_cop'
+    },
+    'skins/techdr1lft_cop': {
+        'models/mapobjects/doors/techdoor1/techdr1lft': 'models/mapobjects/doors/techdoor1/techdr1lft_cop'
+    },
+    'skins/techdr1rt_cop': {
+        'models/mapobjects/doors/techdoor1/techdr1rt': 'models/mapobjects/doors/techdoor1/techdr1rt_cop'
     }
 };

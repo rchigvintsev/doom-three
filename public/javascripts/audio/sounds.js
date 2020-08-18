@@ -78,5 +78,17 @@ export const SOUNDS = {
         sources: [
             'sound/xian/beeps/error_02.ogg',
         ]
+    },
+    twopart_door_open: {
+        type: 'positional',
+        sources: [
+            'sound/ed/doors/_door_blue_singlepaned/open3.ogg',
+        ]
+    },
+    twopart_door_close: {
+        type: 'positional',
+        sources: [
+            'sound/ed/doors/_door_blue_singlepaned/close4.ogg',
+        ]
     }
 };

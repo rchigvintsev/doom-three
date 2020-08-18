@@ -2735,6 +2735,21 @@ export const MATERIALS = {
             }
         },
         normalMap: 'textures/base_door/doorlight_local'
+    },
+    'models/mapobjects/doors/techdoor1/techdr1frame_cop': {
+        diffuseMap: 'models/mapobjects/doors/techdoor1/techdr1frame_cop_d',
+        normalMap: 'models/mapobjects/doors/techdoor1/techdr1frame_local',
+        specularMap: 'models/mapobjects/doors/techdoor1/techdr1frame_cop_s'
+    },
+    'models/mapobjects/doors/techdoor1/techdr1lft_cop': {
+        diffuseMap: 'models/mapobjects/doors/techdoor1/techdr1lft_cop_d',
+        normalMap: 'models/mapobjects/doors/techdoor1/techdr1lft_local',
+        specularMap: 'models/mapobjects/doors/techdoor1/techdr1lft_cop_s'
+    },
+    'models/mapobjects/doors/techdoor1/techdr1rt_cop': {
+        diffuseMap: 'models/mapobjects/doors/techdoor1/techdr1rt_cop_d',
+        normalMap: 'models/mapobjects/doors/techdoor1/techdr1rt_local',
+        specularMap: 'models/mapobjects/doors/techdoor1/techdr1rt_cop_s'
     }
 };
 
