@@ -6,6 +6,8 @@ export class Surface extends THREE.Mesh {
             this.add(new THREE.Mesh(geometry, materials[i]));
         }
         this._body = body;
+        this.castShadow = true;
+        this.receiveShadow = true;
     }
 
     get body() {

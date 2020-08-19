@@ -7,7 +7,10 @@ export class LwoModel extends THREE.Group {
     }
 
     init() {
-        this.add(new THREE.Mesh(this._geometry, this._materials));
+        const mesh = new THREE.Mesh(this._geometry, this._materials);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        this.add(mesh);
     }
 
     addGui(gui) {
