@@ -9,16 +9,19 @@ export class LightFactory extends EntityFactory {
     create(lightDef, scale=true) {
         let light;
         const lightDistance = lightDef.distance * GameWorld.WORLD_SCALE;
-        if (lightDef.type === 'point')
+        if (lightDef.type === 'point') {
             light = new THREE.PointLight(lightDef.color, lightDef.intensity, lightDistance);
-        else if (lightDef.type === 'spot')
+        } else if (lightDef.type === 'spot') {
             light = new THREE.SpotLight(lightDef.color, lightDef.intensity, lightDistance, lightDef.angle);
-        else
+        } else {
             throw 'Unsupported light type: ' + lightDef.type;
+        }
         light.name = lightDef.name;
         light.position.fromArray(lightDef.position);
-        if (scale)
+        if (scale) {
             light.position.multiplyScalar(GameWorld.WORLD_SCALE);
+        }
+        light.castShadow = lightDef.castShadow;
         return light;
     }
 
