@@ -33,7 +33,7 @@
     "three": "0.118.1"
   },
   "devDependencies": {
-    "grunt": "^1.0.3",
+    "grunt": "^1.5.2",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-cssmin": "^1.0.2",
     "grunt-contrib-jshint": "^1.1.0",
