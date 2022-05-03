@@ -2,14 +2,11 @@
   "name": "doom-three",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "clean": "rimraf ./dist",
-    "build": "npx tsc",
-    "postbuild": "copyfiles ./*.html ./dist",
-    "start": "node ./dist/index.js",
-    "predev": "npm run build",
-    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q ./dist/index.js\"",
+    "build": "npx tsc --project ./server/tsconfig.json && webpack --config ./client/webpack.prod.js",
+    "start": "node ./dist/server/index.js",
+    "dev": "webpack serve --config ./client/webpack.dev.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -17,23 +14,24 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.0.0",
-    "express": "^4.17.3",
-    "three": "^0.139.2"
+    "express": "^4.17.3"
   },
   "devDependencies": {
+    "@types/dat.gui": "^0.7.7",
     "@types/express": "^4.17.13",
     "@types/node": "^17.0.25",
-    "concurrently": "^7.1.0",
-    "copyfiles": "^2.4.1",
-    "nodemon": "^2.0.15",
+    "@types/three": "^0.139.0",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "eslint-webpack-plugin": "^3.1.1",
+    "html-webpack-plugin": "^5.5.0",
     "rimraf": "^3.0.2",
-    "tslint": "^6.1.3",
-    "typescript": "^4.6.3"
-  },
-  "nodemonConfig": {
-    "ext": "js,html",
-    "events": {
-      "restart": "copyfiles ./*.html ./dist"
-    }
+    "terser-webpack-plugin": "^5.3.1",
+    "three": "^0.139.2",
+    "ts-loader": "^9.2.9",
+    "typescript": "^4.6.3",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.8.1",
+    "webpack-merge": "^5.8.0"
   }
 }
