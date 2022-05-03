@@ -21,8 +21,29 @@ export class Game {
         this.camera = this.initCamera(this.config);
         this.renderer = this.initRenderer(this.config, this.container);
         this.stats = this.initStats(this.config, this.container);
+    }
 
-        window.addEventListener('resize', () => this.onWindowResize());
+    static load(mapName: string): Game {
+        const game = new Game();
+        game.loadMap(mapName, () => {
+            console.log(`Map "${mapName}" is loaded`);
+            Game.showLockScreen(() => {
+                window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
+                window.addEventListener('resize', () => game.onWindowResize());
+
+                Game.hideLockScreen();
+                game.animate();
+                console.log('Game started');
+            });
+        });
+        return game;
+    }
+
+    loadMap(mapName: string, onLoad?: () => void) {
+        console.log(`Loading of map "${mapName}"...`);
+        if (onLoad) {
+            onLoad();
+        }
     }
 
     animate() {
@@ -82,19 +103,22 @@ export class Game {
         this.renderer.setSize(width, height);
     }
 
-    private showLockScreen() {
+    private static showLockScreen(onClick?: () => void) {
         const lockScreen = document.getElementById('lock_screen');
         if (!lockScreen) {
             throw new Error('Failed to show lock screen: lock screen element is not found in DOM');
         }
-        lockScreen.style.display = 'block';
+        lockScreen.classList.remove('hidden');
+        if (onClick) {
+            lockScreen.addEventListener('click', () => onClick());
+        }
     }
 
-    private hideLockScreen() {
+    private static hideLockScreen() {
         const lockScreen = document.getElementById('lock_screen');
         if (!lockScreen) {
             throw new Error('Failed to hide lock screen: lock screen element is not found in DOM');
         }
-        lockScreen.style.display = 'none';
+        lockScreen.classList.add('hidden');
     }
 }

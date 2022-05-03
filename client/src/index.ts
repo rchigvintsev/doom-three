@@ -3,7 +3,7 @@ import WebGL from 'three/examples/jsm/capabilities/WebGL';
 import {Game} from './game';
 
 if (WebGL.isWebGLAvailable()) {
-    new Game().animate();
+    Game.load('site3');
 } else {
     showErrorMessage(WebGL.getWebGLErrorMessage());
 }
@@ -14,5 +14,5 @@ function showErrorMessage(messageElement: HTMLElement) {
         throw new Error('Failed to show error message: message container element is not found in DOM');
     }
     containerElement.appendChild(messageElement);
-    containerElement.style.display = 'block';
+    containerElement.classList.remove('hidden');
 }
