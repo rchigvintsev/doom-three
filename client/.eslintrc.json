@@ -16,5 +16,8 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "semi": "warn",
+        "no-debugger": "off",
+        "@typescript-eslint/no-explicit-any": "off"
     }
 }
