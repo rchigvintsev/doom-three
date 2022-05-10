@@ -1,6 +1,8 @@
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const TerserPlugin = require("terser-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const NodeJsonMinify = require('node-json-minify');
 const path = require('path');
 
 module.exports = {
@@ -27,6 +29,11 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './client/src/index.html'
+        }),
+        new CopyWebpackPlugin({
+            patterns: [{
+                from: './client/src/assets', to: 'assets', transform: content => NodeJsonMinify(content.toString())
+            }]
         }),
         new ESLintPlugin({extensions: ['js', 'jsx', 'ts', 'tsx']})
     ],
