@@ -2,6 +2,7 @@ import {PCFShadowMap, PerspectiveCamera, Renderer, Scene, WebGLRenderer} from 't
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GameConfig} from './game-config';
+import {MapLoader} from './map-loader';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
@@ -25,33 +26,31 @@ export class Game {
 
     static load(mapName: string): Game {
         const game = new Game();
-        game.loadMap(mapName, () => {
-            console.log(`Map "${mapName}" is loaded`);
-            Game.showLockScreen(() => {
-                window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
-                window.addEventListener('resize', () => game.onWindowResize());
+        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
+        window.addEventListener('resize', () => game.onWindowResize());
+        game.animate();
 
-                Game.hideLockScreen();
-                game.animate();
-                console.log('Game started');
+        const mapLoader = new MapLoader(game.config);
+        mapLoader.load(mapName).then(() => {
+            console.debug(`Map "${mapName}" is loaded`);
+            Game.showLockScreen(() => {
+                console.debug('Game started');
             });
         });
         return game;
     }
 
-    loadMap(mapName: string, onLoad?: () => void) {
-        console.log(`Loading of map "${mapName}"...`);
-        if (onLoad) {
-            onLoad();
-        }
-    }
-
     animate() {
         requestAnimationFrame(() => this.animate());
+        this.update();
         this.render();
         if (this.config.showStats) {
             this.stats.update();
         }
+    }
+
+    private update() {
+        // Ignore
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
@@ -110,7 +109,10 @@ export class Game {
         }
         lockScreen.classList.remove('hidden');
         if (onClick) {
-            lockScreen.addEventListener('click', () => onClick());
+            lockScreen.addEventListener('click', () => {
+                Game.hideLockScreen();
+                onClick();
+            });
         }
     }
 

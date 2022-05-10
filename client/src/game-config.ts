@@ -5,6 +5,7 @@ const DEFAULT_CAMERA_NEAR = 0.01;
 const DEFAULT_CAMERA_FAR = 1000;
 const DEFAULT_ANTIALIAS = false;
 const DEFAULT_SHOW_STATS = true;
+const DEFAULT_WIREFRAME_ONLY = false;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -12,6 +13,7 @@ export class GameConfig {
     cameraFar = DEFAULT_CAMERA_FAR;
     antialias = DEFAULT_ANTIALIAS;
     showStats = DEFAULT_SHOW_STATS;
+    wireframeOnly = DEFAULT_WIREFRAME_ONLY;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];

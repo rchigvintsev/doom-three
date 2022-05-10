@@ -16,5 +16,5 @@ app.get('/', (req: Request, res: Response) => {
 app.use(express.static(clientRoot));
 
 app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+    console.debug(`[server]: Server is running at http://localhost:${port}`);
 });

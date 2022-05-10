@@ -1,0 +1,31 @@
+{
+  "sounds": {
+    "footsteps": "player_sounds_footsteps",
+    "jumps": "player_sounds_jump_small",
+    "landings": "player_sounds_fastlanding"
+  },
+  "collisionModel": {
+    "bodies": [{
+      "mass": 80,
+      "material": "models/player",
+      "fixedRotation": true,
+      "allowSleep": false,
+      "shapes": [{
+        "type": "sphere",
+        "name": "bottom-body",
+        "radius": 15
+      }, {
+        "type": "sphere",
+        "name": "top-body",
+        "radius": 15,
+        "offset": [0, 30, 0]
+      }, {
+        "type": "sphere",
+        "name": "head",
+        "radius": 6,
+        "offset": [0, 51, 0]
+      }],
+      "collisionFilterGroup": "1 | 2"
+    }]
+  }
+}

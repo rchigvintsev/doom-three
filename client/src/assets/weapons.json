@@ -1,0 +1,57 @@
+[
+  {
+    "name": "fists",
+    "model": "models/md5/weapons/fists_view/fists.md5mesh",
+    "materials": [
+      "models/weapons/berserk/fist"
+    ],
+    "animations": [
+      "models/md5/weapons/fists_view/idle.md5anim",
+      "models/md5/weapons/fists_view/lower.md5anim",
+      "models/md5/weapons/fists_view/raise.md5anim",
+      "models/md5/weapons/fists_view/berserk_punch1.md5anim",
+      "models/md5/weapons/fists_view/berserk_punch2.md5anim",
+      "models/md5/weapons/fists_view/berserk_punch3.md5anim",
+      "models/md5/weapons/fists_view/berserk_punch4.md5anim"
+    ],
+    "position": [
+      0,
+      -6.5,
+      10
+    ],
+    "sounds": {
+      "raise": "fist_raise",
+      "woosh": "fist_whoosh",
+      "impact": "fist_impact"
+    }
+  },
+  {
+    "name": "flashlight",
+    "model": "models/md5/items/flashlight_view/viewflashlight.md5mesh",
+    "materials": [
+      "models/characters/player/arm2",
+      "models/items/flashlight/flashlight2",
+      "models/items/flashlight/bulb",
+      "models/items/flashlight/beam1",
+      "models/items/flashlight/flare",
+      "lights/flashlight5"
+    ],
+    "animations": [
+      "models/md5/items/flashlight_view/idle.md5anim",
+      "models/md5/items/flashlight_view/lower.md5anim",
+      "models/md5/items/flashlight_view/raise.md5anim",
+      "models/md5/items/flashlight_view/swing1.md5anim",
+      "models/md5/items/flashlight_view/swing2.md5anim"
+    ],
+    "position": [
+      -2,
+      16,
+      7
+    ],
+    "sounds": {
+      "raise": "fist_raise",
+      "woosh": "fist_whoosh",
+      "impact": "monster_zombie_fat_wrench"
+    }
+  }
+]

@@ -3,7 +3,7 @@ import WebGL from 'three/examples/jsm/capabilities/WebGL';
 import {Game} from './game';
 
 if (WebGL.isWebGLAvailable()) {
-    Game.load('site3');
+    Game.load('test');
 } else {
     showErrorMessage(WebGL.getWebGLErrorMessage());
 }
