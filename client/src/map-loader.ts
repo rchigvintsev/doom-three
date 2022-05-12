@@ -1,14 +1,14 @@
-import {AudioLoader, FileLoader} from 'three';
-import {TGALoader} from 'three/examples/jsm/loaders/TGALoader';
+import {AudioLoader, FileLoader, Texture} from 'three';
 
 import {GameConfig} from './game-config';
+import {TgaLoader} from './loader/tga-loader';
 
 export class MapLoader {
     private textFileLoader: FileLoader;
     private binaryFileLoader: FileLoader;
     private soundLoader: AudioLoader;
     private animationLoader: FileLoader;
-    private tgaLoader: TGALoader;
+    private tgaLoader: TgaLoader;
 
     constructor(private config: GameConfig) {
         this.textFileLoader = new FileLoader();
@@ -16,22 +16,26 @@ export class MapLoader {
         this.binaryFileLoader.setResponseType('arraybuffer');
         this.soundLoader = new AudioLoader();
         this.animationLoader = new FileLoader();
-        this.tgaLoader = new TGALoader();
+        this.tgaLoader = new TgaLoader();
     }
 
     load(mapName: string): Promise<void> {
         console.debug(`Loading of map "${mapName}"...`);
 
         return Promise.all([
+            this.loadMapMeta(mapName),
+            this.loadMapDef(mapName),
             this.loadMaterialDefs(),
             this.loadSoundDefs(),
             this.loadPlayerDef(),
-            this.loadWeaponDefs()
+            this.loadWeaponDefs(),
         ]).then(result => {
-            const materialDefs = result[0];
-            const soundDefs = result[1];
-            const playerDef = result[2];
-            const weaponDefs = result[3];
+            const mapMeta = result[0];
+            // const mapDef = result[1];
+            const materialDefs = result[2];
+            const soundDefs = result[3];
+            const playerDef = result[4];
+            const weaponDefs = result[5];
 
             const modelsToLoad = new Set<string>();
             const texturesToLoad = new Set<string>();
@@ -39,17 +43,37 @@ export class MapLoader {
             const soundsToLoad = new Set<string>();
 
             this.getSoundSources(playerDef, soundDefs).forEach(source => soundsToLoad.add(source));
+
             weaponDefs.forEach(weaponDef => {
                 modelsToLoad.add(weaponDef.model);
-
                 if (!this.config.wireframeOnly) {
                     this.getTextureSources(weaponDef, materialDefs).forEach(source => texturesToLoad.add(source));
                 }
-
-                (<string[]>weaponDef.animations).forEach(animation => animationsToLoad.add(animation));
+                this.getAnimationSources(weaponDef).forEach(animation => animationsToLoad.add(animation));
                 this.getSoundSources(weaponDef, soundDefs).forEach(source => soundsToLoad.add(source));
             });
+
+            if (!this.config.wireframeOnly) {
+                this.getTextureSources(mapMeta, materialDefs).forEach(source => texturesToLoad.add(source));
+            }
+            this.getModelSources(mapMeta).forEach(source => modelsToLoad.add(source));
+            this.getAnimationSources(mapMeta).forEach(source => animationsToLoad.add(source));
+            this.getSoundSources(mapMeta, soundDefs).forEach(source => soundsToLoad.add(source));
+
+            const totalNumberOfAssetsToLoad = modelsToLoad.size + texturesToLoad.size + animationsToLoad.size
+                + soundsToLoad.size;
+            console.debug(`A total of ${totalNumberOfAssetsToLoad} assets need to be loaded for map "${mapName}"`);
+
+            return this.loadTextures(texturesToLoad).then();
         });
+    }
+
+    private loadMapMeta(mapName: string): Promise<any> {
+        return this.loadJson(`assets/maps/${mapName}.meta.json`);
+    }
+
+    private loadMapDef(mapName: string): Promise<any> {
+        return this.loadJson(`assets/maps/${mapName}.json`);
     }
 
     private loadMaterialDefs(): Promise<Map<string, any>> {
@@ -81,14 +105,20 @@ export class MapLoader {
     }
 
     private loadJson(url: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.textFileLoader.load(url, response => {
-                resolve(JSON.parse(<string>response));
-            }, undefined, event => {
-                console.error(`Failed to load JSON file "${url}"`, event);
-                reject(event);
-            });
-        });
+        return this.textFileLoader.loadAsync(url)
+            .then(response => JSON.parse(<string>response))
+            .catch(reason => console.error(`Failed to load JSON file "${url}"`, reason));
+    }
+
+    private loadTextures(texturesToLoad: Set<string>): Promise<Texture[]> {
+        const texturePromises: Promise<any>[] = [];
+        for (const textureName of texturesToLoad) {
+            texturePromises.push(this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(response => {
+                console.debug(`Texture "${textureName}" is loaded`);
+                return response;
+            }).catch(reason => console.error(`Failed to load texture ${textureName}`, reason)));
+        }
+        return Promise.all(texturePromises);
     }
 
     private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Set<string> {
@@ -115,17 +145,35 @@ export class MapLoader {
         return result;
     }
 
+    private getModelSources(entityDef: any): Set<string> {
+        const result = new Set<string>();
+        if (entityDef.models) {
+            entityDef.models.forEach((modelName: string) => result.add(modelName));
+        }
+        return result;
+    }
+
+    private getAnimationSources(entityDef: any): Set<string> {
+        const result = new Set<string>();
+        if (entityDef.animations) {
+            (<string[]>entityDef.animations).forEach(animationName => result.add(animationName));
+        }
+        return result;
+    }
+
     private getSoundSources(entityDef: any, soundDefs: Map<string, any>): Set<string> {
         const result = new Set<string>();
-        Object.keys(entityDef.sounds).forEach(key => {
-            const soundName = entityDef.sounds[key];
-            const soundDef = soundDefs.get(soundName);
-            if (soundDef) {
-                soundDef.sources.forEach((source: string) => result.add(source));
-            } else {
-                console.error(`Definition of sound "${soundName}" is not found`);
-            }
-        });
+        if (entityDef.sounds) {
+            Object.keys(entityDef.sounds).forEach(key => {
+                const soundName = entityDef.sounds[key];
+                const soundDef = soundDefs.get(soundName);
+                if (soundDef) {
+                    soundDef.sources.forEach((source: string) => result.add(source));
+                } else {
+                    console.error(`Definition of sound "${soundName}" is not found`);
+                }
+            });
+        }
         return result;
     }
 }
