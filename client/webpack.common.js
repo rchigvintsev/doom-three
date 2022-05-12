@@ -32,7 +32,12 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [{
-                from: './client/src/assets', to: 'assets', transform: content => NodeJsonMinify(content.toString())
+                from: './client/src/assets', to: 'assets', transform: (content, fileName) => {
+                    if (fileName.toLowerCase().endsWith('.json')) {
+                        return NodeJsonMinify(content.toString());
+                    }
+                    return content;
+                }
             }]
         }),
         new ESLintPlugin({extensions: ['js', 'jsx', 'ts', 'tsx']})
