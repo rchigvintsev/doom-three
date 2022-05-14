@@ -1,16 +1,18 @@
-import {AudioLoader, FileLoader, Texture} from 'three';
+import {AudioLoader, EventDispatcher, FileLoader, Texture} from 'three';
 
 import {GameConfig} from './game-config';
 import {TgaLoader} from './loader/tga-loader';
+import {ProgressEvent} from './event/progress-event';
 
-export class MapLoader {
-    private textFileLoader: FileLoader;
-    private binaryFileLoader: FileLoader;
-    private soundLoader: AudioLoader;
-    private animationLoader: FileLoader;
-    private tgaLoader: TgaLoader;
+export class MapLoader extends EventDispatcher<ProgressEvent> {
+    readonly textFileLoader: FileLoader;
+    readonly binaryFileLoader: FileLoader;
+    readonly soundLoader: AudioLoader;
+    readonly animationLoader: FileLoader;
+    readonly tgaLoader: TgaLoader;
 
     constructor(private config: GameConfig) {
+        super();
         this.textFileLoader = new FileLoader();
         this.binaryFileLoader = new FileLoader();
         this.binaryFileLoader.setResponseType('arraybuffer');
@@ -37,34 +39,30 @@ export class MapLoader {
             const playerDef = result[4];
             const weaponDefs = result[5];
 
-            const modelsToLoad = new Set<string>();
-            const texturesToLoad = new Set<string>();
-            const animationsToLoad = new Set<string>();
-            const soundsToLoad = new Set<string>();
+            const context = new LoadingContext();
 
-            this.getSoundSources(playerDef, soundDefs).forEach(source => soundsToLoad.add(source));
+            this.getSoundSources(playerDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
 
             weaponDefs.forEach(weaponDef => {
-                modelsToLoad.add(weaponDef.model);
+                context.modelsToLoad.add(weaponDef.model);
                 if (!this.config.wireframeOnly) {
-                    this.getTextureSources(weaponDef, materialDefs).forEach(source => texturesToLoad.add(source));
+                    this.getTextureSources(weaponDef, materialDefs)
+                        .forEach(source => context.texturesToLoad.add(source));
                 }
-                this.getAnimationSources(weaponDef).forEach(animation => animationsToLoad.add(animation));
-                this.getSoundSources(weaponDef, soundDefs).forEach(source => soundsToLoad.add(source));
+                this.getAnimationSources(weaponDef).forEach(animation => context.animationsToLoad.add(animation));
+                this.getSoundSources(weaponDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
             });
 
             if (!this.config.wireframeOnly) {
-                this.getTextureSources(mapMeta, materialDefs).forEach(source => texturesToLoad.add(source));
+                this.getTextureSources(mapMeta, materialDefs).forEach(source => context.texturesToLoad.add(source));
             }
-            this.getModelSources(mapMeta).forEach(source => modelsToLoad.add(source));
-            this.getAnimationSources(mapMeta).forEach(source => animationsToLoad.add(source));
-            this.getSoundSources(mapMeta, soundDefs).forEach(source => soundsToLoad.add(source));
+            this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
+            this.getAnimationSources(mapMeta).forEach(source => context.animationsToLoad.add(source));
+            this.getSoundSources(mapMeta, soundDefs).forEach(source => context.soundsToLoad.add(source));
 
-            const totalNumberOfAssetsToLoad = modelsToLoad.size + texturesToLoad.size + animationsToLoad.size
-                + soundsToLoad.size;
-            console.debug(`A total of ${totalNumberOfAssetsToLoad} assets need to be loaded for map "${mapName}"`);
+            console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
-            return this.loadTextures(texturesToLoad).then();
+            return Promise.all([this.loadTextures(context), this.loadModels(context)]).then();
         });
     }
 
@@ -110,15 +108,33 @@ export class MapLoader {
             .catch(reason => console.error(`Failed to load JSON file "${url}"`, reason));
     }
 
-    private loadTextures(texturesToLoad: Set<string>): Promise<Texture[]> {
+    private loadTextures(context: LoadingContext): Promise<Texture[]> {
         const texturePromises: Promise<any>[] = [];
-        for (const textureName of texturesToLoad) {
+        for (const textureName of context.texturesToLoad) {
             texturePromises.push(this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(response => {
                 console.debug(`Texture "${textureName}" is loaded`);
+                context.loaded++;
+                this.publishProgress(context);
                 return response;
-            }).catch(reason => console.error(`Failed to load texture ${textureName}`, reason)));
+            }).catch(reason => console.error(`Failed to load texture "${textureName}"`, reason)));
         }
         return Promise.all(texturePromises);
+    }
+
+    private loadModels(context: LoadingContext): Promise<any[]> {
+        const modelPromises: Promise<any>[] = [];
+        for (const modelName of context.modelsToLoad) {
+            const fileLoader = modelName.toLowerCase().indexOf('.lwo') > 0
+                ? this.binaryFileLoader
+                : this.textFileLoader;
+            modelPromises.push(fileLoader.loadAsync(`assets/${modelName}`).then(response => {
+                console.debug(`Model "${modelName} is loaded`);
+                context.loaded++;
+                this.publishProgress(context);
+                return response;
+            }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
+        }
+        return Promise.all(modelPromises);
     }
 
     private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Set<string> {
@@ -175,5 +191,24 @@ export class MapLoader {
             });
         }
         return result;
+    }
+
+    private publishProgress(context: LoadingContext) {
+        const total = context.total;
+        const loaded = context.loaded;
+        this.dispatchEvent(new ProgressEvent(loaded / (total / 100)));
+    }
+}
+
+class LoadingContext {
+    readonly texturesToLoad = new Set<string>();
+    readonly modelsToLoad = new Set<string>();
+    readonly animationsToLoad = new Set<string>();
+    readonly soundsToLoad = new Set<string>();
+
+    loaded = 0;
+
+    get total(): number {
+        return this.texturesToLoad.size + this.modelsToLoad.size + this.animationsToLoad.size + this.soundsToLoad.size;
     }
 }
