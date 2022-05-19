@@ -2,23 +2,27 @@ import {AudioLoader, EventDispatcher, FileLoader, Texture} from 'three';
 
 import {GameConfig} from './game-config';
 import {TgaLoader} from './loader/tga-loader';
+import {Md5MeshLoader} from './loader/md5-mesh-loader';
+import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
-    readonly textFileLoader: FileLoader;
-    readonly binaryFileLoader: FileLoader;
-    readonly soundLoader: AudioLoader;
-    readonly animationLoader: FileLoader;
-    readonly tgaLoader: TgaLoader;
+    private readonly textFileLoader: FileLoader;
+    private readonly tgaLoader: TgaLoader;
+    private readonly md5MeshLoader: Md5MeshLoader;
+    private readonly md5AnimationLoader: Md5AnimationLoader;
+    private readonly binaryFileLoader: FileLoader;
+    private readonly soundLoader: AudioLoader;
 
     constructor(private config: GameConfig) {
         super();
         this.textFileLoader = new FileLoader();
+        this.tgaLoader = new TgaLoader();
+        this.md5MeshLoader = new Md5MeshLoader();
+        this.md5AnimationLoader = new Md5AnimationLoader();
         this.binaryFileLoader = new FileLoader();
         this.binaryFileLoader.setResponseType('arraybuffer');
         this.soundLoader = new AudioLoader();
-        this.animationLoader = new FileLoader();
-        this.tgaLoader = new TgaLoader();
     }
 
     load(mapName: string): Promise<void> {
@@ -62,7 +66,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
             console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
-            return Promise.all([this.loadTextures(context), this.loadModels(context)]).then();
+            return Promise.all([this.loadTextures(context), this.loadAnimations(context)]).then();
         });
     }
 
@@ -121,13 +125,30 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(texturePromises);
     }
 
+    private loadAnimations(context: LoadingContext): Promise<any[]> {
+        const animationPromises: Promise<any>[] = [];
+        for (const animationName of context.animationsToLoad) {
+            if (animationName.endsWith('.md5anim')) {
+                animationPromises.push(this.md5AnimationLoader.loadAsync(`assets/${animationName}`).then(response => {
+                    console.debug(`Animation "${animationName} is loaded`);
+                    context.loaded++;
+                    this.publishProgress(context);
+                    return response;
+                }).catch(reason => console.error(`Failed to load animation "${animationName}"`, reason)));
+            } else {
+                throw new Error(`Animation "${animationName}" has unsupported type`);
+            }
+        }
+        return Promise.all(animationPromises);
+    }
+
     private loadModels(context: LoadingContext): Promise<any[]> {
         const modelPromises: Promise<any>[] = [];
         for (const modelName of context.modelsToLoad) {
-            const fileLoader = modelName.toLowerCase().indexOf('.lwo') > 0
+            const loader = modelName.toLowerCase().endsWith('.lwo')
                 ? this.binaryFileLoader
-                : this.textFileLoader;
-            modelPromises.push(fileLoader.loadAsync(`assets/${modelName}`).then(response => {
+                : (modelName.toLowerCase().endsWith('.md5mesh') ? this.md5MeshLoader : this.textFileLoader);
+            modelPromises.push(loader.loadAsync(`assets/${modelName}`).then(response => {
                 console.debug(`Model "${modelName} is loaded`);
                 context.loaded++;
                 this.publishProgress(context);
@@ -194,21 +215,19 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     }
 
     private publishProgress(context: LoadingContext) {
-        const total = context.total;
-        const loaded = context.loaded;
-        this.dispatchEvent(new ProgressEvent(loaded / (total / 100)));
+        this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
     }
 }
 
 class LoadingContext {
     readonly texturesToLoad = new Set<string>();
-    readonly modelsToLoad = new Set<string>();
     readonly animationsToLoad = new Set<string>();
+    readonly modelsToLoad = new Set<string>();
     readonly soundsToLoad = new Set<string>();
 
     loaded = 0;
 
     get total(): number {
-        return this.texturesToLoad.size + this.modelsToLoad.size + this.animationsToLoad.size + this.soundsToLoad.size;
+        return this.texturesToLoad.size + this.animationsToLoad.size + this.modelsToLoad.size + this.soundsToLoad.size;
     }
 }

@@ -3,7 +3,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
-import {ProgressEvent} from "./event/progress-event";
+import {ProgressEvent} from './event/progress-event';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
@@ -32,7 +32,7 @@ export class Game {
         game.animate();
 
         const mapLoader = new MapLoader(game.config);
-        mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress((<ProgressEvent>e)));
+        mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
         mapLoader.load(mapName).then(() => {
             console.debug(`Map "${mapName}" is loaded`);
             Game.showLockScreen(() => {
@@ -49,10 +49,6 @@ export class Game {
         if (this.config.showStats) {
             this.stats.update();
         }
-    }
-
-    private onProgress(e: ProgressEvent) {
-        console.debug(`Load progress: ${e.percentage.toFixed()}%`);
     }
 
     private update() {
@@ -106,6 +102,11 @@ export class Game {
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+    }
+
+    private onProgress(e: ProgressEvent) {
+        const percentage = e.loaded / (e.total / 100);
+        console.debug(`Load progress: ${percentage.toFixed()}%`);
     }
 
     private static showLockScreen(onClick?: () => void) {

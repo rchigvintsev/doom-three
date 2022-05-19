@@ -4,11 +4,11 @@ import {Images} from '../util/images';
 import {TgaImage} from "../util/tga-image";
 
 export class TgaLoader extends Loader {
-    private fileLoader: FileLoader;
+    private readonly fileLoader: FileLoader;
 
     constructor(manager?: LoadingManager) {
         super(manager);
-        this.fileLoader = new FileLoader(manager);
+        this.fileLoader = new FileLoader(this.manager);
         this.fileLoader.setResponseType('arraybuffer');
         this.fileLoader.setPath(this.path);
     }
