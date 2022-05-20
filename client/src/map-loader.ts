@@ -66,7 +66,11 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
             console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
-            return Promise.all([this.loadTextures(context), this.loadAnimations(context)]).then();
+            return Promise.all([
+                this.loadTextures(context),
+                this.loadAnimations(context),
+                this.loadModels(context)
+            ]).then();
         });
     }
 
@@ -128,9 +132,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private loadAnimations(context: LoadingContext): Promise<any[]> {
         const animationPromises: Promise<any>[] = [];
         for (const animationName of context.animationsToLoad) {
-            if (animationName.endsWith('.md5anim')) {
+            if (animationName.toLowerCase().endsWith('.md5anim')) {
                 animationPromises.push(this.md5AnimationLoader.loadAsync(`assets/${animationName}`).then(response => {
-                    console.debug(`Animation "${animationName} is loaded`);
+                    console.debug(`Animation "${animationName}" is loaded`);
                     context.loaded++;
                     this.publishProgress(context);
                     return response;
@@ -145,15 +149,16 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private loadModels(context: LoadingContext): Promise<any[]> {
         const modelPromises: Promise<any>[] = [];
         for (const modelName of context.modelsToLoad) {
-            const loader = modelName.toLowerCase().endsWith('.lwo')
-                ? this.binaryFileLoader
-                : (modelName.toLowerCase().endsWith('.md5mesh') ? this.md5MeshLoader : this.textFileLoader);
-            modelPromises.push(loader.loadAsync(`assets/${modelName}`).then(response => {
-                console.debug(`Model "${modelName} is loaded`);
-                context.loaded++;
-                this.publishProgress(context);
-                return response;
-            }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
+            if (modelName.toLowerCase().endsWith('.md5mesh')) {
+                modelPromises.push(this.md5MeshLoader.loadAsync(`assets/${modelName}`).then(response => {
+                    console.debug(`Model "${modelName}" is loaded`);
+                    context.loaded++;
+                    this.publishProgress(context);
+                    return response;
+                }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
+            } else {
+                throw new Error(`Model "${modelName}" has unsupported type`);
+            }
         }
         return Promise.all(modelPromises);
     }
