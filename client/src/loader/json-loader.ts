@@ -9,6 +9,7 @@ import {
     Loader,
     LoaderUtils,
     LoadingManager,
+    Material,
     MaterialLoader,
     MirroredRepeatWrapping,
     MultiplyBlending,
@@ -74,7 +75,7 @@ export class JsonLoader extends Loader {
         });
     }
 
-    parse(json: any, texturePath?: string): { geometry: BufferGeometry; materials?: any[] } {
+    parse(json: any, texturePath?: string): { geometry: BufferGeometry; materials?: Material[] } {
         if (json.data) {
             // Geometry 4.0 spec
             json = json.data;

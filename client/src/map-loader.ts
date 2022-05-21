@@ -5,24 +5,19 @@ import {TgaLoader} from './loader/tga-loader';
 import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
+import {GameAssets} from './game-assets';
+import {Md5Animation} from './model/md5-animation';
+import {Md5Mesh} from './model/md5-mesh';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
-    private readonly textFileLoader: FileLoader;
-    private readonly tgaLoader: TgaLoader;
-    private readonly md5MeshLoader: Md5MeshLoader;
-    private readonly md5AnimationLoader: Md5AnimationLoader;
-    private readonly binaryFileLoader: FileLoader;
-    private readonly soundLoader: AudioLoader;
+    private readonly jsonLoader = new FileLoader();
+    private readonly tgaLoader = new TgaLoader();
+    private readonly md5MeshLoader = new Md5MeshLoader();
+    private readonly md5AnimationLoader = new Md5AnimationLoader();
+    private readonly soundLoader = new AudioLoader();
 
     constructor(private config: GameConfig) {
         super();
-        this.textFileLoader = new FileLoader();
-        this.tgaLoader = new TgaLoader();
-        this.md5MeshLoader = new Md5MeshLoader();
-        this.md5AnimationLoader = new Md5AnimationLoader();
-        this.binaryFileLoader = new FileLoader();
-        this.binaryFileLoader.setResponseType('arraybuffer');
-        this.soundLoader = new AudioLoader();
     }
 
     load(mapName: string): Promise<void> {
@@ -43,7 +38,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             const playerDef = result[4];
             const weaponDefs = result[5];
 
-            const context = new LoadingContext();
+            const assets = new GameAssets();
+            const context = new LoadingContext(assets);
 
             this.getSoundSources(playerDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
 
@@ -68,8 +64,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
             return Promise.all([
                 this.loadTextures(context),
+                this.loadModels(context),
                 this.loadAnimations(context),
-                this.loadModels(context)
+                this.loadSounds(context)
             ]).then();
         });
     }
@@ -111,7 +108,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     }
 
     private loadJson(url: string): Promise<any> {
-        return this.textFileLoader.loadAsync(url)
+        return this.jsonLoader.loadAsync(url)
             .then(response => JSON.parse(<string>response))
             .catch(reason => console.error(`Failed to load JSON file "${url}"`, reason));
     }
@@ -119,25 +116,42 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private loadTextures(context: LoadingContext): Promise<Texture[]> {
         const texturePromises: Promise<any>[] = [];
         for (const textureName of context.texturesToLoad) {
-            texturePromises.push(this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(response => {
+            texturePromises.push(this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(texture => {
                 console.debug(`Texture "${textureName}" is loaded`);
-                context.loaded++;
+                context.onTextureLoad(textureName, texture);
                 this.publishProgress(context);
-                return response;
+                return texture;
             }).catch(reason => console.error(`Failed to load texture "${textureName}"`, reason)));
         }
         return Promise.all(texturePromises);
     }
 
-    private loadAnimations(context: LoadingContext): Promise<any[]> {
+    private loadModels(context: LoadingContext): Promise<Md5Mesh[]> {
+        const modelPromises: Promise<any>[] = [];
+        for (const modelName of context.modelsToLoad) {
+            if (modelName.toLowerCase().endsWith('.md5mesh')) {
+                modelPromises.push(this.md5MeshLoader.loadAsync(`assets/${modelName}`).then(mesh => {
+                    console.debug(`Model "${modelName}" is loaded`);
+                    context.onModelMeshLoad(modelName, mesh);
+                    this.publishProgress(context);
+                    return mesh;
+                }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
+            } else {
+                throw new Error(`Model "${modelName}" has unsupported type`);
+            }
+        }
+        return Promise.all(modelPromises);
+    }
+
+    private loadAnimations(context: LoadingContext): Promise<Md5Animation[]> {
         const animationPromises: Promise<any>[] = [];
         for (const animationName of context.animationsToLoad) {
             if (animationName.toLowerCase().endsWith('.md5anim')) {
-                animationPromises.push(this.md5AnimationLoader.loadAsync(`assets/${animationName}`).then(response => {
+                animationPromises.push(this.md5AnimationLoader.loadAsync(`assets/${animationName}`).then(animation => {
                     console.debug(`Animation "${animationName}" is loaded`);
-                    context.loaded++;
+                    context.onModelAnimationLoad(animationName, animation);
                     this.publishProgress(context);
-                    return response;
+                    return animation;
                 }).catch(reason => console.error(`Failed to load animation "${animationName}"`, reason)));
             } else {
                 throw new Error(`Animation "${animationName}" has unsupported type`);
@@ -146,21 +160,17 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(animationPromises);
     }
 
-    private loadModels(context: LoadingContext): Promise<any[]> {
-        const modelPromises: Promise<any>[] = [];
-        for (const modelName of context.modelsToLoad) {
-            if (modelName.toLowerCase().endsWith('.md5mesh')) {
-                modelPromises.push(this.md5MeshLoader.loadAsync(`assets/${modelName}`).then(response => {
-                    console.debug(`Model "${modelName}" is loaded`);
-                    context.loaded++;
-                    this.publishProgress(context);
-                    return response;
-                }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
-            } else {
-                throw new Error(`Model "${modelName}" has unsupported type`);
-            }
+    private loadSounds(context: LoadingContext): Promise<any[]> {
+        const soundPromises: Promise<any>[] = [];
+        for (const soundName of context.soundsToLoad) {
+            soundPromises.push(this.soundLoader.loadAsync(`assets/${soundName}`).then(sound => {
+                console.debug(`Sound "${soundName}" is loaded`);
+                context.onSoundLoad(soundName, sound);
+                this.publishProgress(context);
+                return sound;
+            }).catch(reason => console.error(`Failed to load sound "${soundName}"`, reason)));
         }
-        return Promise.all(modelPromises);
+        return Promise.all(soundPromises);
     }
 
     private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Set<string> {
@@ -226,13 +236,36 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
 class LoadingContext {
     readonly texturesToLoad = new Set<string>();
-    readonly animationsToLoad = new Set<string>();
     readonly modelsToLoad = new Set<string>();
+    readonly animationsToLoad = new Set<string>();
     readonly soundsToLoad = new Set<string>();
 
     loaded = 0;
 
+    constructor(private readonly assets: GameAssets) {
+    }
+
     get total(): number {
-        return this.texturesToLoad.size + this.animationsToLoad.size + this.modelsToLoad.size + this.soundsToLoad.size;
+        return this.texturesToLoad.size + this.modelsToLoad.size + this.animationsToLoad.size + this.soundsToLoad.size;
+    }
+
+    onTextureLoad(textureName: string, texture: Texture) {
+        this.assets.textures.set(textureName, texture);
+        this.loaded++;
+    }
+
+    onModelAnimationLoad(animationName: string, animation: Md5Animation) {
+        this.assets.modelAnimations.set(animationName, animation);
+        this.loaded++;
+    }
+
+    onModelMeshLoad(modelName: string, mesh: Md5Mesh) {
+        this.assets.modelMeshes.set(modelName, mesh);
+        this.loaded++;
+    }
+
+    onSoundLoad(soundName: string, sound: AudioBuffer) {
+        this.assets.sounds.set(soundName, sound);
+        this.loaded++;
     }
 }
