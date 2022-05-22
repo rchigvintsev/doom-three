@@ -7,6 +7,8 @@ const DEFAULT_ANTIALIAS = false;
 const DEFAULT_SHOW_STATS = true;
 const DEFAULT_WIREFRAME_ONLY = false;
 const DEFAULT_WORLD_SCALE = 0.01;
+const DEFAULT_PLAYER_LOOK_SPEED = 0.002;
+const DEFAULT_PLAYER_MOVE_SPEED = 0.05;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -16,6 +18,8 @@ export class GameConfig {
     showStats = DEFAULT_SHOW_STATS;
     wireframeOnly = DEFAULT_WIREFRAME_ONLY;
     worldScale = DEFAULT_WORLD_SCALE;
+    playerLookSpeed = DEFAULT_PLAYER_LOOK_SPEED;
+    playerMoveSpeed = DEFAULT_PLAYER_MOVE_SPEED;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];

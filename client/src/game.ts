@@ -4,6 +4,9 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
 import {ProgressEvent} from './event/progress-event';
+import {FpsControls} from './control/fps-controls';
+import {Player} from './entity/player';
+import {PointerLock} from './control/pointer-lock';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
@@ -11,6 +14,8 @@ export class Game {
     private readonly container: HTMLElement;
     private readonly scene: Scene;
     private readonly camera: PerspectiveCamera;
+    private readonly pointerLock: PointerLock;
+    private readonly controls: FpsControls;
     private readonly renderer: Renderer;
     private readonly stats: Stats;
 
@@ -19,24 +24,38 @@ export class Game {
 
         this.container = this.getRequiredGameCanvasContainer();
 
-        this.scene = this.initScene();
-        this.camera = this.initCamera(this.config);
-        this.renderer = this.initRenderer(this.config, this.container);
-        this.stats = this.initStats(this.config, this.container);
+        this.scene = this.createScene();
+        this.camera = this.createCamera(this.config);
+
+        const player = new Player(this.camera);
+        this.scene.add(player);
+
+        this.pointerLock = this.createPointerLock(this.container);
+        this.controls = this.createControls(this.config, player, this.pointerLock);
+        this.renderer = this.createRenderer(this.config, this.container);
+        this.stats = this.createStats(this.config, this.container);
+    }
+
+    init() {
+        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
+        window.addEventListener('resize', () => this.onWindowResize());
     }
 
     static load(mapName: string): Game {
         const game = new Game();
-        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
-        window.addEventListener('resize', () => game.onWindowResize());
+        game.init();
         game.animate();
 
         const mapLoader = new MapLoader(game.config);
         mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
         mapLoader.load(mapName).then(map => {
             console.debug(`Map "${mapName}" is loaded`);
+
             game.scene.add(map);
+            game.controls.init();
+
             Game.showLockScreen(() => {
+                game.pointerLock.request();
                 console.debug('Game started');
             });
         }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
@@ -53,7 +72,7 @@ export class Game {
     }
 
     private update() {
-        // Ignore
+        this.controls.update();
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
@@ -64,16 +83,24 @@ export class Game {
         return container;
     }
 
-    private initScene(): Scene {
+    private createScene(): Scene {
         return new Scene();
     }
 
-    private initCamera(config: GameConfig): PerspectiveCamera {
+    private createCamera(config: GameConfig): PerspectiveCamera {
         const aspect = window.innerWidth / window.innerHeight;
         return new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
     }
 
-    private initRenderer(config: GameConfig, parent: HTMLElement): Renderer {
+    private createPointerLock(target: HTMLElement): PointerLock {
+        return new PointerLock(target);
+    }
+
+    private createControls(config: GameConfig, player: Player, pointerLock: PointerLock): FpsControls {
+        return new FpsControls(config, player, pointerLock);
+    }
+
+    private createRenderer(config: GameConfig, parent: HTMLElement): Renderer {
         const renderer = new WebGLRenderer({antialias: config.antialias});
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -85,7 +112,7 @@ export class Game {
         return renderer;
     }
 
-    private initStats(config: GameConfig, parent: HTMLElement): Stats {
+    private createStats(config: GameConfig, parent: HTMLElement): Stats {
         const stats = Stats();
         if (config.showStats) {
             parent.appendChild(stats.dom);
@@ -117,7 +144,7 @@ export class Game {
         }
         lockScreen.classList.remove('hidden');
         if (onClick) {
-            lockScreen.addEventListener('click', () => {
+            lockScreen.addEventListener('auxclick', () => {
                 Game.hideLockScreen();
                 onClick();
             });
