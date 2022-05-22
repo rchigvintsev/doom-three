@@ -1,4 +1,4 @@
-import {Quaternion, Vector3} from "three";
+import {Quaternion, Vector3} from 'three';
 
 export class Md5Animation {
     constructor(readonly name: string,

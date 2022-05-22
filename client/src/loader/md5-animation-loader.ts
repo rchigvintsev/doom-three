@@ -1,6 +1,6 @@
 import {FileLoader, Loader, LoadingManager, Quaternion, Vector3} from 'three';
 
-import {Md5Animation, Md5AnimationBaseFrame, Md5AnimationHierarchyElement} from '../model/md5-animation';
+import {Md5Animation, Md5AnimationBaseFrame, Md5AnimationHierarchyElement} from '../entity/md5model/md5-animation';
 
 /**
  * Code for parsing of MD5 animation is kindly borrowed from "MD5 to JSON Converter"

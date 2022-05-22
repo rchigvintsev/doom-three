@@ -1,7 +1,7 @@
 import {FileLoader, Loader, LoadingManager, Quaternion, Vector2, Vector3} from 'three';
 
 import {JsonLoader} from './json-loader';
-import {Md5Mesh, Md5MeshJoint, Md5MeshVertex, Md5MeshWeight, Md5MeshVertexWeight} from '../model/md5-mesh';
+import {Md5Mesh, Md5MeshJoint, Md5MeshVertex, Md5MeshWeight, Md5MeshVertexWeight} from '../entity/md5model/md5-mesh';
 
 /**
  * Code for parsing of MD5 mesh is kindly borrowed from "MD5 to JSON Converter"

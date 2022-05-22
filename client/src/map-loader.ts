@@ -6,8 +6,13 @@ import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
 import {GameAssets} from './game-assets';
-import {Md5Animation} from './model/md5-animation';
-import {Md5Mesh} from './model/md5-mesh';
+import {Md5Animation} from './entity/md5model/md5-animation';
+import {Md5Mesh} from './entity/md5model/md5-mesh';
+import {AreaFactory} from './entity/area/area-factory';
+import {SurfaceFactory} from './entity/surface/surface-factory';
+import {MaterialFactory} from './material/material-factory';
+import {GameMap} from './entity/map/game-map';
+import {MapFactory} from './entity/map/map-factory';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -20,7 +25,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         super();
     }
 
-    load(mapName: string): Promise<void> {
+    load(mapName: string): Promise<GameMap> {
         console.debug(`Loading of map "${mapName}"...`);
 
         return Promise.all([
@@ -32,7 +37,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.loadWeaponDefs(),
         ]).then(result => {
             const mapMeta = result[0];
-            // const mapDef = result[1];
+            const mapDef = result[1];
             const materialDefs = result[2];
             const soundDefs = result[3];
             const playerDef = result[4];
@@ -67,7 +72,11 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadModels(context),
                 this.loadAnimations(context),
                 this.loadSounds(context)
-            ]).then();
+            ]).then(() => {
+                const materialFactory = new MaterialFactory(materialDefs, assets);
+                const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
+                return new MapFactory(new AreaFactory(surfaceFactory)).create(mapDef);
+            });
         });
     }
 
@@ -110,7 +119,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private loadJson(url: string): Promise<any> {
         return this.jsonLoader.loadAsync(url)
             .then(response => JSON.parse(<string>response))
-            .catch(reason => console.error(`Failed to load JSON file "${url}"`, reason));
+            .catch(reason => {
+                console.error(`Failed to load JSON file "${url}"`, reason);
+                return Promise.reject(reason);
+            });
     }
 
     private loadTextures(context: LoadingContext): Promise<Texture[]> {
@@ -121,7 +133,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 context.onTextureLoad(textureName, texture);
                 this.publishProgress(context);
                 return texture;
-            }).catch(reason => console.error(`Failed to load texture "${textureName}"`, reason)));
+            }).catch(reason => {
+                console.error(`Failed to load texture "${textureName}"`, reason);
+                return Promise.reject(reason);
+            }));
         }
         return Promise.all(texturePromises);
     }
@@ -135,7 +150,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                     context.onModelMeshLoad(modelName, mesh);
                     this.publishProgress(context);
                     return mesh;
-                }).catch(reason => console.error(`Failed to load model "${modelName}"`, reason)));
+                }).catch(reason => {
+                    console.error(`Failed to load model "${modelName}"`, reason);
+                    return Promise.reject(reason);
+                }));
             } else {
                 throw new Error(`Model "${modelName}" has unsupported type`);
             }
@@ -152,7 +170,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                     context.onModelAnimationLoad(animationName, animation);
                     this.publishProgress(context);
                     return animation;
-                }).catch(reason => console.error(`Failed to load animation "${animationName}"`, reason)));
+                }).catch(reason => {
+                    console.error(`Failed to load animation "${animationName}"`, reason);
+                    return Promise.reject(reason);
+                }));
             } else {
                 throw new Error(`Animation "${animationName}" has unsupported type`);
             }
@@ -168,7 +189,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 context.onSoundLoad(soundName, sound);
                 this.publishProgress(context);
                 return sound;
-            }).catch(reason => console.error(`Failed to load sound "${soundName}"`, reason)));
+            }).catch(reason => {
+                console.error(`Failed to load sound "${soundName}"`, reason);
+                return Promise.reject(reason);
+            }));
         }
         return Promise.all(soundPromises);
     }

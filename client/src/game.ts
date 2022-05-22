@@ -33,12 +33,13 @@ export class Game {
 
         const mapLoader = new MapLoader(game.config);
         mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
-        mapLoader.load(mapName).then(() => {
+        mapLoader.load(mapName).then(map => {
             console.debug(`Map "${mapName}" is loaded`);
+            game.scene.add(map);
             Game.showLockScreen(() => {
                 console.debug('Game started');
             });
-        });
+        }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         return game;
     }
 
