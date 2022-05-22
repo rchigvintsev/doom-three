@@ -1,17 +1,26 @@
+import {Light} from 'three';
+
 import {EntityFactory} from '../entity-factory';
 import {Area} from './area';
 import {SurfaceFactory} from '../surface/surface-factory';
 import {Surface} from '../surface/surface';
+import {LightFactory} from '../light/light-factory';
 
 export class AreaFactory implements EntityFactory<Area> {
-    constructor(private readonly surfaceFactory: SurfaceFactory) {
+    constructor(private readonly surfaceFactory: SurfaceFactory, private readonly lightFactory: LightFactory) {
     }
 
     create(areaDef: any): Area {
         const surfaces: Surface[] = [];
+        const lights: Light[] = [];
         for (const surfaceDef of areaDef.surfaces) {
             surfaces.push(this.surfaceFactory.create(surfaceDef));
         }
-        return new Area(surfaces);
+        if (areaDef.lights) {
+            for (const lightDef of areaDef.lights) {
+                lights.push(this.lightFactory.create(lightDef));
+            }
+        }
+        return new Area(surfaces, lights);
     }
 }

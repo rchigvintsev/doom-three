@@ -2,8 +2,8 @@ import {Mesh, MeshBasicMaterial, Quaternion, Vector3} from 'three';
 import {round} from 'mathjs';
 
 import {EntityFactory} from '../entity-factory';
-import {Md5Mesh, Md5MeshJoint, Md5MeshVertex, Md5MeshWeight} from './md5-mesh';
-import {Md5Animation} from './md5-animation';
+import {Md5Mesh, Md5MeshJoint, Md5MeshVertex, Md5MeshWeight} from '../../loader/md5-mesh';
+import {Md5Animation} from '../../loader/md5-animation';
 import {JsonLoader} from '../../loader/json-loader';
 import {GameAssets} from '../../game-assets';
 

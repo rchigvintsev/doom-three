@@ -43,7 +43,7 @@ export class TgaLoader extends Loader {
     private static createImageData(renderingContext: CanvasRenderingContext2D, tgaImage: TgaImage) {
         const imageData = renderingContext.createImageData(tgaImage.width, tgaImage.height);
         for (let i = 0; i < tgaImage.data.length; i++) {
-            imageData.data[i] = tgaImage.data[0];
+            imageData.data[i] = tgaImage.data[i];
         }
         Images.flip(imageData);
         return imageData;

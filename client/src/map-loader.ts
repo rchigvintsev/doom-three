@@ -6,13 +6,14 @@ import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
 import {GameAssets} from './game-assets';
-import {Md5Animation} from './entity/md5model/md5-animation';
-import {Md5Mesh} from './entity/md5model/md5-mesh';
+import {Md5Animation} from './loader/md5-animation';
+import {Md5Mesh} from './loader/md5-mesh';
 import {AreaFactory} from './entity/area/area-factory';
 import {SurfaceFactory} from './entity/surface/surface-factory';
 import {MaterialFactory} from './material/material-factory';
 import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
+import {LightFactory} from './entity/light/light-factory';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -73,9 +74,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
-                const materialFactory = new MaterialFactory(materialDefs, assets);
-                const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
-                return new MapFactory(new AreaFactory(surfaceFactory)).create(mapDef);
+                const surfaceFactory = new SurfaceFactory(this.config, new MaterialFactory(materialDefs, assets));
+                const lightFactory = new LightFactory(this.config);
+                return new MapFactory(new AreaFactory(surfaceFactory, lightFactory), lightFactory).create(mapDef);
             });
         });
     }
