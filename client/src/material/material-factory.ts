@@ -65,7 +65,7 @@ export class MaterialFactory {
             }
         }
 
-        if (materialDef.alphaTest != null) {
+        if (materialDef.alphaTest) {
             material.alphaTest = materialDef.alphaTest;
         }
 
@@ -79,7 +79,7 @@ export class MaterialFactory {
 
         if (materialDef.shininess) {
             if (material instanceof MeshPhongMaterial) {
-                material.shininess = materialDef.specular;
+                material.shininess = materialDef.shininess;
             } else {
                 console.warn(`Definition of material "${materialDef.name}" has unsupported property "shininess"`);
             }

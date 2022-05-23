@@ -13,19 +13,21 @@ export class FpsControls {
     private readonly keyboardState = new KeyboardState();
     private readonly inputVelocity = new Vector3();
 
+    private initialized = false;
+
     constructor(private readonly config: GameConfig,
                 private readonly player: Player,
                 private readonly pointerLock: PointerLock) {
     }
 
     init() {
-        document.addEventListener('mousemove', e => this.onMouseMove(e));
-
-        this.keyboardState.init();
-
-        this.pointerLock.addEventListener(PointerLockEvent.TYPE, () => this.onPointerLock());
-        this.pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => this.onPointerUnlock());
-        this.pointerLock.init();
+        if (!this.initialized) {
+            document.addEventListener('mousemove', e => this.onMouseMove(e));
+            this.keyboardState.init();
+            this.pointerLock.addEventListener(PointerLockEvent.TYPE, () => this.onPointerLock());
+            this.pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => this.onPointerUnlock());
+            this.initialized = true;
+        }
     }
 
     update() {

@@ -19,6 +19,8 @@ export class Game {
     private readonly renderer: Renderer;
     private readonly stats: Stats;
 
+    private initialized = false;
+
     constructor() {
         this.config = GameConfig.load();
 
@@ -37,8 +39,11 @@ export class Game {
     }
 
     init() {
-        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
-        window.addEventListener('resize', () => this.onWindowResize());
+        if (!this.initialized) {
+            window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
+            window.addEventListener('resize', () => this.onWindowResize());
+            this.initialized = true;
+        }
     }
 
     static load(mapName: string): Game {
@@ -53,6 +58,7 @@ export class Game {
 
             game.scene.add(map);
             game.controls.init();
+            game.pointerLock.init();
 
             Game.showLockScreen(() => {
                 game.pointerLock.request();

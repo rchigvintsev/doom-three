@@ -23,9 +23,14 @@ export class KeyboardState {
 
     private readonly pressedKeys = new Map<string, boolean>();
 
+    private initialized = false;
+
     init() {
-        document.addEventListener('keydown', e => this.onKeyDown(e));
-        document.addEventListener('keyup', e => this.onKeyUp(e));
+        if (!this.initialized) {
+            document.addEventListener('keydown', e => this.onKeyDown(e));
+            document.addEventListener('keyup', e => this.onKeyUp(e));
+            this.initialized = true;
+        }
     }
 
     isKeyPressed(keyCode: string): boolean {

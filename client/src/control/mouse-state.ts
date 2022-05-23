@@ -5,9 +5,14 @@ export class MouseState {
 
     private readonly pressedButtons = new Map<number, boolean>();
 
+    private initialized = false;
+
     init() {
-        document.addEventListener('mousedown', e => this.onMouseDown(e));
-        document.addEventListener('mouseup', e => this.onMouseUp(e));
+        if (!this.initialized) {
+            document.addEventListener('mousedown', e => this.onMouseDown(e));
+            document.addEventListener('mouseup', e => this.onMouseUp(e));
+            this.initialized = true;
+        }
     }
 
     isButtonPressed(button: number): boolean {

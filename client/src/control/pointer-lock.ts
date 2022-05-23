@@ -1,4 +1,5 @@
 import {EventDispatcher} from 'three';
+
 import {PointerLockEvent} from '../event/pointer-lock-event';
 import {PointerUnlockEvent} from '../event/pointer-unlock-event';
 
@@ -8,12 +9,17 @@ export class PointerLock extends EventDispatcher {
     private readonly pointerLockChangeEventListener = () => this.onPointerLockChange();
     private readonly pointerLockErrorEventListener = () => this.onPointerLockError();
 
+    private initialized = false;
+
     constructor(private readonly target: HTMLElement) {
         super();
     }
 
     init() {
-        this.target.addEventListener('auxclick', () => this.request());
+        if (!this.initialized) {
+            this.target.addEventListener('auxclick', () => this.request());
+            this.initialized = true;
+        }
     }
 
     request() {
