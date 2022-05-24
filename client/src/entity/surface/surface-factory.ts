@@ -1,11 +1,11 @@
-import {BufferGeometry, Vector2, Vector3} from 'three';
-import {Face3, Geometry} from 'three/examples/jsm/deprecated/Geometry';
+import {BufferAttribute, BufferGeometry, Vector2, Vector3} from 'three';
 
 import {EntityFactory} from '../entity-factory';
 import {Surface} from './surface';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
 
+// noinspection JSMethodCanBeStatic
 export class SurfaceFactory implements EntityFactory<Surface> {
     constructor(private readonly config: GameConfig, private readonly materialFactory: MaterialFactory) {
     }
@@ -21,32 +21,69 @@ export class SurfaceFactory implements EntityFactory<Surface> {
     }
 
     private createGeometry(geometryDef: any): BufferGeometry {
+        if (geometryDef.vertices.length > 0 && geometryDef.faces.length === 0) {
+            throw new Error('Faceless geometries are not supported');
+        }
+
         const vertices: Vector3[] = [];
-        for (const vertex of geometryDef.vertices) {
-            vertices.push(new Vector3(vertex[0], vertex[1], vertex[2]).multiplyScalar(this.config.worldScale));
+        const normals: Vector3[] = [];
+        const uvs: Vector2[] = [];
+
+        for (let i = 0; i < geometryDef.faces.length; i++) {
+            const face = geometryDef.faces[i];
+
+            for (let j = 0; j < 3; j++) {
+                const vertex = geometryDef.vertices[face[j]];
+                vertices.push(new Vector3().fromArray(vertex).multiplyScalar(this.config.worldScale));
+            }
+
+            const faceNormal = this.computeFaceNormal(face, geometryDef.vertices);
+            normals.push(faceNormal, faceNormal, faceNormal);
+
+            if (geometryDef.uvs.length > 0) {
+                const uv = geometryDef.uvs[i];
+                if (uv) {
+                    uvs.push(
+                        new Vector2(uv[0][0], uv[0][1] * -1),
+                        new Vector2(uv[1][0], uv[1][1] * -1),
+                        new Vector2(uv[2][0], uv[2][1] * -1)
+                    );
+                } else {
+                    console.warn(`Vertex UV is not defined for face ${i}`);
+                    uvs.push(new Vector2(), new Vector2(), new Vector2());
+                }
+            }
         }
 
-        const faces: Face3[] = [];
-        for (const face of geometryDef.faces) {
-            faces.push(new Face3(face[0], face[1], face[2]));
+        const bufferGeometry = new BufferGeometry();
+        const position = new BufferAttribute(new Float32Array(vertices.length * 3), 3).copyVector3sArray(vertices);
+        bufferGeometry.setAttribute('position', position);
+        if (normals.length > 0) {
+            const normal = new BufferAttribute(new Float32Array(normals.length * 3), 3).copyVector3sArray(normals);
+            bufferGeometry.setAttribute('normal', normal);
         }
+        if (uvs.length > 0) {
+            const uv = new BufferAttribute(new Float32Array(uvs.length * 2), 2).copyVector2sArray(uvs);
+            bufferGeometry.setAttribute('uv', uv);
+        }
+        bufferGeometry.groups = [{
+            start: 0,
+            materialIndex: 0,
+            count: geometryDef.faces.length * 3
+        }];
+        return bufferGeometry;
+    }
 
-        const geometry = new Geometry();
-        geometry.vertices = vertices;
-        geometry.faces = faces;
+    private computeFaceNormal(face: number[], vertices: number[][]): Vector3 {
+        const vA = new Vector3().fromArray(vertices[face[0]]);
+        const vB = new Vector3().fromArray(vertices[face[1]]);
+        const vC = new Vector3().fromArray(vertices[face[2]]);
 
-        geometryDef.uvs.forEach(function (uv: number[][], i: number) {
-            geometry.faceVertexUvs[0][i] = [
-                new Vector2(uv[0][0], uv[0][1] * -1),
-                new Vector2(uv[1][0], uv[1][1] * -1),
-                new Vector2(uv[2][0], uv[2][1] * -1)
-            ];
-        });
-
-        geometry.mergeVertices();
-        geometry.computeFaceNormals();
-        geometry.computeVertexNormals();
-        // TODO: try to use BufferGeometry without mediation of deprecated Geometry
-        return geometry.toBufferGeometry();
+        const cb = new Vector3(), ab = new Vector3();
+        cb.subVectors(vC, vB);
+        ab.subVectors(vA, vB);
+        cb.cross(ab);
+        cb.normalize();
+        return cb;
     }
 }
