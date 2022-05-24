@@ -1,4 +1,4 @@
-import {BufferAttribute, BufferGeometry, Vector2, Vector3} from 'three';
+import {BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Vector2, Vector3} from 'three';
 
 import {EntityFactory} from '../entity-factory';
 import {Surface} from './surface';
@@ -11,9 +11,17 @@ export class SurfaceFactory implements EntityFactory<Surface> {
     }
 
     create(surfaceDef: any): Surface {
+        let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
-        const materials = this.materialFactory.create(surfaceDef.material);
-        const surface = new Surface(geometry, materials);
+        if (this.config.renderOnlyWireframe) {
+            surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}));
+        } else {
+            const materials = this.materialFactory.create(surfaceDef.material);
+            surface = new Surface(geometry, materials);
+            if (this.config.showWireframe) {
+                surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
+            }
+        }
         if (surfaceDef.position) {
             surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
         }

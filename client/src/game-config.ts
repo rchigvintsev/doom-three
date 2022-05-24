@@ -5,11 +5,12 @@ const DEFAULT_CAMERA_NEAR = 0.01;
 const DEFAULT_CAMERA_FAR = 1000;
 const DEFAULT_ANTIALIAS = false;
 const DEFAULT_SHOW_STATS = true;
-const DEFAULT_WIREFRAME_ONLY = false;
+const DEFAULT_SHOW_WIREFRAME = false;
+const DEFAULT_RENDER_ONLY_WIREFRAME = false;
 const DEFAULT_WORLD_SCALE = 0.01;
 const DEFAULT_PLAYER_LOOK_SPEED = 0.002;
 const DEFAULT_PLAYER_MOVE_SPEED = 0.05;
-const DEFAULT_SHOW_LIGHT_SOURCES = true;
+const DEFAULT_SHOW_LIGHT_SOURCES = false;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -17,7 +18,8 @@ export class GameConfig {
     cameraFar = DEFAULT_CAMERA_FAR;
     antialias = DEFAULT_ANTIALIAS;
     showStats = DEFAULT_SHOW_STATS;
-    wireframeOnly = DEFAULT_WIREFRAME_ONLY;
+    showWireframe = DEFAULT_SHOW_WIREFRAME;
+    renderOnlyWireframe = DEFAULT_RENDER_ONLY_WIREFRAME;
     worldScale = DEFAULT_WORLD_SCALE;
     playerLookSpeed = DEFAULT_PLAYER_LOOK_SPEED;
     playerMoveSpeed = DEFAULT_PLAYER_MOVE_SPEED;

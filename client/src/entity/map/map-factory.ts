@@ -5,9 +5,12 @@ import {GameMap} from './game-map';
 import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
+import {GameConfig} from '../../game-config';
 
 export class MapFactory implements EntityFactory<GameMap> {
-    constructor(private readonly areaFactory: AreaFactory, private readonly lightFactory: LightFactory) {
+    constructor(private readonly config: GameConfig,
+                private readonly areaFactory: AreaFactory,
+                private readonly lightFactory: LightFactory) {
     }
 
     create(mapDef: any): GameMap {
@@ -16,7 +19,7 @@ export class MapFactory implements EntityFactory<GameMap> {
         for (const areaDef of mapDef.areas) {
             areas.push(this.areaFactory.create(areaDef));
         }
-        if (mapDef.lights) {
+        if (!this.config.renderOnlyWireframe && mapDef.lights) {
             for (const lightDef of mapDef.lights) {
                 lights.push(this.lightFactory.create(lightDef));
             }

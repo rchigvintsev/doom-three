@@ -51,7 +51,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
             weaponDefs.forEach(weaponDef => {
                 context.modelsToLoad.add(weaponDef.model);
-                if (!this.config.wireframeOnly) {
+                if (!this.config.renderOnlyWireframe) {
                     this.getTextureSources(weaponDef, materialDefs)
                         .forEach(source => context.texturesToLoad.add(source));
                 }
@@ -59,7 +59,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.getSoundSources(weaponDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
             });
 
-            if (!this.config.wireframeOnly) {
+            if (!this.config.renderOnlyWireframe) {
                 this.getTextureSources(mapMeta, materialDefs).forEach(source => context.texturesToLoad.add(source));
             }
             this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
@@ -74,9 +74,11 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
-                const surfaceFactory = new SurfaceFactory(this.config, new MaterialFactory(materialDefs, assets));
+                const materialFactory = new MaterialFactory(materialDefs, assets);
+                const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
                 const lightFactory = new LightFactory(this.config);
-                return new MapFactory(new AreaFactory(surfaceFactory, lightFactory), lightFactory).create(mapDef);
+                const areaFactory = new AreaFactory(this.config, surfaceFactory, lightFactory);
+                return new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
             });
         });
     }
