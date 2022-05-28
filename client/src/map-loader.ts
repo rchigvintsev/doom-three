@@ -6,14 +6,13 @@ import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
 import {GameAssets} from './game-assets';
-import {Md5Animation} from './loader/md5-animation';
-import {Md5Mesh} from './loader/md5-mesh';
 import {AreaFactory} from './entity/area/area-factory';
 import {SurfaceFactory} from './entity/surface/surface-factory';
 import {MaterialFactory} from './material/material-factory';
 import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
+import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -78,7 +77,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
                 const lightFactory = new LightFactory(this.config);
                 const areaFactory = new AreaFactory(this.config, surfaceFactory, lightFactory);
-                return new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
+                const md5ModelFactory = new Md5ModelFactory(this.config, materialFactory, assets);
+                const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
+
+                weaponDefs.forEach(weaponDef => map.add(md5ModelFactory.create(weaponDef)));
+
+                return map;
             });
         });
     }
@@ -144,7 +148,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(texturePromises);
     }
 
-    private loadModels(context: LoadingContext): Promise<Md5Mesh[]> {
+    private loadModels(context: LoadingContext): Promise<any[]> {
         const modelPromises: Promise<any>[] = [];
         for (const modelName of context.modelsToLoad) {
             if (modelName.toLowerCase().endsWith('.md5mesh')) {
@@ -164,7 +168,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(modelPromises);
     }
 
-    private loadAnimations(context: LoadingContext): Promise<Md5Animation[]> {
+    private loadAnimations(context: LoadingContext): Promise<any[]> {
         const animationPromises: Promise<any>[] = [];
         for (const animationName of context.animationsToLoad) {
             if (animationName.toLowerCase().endsWith('.md5anim')) {
@@ -281,12 +285,12 @@ class LoadingContext {
         this.loaded++;
     }
 
-    onModelAnimationLoad(animationName: string, animation: Md5Animation) {
+    onModelAnimationLoad(animationName: string, animation: any) {
         this.assets.modelAnimations.set(animationName, animation);
         this.loaded++;
     }
 
-    onModelMeshLoad(modelName: string, mesh: Md5Mesh) {
+    onModelMeshLoad(modelName: string, mesh: any) {
         this.assets.modelMeshes.set(modelName, mesh);
         this.loaded++;
     }

@@ -1,7 +1,5 @@
 import {FileLoader, Loader, LoadingManager, Quaternion, Vector3} from 'three';
 
-import {Md5Animation, Md5AnimationBaseFrame, Md5AnimationHierarchyElement} from './md5-animation';
-
 /**
  * Code for parsing of MD5 animation is kindly borrowed from "MD5 to JSON Converter"
  * (http://oos.moxiecode.com/js_webgl/md5_converter) by @oosmoxiecode (https://twitter.com/oosmoxiecode).
@@ -14,17 +12,17 @@ export class Md5AnimationLoader extends Loader {
         this.fileLoader = new FileLoader(manager);
     }
 
-    loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<Md5Animation> {
+    loadAsync(url: string, onProgress?: (event: ProgressEvent) => void): Promise<any> {
         return this.fileLoader.loadAsync(url, onProgress).then(content => this.parse(<string>content));
     }
 
-    parse(s: string): Md5Animation {
+    parse(s: string): any {
         const name = this.parseName(s);
         const frameRate = this.parseFrameRate(s);
         const hierarchy = this.parseHierarchy(s);
         const baseFrames = this.parseBaseFrames(s);
         const frames = this.parseFrames(s);
-        return new Md5Animation(name, frameRate, hierarchy, baseFrames, frames);
+        return {name, frameRate, frameTime: 1000 / frameRate, hierarchy, baseFrames, frames};
     }
 
     private parseName(s: string): string {
@@ -45,11 +43,11 @@ export class Md5AnimationLoader extends Loader {
         return result;
     }
 
-    private parseHierarchy(s: string): Md5AnimationHierarchyElement[] {
-        const result: Md5AnimationHierarchyElement[] = [];
+    private parseHierarchy(s: string): any[] {
+        const result: any[] = [];
         s.replace(/hierarchy {([^}]*)}/m, (_, hierarchy) => {
             (<string>hierarchy).replace(/"(.+)"\s([-\d]+) (\d+) (\d+)/g, (_, name, parent, flags, index) => {
-                result.push(new Md5AnimationHierarchyElement(name, parseInt(parent), parseInt(flags), parseInt(index)));
+                result.push({name, parent: parseInt(parent), flags: parseInt(flags), index: parseInt(index)});
                 return _;
             });
             return _;
@@ -57,14 +55,14 @@ export class Md5AnimationLoader extends Loader {
         return result;
     }
 
-    private parseBaseFrames(s: string): Md5AnimationBaseFrame[] {
-        const result: Md5AnimationBaseFrame[] = [];
+    private parseBaseFrames(s: string): any[] {
+        const result: any[] = [];
         s.replace(/baseframe {([^}]*)}/m, (_, baseFrames) => {
             const baseFrameRegExp = /\( ([-\d.]+) ([-\d.]+) ([-\d.]+) \) \( ([-\d.]+) ([-\d.]+) ([-\d.]+) \)/g;
             (<string>baseFrames).replace(baseFrameRegExp, (_, x, y, z, ox, oy, oz) => {
                 const position = new Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
                 const orientation = new Quaternion(parseFloat(ox), parseFloat(oy), parseFloat(oz), 0);
-                result.push(new Md5AnimationBaseFrame(position, orientation));
+                result.push({position, orientation});
                 return _;
             });
             return _;

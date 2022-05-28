@@ -66,10 +66,8 @@ export class SurfaceFactory implements EntityFactory<Surface> {
         const bufferGeometry = new BufferGeometry();
         const position = new BufferAttribute(new Float32Array(vertices.length * 3), 3).copyVector3sArray(vertices);
         bufferGeometry.setAttribute('position', position);
-        if (normals.length > 0) {
-            const normal = new BufferAttribute(new Float32Array(normals.length * 3), 3).copyVector3sArray(normals);
-            bufferGeometry.setAttribute('normal', normal);
-        }
+        const normal = new BufferAttribute(new Float32Array(normals.length * 3), 3).copyVector3sArray(normals);
+        bufferGeometry.setAttribute('normal', normal);
         if (uvs.length > 0) {
             const uv = new BufferAttribute(new Float32Array(uvs.length * 2), 2).copyVector2sArray(uvs);
             bufferGeometry.setAttribute('uv', uv);
