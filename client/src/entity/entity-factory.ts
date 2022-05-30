@@ -1,5 +1,7 @@
 import {Object3D} from 'three';
 
-export interface EntityFactory<T extends Object3D> {
+import {Entity} from './entity';
+
+export interface EntityFactory<T extends (Entity | Object3D)> {
     create(entityDef: any): T;
 }

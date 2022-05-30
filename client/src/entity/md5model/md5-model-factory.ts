@@ -1,13 +1,22 @@
 import {
+    AnimationAction,
     AnimationClip,
+    AnimationMixer,
+    Bone,
     BufferAttribute,
     BufferGeometry,
+    Float32BufferAttribute,
+    LoopOnce,
     Material,
     MathUtils,
-    Mesh,
+    MeshPhongMaterial,
     Quaternion,
+    Skeleton,
+    SkeletonHelper,
+    SkinnedMesh,
     Vector2,
-    Vector3
+    Vector3,
+    Vector4
 } from 'three';
 import {round} from 'mathjs';
 
@@ -15,15 +24,17 @@ import {EntityFactory} from '../entity-factory';
 import {GameAssets} from '../../game-assets';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
+import {Fists} from '../weapon/fists';
+import {Weapon} from '../weapon/weapon';
 
 // noinspection JSMethodCanBeStatic
-export class Md5ModelFactory implements EntityFactory<Mesh> {
+export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
     constructor(private readonly config: GameConfig,
                 private readonly materialFactory: MaterialFactory,
                 private readonly assets: GameAssets) {
     }
 
-    create(modelDef: any): Mesh {
+    create(modelDef: any): SkinnedMesh {
         const mesh = this.assets.modelMeshes.get(modelDef.model);
         if (!mesh) {
             throw new Error(`MD5 model mesh "${modelDef.model}" is not found in game assets`);
@@ -39,16 +50,34 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
 
         this.bindPose(mesh, animations[0]);
         const composed = this.compose(mesh, animations);
-        const result = new Mesh(this.createGeometry(composed), this.getMaterials(modelDef)[0]);
-        result.animations = this.createAnimations(composed);
+        const result = this.createMesh(modelDef, composed);
+
+        const animationMixer = new AnimationMixer(result);
+        const actions = new Map<string, AnimationAction>();
+        for (let i = 0; i < animations.length; i++) {
+            const animation = animations[i];
+            const action = animationMixer.clipAction(animation.name);
+            if (animation.name !== 'idle') {
+                action.setLoop(LoopOnce, 1);
+            }
+            actions.set(animation.name, action);
+        }
+        result.userData['animationMixer'] = animationMixer;
+
+        const action = actions.get('idle');
+        if (action) {
+            action.play();
+        }
+
         result.position.set(0, 0.5, 0);
-        result.rotateX(MathUtils.degToRad(-90));
         return result;
     }
 
     private bindPose(mesh: any, animation: any) {
         const rotatedPosition = new Vector3(0, 0, 0);
         const firstFrame = this.getFrame(animation, 0, true);
+        mesh.skinWeights = [];
+        mesh.skinIndices = [];
         if (mesh.meshes) {
             for (const subMesh of mesh.meshes) {
                 for (const vertex of subMesh.vertices) {
@@ -60,11 +89,11 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
                         if (w === 0) {
                             const heavyBones = this.findTwoHeaviestWeights(vertex, subMesh);
 
-                            subMesh.skinWeights.push(round(heavyBones[0].bias, 3));
-                            subMesh.skinWeights.push(round(heavyBones[1].bias, 3));
+                            mesh.skinWeights.push(round(heavyBones[0].bias, 3));
+                            mesh.skinWeights.push(round(heavyBones[1].bias, 3));
 
-                            subMesh.skinIndices.push(heavyBones[0].joint);
-                            subMesh.skinIndices.push(heavyBones[1].joint);
+                            mesh.skinIndices.push(heavyBones[0].joint);
+                            mesh.skinIndices.push(heavyBones[1].joint);
                         }
 
                         if (weight.position) {
@@ -267,18 +296,16 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
                 const rotation = frame[h].orientation;
                 const time = (animation.frameTime * fr) / 1000;
 
-                const scl: number[] = [];
-                const boneKeyJson = {
+                const boneKeyJson: { pos: any[]; rot: any[]; time: number; scl?: number[] } = {
                     time,
                     pos: [round(position.x, 6), round(position.y, 6), round(position.z, 6)],
                     rot: [round(rotation.x, 6), round(rotation.y, 6), round(rotation.z, 6),
-                        round(rotation.w, 6)],
-                    scl
+                        round(rotation.w, 6)]
                 };
                 boneKeys.push(boneKeyJson);
 
                 if (fr === 0 || fr === animation.frames.length - 1) {
-                    boneKeyJson.scl.push(1, 1, 1);
+                    boneKeyJson.scl = [1, 1, 1];
                 }
             }
 
@@ -298,10 +325,38 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
         return (value & (1 << position)) !== 0;
     }
 
+    private createMesh(modelDef: any, composed: any): SkinnedMesh {
+        const geometry = this.createGeometry(composed);
+        const material = this.createMaterial(modelDef);
+
+        let mesh;
+        if (modelDef.name === 'fists') {
+            mesh = new Fists(geometry, material);
+        } else {
+            mesh = new SkinnedMesh(geometry, material);
+        }
+
+        mesh.scale.setScalar(this.config.worldScale);
+        mesh.rotateX(MathUtils.degToRad(-90));
+
+        const skeleton = this.createSkeleton(composed);
+        mesh.add(skeleton.bones[0]);
+        mesh.bind(skeleton);
+
+        if (this.config.showSkeletons && mesh instanceof Weapon) {
+            mesh.skeletonHelper = new SkeletonHelper(mesh);
+        }
+
+        mesh.animations = this.createAnimations(composed);
+        return mesh;
+    }
+
     private createGeometry(composed: any): BufferGeometry {
         const vertices: Vector3[] = [];
         const uvs: Vector2[] = [];
         const groups: { start: number; count: number; materialIndex?: number }[] = [];
+        const skinIndices: Vector4[] = [];
+        const skinWeights: Vector4[] = [];
 
         let materialIndex = undefined;
         let group: { start: number; count: number; materialIndex?: number } | undefined = undefined;
@@ -314,10 +369,22 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
 
             for (let j = 0; j < 3; j++) {
                 const vertexIdx = composed.faces[i + j];
-                const x = composed.vertices[vertexIdx * 3];
-                const y = composed.vertices[vertexIdx * 3 + 1];
-                const z = composed.vertices[vertexIdx * 3 + 2];
-                vertices.push(new Vector3(x, y, z).multiplyScalar(this.config.worldScale));
+                const vX = composed.vertices[vertexIdx * 3];
+                const vY = composed.vertices[vertexIdx * 3 + 1];
+                const vZ = composed.vertices[vertexIdx * 3 + 2];
+                vertices.push(new Vector3(vX, vY, vZ));
+
+                if (composed.skinIndices) {
+                    const siX = composed.skinIndices[vertexIdx * 2];
+                    const siY = composed.skinIndices[vertexIdx * 2 + 1];
+                    skinIndices.push(new Vector4(siX, siY, 0, 0));
+                }
+
+                if (composed.skinWeights) {
+                    const swX = composed.skinWeights[vertexIdx * 2];
+                    const svY = composed.skinWeights[vertexIdx * 2 + 1];
+                    skinWeights.push(new Vector4(swX, svY, 0, 0));
+                }
             }
 
             i += 3;
@@ -362,8 +429,43 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
             const uv = new BufferAttribute(new Float32Array(uvs.length * 2), 2).copyVector2sArray(uvs);
             geometry.setAttribute('uv', uv);
         }
+        const skinIndex =  new Float32BufferAttribute(skinIndices.length * 4, 4);
+        geometry.setAttribute('skinIndex', skinIndex.copyVector4sArray(skinIndices));
+        const skinWeight = new Float32BufferAttribute(skinWeights.length * 4, 4);
+        geometry.setAttribute('skinWeight', skinWeight.copyVector4sArray(skinWeights));
         geometry.groups = groups;
         return geometry;
+    }
+
+    private createSkeleton(composed: any) {
+        const skeletonBones: Bone[] = [];
+        if (composed.bones) {
+            for (const bone of composed.bones) {
+                const skeletonBone = new Bone();
+                skeletonBone.name = bone.name;
+                skeletonBone.position.fromArray(bone.pos);
+                skeletonBone.quaternion.fromArray(bone.rotq);
+                if (bone.scl != null) {
+                    skeletonBone.scale.fromArray(bone.scl);
+                }
+                skeletonBones.push(skeletonBone);
+            }
+
+            for (let i = 0; i < composed.bones.length; i++) {
+                const bone = composed.bones[i];
+                if (bone.parent !== -1 && bone.parent != null && skeletonBones[bone.parent]) {
+                    skeletonBones[bone.parent].add(skeletonBones[i]);
+                }
+            }
+        }
+        return new Skeleton(skeletonBones);
+    }
+
+    private createMaterial(modelDef: any): Material {
+        if (modelDef.materials) {
+            return this.materialFactory.create(modelDef.materials[0])[0];
+        }
+        return new MeshPhongMaterial();
     }
 
     private createAnimations(composed: any): AnimationClip[] {
@@ -411,17 +513,5 @@ export class Md5ModelFactory implements EntityFactory<Mesh> {
             }
         }
         return normals;
-    }
-
-    private getMaterials(modelDef: any) {
-        let materials: Material[] = [];
-        const declaredMaterials = modelDef.materials;
-        if (declaredMaterials) {
-            for (let i = 0; i < declaredMaterials.length; i++) {
-                const declaredMaterial = declaredMaterials[i];
-                materials = materials.concat(this.materialFactory.create(declaredMaterial));
-            }
-        }
-        return materials;
     }
 }

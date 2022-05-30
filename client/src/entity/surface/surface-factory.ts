@@ -22,6 +22,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
                 surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
             }
         }
+        surface.scale.setScalar(this.config.worldScale);
         if (surfaceDef.position) {
             surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
         }
@@ -42,7 +43,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
 
             for (let j = 0; j < 3; j++) {
                 const vertex = geometryDef.vertices[face[j]];
-                vertices.push(new Vector3().fromArray(vertex).multiplyScalar(this.config.worldScale));
+                vertices.push(new Vector3().fromArray(vertex));
             }
 
             const faceNormal = this.computeFaceNormal(face, geometryDef.vertices);

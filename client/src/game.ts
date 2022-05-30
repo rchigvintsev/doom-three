@@ -1,4 +1,4 @@
-import {PCFShadowMap, PerspectiveCamera, Renderer, Scene, WebGLRenderer} from 'three';
+import {Clock, PCFShadowMap, PerspectiveCamera, Renderer, Scene, WebGLRenderer} from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GameConfig} from './game-config';
@@ -7,6 +7,7 @@ import {ProgressEvent} from './event/progress-event';
 import {FpsControls} from './control/fps-controls';
 import {Player} from './entity/player';
 import {PointerLock} from './control/pointer-lock';
+import {GameMap} from './entity/map/game-map';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
@@ -18,6 +19,9 @@ export class Game {
     private readonly controls: FpsControls;
     private readonly renderer: Renderer;
     private readonly stats: Stats;
+    private readonly clock = new Clock();
+
+    private map?: GameMap;
 
     private initialized = false;
 
@@ -56,6 +60,7 @@ export class Game {
         mapLoader.load(mapName).then(map => {
             console.debug(`Map "${mapName}" is loaded`);
 
+            game.map = map;
             game.scene.add(map);
             game.controls.init();
             game.pointerLock.init();
@@ -78,6 +83,9 @@ export class Game {
     }
 
     private update() {
+        if (this.map) {
+            this.map.update(this.clock.getDelta());
+        }
         this.controls.update();
     }
 
