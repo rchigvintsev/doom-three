@@ -200,9 +200,9 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
     }
 
     private compose(mesh: any, animations: any[]): any {
-        const vertices = [];
-        const faces = [];
-        const uvs = [];
+        const vertices: Vector3[] = [];
+        const faces: {a: number, b: number, c: number, materialIndex: number}[] = [];
+        const uvs: Vector2[] = [];
         const materials = [];
 
         let vertexCount = 0;
@@ -215,31 +215,25 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
                     const vertex = subMesh.vertices[v];
                     const vertexPosition = vertex.position;
 
-                    vertices.push(round(vertexPosition.x, 3));
-                    vertices.push(round(vertexPosition.y, 3));
-                    vertices.push(round(vertexPosition.z, 3));
+                    const x = round(vertexPosition.x, 3);
+                    const y = round(vertexPosition.y, 3);
+                    const z = round(vertexPosition.z, 3);
+                    vertices.push(new Vector3(x, y, z));
 
-                    uvs.push(round(vertex.uv.x, 3));
-                    uvs.push(round(1.0 - vertex.uv.y, 3));
+                    uvs.push(vertex.uv);
                 }
 
                 for (let f = 0; f < subMesh.faces.length; f += 3) {
-                    faces.push(10);
-                    faces.push(subMesh.faces[f] + vertexCount);
-                    faces.push(subMesh.faces[f + 2] + vertexCount);
-                    faces.push(subMesh.faces[f + 1] + vertexCount);
-
-                    faces.push(m);
-
-                    faces.push(subMesh.faces[f] + vertexCount);
-                    faces.push(subMesh.faces[f + 2] + vertexCount);
-                    faces.push(subMesh.faces[f + 1] + vertexCount);
+                    const a = subMesh.faces[f] + vertexCount;
+                    const b = subMesh.faces[f + 2] + vertexCount;
+                    const c = subMesh.faces[f + 1] + vertexCount;
+                    faces.push({a, b, c, materialIndex: m});
                 }
 
                 vertexCount += subMesh.vertices.length;
 
                 if (subMesh.shader) {
-                    materials[m] = {DbgColor: 15658734, DbgIndex: m, DbgName: encodeURI(subMesh.shader)};
+                    materials[m] = subMesh.shader;
                 }
             }
         }
@@ -264,10 +258,6 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         }
 
         return {
-            metadata: {
-                formatVersion: 3.1,
-                description: 'MD5 model converted from .md5mesh file using MD5 to JSON converter'
-            },
             scale: 1.0,
             materials: materials,
             vertices: vertices,
@@ -321,10 +311,6 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         };
     }
 
-    private isBitSet(value: any, position: number): boolean {
-        return (value & (1 << position)) !== 0;
-    }
-
     private createMesh(modelDef: any, composed: any): SkinnedMesh {
         const geometry = this.createGeometry(composed);
         const material = this.createMaterial(modelDef);
@@ -360,19 +346,14 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
 
         let materialIndex = undefined;
         let group: { start: number; count: number; materialIndex?: number } | undefined = undefined;
+        let i = 0;
 
-        for (let i = 0; i < composed.faces.length;) {
-            const faceType = composed.faces[i++];
-
-            const hasMaterial = this.isBitSet(faceType, 1);
-            const hasFaceVertexUv = this.isBitSet(faceType, 3);
+        for (; i < composed.faces.length; i++) {
+            const face = composed.faces[i];
 
             for (let j = 0; j < 3; j++) {
-                const vertexIdx = composed.faces[i + j];
-                const vX = composed.vertices[vertexIdx * 3];
-                const vY = composed.vertices[vertexIdx * 3 + 1];
-                const vZ = composed.vertices[vertexIdx * 3 + 2];
-                vertices.push(new Vector3(vX, vY, vZ));
+                const vertexIdx = j === 0 ? face.a : (j === 1 ? face.b : face.c);
+                vertices.push(composed.vertices[vertexIdx]);
 
                 if (composed.skinIndices) {
                     const siX = composed.skinIndices[vertexIdx * 2];
@@ -387,35 +368,30 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
                 }
             }
 
-            i += 3;
-
-            if (hasMaterial) {
-                const faceMaterialIndex = composed.faces[i++];
-                if (faceMaterialIndex !== materialIndex) {
-                    materialIndex = faceMaterialIndex;
-                    if (group) {
-                        group.count = (i * 3) - group.start;
-                        groups.push(group);
-                    }
-
-                    group = {
-                        start: i * 3,
-                        count: 0,
-                        materialIndex: materialIndex
-                    };
+            if (face.materialIndex !== materialIndex) {
+                materialIndex = face.materialIndex;
+                if (group) {
+                    group.count = (i * 3) - group.start;
+                    groups.push(group);
                 }
+
+                group = {
+                    start: i * 3,
+                    count: 0,
+                    materialIndex: materialIndex
+                };
             }
 
-            if (hasFaceVertexUv) {
-                const uvLayer = composed.uvs[0];
-                for (let j = 0; j < 3; j++) {
-                    const uvIndex = composed.faces[i++];
-                    const u = uvLayer[uvIndex * 2];
-                    const v = uvLayer[uvIndex * 2 + 1];
-                    const uv = new Vector2(u, v);
-                    uvs.push(uv);
-                }
+            const uvLayer = composed.uvs[0];
+            for (let j = 0; j < 3; j++) {
+                const uvIdx = j === 0 ? face.a : (j === 1 ? face.b : face.c);
+                uvs.push(uvLayer[uvIdx]);
             }
+        }
+
+        if (group) {
+            group.count = (i * 3) - group.start;
+            groups.push(group);
         }
 
         const normals = this.computeVertexNormals(composed.faces, composed.vertices);
@@ -479,26 +455,28 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         return animations;
     }
 
-    private computeVertexNormals(faces: number[], vertices: number[]): Vector3[] {
+    private computeVertexNormals(faces: any[], vertices: Vector3[]): Vector3[] {
         const vertexNormals: Vector3[] = [];
-        for (let v = 0, vl = vertices.length / 3; v < vl; v++) {
+        for (let v = 0; v < vertices.length; v++) {
             vertexNormals[v] = new Vector3();
         }
 
         const cb = new Vector3(), ab = new Vector3();
-        for (let i = 0; i < faces.length; i += 8) {
+        for (let i = 0; i < faces.length; i++) {
+            const face = faces[i];
             const faceVertices: Vector3[] = [];
-            for (let j = 1; j < 4; j++) {
-                faceVertices.push(new Vector3(vertices[faces[i + j] * 3], vertices[faces[i + j] * 3 + 1],
-                    vertices[faces[i + j] * 3 + 2]));
+            for (let j = 0; j < 3; j++) {
+                const vertexIdx = j === 0 ? face.a : (j === 1 ? face.b : face.c);
+                faceVertices.push(vertices[vertexIdx]);
             }
 
             cb.subVectors(faceVertices[2], faceVertices[1]);
             ab.subVectors(faceVertices[0], faceVertices[2]);
             cb.cross(ab);
 
-            for (let j = 1; j < 4; j++) {
-                vertexNormals[faces[i + j]].add(cb);
+            for (let j = 0; j < 3; j++) {
+                const vertexIdx = j === 0 ? face.a : (j === 1 ? face.b : face.c);
+                vertexNormals[vertexIdx].add(cb);
             }
         }
 
@@ -507,9 +485,11 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         }
 
         const normals: Vector3[] = [];
-        for (let i = 0; i < faces.length; i += 8) {
-            for (let j = 1; j < 4; j++) {
-                normals.push(vertexNormals[faces[i + j]]);
+        for (let i = 0; i < faces.length; i++) {
+            const face = faces[i];
+            for (let j = 0; j < 3; j++) {
+                const vertexIdx = j === 0 ? face.a : (j === 1 ? face.b : face.c);
+                normals.push(vertexNormals[vertexIdx]);
             }
         }
         return normals;
