@@ -49,6 +49,8 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         }
 
         this.bindPose(mesh, animations[0]);
+        this._bindPose(mesh.geometry, animations[0]);
+
         const composed = this.compose(mesh, animations);
         const result = this.createMesh(modelDef, composed);
 
@@ -78,35 +80,91 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         const firstFrame = this.getFrame(animation, 0, true);
         mesh.skinWeights = [];
         mesh.skinIndices = [];
-        if (mesh.meshes) {
-            for (const subMesh of mesh.meshes) {
-                for (const vertex of subMesh.vertices) {
-                    vertex.position = new Vector3(0, 0, 0);
-                    for (let w = 0; w < vertex.weight.count; w++) {
-                        const weight = subMesh.weights[vertex.weight.index + w];
-                        const joint = firstFrame[weight.joint];
+        for (const subMesh of mesh.meshes) {
+            for (const vertex of subMesh.vertices) {
+                vertex.position = new Vector3(0, 0, 0);
+                for (let w = 0; w < vertex.weight.count; w++) {
+                    const weight = subMesh.weights[vertex.weight.index + w];
+                    const joint = firstFrame[weight.joint];
 
-                        if (w === 0) {
-                            const heavyBones = this.findTwoHeaviestWeights(vertex, subMesh);
+                    if (w === 0) {
+                        const heavyBones = this.findTwoHeaviestWeights(vertex, subMesh);
 
-                            mesh.skinWeights.push(round(heavyBones[0].bias, 3));
-                            mesh.skinWeights.push(round(heavyBones[1].bias, 3));
+                        mesh.skinWeights.push(round(heavyBones[0].bias, 3));
+                        mesh.skinWeights.push(round(heavyBones[1].bias, 3));
 
-                            mesh.skinIndices.push(heavyBones[0].joint);
-                            mesh.skinIndices.push(heavyBones[1].joint);
-                        }
-
-                        if (weight.position) {
-                            rotatedPosition.copy(weight.position).applyQuaternion(joint.orientation);
-                        }
-
-                        vertex.position.x += (joint.position.x + rotatedPosition.x) * weight.bias;
-                        vertex.position.y += (joint.position.y + rotatedPosition.y) * weight.bias;
-                        vertex.position.z += (joint.position.z + rotatedPosition.z) * weight.bias;
+                        mesh.skinIndices.push(heavyBones[0].joint);
+                        mesh.skinIndices.push(heavyBones[1].joint);
                     }
+
+                    if (weight.position) {
+                        rotatedPosition.copy(weight.position).applyQuaternion(joint.orientation);
+                    }
+
+                    vertex.position.x += (joint.position.x + rotatedPosition.x) * weight.bias;
+                    vertex.position.y += (joint.position.y + rotatedPosition.y) * weight.bias;
+                    vertex.position.z += (joint.position.z + rotatedPosition.z) * weight.bias;
                 }
             }
         }
+    }
+
+    private _bindPose(geometry: BufferGeometry, animation: any) {
+        const vertexCount = geometry.getAttribute('positionCount').array[0];
+        geometry.deleteAttribute('positionCount');
+        const vertices: Vector3[] = [];
+        for (let i = 0; i < vertexCount; i++) {
+            vertices.push(new Vector3());
+        }
+
+        const vertexWeights = geometry.getAttribute('positionWeight').array;
+        geometry.deleteAttribute('positionWeight');
+
+        const weights = geometry.getAttribute('weight').array;
+        geometry.deleteAttribute('weight');
+
+        const skinWeights: number[] = [];
+        const skinIndices: number[] = [];
+
+        const rotatedPosition = new Vector3();
+        const firstFrame = this.getFrame(animation, 0, true);
+
+        for (let i = 0; i < vertices.length; i++) {
+            const vertex = vertices[i];
+            const weightIndex = vertexWeights[i * 2];
+            const weightCount = vertexWeights[i * 2 + 1];
+            for (let j = 0; j < weightCount; j++) {
+                if (j === 0) {
+                    const heavyBones = this._findTwoHeaviestWeights(weightCount, weightIndex, weights);
+                    skinWeights.push(round(heavyBones[0].bias, 3), round(heavyBones[1].bias, 3));
+                    skinIndices.push(heavyBones[0].joint, heavyBones[1].joint);
+                }
+
+                const weightOffset = (weightIndex + j) * 5;
+
+                const wX = weights[weightOffset + 2];
+                const wY = weights[weightOffset + 3];
+                const wZ = weights[weightOffset + 4];
+                const weightPosition = new Vector3(wX, wY, wZ);
+
+                const weightJoint = weights[weightOffset];
+                const weightBias = weights[weightOffset + 1];
+
+                const joint = firstFrame[weightJoint];
+                rotatedPosition.copy(weightPosition).applyQuaternion(joint.orientation);
+
+                vertex.x += (joint.position.x + rotatedPosition.x) * weightBias;
+                vertex.y += (joint.position.y + rotatedPosition.y) * weightBias;
+                vertex.z += (joint.position.z + rotatedPosition.z) * weightBias;
+            }
+        }
+
+        const position = new BufferAttribute(new Float32Array(vertices.length * 3), 3).copyVector3sArray(vertices);
+        geometry.setAttribute('position', position);
+        const skinIndex = new BufferAttribute(new Uint32Array(skinIndices.length), 1).copyArray(skinIndices);
+        geometry.setAttribute('skinIndex', skinIndex);
+        const skinWeight = new BufferAttribute(new Float32Array(skinWeights.length), 1).copyArray(skinWeights);
+        geometry.setAttribute('skinWeight', skinWeight);
     }
 
     private getFrame(animationDef: any, frameIndex: number, poseBinding = false): any[] {
@@ -191,6 +249,45 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
 
 
         if (vertex.weight.count > 2) {
+            const sum = result[0].bias + result[1].bias;
+            result[0] = {joint: result[0].joint, bias: result[0].bias / sum};
+            result[1] = {joint: result[1].joint, bias: result[1].bias / sum};
+        }
+
+        return result;
+    }
+
+    private _findTwoHeaviestWeights(weightCount: number, weightIndex: number, weights: ArrayLike<number>): {
+        joint: number,
+        bias: number
+    }[] {
+        const result: {joint: number, bias: number}[] = [];
+
+        let firstHighestWeight = 0, firstHighestJoint = 0;
+        for (let i = 0; i < weightCount; i++) {
+            const weightJoint = weights[(weightIndex + i) * 5];
+            const weightBias = weights[(weightIndex + i) * 5 + 1];
+            if (weightBias > firstHighestWeight) {
+                firstHighestWeight = weightBias;
+                firstHighestJoint = weightJoint;
+            }
+        }
+        result[0] = {joint: firstHighestJoint, bias: firstHighestWeight};
+
+        let secondHighestWeight = 0, secondHighestJoint = 0;
+        if (weightCount > 1) {
+            for (let i = 0; i < weightCount; i++) {
+                const weightJoint = weights[(weightIndex + i) * 5];
+                const weightBias = weights[(weightIndex + i) * 5 + 1];
+                if (weightBias > secondHighestWeight && weightJoint !== firstHighestJoint) {
+                    secondHighestWeight = weightBias;
+                    secondHighestJoint = weightJoint;
+                }
+            }
+        }
+        result[1] = {joint: secondHighestJoint, bias: secondHighestWeight};
+
+        if (weightCount > 2) {
             const sum = result[0].bias + result[1].bias;
             result[0] = {joint: result[0].joint, bias: result[0].bias / sum};
             result[1] = {joint: result[1].joint, bias: result[1].bias / sum};

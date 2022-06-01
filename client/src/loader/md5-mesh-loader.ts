@@ -88,19 +88,22 @@ export class Md5MeshLoader extends Loader {
         faces: number[],
         weights: { joint: number; bias: number; position: Vector3 }[]
     }[]): BufferGeometry {
-        const vertices: Vector3[] = [];
+        let vertexCount = 0;
+        let weightCount = 0;
+
+        const vertexWeights: number[] = [];
+        const weights: number[] = [];
         const faces: { a: number, b: number, c: number, materialIndex: number }[] = [];
         const uvs: Vector2[] = [];
         const groups: { start: number; count: number; materialIndex?: number }[] = [];
         const materials: string[] = [];
 
-        let vertexCount = 0;
-
         for (let m = 0; m < meshes.length; m++) {
             const mesh = meshes[m];
 
             for (let i = 0; i < mesh.vertices.length; i++) {
-                vertices.push(new Vector3());
+                const vertex = mesh.vertices[i];
+                vertexWeights.push(vertex.weight.index + weightCount, vertex.weight.count);
             }
 
             for (let i = 0; i < mesh.faces.length; i += 3) {
@@ -111,6 +114,13 @@ export class Md5MeshLoader extends Loader {
             }
 
             vertexCount += mesh.vertices.length;
+
+            for (let i = 0; i < mesh.weights.length; i++) {
+                const weightPosition = mesh.weights[i].position;
+                weights.push(mesh.weights[i].joint, mesh.weights[i].bias,
+                    weightPosition.x, weightPosition.y, weightPosition.z);
+            }
+            weightCount += mesh.weights.length;
 
             if (mesh.shader) {
                 materials[m] = mesh.shader;
@@ -150,8 +160,17 @@ export class Md5MeshLoader extends Loader {
         }
 
         const geometry = new BufferGeometry();
-        const position = new BufferAttribute(new Float32Array(vertices.length * 3), 3).copyVector3sArray(vertices);
-        geometry.setAttribute('position', position);
+        const positionCount = new BufferAttribute(new Uint32Array(1), 1).copyArray([vertexCount]);
+        geometry.setAttribute('positionCount', positionCount);
+        if (vertexWeights.length > 0) {
+            const positionWeight = new BufferAttribute(new Float32Array(vertexWeights.length), 2)
+                .copyArray(vertexWeights);
+            geometry.setAttribute('positionWeight', positionWeight);
+        }
+        if (weights.length) {
+            const weight = new BufferAttribute(new Float32Array(weights.length), 1).copyArray(weights);
+            geometry.setAttribute('weight', weight);
+        }
         if (uvs.length > 0) {
             const uv = new BufferAttribute(new Float32Array(uvs.length * 2), 2).copyVector2sArray(uvs);
             geometry.setAttribute('uv', uv);
