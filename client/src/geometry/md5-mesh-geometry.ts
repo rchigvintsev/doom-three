@@ -2,9 +2,7 @@ import {BufferGeometry, Float32BufferAttribute, Vector2, Vector3, Vector4} from 
 
 import {round} from 'mathjs';
 
-import {Md5MeshVertex} from './md5-mesh-vertex';
-import {Md5MeshWeight} from './md5-mesh-weight';
-import {Md5MeshFace} from './md5-mesh-face';
+import {Md5AnimationJoint} from '../animation/md5-animation';
 
 export class Md5MeshGeometry extends BufferGeometry {
     constructor(readonly faces: Md5MeshFace[],
@@ -13,7 +11,7 @@ export class Md5MeshGeometry extends BufferGeometry {
         super();
     }
 
-    bindPose(animationFrame: any) {
+    bindPose(joints: Md5AnimationJoint[]) {
         const skinWeights: Vector4[] = [];
         const skinIndices: Vector4[] = [];
 
@@ -28,7 +26,7 @@ export class Md5MeshGeometry extends BufferGeometry {
                 }
 
                 const weight = this.weights[vertex.weightIndex + j];
-                const joint = animationFrame[weight.joint];
+                const joint = joints[weight.joint];
                 rotatedPosition.copy(weight.position).applyQuaternion(joint.orientation);
 
                 vertex.position.x += (joint.position.x + rotatedPosition.x) * weight.bias;
@@ -150,5 +148,22 @@ export class Md5MeshGeometry extends BufferGeometry {
 
     private setFloat32Vector4Attribute(name: string, values: Vector4[]) {
         this.setAttribute(name, new Float32BufferAttribute(values.length * 4, 4).copyVector4sArray(values));
+    }
+}
+
+export class Md5MeshFace {
+    constructor(readonly a: number, readonly b: number, readonly c: number, readonly materialIndex: number) {
+    }
+}
+
+export class Md5MeshVertex {
+    readonly position = new Vector3();
+
+    constructor(readonly uv: Vector2, readonly weightIndex: number, readonly weightCount: number) {
+    }
+}
+
+export class Md5MeshWeight {
+    constructor(readonly joint: number, readonly bias: number, readonly position: Vector3) {
     }
 }

@@ -2,10 +2,7 @@ import {FileLoader, Loader, LoadingManager, MeshPhongMaterial, SkinnedMesh, Vect
 
 import {round} from 'mathjs';
 
-import {Md5MeshGeometry} from '../geometry/md5-mesh-geometry';
-import {Md5MeshVertex} from '../geometry/md5-mesh-vertex';
-import {Md5MeshWeight} from '../geometry/md5-mesh-weight';
-import {Md5MeshFace} from '../geometry/md5-mesh-face';
+import {Md5MeshFace, Md5MeshGeometry, Md5MeshVertex, Md5MeshWeight} from '../geometry/md5-mesh-geometry';
 
 /**
  * Code for parsing of MD5 mesh is kindly borrowed from "MD5 to JSON Converter"
