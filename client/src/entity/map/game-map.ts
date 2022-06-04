@@ -2,10 +2,10 @@ import {Group, Light} from 'three';
 
 import {Area} from '../area/area';
 import {Entity} from '../entity';
-import {Weapon} from '../weapon/weapon';
+import {Md5Model} from '../md5model/md5-model';
 
 export class GameMap extends Group implements Entity {
-    weapons: Weapon[] = [];
+    weapons: Md5Model[] = [];
 
     constructor(readonly areas: Area[], readonly lights: Light[]) {
         super();

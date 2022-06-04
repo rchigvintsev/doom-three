@@ -13,7 +13,6 @@ import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
-import {Weapon} from './entity/weapon/weapon';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -82,8 +81,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
 
                 weaponDefs.forEach(weaponDef => {
-                    const weapon = <Weapon>md5ModelFactory.create(weaponDef);
-                    weapon.init();
+                    const weapon = md5ModelFactory.create(weaponDef);
                     map.add(weapon);
                     const skeletonHelper = weapon.skeletonHelper;
                     if (skeletonHelper) {

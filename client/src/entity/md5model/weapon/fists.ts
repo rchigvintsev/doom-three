@@ -1,8 +1,7 @@
 import {BufferGeometry, Material} from 'three';
+import {Md5Model} from '../md5-model';
 
-import {Weapon} from './weapon';
-
-export class Fists extends Weapon {
+export class Fists extends Md5Model {
     constructor(geometry: BufferGeometry, materials: Material | Material[]) {
         super(geometry, materials);
     }

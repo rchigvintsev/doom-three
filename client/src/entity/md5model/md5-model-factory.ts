@@ -4,6 +4,7 @@ import {
     BufferGeometry,
     Material,
     MathUtils,
+    MeshBasicMaterial,
     MeshPhongMaterial,
     Skeleton,
     SkeletonHelper,
@@ -14,19 +15,19 @@ import {EntityFactory} from '../entity-factory';
 import {GameAssets} from '../../game-assets';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
-import {Fists} from '../weapon/fists';
-import {Weapon} from '../weapon/weapon';
+import {Fists} from './weapon/fists';
 import {Md5MeshGeometry} from '../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../animation/md5-animation';
+import {Md5Model} from './md5-model';
 
 // noinspection JSMethodCanBeStatic
-export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
+export class Md5ModelFactory implements EntityFactory<Md5Model> {
     constructor(private readonly config: GameConfig,
                 private readonly materialFactory: MaterialFactory,
                 private readonly assets: GameAssets) {
     }
 
-    create(modelDef: any): SkinnedMesh {
+    create(modelDef: any): Md5Model {
         const mesh = <SkinnedMesh>this.assets.modelMeshes.get(modelDef.model);
         if (!mesh) {
             throw new Error(`MD5 model mesh "${modelDef.model}" is not found in game assets`);
@@ -34,22 +35,22 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         const animations: Md5Animation[] = modelDef.animations
             .map((animationName: string) => this.assets.modelAnimations.get(animationName));
         this.bindPose(mesh, animations[0]);
-        const resultMesh = this.createMesh(modelDef.name, mesh.geometry, this.createMaterial(modelDef));
-        resultMesh.animations = this.createAnimationClips(animations, this.bindSkeleton(resultMesh, animations[0]));
-        return resultMesh;
+        const material = this.createMaterial(modelDef);
+        const model = this.createModel(modelDef.name, mesh.geometry, material, animations);
+        if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
+            model.wireframeModel = this.createWireframeModel(model, animations);
+        }
+        model.init();
+        return model;
     }
 
     private bindPose(mesh: SkinnedMesh, animation: Md5Animation) {
         (<Md5MeshGeometry>mesh.geometry).bindPose(animation.getFrame(0, true));
     }
 
-    private bindSkeleton(mesh: SkinnedMesh, animation: Md5Animation): Skeleton {
-        const skeleton = this.createSkeleton(animation);
-        mesh.add(skeleton.bones[0]);
-        mesh.bind(skeleton);
-        if (this.config.showSkeletons && mesh instanceof Weapon) {
-            mesh.skeletonHelper = new SkeletonHelper(mesh);
-        }
+    private bindSkeleton(model: Md5Model, skeleton: Skeleton) {
+        model.add(skeleton.bones[0]);
+        model.bind(skeleton);
         return skeleton;
     }
 
@@ -80,23 +81,49 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
     }
 
     private createMaterial(modelDef: any): Material {
+        if (this.config.renderOnlyWireframe) {
+            return new MeshBasicMaterial({wireframe: true});
+        }
         if (modelDef.materials) {
             return this.materialFactory.create(modelDef.materials[0])[0];
         }
         return new MeshPhongMaterial();
     }
 
-    private createMesh(modelName: string, geometry: BufferGeometry, material: Material): SkinnedMesh {
-        let mesh;
+    private createModel(modelName: string,
+                        geometry: BufferGeometry,
+                        material: Material,
+                        animations: Md5Animation[]): Md5Model {
+        let model;
         if (modelName === 'fists') {
-            mesh = new Fists(geometry, material);
+            model = new Fists(geometry, material);
         } else {
-            mesh = new SkinnedMesh(geometry, material);
+            model = new Md5Model(geometry, material);
         }
-        mesh.scale.setScalar(this.config.worldScale);
-        mesh.position.set(0, 0.5, 0);
-        mesh.rotateX(MathUtils.degToRad(-90));
-        return mesh;
+        model.name = modelName;
+
+        const skeleton = this.createSkeleton(animations[0]);
+        this.bindSkeleton(model, skeleton);
+        if (this.config.showSkeletons) {
+            model.skeletonHelper = new SkeletonHelper(model);
+        }
+
+        model.animations = this.createAnimationClips(animations, skeleton);
+
+        model.scale.setScalar(this.config.worldScale);
+        model.position.set(0, 0.5, 0);
+        model.rotateX(MathUtils.degToRad(-90));
+        return model;
+    }
+
+    private createWireframeModel(model: Md5Model, animations: Md5Animation[]) {
+        const wireframeModel = model.clone();
+        wireframeModel.material = new MeshBasicMaterial({wireframe: true});
+        this.bindSkeleton(wireframeModel, this.createSkeleton(animations[0]));
+        wireframeModel.scale.setScalar(1);
+        wireframeModel.position.setScalar(0);
+        wireframeModel.rotation.set(0, 0, 0);
+        return wireframeModel;
     }
 
     private createAnimationClips(animations: Md5Animation[], skeleton: Skeleton) {
