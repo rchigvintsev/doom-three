@@ -82,9 +82,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
 
                 weaponDefs.forEach(weaponDef => {
-                    const weapon = md5ModelFactory.create(weaponDef);
+                    const weapon = <Weapon>md5ModelFactory.create(weaponDef);
+                    weapon.init();
                     map.add(weapon);
-                    const skeletonHelper = (<Weapon>weapon).skeletonHelper;
+                    const skeletonHelper = weapon.skeletonHelper;
                     if (skeletonHelper) {
                         map.add(skeletonHelper);
                     }

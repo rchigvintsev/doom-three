@@ -1,10 +1,11 @@
-import {Group, Light, Mesh} from 'three';
+import {Group, Light} from 'three';
 
 import {Area} from '../area/area';
 import {Entity} from '../entity';
+import {Weapon} from '../weapon/weapon';
 
 export class GameMap extends Group implements Entity {
-    weapons: Mesh[] = [];
+    weapons: Weapon[] = [];
 
     constructor(readonly areas: Area[], readonly lights: Light[]) {
         super();
@@ -21,10 +22,7 @@ export class GameMap extends Group implements Entity {
             area.update(deltaTime);
         }
         for (const weapon of this.weapons) {
-            const animationMixer = weapon.userData['animationMixer'];
-            if (animationMixer) {
-                animationMixer.update(deltaTime);
-            }
+            weapon.update(deltaTime);
         }
     }
 }

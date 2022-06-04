@@ -1,10 +1,7 @@
 import {
-    AnimationAction,
     AnimationClip,
-    AnimationMixer,
     Bone,
     BufferGeometry,
-    LoopOnce,
     Material,
     MathUtils,
     MeshPhongMaterial,
@@ -36,30 +33,9 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         }
         const animations: Md5Animation[] = modelDef.animations
             .map((animationName: string) => this.assets.modelAnimations.get(animationName));
-
         this.bindPose(mesh, animations[0]);
         const resultMesh = this.createMesh(modelDef.name, mesh.geometry, this.createMaterial(modelDef));
-        const skeleton = this.bindSkeleton(resultMesh, animations[0]);
-
-        resultMesh.animations = animations.map(animation => AnimationClip.parseAnimation(animation, skeleton.bones));
-
-        const animationMixer = new AnimationMixer(resultMesh);
-        const actions = new Map<string, AnimationAction>();
-        for (let i = 0; i < resultMesh.animations.length; i++) {
-            const clip = resultMesh.animations[i];
-            const action = animationMixer.clipAction(clip);
-            if (clip.name !== 'idle') {
-                action.setLoop(LoopOnce, 1);
-            }
-            actions.set(clip.name, action);
-        }
-        resultMesh.userData['animationMixer'] = animationMixer;
-
-        const action = actions.get('idle');
-        if (action) {
-            action.play();
-        }
-
+        resultMesh.animations = this.createAnimationClips(animations, this.bindSkeleton(resultMesh, animations[0]));
         return resultMesh;
     }
 
@@ -121,5 +97,9 @@ export class Md5ModelFactory implements EntityFactory<SkinnedMesh> {
         mesh.position.set(0, 0.5, 0);
         mesh.rotateX(MathUtils.degToRad(-90));
         return mesh;
+    }
+
+    private createAnimationClips(animations: Md5Animation[], skeleton: Skeleton) {
+        return animations.map(animation => AnimationClip.parseAnimation(animation, skeleton.bones));
     }
 }
