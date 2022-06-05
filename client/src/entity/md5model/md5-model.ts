@@ -52,6 +52,21 @@ export class Md5Model extends SkinnedMesh implements Entity {
         this.add(wireframeModel);
     }
 
+    protected getRequiredAnimationAction(actionName: string): AnimationAction {
+        const action = this.animationActions.get(actionName);
+        if (!action) {
+            throw new Error(`Animation action "${actionName}" is not found in MD5 model "${this.name}"`);
+        }
+        return action;
+    }
+
+    protected executeActionCrossFade(startAction: AnimationAction, endAction: AnimationAction, duration: number) {
+        startAction.reset().play();
+        endAction.enabled = true;
+        endAction.reset().play();
+        startAction.crossFadeTo(endAction, duration, false);
+    }
+
     private initAnimationActions(animationMixer: AnimationMixer) {
         for (let i = 0; i < this.animations.length; i++) {
             const animation = this.animations[i];
@@ -60,11 +75,6 @@ export class Md5Model extends SkinnedMesh implements Entity {
                 action.setLoop(LoopOnce, 1);
             }
             this.animationActions.set(animation.name, action);
-        }
-
-        const idleAction = this.animationActions.get('idle');
-        if (idleAction) {
-            idleAction.play();
         }
     }
 }

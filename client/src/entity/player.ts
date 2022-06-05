@@ -1,6 +1,7 @@
 import {Object3D, PerspectiveCamera, Vector3} from 'three';
 import {Entity} from './entity';
 import {Md5Model} from './md5model/md5-model';
+import {Fists} from './md5model/weapon/fists';
 
 export class Player extends Object3D implements Entity {
     private readonly _pitchObject: Object3D;
@@ -11,6 +12,13 @@ export class Player extends Object3D implements Entity {
         this._pitchObject = new Object3D();
         this._pitchObject.add(camera);
         this.add(this._pitchObject);
+    }
+
+    init() {
+        const fists = <Fists>this.weapons.get('fists');
+        if (fists) {
+            fists.enable();
+        }
     }
 
     addWeapon(weapon: Md5Model) {

@@ -60,6 +60,8 @@ export class Game {
 
             game.map = map;
             game.scene.add(map);
+
+            game.player.init();
             game.controls.init();
             game.pointerLock.init();
 
