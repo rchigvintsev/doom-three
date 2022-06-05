@@ -36,7 +36,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
             .map((animationName: string) => this.assets.modelAnimations.get(animationName));
         this.bindPose(mesh, animations[0]);
         const material = this.createMaterial(modelDef);
-        const model = this.createModel(modelDef.name, mesh.geometry, material, animations);
+        const model = this.createModel(modelDef, mesh.geometry, material, animations);
         if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
             model.wireframeModel = this.createWireframeModel(model, animations);
         }
@@ -90,17 +90,17 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         return new MeshPhongMaterial();
     }
 
-    private createModel(modelName: string,
+    private createModel(modelDef: any,
                         geometry: BufferGeometry,
                         material: Material,
                         animations: Md5Animation[]): Md5Model {
         let model;
-        if (modelName === 'fists') {
+        if (modelDef.name === 'fists') {
             model = new Fists(geometry, material);
         } else {
             model = new Md5Model(geometry, material);
         }
-        model.name = modelName;
+        model.name = modelDef.name;
 
         const skeleton = this.createSkeleton(animations[0]);
         this.bindSkeleton(model, skeleton);
@@ -111,8 +111,8 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         model.animations = this.createAnimationClips(animations, skeleton);
 
         model.scale.setScalar(this.config.worldScale);
-        model.position.set(0, 0.5, 0);
-        model.rotateX(MathUtils.degToRad(-90));
+        model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
+        model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         return model;
     }
 

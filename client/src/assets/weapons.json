@@ -14,11 +14,7 @@
       "models/md5/weapons/fists_view/berserk_punch3.md5anim",
       "models/md5/weapons/fists_view/berserk_punch4.md5anim"
     ],
-    "position": [
-      0,
-      -6.5,
-      10
-    ],
+    "position": [0, -6.5, 10],
     "sounds": {
       "raise": "fist_raise",
       "woosh": "fist_whoosh",

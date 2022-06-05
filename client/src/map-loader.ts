@@ -13,6 +13,8 @@ import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
+import {Player} from './entity/player';
+import {Md5Model} from './entity/md5model/md5-model';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -25,7 +27,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         super();
     }
 
-    load(mapName: string): Promise<GameMap> {
+    load(mapName: string, player: Player): Promise<GameMap> {
         console.debug(`Loading of map "${mapName}"...`);
 
         return Promise.all([
@@ -80,16 +82,14 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const md5ModelFactory = new Md5ModelFactory(this.config, materialFactory, assets);
                 const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
 
-                weaponDefs.forEach(weaponDef => {
-                    const weapon = md5ModelFactory.create(weaponDef);
-                    map.add(weapon);
-                    const skeletonHelper = weapon.skeletonHelper;
-                    if (skeletonHelper) {
-                        map.add(skeletonHelper);
+                this.createWeapons(weaponDefs, md5ModelFactory).forEach(weapon => {
+                    player.addWeapon(weapon);
+                    if (weapon.skeletonHelper) {
+                        map.add(weapon.skeletonHelper);
                     }
-                    map.weapons.push(weapon);
                 });
 
+                map.add(player);
                 return map;
             });
         });
@@ -270,6 +270,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     private publishProgress(context: LoadingContext) {
         this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
+    }
+
+    private createWeapons(weaponDefs: Map<string, any>, md5ModelFactory: Md5ModelFactory): Md5Model[] {
+        const weapons: Md5Model[] = [];
+        weaponDefs.forEach(weaponDef => weapons.push(md5ModelFactory.create(weaponDef)));
+        return weapons;
     }
 }
 

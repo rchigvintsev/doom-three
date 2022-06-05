@@ -15,6 +15,7 @@ export class Game {
     private readonly container: HTMLElement;
     private readonly scene: Scene;
     private readonly camera: PerspectiveCamera;
+    private readonly player: Player;
     private readonly pointerLock: PointerLock;
     private readonly controls: FpsControls;
     private readonly renderer: Renderer;
@@ -32,12 +33,9 @@ export class Game {
 
         this.scene = this.createScene();
         this.camera = this.createCamera(this.config);
-
-        const player = new Player(this.camera);
-        this.scene.add(player);
-
+        this.player = this.createPlayer(this.camera);
         this.pointerLock = this.createPointerLock(this.container);
-        this.controls = this.createControls(this.config, player, this.pointerLock);
+        this.controls = this.createControls(this.config, this.player, this.pointerLock);
         this.renderer = this.createRenderer(this.config, this.container);
         this.stats = this.createStats(this.config, this.container);
     }
@@ -57,7 +55,7 @@ export class Game {
 
         const mapLoader = new MapLoader(game.config);
         mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
-        mapLoader.load(mapName).then(map => {
+        mapLoader.load(mapName, game.player).then(map => {
             console.debug(`Map "${mapName}" is loaded`);
 
             game.map = map;
@@ -83,9 +81,11 @@ export class Game {
     }
 
     private update() {
+        const deltaTime = this.clock.getDelta();
         if (this.map) {
-            this.map.update(this.clock.getDelta());
+            this.map.update(deltaTime);
         }
+        this.player.update(deltaTime);
         this.controls.update();
     }
 
@@ -104,6 +104,10 @@ export class Game {
     private createCamera(config: GameConfig): PerspectiveCamera {
         const aspect = window.innerWidth / window.innerHeight;
         return new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
+    }
+
+    private createPlayer(camera: PerspectiveCamera): Player {
+        return new Player(camera);
     }
 
     private createPointerLock(target: HTMLElement): PointerLock {
