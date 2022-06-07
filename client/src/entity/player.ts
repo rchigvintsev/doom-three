@@ -14,13 +14,6 @@ export class Player extends Object3D implements Entity {
         this.add(this._pitchObject);
     }
 
-    init() {
-        const fists = <Fists>this.weapons.get('fists');
-        if (fists) {
-            fists.enable();
-        }
-    }
-
     addWeapon(weapon: Md5Model) {
         this.weapons.set(weapon.name, weapon);
         this._pitchObject.add(weapon);
@@ -38,5 +31,9 @@ export class Player extends Object3D implements Entity {
 
     get pitchObject(): Object3D {
         return this._pitchObject;
+    }
+
+    get fists(): Fists {
+        return <Fists>this.weapons.get('fists');
     }
 }

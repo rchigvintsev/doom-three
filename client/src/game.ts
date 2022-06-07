@@ -1,4 +1,4 @@
-import {Clock, PCFShadowMap, PerspectiveCamera, Renderer, Scene, WebGLRenderer} from 'three';
+import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GameConfig} from './game-config';
@@ -11,65 +11,63 @@ import {GameMap} from './entity/map/game-map';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
-    private readonly config: GameConfig;
-    private readonly container: HTMLElement;
-    private readonly scene: Scene;
-    private readonly camera: PerspectiveCamera;
-    private readonly player: Player;
-    private readonly pointerLock: PointerLock;
-    private readonly controls: FpsControls;
-    private readonly renderer: Renderer;
-    private readonly stats: Stats;
     private readonly clock = new Clock();
 
-    private map?: GameMap;
+    private config!: GameConfig;
+    private container!: HTMLElement;
+    private scene!: Scene;
+    private camera!: PerspectiveCamera;
+    private audioListener!: AudioListener;
+    private player!: Player;
+    private pointerLock!: PointerLock;
+    private controls!: FpsControls;
+    private renderer!: WebGLRenderer;
+    private stats!: Stats;
+
+    private _map?: GameMap;
 
     private initialized = false;
 
-    constructor() {
-        this.config = GameConfig.load();
-
-        this.container = this.getRequiredGameCanvasContainer();
-
-        this.scene = this.createScene();
-        this.camera = this.createCamera(this.config);
-        this.player = this.createPlayer(this.camera);
-        this.pointerLock = this.createPointerLock(this.container);
-        this.controls = this.createControls(this.config, this.player, this.pointerLock);
-        this.renderer = this.createRenderer(this.config, this.container);
-        this.stats = this.createStats(this.config, this.container);
-    }
-
     init() {
         if (!this.initialized) {
-            window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault()); // Disable context menu
+            this.config = GameConfig.load();
+
+            this.container = this.getRequiredGameCanvasContainer();
+
+            this.initScene();
+            this.initCamera(this.config);
+            this.initAudioListener(this.camera);
+            this.initPlayer(this.camera);
+            this.initPointerLock(this.container);
+            this.initControls(this.config, this.player, this.pointerLock);
+            this.initRenderer(this.config, this.container);
+            this.initStats(this.config, this.container);
+
+            // Disable context menu
+            window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
             window.addEventListener('resize', () => this.onWindowResize());
+
             this.initialized = true;
         }
     }
 
     static load(mapName: string): Game {
         const game = new Game();
-        game.init();
-        game.animate();
+        Game.showLockScreen(() => {
+            game.init();
+            game.pointerLock.request();
+            game.animate();
 
-        const mapLoader = new MapLoader(game.config);
-        mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
-        mapLoader.load(mapName, game.player).then(map => {
-            console.debug(`Map "${mapName}" is loaded`);
-
-            game.map = map;
-            game.scene.add(map);
-
-            game.player.init();
-            game.controls.init();
-            game.pointerLock.init();
-
-            Game.showLockScreen(() => {
-                game.pointerLock.request();
+            const mapLoader = new MapLoader(game.config);
+            mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
+            mapLoader.load(mapName, game.audioListener, game.player).then(map => {
+                console.debug(`Map "${mapName}" is loaded`);
+                game.map = map;
+                game.player.fists.enable();
+                game.controls.enabled = true;
                 console.debug('Game started');
-            });
-        }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
+            }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
+        });
         return game;
     }
 
@@ -82,10 +80,15 @@ export class Game {
         }
     }
 
+    set map(map: GameMap) {
+        this._map = map;
+        this.scene.add(map);
+    }
+
     private update() {
         const deltaTime = this.clock.getDelta();
-        if (this.map) {
-            this.map.update(deltaTime);
+        if (this._map) {
+            this._map.update(deltaTime);
         }
         this.player.update(deltaTime);
         this.controls.update();
@@ -99,45 +102,50 @@ export class Game {
         return container;
     }
 
-    private createScene(): Scene {
-        return new Scene();
+    private initScene() {
+        this.scene = new Scene();
     }
 
-    private createCamera(config: GameConfig): PerspectiveCamera {
+    private initCamera(config: GameConfig) {
         const aspect = window.innerWidth / window.innerHeight;
-        return new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
+        this.camera = new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
     }
 
-    private createPlayer(camera: PerspectiveCamera): Player {
-        return new Player(camera);
+    private initAudioListener(camera: PerspectiveCamera) {
+        this.audioListener = new AudioListener();
+        camera.add(this.audioListener);
     }
 
-    private createPointerLock(target: HTMLElement): PointerLock {
-        return new PointerLock(target);
+    private initPlayer(camera: PerspectiveCamera) {
+        this.player = new Player(camera);
     }
 
-    private createControls(config: GameConfig, player: Player, pointerLock: PointerLock): FpsControls {
-        return new FpsControls(config, player, pointerLock);
+    private initPointerLock(target: HTMLElement) {
+        this.pointerLock = new PointerLock(target);
+        this.pointerLock.init();
     }
 
-    private createRenderer(config: GameConfig, parent: HTMLElement): Renderer {
-        const renderer = new WebGLRenderer({antialias: config.antialias});
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = PCFShadowMap;
-        renderer.localClippingEnabled = true;
-        renderer.domElement.id = 'game_canvas';
-        parent.appendChild(renderer.domElement);
-        return renderer;
+    private initControls(config: GameConfig, player: Player, pointerLock: PointerLock) {
+        this.controls = new FpsControls(config, player, pointerLock);
+        this.controls.init();
     }
 
-    private createStats(config: GameConfig, parent: HTMLElement): Stats {
-        const stats = Stats();
+    private initRenderer(config: GameConfig, parent: HTMLElement) {
+        this.renderer = new WebGLRenderer({antialias: config.antialias});
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = PCFShadowMap;
+        this.renderer.localClippingEnabled = true;
+        this.renderer.domElement.id = 'game_canvas';
+        parent.appendChild(this.renderer.domElement);
+    }
+
+    private initStats(config: GameConfig, parent: HTMLElement) {
+        this.stats = Stats();
         if (config.showStats) {
-            parent.appendChild(stats.dom);
+            parent.appendChild(this.stats.dom);
         }
-        return stats;
     }
 
     private render() {

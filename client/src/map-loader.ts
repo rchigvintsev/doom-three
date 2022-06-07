@@ -1,4 +1,4 @@
-import {AudioLoader, EventDispatcher, FileLoader, Texture} from 'three';
+import {AudioListener, AudioLoader, EventDispatcher, FileLoader, Mesh, Texture} from 'three';
 
 import {GameConfig} from './game-config';
 import {TgaLoader} from './loader/tga-loader';
@@ -15,6 +15,8 @@ import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
 import {Player} from './entity/player';
 import {Md5Model} from './entity/md5model/md5-model';
+import {SoundFactory} from './entity/sound/sound-factory';
+import {Md5Animation} from './animation/md5-animation';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -27,7 +29,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         super();
     }
 
-    load(mapName: string, player: Player): Promise<GameMap> {
+    load(mapName: string, audioListener: AudioListener, player: Player): Promise<GameMap> {
         console.debug(`Loading of map "${mapName}"...`);
 
         return Promise.all([
@@ -79,7 +81,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
                 const lightFactory = new LightFactory(this.config);
                 const areaFactory = new AreaFactory(this.config, surfaceFactory, lightFactory);
-                const md5ModelFactory = new Md5ModelFactory(this.config, materialFactory, assets);
+                const soundFactory = new SoundFactory(audioListener, soundDefs, assets);
+                const md5ModelFactory = new Md5ModelFactory(this.config, materialFactory, soundFactory, assets);
                 const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
 
                 this.createWeapons(weaponDefs, md5ModelFactory).forEach(weapon => {
@@ -156,8 +159,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(texturePromises);
     }
 
-    private loadModels(context: LoadingContext): Promise<any[]> {
-        const modelPromises: Promise<any>[] = [];
+    private loadModels(context: LoadingContext): Promise<Mesh[]> {
+        const modelPromises: Promise<Mesh>[] = [];
         for (const modelName of context.modelsToLoad) {
             if (modelName.toLowerCase().endsWith('.md5mesh')) {
                 modelPromises.push(this.md5MeshLoader.loadAsync(`assets/${modelName}`).then(mesh => {
@@ -176,8 +179,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(modelPromises);
     }
 
-    private loadAnimations(context: LoadingContext): Promise<any[]> {
-        const animationPromises: Promise<any>[] = [];
+    private loadAnimations(context: LoadingContext): Promise<Md5Animation[]> {
+        const animationPromises: Promise<Md5Animation>[] = [];
         for (const animationName of context.animationsToLoad) {
             if (animationName.toLowerCase().endsWith('.md5anim')) {
                 animationPromises.push(this.md5AnimationLoader.loadAsync(`assets/${animationName}`).then(animation => {
@@ -196,8 +199,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(animationPromises);
     }
 
-    private loadSounds(context: LoadingContext): Promise<any[]> {
-        const soundPromises: Promise<any>[] = [];
+    private loadSounds(context: LoadingContext): Promise<AudioBuffer[]> {
+        const soundPromises: Promise<AudioBuffer>[] = [];
         for (const soundName of context.soundsToLoad) {
             soundPromises.push(this.soundLoader.loadAsync(`assets/${soundName}`).then(sound => {
                 console.debug(`Sound "${soundName}" is loaded`);
@@ -272,9 +275,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
     }
 
-    private createWeapons(weaponDefs: Map<string, any>, md5ModelFactory: Md5ModelFactory): Md5Model[] {
-        const weapons: Md5Model[] = [];
-        weaponDefs.forEach(weaponDef => weapons.push(md5ModelFactory.create(weaponDef)));
+    private createWeapons(weaponDefs: Map<string, any>, modelFactory: Md5ModelFactory): Map<string, Md5Model> {
+        const weapons = new Map<string, Md5Model>();
+        weaponDefs.forEach((weaponDef, weaponName) => weapons.set(weaponName, modelFactory.create(weaponDef)));
         return weapons;
     }
 }
@@ -299,12 +302,12 @@ class LoadingContext {
         this.loaded++;
     }
 
-    onModelAnimationLoad(animationName: string, animation: any) {
+    onModelAnimationLoad(animationName: string, animation: Md5Animation) {
         this.assets.modelAnimations.set(animationName, animation);
         this.loaded++;
     }
 
-    onModelMeshLoad(modelName: string, mesh: any) {
+    onModelMeshLoad(modelName: string, mesh: Mesh) {
         this.assets.modelMeshes.set(modelName, mesh);
         this.loaded++;
     }

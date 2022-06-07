@@ -1,11 +1,12 @@
-import {BufferGeometry, Material} from 'three';
+import {Audio, BufferGeometry, Material} from 'three';
+
 import {Md5Model} from '../md5-model';
 
 export class Fists extends Md5Model {
     private enabled = false;
 
-    constructor(geometry: BufferGeometry, materials: Material | Material[]) {
-        super(geometry, materials);
+    constructor(geometry: BufferGeometry, materials: Material | Material[], sounds: Map<string, Audio<AudioNode>>) {
+        super(geometry, materials, sounds);
     }
 
     enable() {
@@ -13,6 +14,7 @@ export class Fists extends Md5Model {
             const raiseAction = this.getRequiredAnimationAction('raise');
             const idleAction = this.getRequiredAnimationAction('idle');
             this.executeActionCrossFade(raiseAction, idleAction, 0.40);
+            this.playRaiseSound();
             this.enabled = true;
         }
     }
@@ -23,6 +25,13 @@ export class Fists extends Md5Model {
             const lowerAction = this.getRequiredAnimationAction('lower');
             this.executeActionCrossFade(idleAction, lowerAction, 0.25);
             this.enabled = false;
+        }
+    }
+
+    private playRaiseSound() {
+        const raiseSound = this.getRequiredSound('raise');
+        if (!raiseSound.isPlaying) {
+            raiseSound.play(0.1);
         }
     }
 }

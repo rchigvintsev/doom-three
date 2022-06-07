@@ -4,8 +4,6 @@ import {KeyboardState} from './keyboard-state';
 import {PointerLock} from './pointer-lock';
 import {Player} from '../entity/player';
 import {GameConfig} from '../game-config';
-import {PointerLockEvent} from '../event/pointer-lock-event';
-import {PointerUnlockEvent} from '../event/pointer-unlock-event';
 
 export class FpsControls {
     enabled = false;
@@ -24,14 +22,12 @@ export class FpsControls {
         if (!this.initialized) {
             document.addEventListener('mousemove', e => this.onMouseMove(e));
             this.keyboardState.init();
-            this.pointerLock.addEventListener(PointerLockEvent.TYPE, () => this.onPointerLock());
-            this.pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => this.onPointerUnlock());
             this.initialized = true;
         }
     }
 
     update() {
-        if (!this.enabled) {
+        if (!this.activated) {
             return;
         }
 
@@ -49,10 +45,14 @@ export class FpsControls {
             this.inputVelocity.set(a, b, c).normalize().multiplyScalar(this.config.playerMoveSpeed);
             this.player.move(this.inputVelocity);
         }
+
+        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_G)) {
+            this.player.fists.enable();
+        }
     }
 
     private onMouseMove(e: MouseEvent) {
-        if (!this.enabled) {
+        if (!this.activated) {
             return;
         }
 
@@ -66,11 +66,7 @@ export class FpsControls {
         pitchObject.rotation.x = Math.max(-1 * Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
     }
 
-    private onPointerLock() {
-        this.enabled = true;
-    }
-
-    private onPointerUnlock() {
-        this.enabled = false;
+    private get activated(): boolean {
+        return this.enabled && this.pointerLock.enabled;
     }
 }

@@ -1,26 +1,42 @@
-import {AnimationAction, AnimationMixer, BufferGeometry, LoopOnce, Material, SkeletonHelper, SkinnedMesh} from 'three';
+import {
+    AnimationAction,
+    AnimationMixer,
+    Audio,
+    BufferGeometry,
+    LoopOnce,
+    Material,
+    SkeletonHelper,
+    SkinnedMesh
+} from 'three';
 
 import {Entity} from '../entity';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
 
-    protected readonly animationActions = new Map<string, AnimationAction>();
+    private readonly animationActions = new Map<string, AnimationAction>();
 
     private animationMixer?: AnimationMixer;
     private _wireframeModel?: Md5Model;
 
-    constructor(geometry: BufferGeometry, materials: Material | Material[]) {
+    private initialized = false;
+
+    constructor(geometry: BufferGeometry,
+                materials: Material | Material[],
+                private readonly sounds: Map<string, Audio<AudioNode>>) {
         super(geometry, materials);
     }
 
     init() {
-        if (this.animations) {
-            this.animationMixer = new AnimationMixer(this);
-            this.initAnimationActions(this.animationMixer);
-        }
-        if (this._wireframeModel) {
-            this._wireframeModel.init();
+        if (!this.initialized) {
+            if (this.animations) {
+                this.animationMixer = new AnimationMixer(this);
+                this.initAnimationActions(this.animationMixer);
+            }
+            if (this._wireframeModel) {
+                this._wireframeModel.init();
+            }
+            this.initialized = true;
         }
     }
 
@@ -58,6 +74,14 @@ export class Md5Model extends SkinnedMesh implements Entity {
             throw new Error(`Animation action "${actionName}" is not found in MD5 model "${this.name}"`);
         }
         return action;
+    }
+
+    protected getRequiredSound(soundName: string): Audio<AudioNode> {
+        const sound = this.sounds.get(soundName);
+        if (!sound) {
+            throw new Error(`Sound "${soundName}" is not found in MD5 model "${this.name}"`);
+        }
+        return sound;
     }
 
     protected executeActionCrossFade(startAction: AnimationAction, endAction: AnimationAction, duration: number) {

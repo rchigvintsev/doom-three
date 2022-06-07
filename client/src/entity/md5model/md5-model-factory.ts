@@ -1,5 +1,6 @@
 import {
     AnimationClip,
+    Audio,
     Bone,
     BufferGeometry,
     Material,
@@ -19,29 +20,40 @@ import {Fists} from './weapon/fists';
 import {Md5MeshGeometry} from '../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../animation/md5-animation';
 import {Md5Model} from './md5-model';
+import {SoundFactory} from '../sound/sound-factory';
 
 // noinspection JSMethodCanBeStatic
 export class Md5ModelFactory implements EntityFactory<Md5Model> {
     constructor(private readonly config: GameConfig,
                 private readonly materialFactory: MaterialFactory,
+                private readonly soundFactory: SoundFactory,
                 private readonly assets: GameAssets) {
     }
 
     create(modelDef: any): Md5Model {
-        const mesh = <SkinnedMesh>this.assets.modelMeshes.get(modelDef.model);
-        if (!mesh) {
-            throw new Error(`MD5 model mesh "${modelDef.model}" is not found in game assets`);
-        }
-        const animations: Md5Animation[] = modelDef.animations
-            .map((animationName: string) => this.assets.modelAnimations.get(animationName));
+        const mesh = this.getRequiredModelMesh(modelDef);
+        const animations = this.getAnimations(modelDef);
         this.bindPose(mesh, animations[0]);
         const material = this.createMaterial(modelDef);
-        const model = this.createModel(modelDef, mesh.geometry, material, animations);
+        const sounds = this.createSounds(modelDef);
+        const model = this.createModel(modelDef, mesh.geometry, material, animations, sounds);
         if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
             model.wireframeModel = this.createWireframeModel(model, animations);
         }
         model.init();
         return model;
+    }
+
+    private getRequiredModelMesh(modelDef: any): SkinnedMesh {
+        const mesh = <SkinnedMesh>this.assets.modelMeshes.get(modelDef.model);
+        if (!mesh) {
+            throw new Error(`MD5 model mesh "${modelDef.model}" is not found in game assets`);
+        }
+        return mesh;
+    }
+
+    private getAnimations(modelDef: any): Md5Animation[] {
+        return modelDef.animations.map((animationName: string) => this.assets.modelAnimations.get(animationName));
     }
 
     private bindPose(mesh: SkinnedMesh, animation: Md5Animation) {
@@ -52,6 +64,16 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         model.add(skeleton.bones[0]);
         model.bind(skeleton);
         return skeleton;
+    }
+
+    private createSounds(modelDef: any): Map<string, Audio<AudioNode>> {
+        const sounds = new Map<string, Audio<AudioNode>>();
+        if (modelDef.sounds) {
+            for (const soundName of Object.keys(modelDef.sounds)) {
+                sounds.set(soundName, this.soundFactory.create(modelDef.sounds[soundName]));
+            }
+        }
+        return sounds;
     }
 
     private createSkeleton(animation: Md5Animation): Skeleton {
@@ -93,12 +115,13 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
     private createModel(modelDef: any,
                         geometry: BufferGeometry,
                         material: Material,
-                        animations: Md5Animation[]): Md5Model {
+                        animations: Md5Animation[],
+                        sounds: Map<string, Audio<AudioNode>>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists(geometry, material);
+            model = new Fists(geometry, material, sounds);
         } else {
-            model = new Md5Model(geometry, material);
+            model = new Md5Model(geometry, material, sounds);
         }
         model.name = modelDef.name;
 
