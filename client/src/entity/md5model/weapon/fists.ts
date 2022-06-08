@@ -20,6 +20,15 @@ export class Fists extends Weapon {
         this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
+    clone(recursive?: boolean): this {
+        const clone = super.clone(recursive);
+        this.punchAnimationActionNames.forEach((value, key) =>
+            clone.punchAnimationActionNames.set(key, value));
+        clone.lastPunchingHand = this.lastPunchingHand;
+        clone.lastPunchAnimationAction = this.lastPunchAnimationAction;
+        return clone;
+    }
+
     enable() {
         if (!this.enabled) {
             this.executeActionCrossFade('raise', 'idle', 0.40);

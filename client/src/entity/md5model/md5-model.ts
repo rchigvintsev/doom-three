@@ -16,6 +16,7 @@ import {Entity} from '../entity';
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
 
+    private readonly sounds = new Map<string, Audio<AudioNode>[]>();
     private readonly animationActions = new Map<string, AnimationAction>();
 
     private animationMixer?: AnimationMixer;
@@ -25,8 +26,11 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     constructor(geometry: BufferGeometry,
                 materials: Material | Material[],
-                private readonly sounds: Map<string, Audio<AudioNode>[]>) {
+                sounds: Map<string, Audio<AudioNode>[]>) {
         super(geometry, materials);
+        if (sounds) {
+            sounds.forEach((value, key) => this.sounds.set(key, value));
+        }
     }
 
     init() {
@@ -42,6 +46,26 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
     }
 
+    clone(recursive?: boolean): this {
+        const clone = super.clone(recursive);
+        if (this.sounds) {
+            this.sounds.forEach((value, key) => clone.sounds.set(key, value));
+        }
+        if (this.animations) {
+            clone.animations = this.animations.map(animation => animation.clone());
+        }
+        this.animationActions.forEach((value, key) => clone.animationActions.set(key, value));
+        clone.animationMixer = this.animationMixer;
+        if (this.skeletonHelper) {
+            clone.skeletonHelper = this.skeletonHelper;
+        }
+        if (this._wireframeModel) {
+            clone.wireframeModel = this._wireframeModel;
+        }
+        clone.initialized = this.initialized;
+        return clone;
+    }
+
     update(deltaTime: number): void {
         if (this.animationMixer) {
             this.animationMixer.update(deltaTime);
@@ -49,20 +73,6 @@ export class Md5Model extends SkinnedMesh implements Entity {
         if (this._wireframeModel) {
             this._wireframeModel.update(deltaTime);
         }
-    }
-
-    clone(recursive?: boolean): this {
-        const clone = super.clone(recursive);
-        if (this.animations) {
-            clone.animations = this.animations.map(animation => animation.clone());
-        }
-        if (this.skeletonHelper) {
-            clone.skeletonHelper = this.skeletonHelper;
-        }
-        if (this._wireframeModel) {
-            clone.wireframeModel = this._wireframeModel;
-        }
-        return clone;
     }
 
     set wireframeModel(wireframeModel: Md5Model) {
@@ -113,7 +123,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
     }
 
     protected getRequiredAnimationAction(actionName: string): AnimationAction {
-        const action = this.animationActions.get(actionName);
+        const action = this.getAnimationAction(actionName);
         if (!action) {
             throw new Error(`Animation action "${actionName}" is not found in MD5 model "${this.name}"`);
         }

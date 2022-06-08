@@ -9,6 +9,12 @@ export abstract class Weapon extends Md5Model {
         super(geometry, materials, sounds);
     }
 
+    clone(recursive?: boolean): this {
+        const clone = super.clone(recursive);
+        clone.enabled = this.enabled;
+        return clone;
+    }
+
     abstract enable(): void;
 
     abstract disable(): void;
