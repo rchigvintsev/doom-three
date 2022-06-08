@@ -1,11 +1,14 @@
 import {Object3D, PerspectiveCamera, Vector3} from 'three';
+
 import {Entity} from './entity';
-import {Md5Model} from './md5model/md5-model';
 import {Fists} from './md5model/weapon/fists';
+import {Weapon} from './md5model/weapon/weapon';
 
 export class Player extends Object3D implements Entity {
     private readonly _pitchObject: Object3D;
-    private readonly weapons = new Map<string, Md5Model>();
+    private readonly weapons = new Map<string, Weapon>();
+
+    private currentWeapon?: Weapon;
 
     constructor(camera: PerspectiveCamera) {
         super();
@@ -14,9 +17,12 @@ export class Player extends Object3D implements Entity {
         this.add(this._pitchObject);
     }
 
-    addWeapon(weapon: Md5Model) {
+    addWeapon(weapon: Weapon) {
         this.weapons.set(weapon.name, weapon);
         this._pitchObject.add(weapon);
+        if (!this.currentWeapon) {
+            this.currentWeapon = weapon;
+        }
     }
 
     update(deltaTime: number): void {
@@ -27,6 +33,12 @@ export class Player extends Object3D implements Entity {
         this.translateX(velocity.x);
         this.translateY(velocity.y);
         this.translateZ(velocity.z);
+    }
+
+    attack() {
+        if (this.currentWeapon) {
+            this.currentWeapon.attack();
+        }
     }
 
     get pitchObject(): Object3D {

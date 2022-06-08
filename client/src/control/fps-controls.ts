@@ -4,10 +4,12 @@ import {KeyboardState} from './keyboard-state';
 import {PointerLock} from './pointer-lock';
 import {Player} from '../entity/player';
 import {GameConfig} from '../game-config';
+import {MouseState} from './mouse-state';
 
 export class FpsControls {
     enabled = false;
 
+    private readonly mouseState = new MouseState();
     private readonly keyboardState = new KeyboardState();
     private readonly inputVelocity = new Vector3();
 
@@ -21,6 +23,7 @@ export class FpsControls {
     init() {
         if (!this.initialized) {
             document.addEventListener('mousemove', e => this.onMouseMove(e));
+            this.mouseState.init();
             this.keyboardState.init();
             this.initialized = true;
         }
@@ -46,8 +49,12 @@ export class FpsControls {
             this.player.move(this.inputVelocity);
         }
 
-        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_G)) {
-            this.player.fists.enable();
+        if (this.mouseState.isButtonPressed(MouseState.BUTTON_LEFT))
+            this.player.attack();
+        else {
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_G)) {
+                this.player.fists.enable();
+            }
         }
     }
 

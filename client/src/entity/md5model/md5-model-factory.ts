@@ -66,8 +66,8 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         return skeleton;
     }
 
-    private createSounds(modelDef: any): Map<string, Audio<AudioNode>> {
-        const sounds = new Map<string, Audio<AudioNode>>();
+    private createSounds(modelDef: any): Map<string, Audio<AudioNode>[]> {
+        const sounds = new Map<string, Audio<AudioNode>[]>();
         if (modelDef.sounds) {
             for (const soundName of Object.keys(modelDef.sounds)) {
                 sounds.set(soundName, this.soundFactory.create(modelDef.sounds[soundName]));
@@ -116,7 +116,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
                         geometry: BufferGeometry,
                         material: Material,
                         animations: Md5Animation[],
-                        sounds: Map<string, Audio<AudioNode>>): Md5Model {
+                        sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
             model = new Fists(geometry, material, sounds);

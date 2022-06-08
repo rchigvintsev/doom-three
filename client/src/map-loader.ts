@@ -14,9 +14,9 @@ import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
 import {Player} from './entity/player';
-import {Md5Model} from './entity/md5model/md5-model';
 import {SoundFactory} from './entity/sound/sound-factory';
 import {Md5Animation} from './animation/md5-animation';
+import {Weapon} from './entity/md5model/weapon/weapon';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -275,9 +275,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
     }
 
-    private createWeapons(weaponDefs: Map<string, any>, modelFactory: Md5ModelFactory): Map<string, Md5Model> {
-        const weapons = new Map<string, Md5Model>();
-        weaponDefs.forEach((weaponDef, weaponName) => weapons.set(weaponName, modelFactory.create(weaponDef)));
+    private createWeapons(weaponDefs: Map<string, any>, modelFactory: Md5ModelFactory): Map<string, Weapon> {
+        const weapons = new Map<string, Weapon>();
+        weaponDefs.forEach((weaponDef, weaponName) =>
+            weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));
         return weapons;
     }
 }

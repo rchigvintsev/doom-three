@@ -9,6 +9,8 @@ import {
     SkinnedMesh
 } from 'three';
 
+import {randomInt} from 'mathjs';
+
 import {Entity} from '../entity';
 
 export class Md5Model extends SkinnedMesh implements Entity {
@@ -23,7 +25,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     constructor(geometry: BufferGeometry,
                 materials: Material | Material[],
-                private readonly sounds: Map<string, Audio<AudioNode>>) {
+                private readonly sounds: Map<string, Audio<AudioNode>[]>) {
         super(geometry, materials);
     }
 
@@ -68,6 +70,48 @@ export class Md5Model extends SkinnedMesh implements Entity {
         this.add(wireframeModel);
     }
 
+    protected playFirstSound(soundName: string, delay?: number) {
+        const sounds = this.getRequiredSounds(soundName);
+        if (sounds && sounds.length > 0) {
+            const sound = sounds[0];
+            if (!sound.isPlaying) {
+                sound.play(delay);
+            }
+        }
+    }
+
+    protected playRandomSound(soundName: string, delay?: number) {
+        const sounds = this.getRequiredSounds(soundName);
+        if (sounds) {
+            const sound = sounds[randomInt(0, sounds.length)];
+            if (!sound.isPlaying) {
+                sound.play(delay);
+            }
+        }
+    }
+
+    protected executeActionCrossFade(startActionName: string, endActionName: string, duration: number) {
+        const startAction = this.getRequiredAnimationAction(startActionName);
+        const endAction = this.getRequiredAnimationAction(endActionName);
+
+        startAction.reset().play();
+        endAction.enabled = true;
+        endAction.reset().play();
+        startAction.crossFadeTo(endAction, duration, false);
+
+        if (this._wireframeModel) {
+            this._wireframeModel.executeActionCrossFade(startActionName, endActionName, duration);
+        }
+    }
+
+    protected getRequiredSounds(soundName: string): Audio<AudioNode>[] {
+        const sounds = this.sounds.get(soundName);
+        if (!sounds) {
+            throw new Error(`Sounds "${soundName}" are not found in MD5 model "${this.name}"`);
+        }
+        return sounds;
+    }
+
     protected getRequiredAnimationAction(actionName: string): AnimationAction {
         const action = this.animationActions.get(actionName);
         if (!action) {
@@ -76,19 +120,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
         return action;
     }
 
-    protected getRequiredSound(soundName: string): Audio<AudioNode> {
-        const sound = this.sounds.get(soundName);
-        if (!sound) {
-            throw new Error(`Sound "${soundName}" is not found in MD5 model "${this.name}"`);
-        }
-        return sound;
-    }
-
-    protected executeActionCrossFade(startAction: AnimationAction, endAction: AnimationAction, duration: number) {
-        startAction.reset().play();
-        endAction.enabled = true;
-        endAction.reset().play();
-        startAction.crossFadeTo(endAction, duration, false);
+    protected getAnimationAction(actionName: string): AnimationAction | undefined {
+        return this.animationActions.get(actionName);
     }
 
     private initAnimationActions(animationMixer: AnimationMixer) {

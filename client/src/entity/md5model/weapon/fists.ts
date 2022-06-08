@@ -1,19 +1,28 @@
-import {Audio, BufferGeometry, Material} from 'three';
+import {AnimationAction, Audio, BufferGeometry, Material} from 'three';
 
-import {Md5Model} from '../md5-model';
+import {randomInt} from 'mathjs';
 
-export class Fists extends Md5Model {
-    private enabled = false;
+import {Weapon} from './weapon';
 
-    constructor(geometry: BufferGeometry, materials: Material | Material[], sounds: Map<string, Audio<AudioNode>>) {
+export class Fists extends Weapon {
+    private readonly punchAnimationActionNames = new Map<Hand, string[]>();
+
+    private lastPunchingHand = Hand.LEFT;
+    private lastPunchAnimationAction?: AnimationAction;
+
+    constructor(geometry: BufferGeometry, materials: Material | Material[], sounds: Map<string, Audio<AudioNode>[]>) {
         super(geometry, materials, sounds);
+    }
+
+    init() {
+        super.init();
+        this.punchAnimationActionNames.set(Hand.LEFT, ['berserk_punch1', 'berserk_punch3']);
+        this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
     enable() {
         if (!this.enabled) {
-            const raiseAction = this.getRequiredAnimationAction('raise');
-            const idleAction = this.getRequiredAnimationAction('idle');
-            this.executeActionCrossFade(raiseAction, idleAction, 0.40);
+            this.executeActionCrossFade('raise', 'idle', 0.40);
             this.playRaiseSound();
             this.enabled = true;
         }
@@ -21,17 +30,37 @@ export class Fists extends Md5Model {
 
     disable() {
         if (this.enabled) {
-            const idleAction = this.getRequiredAnimationAction('idle');
-            const lowerAction = this.getRequiredAnimationAction('lower');
-            this.executeActionCrossFade(idleAction, lowerAction, 0.25);
+            this.executeActionCrossFade('idle', 'lower', 0.25);
             this.enabled = false;
         }
     }
 
-    private playRaiseSound() {
-        const raiseSound = this.getRequiredSound('raise');
-        if (!raiseSound.isPlaying) {
-            raiseSound.play(0.1);
+    attack(): void {
+        if (!this.isAttacking()) {
+            const nextPunchingHand = (this.lastPunchingHand + 1) % 2;
+            const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
+            const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
+            this.executeActionCrossFade(nextPunchActionName, 'idle', 2.0);
+            this.playWooshSound();
+
+            this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
+            this.lastPunchingHand = nextPunchingHand;
         }
     }
+
+    private isAttacking(): boolean {
+        return !!(this.lastPunchAnimationAction && this.lastPunchAnimationAction.isRunning());
+    }
+
+    private playRaiseSound() {
+        this.playFirstSound('raise', 0.1);
+    }
+
+    private playWooshSound() {
+        this.playRandomSound('woosh', 0.1);
+    }
+}
+
+enum Hand {
+    LEFT, RIGHT
 }
