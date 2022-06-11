@@ -3,6 +3,7 @@ import {Object3D, PerspectiveCamera, Vector3} from 'three';
 import {Entity} from './entity';
 import {Fists} from './md5model/weapon/fists';
 import {Weapon} from './md5model/weapon/weapon';
+import {PhysicsWorld} from '../physics/physics-world';
 
 export class Player extends Object3D implements Entity {
     private readonly _pitchObject: Object3D;
@@ -17,16 +18,20 @@ export class Player extends Object3D implements Entity {
         this.add(this._pitchObject);
     }
 
+    registerCollisionModels(_physicsWorld: PhysicsWorld): void {
+        // Do nothing for now
+    }
+
+    update(deltaTime: number): void {
+        this.weapons.forEach(weapon => weapon.update(deltaTime));
+    }
+
     addWeapon(weapon: Weapon) {
         this.weapons.set(weapon.name, weapon);
         this._pitchObject.add(weapon);
         if (!this.currentWeapon) {
             this.currentWeapon = weapon;
         }
-    }
-
-    update(deltaTime: number): void {
-        this.weapons.forEach(weapon => weapon.update(deltaTime));
     }
 
     move(velocity: Vector3) {

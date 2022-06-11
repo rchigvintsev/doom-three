@@ -4,28 +4,34 @@ import {EntityFactory} from '../entity-factory';
 import {Surface} from './surface';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
+import {CollisionModelFactory} from '../../physics/collision-model-factory';
 
 // noinspection JSMethodCanBeStatic
 export class SurfaceFactory implements EntityFactory<Surface> {
-    constructor(private readonly config: GameConfig, private readonly materialFactory: MaterialFactory) {
+    constructor(private readonly config: GameConfig,
+                private readonly materialFactory: MaterialFactory,
+                private readonly collisionModelFactory: CollisionModelFactory) {
     }
 
     create(surfaceDef: any): Surface {
         let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
+        const collisionModel = this.collisionModelFactory.create(surfaceDef);
         if (this.config.renderOnlyWireframe) {
-            surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}));
+            surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}), collisionModel);
         } else {
             const materials = this.materialFactory.create(surfaceDef.material);
-            surface = new Surface(geometry, materials);
+            surface = new Surface(geometry, materials, collisionModel);
             if (this.config.showWireframe) {
                 surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
             }
         }
+
         surface.scale.setScalar(this.config.worldScale);
         if (surfaceDef.position) {
             surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
         }
+
         return surface;
     }
 

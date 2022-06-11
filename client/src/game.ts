@@ -1,6 +1,8 @@
 import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
+import {GSSolver, SplitSolver} from 'cannon-es';
+
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
 import {ProgressEvent} from './event/progress-event';
@@ -8,17 +10,20 @@ import {FpsControls} from './control/fps-controls';
 import {Player} from './entity/player';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
+import {PhysicsWorld} from './physics/physics-world';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
     private readonly clock = new Clock();
 
-    private config!: GameConfig;
+    private _config!: GameConfig;
+    private _audioListener!: AudioListener;
+    private _player!: Player;
+    private _physicsWorld!: PhysicsWorld;
+
     private container!: HTMLElement;
     private scene!: Scene;
     private camera!: PerspectiveCamera;
-    private audioListener!: AudioListener;
-    private player!: Player;
     private pointerLock!: PointerLock;
     private controls!: FpsControls;
     private renderer!: WebGLRenderer;
@@ -30,18 +35,19 @@ export class Game {
 
     init() {
         if (!this.initialized) {
-            this.config = GameConfig.load();
+            this._config = GameConfig.load();
 
             this.container = this.getRequiredGameCanvasContainer();
 
             this.initScene();
-            this.initCamera(this.config);
+            this.initCamera(this._config);
             this.initAudioListener(this.camera);
             this.initPlayer(this.camera);
             this.initPointerLock(this.container);
-            this.initControls(this.config, this.player, this.pointerLock);
-            this.initRenderer(this.config, this.container);
-            this.initStats(this.config, this.container);
+            this.initControls(this._config, this._player, this.pointerLock);
+            this.initRenderer(this._config, this.container);
+            this.initPhysics();
+            this.initStats(this._config, this.container);
 
             // Disable context menu
             window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
@@ -58,12 +64,12 @@ export class Game {
             game.pointerLock.request();
             game.animate();
 
-            const mapLoader = new MapLoader(game.config);
+            const mapLoader = new MapLoader(game);
             mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
-            mapLoader.load(mapName, game.audioListener, game.player).then(map => {
+            mapLoader.load(mapName).then(map => {
                 console.debug(`Map "${mapName}" is loaded`);
                 game.map = map;
-                game.player.fists.enable();
+                game._player.fists.enable();
                 game.controls.enabled = true;
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
@@ -75,14 +81,31 @@ export class Game {
         requestAnimationFrame(() => this.animate());
         this.update();
         this.render();
-        if (this.config.showStats) {
+        if (this._config.showStats) {
             this.stats.update();
         }
+    }
+
+    get config(): GameConfig {
+        return this._config;
+    }
+
+    get audioListener(): AudioListener {
+        return this._audioListener;
+    }
+
+    get player(): Player {
+        return this._player;
+    }
+
+    get physicsWorld(): PhysicsWorld {
+        return this._physicsWorld;
     }
 
     set map(map: GameMap) {
         this._map = map;
         this.scene.add(map);
+        map.registerCollisionModels(this._physicsWorld);
     }
 
     private update() {
@@ -90,8 +113,9 @@ export class Game {
         if (this._map) {
             this._map.update(deltaTime);
         }
-        this.player.update(deltaTime);
+        this._player.update(deltaTime);
         this.controls.update();
+        this._physicsWorld.step(deltaTime);
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
@@ -112,12 +136,12 @@ export class Game {
     }
 
     private initAudioListener(camera: PerspectiveCamera) {
-        this.audioListener = new AudioListener();
-        camera.add(this.audioListener);
+        this._audioListener = new AudioListener();
+        camera.add(this._audioListener);
     }
 
     private initPlayer(camera: PerspectiveCamera) {
-        this.player = new Player(camera);
+        this._player = new Player(camera);
     }
 
     private initPointerLock(target: HTMLElement) {
@@ -139,6 +163,19 @@ export class Game {
         this.renderer.localClippingEnabled = true;
         this.renderer.domElement.id = 'game_canvas';
         parent.appendChild(this.renderer.domElement);
+    }
+
+    private initPhysics() {
+        this._physicsWorld = new PhysicsWorld();
+        this._physicsWorld.allowSleep = true;
+
+        this._physicsWorld.defaultContactMaterial.contactEquationStiffness = 1e9;
+        this._physicsWorld.defaultContactMaterial.contactEquationRelaxation = 4;
+
+        const solver = new GSSolver();
+        solver.iterations = 7;
+        solver.tolerance = 0.1;
+        this._physicsWorld.solver = new SplitSolver(solver);
     }
 
     private initStats(config: GameConfig, parent: HTMLElement) {

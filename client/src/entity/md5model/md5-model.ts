@@ -12,6 +12,7 @@ import {
 import {randomInt} from 'mathjs';
 
 import {Entity} from '../entity';
+import {PhysicsWorld} from '../../physics/physics-world';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
@@ -64,6 +65,10 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
         clone.initialized = this.initialized;
         return clone;
+    }
+
+    registerCollisionModels(_physicsWorld: PhysicsWorld): void {
+        // Do nothing for now
     }
 
     update(deltaTime: number): void {

@@ -12,6 +12,7 @@ const DEFAULT_PLAYER_LOOK_SPEED = 0.002;
 const DEFAULT_PLAYER_MOVE_SPEED = 0.05;
 const DEFAULT_SHOW_LIGHT_SOURCES = false;
 const DEFAULT_SHOW_SKELETONS = false;
+const DEFAULT_SHOW_COLLISION_MODELS = true;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -26,6 +27,7 @@ export class GameConfig {
     playerMoveSpeed = DEFAULT_PLAYER_MOVE_SPEED;
     showLightSources = DEFAULT_SHOW_LIGHT_SOURCES;
     showSkeletons = DEFAULT_SHOW_SKELETONS;
+    showCollisionModels = DEFAULT_SHOW_COLLISION_MODELS;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];

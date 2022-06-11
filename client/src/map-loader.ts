@@ -1,6 +1,4 @@
-import {AudioListener, AudioLoader, EventDispatcher, FileLoader, Mesh, Texture} from 'three';
-
-import {GameConfig} from './game-config';
+import {AudioLoader, EventDispatcher, FileLoader, Mesh, Texture} from 'three';
 import {TgaLoader} from './loader/tga-loader';
 import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
@@ -13,10 +11,11 @@ import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
-import {Player} from './entity/player';
 import {SoundFactory} from './entity/sound/sound-factory';
 import {Md5Animation} from './animation/md5-animation';
 import {Weapon} from './entity/md5model/weapon/weapon';
+import {CollisionModelFactory} from './physics/collision-model-factory';
+import {Game} from './game';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -25,11 +24,11 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly md5AnimationLoader = new Md5AnimationLoader();
     private readonly soundLoader = new AudioLoader();
 
-    constructor(private config: GameConfig) {
+    constructor(private readonly game: Game) {
         super();
     }
 
-    load(mapName: string, audioListener: AudioListener, player: Player): Promise<GameMap> {
+    load(mapName: string): Promise<GameMap> {
         console.debug(`Loading of map "${mapName}"...`);
 
         return Promise.all([
@@ -50,11 +49,13 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             const assets = new GameAssets();
             const context = new LoadingContext(assets);
 
+            const config = this.game.config;
+
             this.getSoundSources(playerDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
 
             weaponDefs.forEach(weaponDef => {
                 context.modelsToLoad.add(weaponDef.model);
-                if (!this.config.renderOnlyWireframe) {
+                if (!config.renderOnlyWireframe) {
                     this.getTextureSources(weaponDef, materialDefs)
                         .forEach(source => context.texturesToLoad.add(source));
                 }
@@ -62,7 +63,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.getSoundSources(weaponDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
             });
 
-            if (!this.config.renderOnlyWireframe) {
+            if (!config.renderOnlyWireframe) {
                 this.getTextureSources(mapMeta, materialDefs).forEach(source => context.texturesToLoad.add(source));
             }
             this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
@@ -78,21 +79,22 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadSounds(context)
             ]).then(() => {
                 const materialFactory = new MaterialFactory(materialDefs, assets);
-                const surfaceFactory = new SurfaceFactory(this.config, materialFactory);
-                const lightFactory = new LightFactory(this.config);
-                const areaFactory = new AreaFactory(this.config, surfaceFactory, lightFactory);
-                const soundFactory = new SoundFactory(audioListener, soundDefs, assets);
-                const md5ModelFactory = new Md5ModelFactory(this.config, materialFactory, soundFactory, assets);
-                const map = new MapFactory(this.config, areaFactory, lightFactory).create(mapDef);
+                const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
+                const surfaceFactory = new SurfaceFactory(config, materialFactory, collisionModelFactory);
+                const lightFactory = new LightFactory(config);
+                const areaFactory = new AreaFactory(config, surfaceFactory, lightFactory);
+                const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
+                const md5ModelFactory = new Md5ModelFactory(config, materialFactory, soundFactory, assets);
+                const map = new MapFactory(config, areaFactory, lightFactory).create(mapDef);
 
                 this.createWeapons(weaponDefs, md5ModelFactory).forEach(weapon => {
-                    player.addWeapon(weapon);
+                    this.game.player.addWeapon(weapon);
                     if (weapon.skeletonHelper) {
                         map.add(weapon.skeletonHelper);
                     }
                 });
 
-                map.add(player);
+                map.add(this.game.player);
                 return map;
             });
         });
