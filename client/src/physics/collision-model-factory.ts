@@ -5,6 +5,8 @@ import {Body, Box, Cylinder, Heightfield, Quaternion, Shape, Sphere, Trimesh, Ve
 import {GameConfig} from '../game-config';
 import {CollisionModel, CollisionModelBody} from './collision-model';
 import {PhysicsWorld} from './physics-world';
+import {NamedSphere} from './cannon/named-sphere';
+import {NamedBox} from './cannon/named-box';
 
 export class CollisionModelFactory {
     constructor(private readonly config: GameConfig, private readonly physicsWorld: PhysicsWorld) {
@@ -95,10 +97,10 @@ export class CollisionModelFactory {
         if (shapeDef.type === 'box') {
             const halfExtents = new Vec3(shapeDef.width / 2, shapeDef.height / 2, shapeDef.depth / 2)
                 .scale(this.config.worldScale);
-            return new Box(halfExtents);
+            return new NamedBox(halfExtents, shapeDef.name);
         }
         if (shapeDef.type === 'sphere') {
-            return new Sphere(shapeDef.radius * this.config.worldScale);
+            return new NamedSphere(shapeDef.radius * this.config.worldScale, shapeDef.name);
         }
         if (shapeDef.type === 'cylinder') {
             const size = new Vec3(shapeDef.radiusTop, shapeDef.radiusBottom, shapeDef.height)
@@ -134,9 +136,7 @@ export class CollisionModelFactory {
             shapeGroup.add(shapeMesh);
         });
 
-        const localScale = 1 / this.config.worldScale;
-        shapeGroup.scale.setScalar(localScale);
-        shapeGroup.position.set(body.position.x, body.position.y, body.position.z).multiplyScalar(localScale);
+        shapeGroup.position.set(body.position.x, body.position.y, body.position.z);
         shapeGroup.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
         return shapeGroup;
     }

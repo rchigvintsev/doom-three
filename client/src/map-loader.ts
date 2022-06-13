@@ -1,4 +1,5 @@
 import {AudioLoader, EventDispatcher, FileLoader, Mesh, Texture} from 'three';
+
 import {TgaLoader} from './loader/tga-loader';
 import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
@@ -16,6 +17,8 @@ import {Md5Animation} from './animation/md5-animation';
 import {Weapon} from './entity/md5model/weapon/weapon';
 import {CollisionModelFactory} from './physics/collision-model-factory';
 import {Game} from './game';
+import {PlayerFactory} from './entity/player/player-factory';
+import {Player} from './entity/player/player';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -80,22 +83,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             ]).then(() => {
                 const materialFactory = new MaterialFactory(materialDefs, assets);
                 const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
-                const surfaceFactory = new SurfaceFactory(config, materialFactory, collisionModelFactory);
-                const lightFactory = new LightFactory(config);
-                const areaFactory = new AreaFactory(config, surfaceFactory, lightFactory);
-                const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
-                const md5ModelFactory = new Md5ModelFactory(config, materialFactory, soundFactory, assets);
-                const map = new MapFactory(config, areaFactory, lightFactory).create(mapDef);
-
-                this.createWeapons(weaponDefs, md5ModelFactory).forEach(weapon => {
-                    this.game.player.addWeapon(weapon);
-                    if (weapon.skeletonHelper) {
-                        map.add(weapon.skeletonHelper);
-                    }
-                });
-
-                map.add(this.game.player);
-                return map;
+                const weapons = this.createWeapons(weaponDefs, soundDefs, assets, materialFactory);
+                const player = this.createPlayer(playerDef, weapons, collisionModelFactory);
+                return this.createMap(mapDef, player, materialFactory, collisionModelFactory);
             });
         });
     }
@@ -277,11 +267,43 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
     }
 
-    private createWeapons(weaponDefs: Map<string, any>, modelFactory: Md5ModelFactory): Map<string, Weapon> {
+    private createWeapons(weaponDefs: Map<string, any>,
+                          soundDefs: Map<string, any>,
+                          assets: GameAssets,
+                          materialFactory: MaterialFactory): Map<string, Weapon> {
+        const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
+        const modelFactory = new Md5ModelFactory(this.game.config, materialFactory, soundFactory, assets);
+
         const weapons = new Map<string, Weapon>();
         weaponDefs.forEach((weaponDef, weaponName) =>
             weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));
         return weapons;
+    }
+
+    private createPlayer(playerDef: any,
+                         weapons: Map<string, Weapon>,
+                         collisionModelFactory: CollisionModelFactory): Player {
+        const playerFactory = new PlayerFactory(this.game.camera, weapons, collisionModelFactory);
+
+        const player = playerFactory.create(playerDef);
+        player.fists.enable();
+        return player;
+    }
+
+    private createMap(mapDef: any,
+                      player: Player,
+                      materialFactory: MaterialFactory,
+                      collisionModelFactory: CollisionModelFactory): GameMap {
+        const config = this.game.config;
+
+        const surfaceFactory = new SurfaceFactory(config, materialFactory, collisionModelFactory);
+        const lightFactory = new LightFactory(config);
+        const areaFactory = new AreaFactory(config, surfaceFactory, lightFactory);
+        const mapFactory = new MapFactory(config, player, areaFactory, lightFactory);
+
+        const map = mapFactory.create(mapDef);
+        map.registerCollisionModels(this.game.physicsWorld, this.game.scene);
+        return map;
     }
 }
 

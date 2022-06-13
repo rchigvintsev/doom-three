@@ -2,12 +2,13 @@ import {Vector3} from 'three';
 
 import {KeyboardState} from './keyboard-state';
 import {PointerLock} from './pointer-lock';
-import {Player} from '../entity/player';
+import {Player} from '../entity/player/player';
 import {GameConfig} from '../game-config';
 import {MouseState} from './mouse-state';
 
 export class FpsControls {
     enabled = false;
+    player!: Player;
 
     private readonly mouseState = new MouseState();
     private readonly keyboardState = new KeyboardState();
@@ -15,9 +16,7 @@ export class FpsControls {
 
     private initialized = false;
 
-    constructor(private readonly config: GameConfig,
-                private readonly player: Player,
-                private readonly pointerLock: PointerLock) {
+    constructor(private readonly config: GameConfig, private readonly pointerLock: PointerLock) {
     }
 
     init() {

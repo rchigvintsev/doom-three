@@ -7,7 +7,6 @@ import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
 import {ProgressEvent} from './event/progress-event';
 import {FpsControls} from './control/fps-controls';
-import {Player} from './entity/player';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
 import {PhysicsWorld} from './physics/physics-world';
@@ -17,19 +16,17 @@ export class Game {
     private readonly clock = new Clock();
 
     private _config!: GameConfig;
+    private _scene!: Scene;
+    private _camera!: PerspectiveCamera;
     private _audioListener!: AudioListener;
-    private _player!: Player;
     private _physicsWorld!: PhysicsWorld;
 
     private container!: HTMLElement;
-    private scene!: Scene;
-    private camera!: PerspectiveCamera;
     private pointerLock!: PointerLock;
     private controls!: FpsControls;
     private renderer!: WebGLRenderer;
     private stats!: Stats;
-
-    private _map?: GameMap;
+    private map?: GameMap;
 
     private initialized = false;
 
@@ -41,10 +38,9 @@ export class Game {
 
             this.initScene();
             this.initCamera(this._config);
-            this.initAudioListener(this.camera);
-            this.initPlayer(this.camera);
+            this.initAudioListener(this._camera);
             this.initPointerLock(this.container);
-            this.initControls(this._config, this._player, this.pointerLock);
+            this.initControls(this._config, this.pointerLock);
             this.initRenderer(this._config, this.container);
             this.initPhysics();
             this.initStats(this._config, this.container);
@@ -68,9 +64,13 @@ export class Game {
             mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
             mapLoader.load(mapName).then(map => {
                 console.debug(`Map "${mapName}" is loaded`);
+
                 game.map = map;
-                game._player.fists.enable();
+                game._scene.add(map);
+
+                game.controls.player = map.player;
                 game.controls.enabled = true;
+
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
@@ -90,30 +90,27 @@ export class Game {
         return this._config;
     }
 
-    get audioListener(): AudioListener {
-        return this._audioListener;
+    get scene(): Scene {
+        return this._scene;
     }
 
-    get player(): Player {
-        return this._player;
+    get camera(): PerspectiveCamera {
+        return this._camera;
+    }
+
+    get audioListener(): AudioListener {
+        return this._audioListener;
     }
 
     get physicsWorld(): PhysicsWorld {
         return this._physicsWorld;
     }
 
-    set map(map: GameMap) {
-        this._map = map;
-        this.scene.add(map);
-        map.registerCollisionModels(this._physicsWorld);
-    }
-
     private update() {
         const deltaTime = this.clock.getDelta();
-        if (this._map) {
-            this._map.update(deltaTime);
+        if (this.map) {
+            this.map.update(deltaTime);
         }
-        this._player.update(deltaTime);
         this.controls.update();
         this._physicsWorld.step(deltaTime);
     }
@@ -127,12 +124,12 @@ export class Game {
     }
 
     private initScene() {
-        this.scene = new Scene();
+        this._scene = new Scene();
     }
 
     private initCamera(config: GameConfig) {
         const aspect = window.innerWidth / window.innerHeight;
-        this.camera = new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
+        this._camera = new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
     }
 
     private initAudioListener(camera: PerspectiveCamera) {
@@ -140,17 +137,13 @@ export class Game {
         camera.add(this._audioListener);
     }
 
-    private initPlayer(camera: PerspectiveCamera) {
-        this._player = new Player(camera);
-    }
-
     private initPointerLock(target: HTMLElement) {
         this.pointerLock = new PointerLock(target);
         this.pointerLock.init();
     }
 
-    private initControls(config: GameConfig, player: Player, pointerLock: PointerLock) {
-        this.controls = new FpsControls(config, player, pointerLock);
+    private initControls(config: GameConfig, pointerLock: PointerLock) {
+        this.controls = new FpsControls(config, pointerLock);
         this.controls.init();
     }
 
@@ -186,14 +179,14 @@ export class Game {
     }
 
     private render() {
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this._scene, this.camera);
     }
 
     private onWindowResize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
+        this._camera.aspect = width / height;
+        this._camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
     }
 

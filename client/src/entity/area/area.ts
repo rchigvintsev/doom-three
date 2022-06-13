@@ -1,4 +1,4 @@
-import {Group, Light} from 'three';
+import {Group, Light, Scene} from 'three';
 
 import {Surface} from '../surface/surface';
 import {Entity} from '../entity';
@@ -15,11 +15,11 @@ export class Area extends Group implements Entity {
         }
     }
 
-    registerCollisionModels(physicsWorld: PhysicsWorld): void {
-        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsWorld));
+    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
+        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsWorld, scene));
     }
 
-    update(deltaTime: number): void {
+    update(deltaTime: number) {
         for (const surface of this.surfaces) {
             surface.update(deltaTime);
         }

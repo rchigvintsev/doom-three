@@ -5,6 +5,7 @@ import {
     BufferGeometry,
     LoopOnce,
     Material,
+    Scene,
     SkeletonHelper,
     SkinnedMesh
 } from 'three';
@@ -67,11 +68,11 @@ export class Md5Model extends SkinnedMesh implements Entity {
         return clone;
     }
 
-    registerCollisionModels(_physicsWorld: PhysicsWorld): void {
+    registerCollisionModels(_physicsWorld: PhysicsWorld, _scene: Scene) {
         // Do nothing for now
     }
 
-    update(deltaTime: number): void {
+    update(deltaTime: number) {
         if (this.animationMixer) {
             this.animationMixer.update(deltaTime);
         }

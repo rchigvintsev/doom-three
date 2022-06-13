@@ -1,4 +1,4 @@
-import {Light} from 'three';
+import {Light, Vector3} from 'three';
 
 import {EntityFactory} from '../entity-factory';
 import {GameMap} from './game-map';
@@ -6,9 +6,11 @@ import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
 import {GameConfig} from '../../game-config';
+import {Player} from '../player/player';
 
 export class MapFactory implements EntityFactory<GameMap> {
     constructor(private readonly config: GameConfig,
+                private readonly player: Player,
                 private readonly areaFactory: AreaFactory,
                 private readonly lightFactory: LightFactory) {
     }
@@ -24,6 +26,9 @@ export class MapFactory implements EntityFactory<GameMap> {
                 lights.push(this.lightFactory.create(lightDef));
             }
         }
-        return new GameMap(areas, lights);
+        if (mapDef.player) {
+            this.player.origin = new Vector3().fromArray(mapDef.player.origin).multiplyScalar(this.config.worldScale);
+        }
+        return new GameMap(this.player, areas, lights);
     }
 }
