@@ -11,6 +11,8 @@ export class PlayerCollisionModel extends CollisionModel {
     private readonly originOffset = new Vec3();
     private readonly headOffset = new Vec3();
 
+    private readonly _headPosition = new Vector3();
+
     constructor(private readonly delegate: CollisionModel) {
         super([]);
 
@@ -28,10 +30,6 @@ export class PlayerCollisionModel extends CollisionModel {
         }
     }
 
-    update(deltaTime: number) {
-        this.delegate.update(deltaTime);
-    }
-
     register(physicsWorld: PhysicsWorld, scene: Scene) {
         for (const body of this.delegate.bodies) {
             physicsWorld.addBody(body);
@@ -41,7 +39,26 @@ export class PlayerCollisionModel extends CollisionModel {
         }
     }
 
+    update(deltaTime: number) {
+        this.delegate.update(deltaTime);
+    }
+
+    move(velocity: Vector3) {
+        const body = this.delegate.bodies[0];
+        body.velocity.x = velocity.x;
+        body.velocity.z = velocity.z;
+    }
+
     set origin(origin: Vector3) {
         this.delegate.bodies[0].position = new Vec3(origin.x, origin.y, origin.z).vadd(this.originOffset);
+    }
+
+    get headPosition(): Vector3 {
+        const bodyPosition = this.delegate.bodies[0].position;
+        const x = bodyPosition.x + this.headOffset.x;
+        const y = bodyPosition.y + this.headOffset.y;
+        const z = bodyPosition.z + this.headOffset.z;
+        this._headPosition.set(x, y, z);
+        return this._headPosition;
     }
 }

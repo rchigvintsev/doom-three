@@ -9,10 +9,12 @@ const DEFAULT_SHOW_WIREFRAME = false;
 const DEFAULT_RENDER_ONLY_WIREFRAME = false;
 const DEFAULT_WORLD_SCALE = 0.01;
 const DEFAULT_PLAYER_LOOK_SPEED = 0.002;
-const DEFAULT_PLAYER_MOVE_SPEED = 0.05;
+const DEFAULT_PLAYER_MOVE_SPEED = 1.8;
+const DEFAULT_PLAYER_MOVE_SPEED_IN_GHOST_MODE = 0.05;
 const DEFAULT_SHOW_LIGHT_SOURCES = false;
 const DEFAULT_SHOW_SKELETONS = false;
-const DEFAULT_SHOW_COLLISION_MODELS = true;
+const DEFAULT_SHOW_COLLISION_MODELS = false;
+const DEFAULT_GHOST_MODE = false;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -25,9 +27,11 @@ export class GameConfig {
     worldScale = DEFAULT_WORLD_SCALE;
     playerLookSpeed = DEFAULT_PLAYER_LOOK_SPEED;
     playerMoveSpeed = DEFAULT_PLAYER_MOVE_SPEED;
+    playerMoveSpeedInGhostMode = DEFAULT_PLAYER_MOVE_SPEED_IN_GHOST_MODE;
     showLightSources = DEFAULT_SHOW_LIGHT_SOURCES;
     showSkeletons = DEFAULT_SHOW_SKELETONS;
     showCollisionModels = DEFAULT_SHOW_COLLISION_MODELS;
+    ghostMode = DEFAULT_GHOST_MODE;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];

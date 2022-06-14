@@ -1,4 +1,4 @@
-import {Vector3} from 'three';
+import {Euler, Quaternion, Vector3} from 'three';
 
 import {KeyboardState} from './keyboard-state';
 import {PointerLock} from './pointer-lock';
@@ -13,6 +13,9 @@ export class FpsControls {
     private readonly mouseState = new MouseState();
     private readonly keyboardState = new KeyboardState();
     private readonly inputVelocity = new Vector3();
+
+    private readonly e = new Euler();
+    private readonly q = new Quaternion();
 
     private initialized = false;
 
@@ -41,10 +44,21 @@ export class FpsControls {
         if (this.keyboardState.isKeyPressed(KeyboardState.KEY_D)) x++;
 
         if (x !== 0 || z !== 0) {
-            const a = x;
-            const b = -Math.sin(this.player.pitchObject.rotation.x) * z;
-            const c = Math.cos(this.player.pitchObject.rotation.x) * z;
-            this.inputVelocity.set(a, b, c).normalize().multiplyScalar(this.config.playerMoveSpeed);
+            if (this.config.ghostMode) {
+                const a = x;
+                const b = -Math.sin(this.player.pitchObject.rotation.x) * z;
+                const c = Math.cos(this.player.pitchObject.rotation.x) * z;
+                this.inputVelocity.set(a, b, c)
+                    .normalize()
+                    .multiplyScalar(this.config.playerMoveSpeedInGhostMode);
+            } else {
+                this.e.y = this.player.rotation.y;
+                this.q.setFromEuler(this.e);
+                this.inputVelocity.set(x, 0, z)
+                    .applyQuaternion(this.q)
+                    .normalize()
+                    .multiplyScalar(this.config.playerMoveSpeed);
+            }
             this.player.move(this.inputVelocity);
         }
 

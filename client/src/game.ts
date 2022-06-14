@@ -10,6 +10,9 @@ import {FpsControls} from './control/fps-controls';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
 import {PhysicsWorld} from './physics/physics-world';
+import {PointerUnlockEvent} from './event/pointer-unlock-event';
+
+const TIME_STEP = 1 / 60;
 
 // noinspection JSMethodCanBeStatic
 export class Game {
@@ -112,7 +115,7 @@ export class Game {
             this.map.update(deltaTime);
         }
         this.controls.update();
-        this._physicsWorld.step(deltaTime);
+        this._physicsWorld.step(TIME_STEP, deltaTime);
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
@@ -140,6 +143,8 @@ export class Game {
     private initPointerLock(target: HTMLElement) {
         this.pointerLock = new PointerLock(target);
         this.pointerLock.init();
+        this.pointerLock.addEventListener(PointerUnlockEvent.TYPE,
+            () => Game.showLockScreen(() => this.pointerLock.request()));
     }
 
     private initControls(config: GameConfig, pointerLock: PointerLock) {
@@ -201,12 +206,12 @@ export class Game {
             throw new Error('Failed to show lock screen: lock screen element is not found in DOM');
         }
         lockScreen.classList.remove('hidden');
-        if (onClick) {
-            lockScreen.addEventListener('auxclick', () => {
-                Game.hideLockScreen();
+        lockScreen.addEventListener('auxclick', () => {
+            Game.hideLockScreen();
+            if (onClick) {
                 onClick();
-            });
-        }
+            }
+        }, {once: true});
     }
 
     private static hideLockScreen() {

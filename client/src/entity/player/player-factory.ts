@@ -5,15 +5,17 @@ import {Player} from './player';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {Weapon} from '../md5model/weapon/weapon';
 import {PlayerCollisionModel} from './player-collision-model';
+import {GameConfig} from '../../game-config';
 
 export class PlayerFactory implements EntityFactory<Player> {
-    constructor(private readonly camera: PerspectiveCamera,
+    constructor(private readonly config: GameConfig,
+                private readonly camera: PerspectiveCamera,
                 private readonly weapons: Map<string, Weapon>,
                 private readonly collisionModelFactory: CollisionModelFactory) {
     }
 
     create(entityDef: any): Player {
         const collisionModel = new PlayerCollisionModel(this.collisionModelFactory.create(entityDef));
-        return new Player(this.camera, this.weapons, collisionModel);
+        return new Player(this.camera, this.weapons, collisionModel, this.config);
     }
 }

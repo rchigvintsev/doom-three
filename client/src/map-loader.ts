@@ -283,7 +283,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private createPlayer(playerDef: any,
                          weapons: Map<string, Weapon>,
                          collisionModelFactory: CollisionModelFactory): Player {
-        const playerFactory = new PlayerFactory(this.game.camera, weapons, collisionModelFactory);
+        const playerFactory = new PlayerFactory(this.game.config, this.game.camera, weapons, collisionModelFactory);
 
         const player = playerFactory.create(playerDef);
         player.fists.enable();

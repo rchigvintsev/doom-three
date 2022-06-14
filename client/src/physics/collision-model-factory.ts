@@ -1,6 +1,6 @@
 import {BoxGeometry, BufferGeometry, Group, MathUtils, Mesh, MeshBasicMaterial, SphereGeometry, Vector3} from 'three';
 
-import {Body, Box, Cylinder, Heightfield, Quaternion, Shape, Sphere, Trimesh, Vec3} from 'cannon-es';
+import {Body, Box, Cylinder, Heightfield, Material, Quaternion, Shape, Sphere, Trimesh, Vec3} from 'cannon-es';
 
 import {GameConfig} from '../game-config';
 import {CollisionModel, CollisionModelBody} from './collision-model';
@@ -31,7 +31,7 @@ export class CollisionModelFactory {
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup,
             collisionFilterMask: bodyDef.collisionFilterMask,
-            material: this.physicsWorld.defaultMaterial
+            material: this.getBodyMaterial(bodyDef)
         });
         if (bodyDef.position) {
             const position = new Vector3().fromArray(bodyDef.position).multiplyScalar(this.config.worldScale);
@@ -91,6 +91,17 @@ export class CollisionModelFactory {
         }
 
         return body;
+    }
+
+    private getBodyMaterial(bodyDef: any): Material {
+        let material = undefined;
+        if (bodyDef.material) {
+            material = this.physicsWorld.materials.get(bodyDef.material);
+        }
+        if (!material) {
+            material = this.physicsWorld.materials.get('default');
+        }
+        return material!;
     }
 
     private createBodyShape(shapeDef: any): Shape {
