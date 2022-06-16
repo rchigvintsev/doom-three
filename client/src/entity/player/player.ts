@@ -11,6 +11,10 @@ export class Player extends Object3D implements Entity {
     private readonly _pitchObject: Object3D;
 
     private currentWeapon?: Weapon;
+    private tookOffAt = 0;
+    private landedAt = 0;
+
+    private _airborne = false;
 
     constructor(camera: PerspectiveCamera,
                 readonly weapons: Map<string, Weapon>,
@@ -39,12 +43,16 @@ export class Player extends Object3D implements Entity {
         this.collisionModel.update(deltaTime);
         if (!this.config.ghostMode) {
             this.position.copy(this.collisionModel.headPosition);
+            if (this.airborne) {
+                const now = performance.now();
+                const delta = now - this.tookOffAt;
+                // We should give player a chance to get off the ground
+                if (delta > 100 && this.collisionModel.hasGroundContacts()) {
+                    this._airborne = false;
+                    this.landedAt = now;
+                }
+            }
         }
-    }
-
-    set origin(origin: Vector3) {
-        this.collisionModel.origin = origin;
-        this.position.copy(this.collisionModel.headPosition);
     }
 
     move(velocity: Vector3) {
@@ -57,10 +65,23 @@ export class Player extends Object3D implements Entity {
         }
     }
 
+    jump(speed: number) {
+        if (!this.config.ghostMode) {
+            this.collisionModel.jump(speed);
+            this.tookOffAt = performance.now();
+            this._airborne = true;
+        }
+    }
+
     attack() {
         if (this.currentWeapon) {
             this.currentWeapon.attack();
         }
+    }
+
+    set origin(origin: Vector3) {
+        this.collisionModel.origin = origin;
+        this.position.copy(this.collisionModel.headPosition);
     }
 
     get pitchObject(): Object3D {
@@ -69,5 +90,9 @@ export class Player extends Object3D implements Entity {
 
     get fists(): Fists {
         return <Fists>this.weapons.get('fists');
+    }
+
+    get airborne(): boolean {
+        return this._airborne;
     }
 }

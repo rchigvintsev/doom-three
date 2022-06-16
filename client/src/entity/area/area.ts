@@ -5,7 +5,7 @@ import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
 
 export class Area extends Group implements Entity {
-    constructor(readonly surfaces: Surface[], readonly lights: Light[]) {
+    constructor(private readonly surfaces: Surface[], private readonly lights: Light[]) {
         super();
         for (const surface of surfaces) {
             this.add(surface);

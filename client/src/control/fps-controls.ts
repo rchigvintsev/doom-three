@@ -36,30 +36,37 @@ export class FpsControls {
             return;
         }
 
-        let x = 0, z = 0;
+        if (!this.player.airborne) {
+            let x = 0, y = 0, z = 0;
 
-        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_W)) z--;
-        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_S)) z++;
-        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_A)) x--;
-        if (this.keyboardState.isKeyPressed(KeyboardState.KEY_D)) x++;
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_W)) z--;
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_S)) z++;
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_A)) x--;
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_D)) x++;
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_SPACE)) y++;
 
-        if (x !== 0 || z !== 0) {
-            if (this.config.ghostMode) {
-                const a = x;
-                const b = -Math.sin(this.player.pitchObject.rotation.x) * z;
-                const c = Math.cos(this.player.pitchObject.rotation.x) * z;
-                this.inputVelocity.set(a, b, c)
-                    .normalize()
-                    .multiplyScalar(this.config.playerMoveSpeedInGhostMode);
-            } else {
-                this.e.y = this.player.rotation.y;
-                this.q.setFromEuler(this.e);
-                this.inputVelocity.set(x, 0, z)
-                    .applyQuaternion(this.q)
-                    .normalize()
-                    .multiplyScalar(this.config.playerMoveSpeed);
+            if (x !== 0 || z !== 0) {
+                if (this.config.ghostMode) {
+                    const a = x;
+                    const b = -Math.sin(this.player.pitchObject.rotation.x) * z;
+                    const c = Math.cos(this.player.pitchObject.rotation.x) * z;
+                    this.inputVelocity.set(a, b, c)
+                        .normalize()
+                        .multiplyScalar(this.config.playerMoveSpeedInGhostMode);
+                } else {
+                    this.e.y = this.player.rotation.y;
+                    this.q.setFromEuler(this.e);
+                    this.inputVelocity.set(x, 0, z)
+                        .applyQuaternion(this.q)
+                        .normalize()
+                        .multiplyScalar(this.config.playerMoveSpeed);
+                }
+                this.player.move(this.inputVelocity);
             }
-            this.player.move(this.inputVelocity);
+
+            if (y !== 0) {
+                this.player.jump(this.config.playerJumpSpeed);
+            }
         }
 
         if (this.mouseState.isButtonPressed(MouseState.BUTTON_LEFT))

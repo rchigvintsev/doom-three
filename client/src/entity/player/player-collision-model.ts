@@ -10,6 +10,8 @@ import {PhysicsWorld} from '../../physics/physics-world';
 export class PlayerCollisionModel extends CollisionModel {
     private readonly originOffset = new Vec3();
     private readonly headOffset = new Vec3();
+    private readonly contactNormal = new Vec3();
+    private readonly upAxis = new Vec3(0, 1, 0);
 
     private readonly _headPosition = new Vector3();
 
@@ -47,6 +49,33 @@ export class PlayerCollisionModel extends CollisionModel {
         const body = this.delegate.bodies[0];
         body.velocity.x = velocity.x;
         body.velocity.z = velocity.z;
+    }
+
+    jump(speed: number) {
+        const body = this.delegate.bodies[0];
+        body.velocity.y = speed;
+    }
+
+    hasGroundContacts() {
+        const body = this.delegate.bodies[0];
+        const world = body.world;
+        if (world) {
+            for (const contact of world.contacts) {
+                if (contact.bi.id === body.id || contact.bj.id === body.id) {
+                    if (contact.bi.id === body.id) {
+                        contact.ni.negate(this.contactNormal); // Flip contact normal
+                    } else {
+                        this.contactNormal.copy(contact.ni); // Keep contact normal as it is
+                    }
+                    // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat
+                    // in the up direction.
+                    if (this.contactNormal.dot(this.upAxis) > 0.5) { // Use "good" threshold value between 0 and 1 here
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     set origin(origin: Vector3) {
