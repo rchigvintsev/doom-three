@@ -1,4 +1,6 @@
-import {Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Audio, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+
+import {random, randomInt} from 'mathjs';
 
 import {Entity} from '../entity';
 import {Fists} from '../md5model/weapon/fists';
@@ -8,9 +10,15 @@ import {PlayerCollisionModel} from './player-collision-model';
 import {GameConfig} from '../../game-config';
 
 export class Player extends Object3D implements Entity {
+    private readonly previousMovementDirection = new Vector3();
+    private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
+
     private readonly _pitchObject: Object3D;
+    private readonly _movementDirection = new Vector3();
 
     private currentWeapon?: Weapon;
+    private lastFootstepSound?: Audio<AudioNode>;
+    private lastFoot = Foot.LEFT;
     private tookOffAt = 0;
     private landedAt = 0;
 
@@ -18,6 +26,7 @@ export class Player extends Object3D implements Entity {
 
     constructor(camera: PerspectiveCamera,
                 readonly weapons: Map<string, Weapon>,
+                sounds: Map<string, Audio<AudioNode>[]>,
                 private readonly collisionModel: PlayerCollisionModel,
                 private readonly config: GameConfig) {
         super();
@@ -32,6 +41,12 @@ export class Player extends Object3D implements Entity {
                 this.currentWeapon = weapon;
             }
         });
+
+        const footstepSounds = sounds.get('footsteps');
+        if (footstepSounds) {
+            this.footstepSounds.set(Foot.LEFT, [footstepSounds[0], footstepSounds[1]]);
+            this.footstepSounds.set(Foot.RIGHT, [footstepSounds[2], footstepSounds[3]]);
+        }
     }
 
     registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
@@ -62,6 +77,7 @@ export class Player extends Object3D implements Entity {
             this.translateZ(velocity.z);
         } else {
             this.collisionModel.move(velocity);
+            this.playFootstepSound();
         }
     }
 
@@ -95,4 +111,36 @@ export class Player extends Object3D implements Entity {
     get airborne(): boolean {
         return this._airborne;
     }
+
+    set movementDirection(direction: Vector3) {
+        this.previousMovementDirection.copy(this._movementDirection);
+        this._movementDirection.copy(direction);
+    }
+
+    private playFootstepSound() {
+        if (this.isMovementDirectionChanged() || !this.lastFootstepSound || !this.lastFootstepSound.isPlaying) {
+            const nextFoot = (this.lastFoot + 1) % 2;
+            const sounds = this.footstepSounds.get(nextFoot);
+            if (sounds) {
+                const sound = sounds[randomInt(0, sounds.length)];
+                sound.play(random(0.1, 0.2));
+                this.lastFootstepSound = sound;
+                this.lastFoot = nextFoot;
+            }
+        }
+    }
+
+    private isMovementDirectionChanged() {
+        let directionChanged = this._movementDirection.x !== this.previousMovementDirection.x
+            && this._movementDirection.x !== 0;
+        if (!directionChanged) {
+            directionChanged = this._movementDirection.z !== this.previousMovementDirection.z
+                && this._movementDirection.z !== 0;
+        }
+        return directionChanged;
+    }
+}
+
+enum Foot {
+    LEFT, RIGHT
 }

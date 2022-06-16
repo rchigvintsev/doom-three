@@ -82,9 +82,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadSounds(context)
             ]).then(() => {
                 const materialFactory = new MaterialFactory(materialDefs, assets);
+                const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
                 const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
-                const weapons = this.createWeapons(weaponDefs, soundDefs, assets, materialFactory);
-                const player = this.createPlayer(playerDef, weapons, collisionModelFactory);
+                const weapons = this.createWeapons(weaponDefs, assets, materialFactory, soundFactory);
+                const player = this.createPlayer(playerDef, weapons, soundFactory, collisionModelFactory);
                 return this.createMap(mapDef, player, materialFactory, collisionModelFactory);
             });
         });
@@ -268,10 +269,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     }
 
     private createWeapons(weaponDefs: Map<string, any>,
-                          soundDefs: Map<string, any>,
                           assets: GameAssets,
-                          materialFactory: MaterialFactory): Map<string, Weapon> {
-        const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
+                          materialFactory: MaterialFactory,
+                          soundFactory: SoundFactory): Map<string, Weapon> {
         const modelFactory = new Md5ModelFactory(this.game.config, materialFactory, soundFactory, assets);
 
         const weapons = new Map<string, Weapon>();
@@ -282,8 +282,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     private createPlayer(playerDef: any,
                          weapons: Map<string, Weapon>,
+                         soundFactory: SoundFactory,
                          collisionModelFactory: CollisionModelFactory): Player {
-        const playerFactory = new PlayerFactory(this.game.config, this.game.camera, weapons, collisionModelFactory);
+        const playerFactory = new PlayerFactory(this.game.config, this.game.camera, weapons, soundFactory,
+            collisionModelFactory);
 
         const player = playerFactory.create(playerDef);
         player.fists.enable();

@@ -12,7 +12,9 @@ export class FpsControls {
 
     private readonly mouseState = new MouseState();
     private readonly keyboardState = new KeyboardState();
+
     private readonly inputVelocity = new Vector3();
+    private readonly direction = new Vector3();
 
     private readonly e = new Euler();
     private readonly q = new Quaternion();
@@ -44,6 +46,8 @@ export class FpsControls {
             if (this.keyboardState.isKeyPressed(KeyboardState.KEY_A)) x--;
             if (this.keyboardState.isKeyPressed(KeyboardState.KEY_D)) x++;
             if (this.keyboardState.isKeyPressed(KeyboardState.KEY_SPACE)) y++;
+
+            this.player.movementDirection = this.direction.set(x, y, z);
 
             if (x !== 0 || z !== 0) {
                 if (this.config.ghostMode) {
