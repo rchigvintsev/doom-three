@@ -12,12 +12,15 @@ import {GameConfig} from '../../game-config';
 export class Player extends Object3D implements Entity {
     private readonly previousMovementDirection = new Vector3();
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
+    private readonly jumpSound?: Audio<AudioNode>;
+    private readonly landSounds: Audio<AudioNode>[];
 
     private readonly _pitchObject: Object3D;
     private readonly _movementDirection = new Vector3();
 
     private currentWeapon?: Weapon;
     private lastFootstepSound?: Audio<AudioNode>;
+    private lastLandSound?: Audio<AudioNode>;
     private lastFoot = Foot.LEFT;
     private tookOffAt = 0;
     private landedAt = 0;
@@ -47,6 +50,11 @@ export class Player extends Object3D implements Entity {
             this.footstepSounds.set(Foot.LEFT, [footstepSounds[0], footstepSounds[1]]);
             this.footstepSounds.set(Foot.RIGHT, [footstepSounds[2], footstepSounds[3]]);
         }
+        const jumpSounds = sounds.get('jumps');
+        if (jumpSounds) {
+            this.jumpSound = jumpSounds[0];
+        }
+        this.landSounds = sounds.get('landings') || [];
     }
 
     registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
@@ -65,6 +73,7 @@ export class Player extends Object3D implements Entity {
                 if (delta > 100 && this.collisionModel.hasGroundContacts()) {
                     this._airborne = false;
                     this.landedAt = now;
+                    this.playLandSound();
                 }
             }
         }
@@ -86,6 +95,7 @@ export class Player extends Object3D implements Entity {
             this.collisionModel.jump(speed);
             this.tookOffAt = performance.now();
             this._airborne = true;
+            this.playJumpSound();
         }
     }
 
@@ -127,6 +137,20 @@ export class Player extends Object3D implements Entity {
                 this.lastFootstepSound = sound;
                 this.lastFoot = nextFoot;
             }
+        }
+    }
+
+    playJumpSound() {
+        if (this.jumpSound && !this.jumpSound.isPlaying) {
+            this.jumpSound.play();
+        }
+    }
+
+    playLandSound() {
+        if (!this.lastLandSound || !this.lastLandSound.isPlaying) {
+            const sound = this.landSounds[randomInt(0, this.landSounds.length)];
+            sound.play();
+            this.lastLandSound = sound;
         }
     }
 
