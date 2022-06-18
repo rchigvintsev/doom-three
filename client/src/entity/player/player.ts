@@ -9,6 +9,9 @@ import {PhysicsWorld} from '../../physics/physics-world';
 import {PlayerCollisionModel} from './player-collision-model';
 import {GameConfig} from '../../game-config';
 
+const BOBBING_SPEED = 0.1;
+const VIEW_BOBBING_MAGNITUDE = 0.002;
+
 export class Player extends Object3D implements Entity {
     private readonly previousMovementDirection = new Vector3();
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
@@ -23,9 +26,10 @@ export class Player extends Object3D implements Entity {
     private lastLandSound?: Audio<AudioNode>;
     private lastFoot = Foot.LEFT;
     private tookOffAt = 0;
-    private landedAt = 0;
+    private bobbingAngle = 0;
 
     private _airborne = false;
+    private _landedAt = 0;
 
     constructor(camera: PerspectiveCamera,
                 readonly weapons: Map<string, Weapon>,
@@ -62,7 +66,9 @@ export class Player extends Object3D implements Entity {
     }
 
     update(deltaTime: number) {
-        this.weapons.forEach(weapon => weapon.update(deltaTime));
+        if (this.currentWeapon) {
+            this.currentWeapon.update(deltaTime, this);
+        }
         this.collisionModel.update(deltaTime);
         if (!this.config.ghostMode) {
             this.position.copy(this.collisionModel.headPosition);
@@ -72,7 +78,7 @@ export class Player extends Object3D implements Entity {
                 // We should give player a chance to get off the ground
                 if (delta > 100 && this.collisionModel.hasGroundContacts()) {
                     this._airborne = false;
-                    this.landedAt = now;
+                    this._landedAt = now;
                     this.playLandSound();
                 }
             }
@@ -87,6 +93,7 @@ export class Player extends Object3D implements Entity {
         } else {
             this.collisionModel.move(velocity);
             this.playFootstepSound();
+            this.updateBobbing();
         }
     }
 
@@ -122,9 +129,25 @@ export class Player extends Object3D implements Entity {
         return this._airborne;
     }
 
+    get landedAt(): number {
+        return this._landedAt;
+    }
+
+    get movementDirection(): Vector3 {
+        return this._movementDirection;
+    }
+
     set movementDirection(direction: Vector3) {
         this.previousMovementDirection.copy(this._movementDirection);
         this._movementDirection.copy(direction);
+    }
+
+    private updateBobbing() {
+        if (this.currentWeapon) {
+            this.bobbingAngle += BOBBING_SPEED;
+            this._pitchObject.rotation.z = Math.sin(this.bobbingAngle) * VIEW_BOBBING_MAGNITUDE;
+            this.currentWeapon.updateBobbing(this.bobbingAngle);
+        }
     }
 
     private playFootstepSound() {

@@ -3,6 +3,7 @@ import {AnimationAction, Audio, BufferGeometry, Material} from 'three';
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
+import {GameConfig} from '../../../game-config';
 
 export class Fists extends Weapon {
     private readonly punchAnimationActionNames = new Map<Hand, string[]>();
@@ -10,8 +11,11 @@ export class Fists extends Weapon {
     private lastPunchingHand = Hand.LEFT;
     private lastPunchAnimationAction?: AnimationAction;
 
-    constructor(geometry: BufferGeometry, materials: Material | Material[], sounds: Map<string, Audio<AudioNode>[]>) {
-        super(geometry, materials, sounds);
+    constructor(config: GameConfig,
+                geometry: BufferGeometry,
+                materials: Material | Material[],
+                sounds: Map<string, Audio<AudioNode>[]>) {
+        super(config, geometry, materials, sounds);
     }
 
     init() {

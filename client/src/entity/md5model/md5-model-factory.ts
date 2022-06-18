@@ -119,7 +119,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
                         sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists(geometry, material, sounds);
+            model = new Fists(this.config, geometry, material, sounds);
         } else {
             model = new Md5Model(geometry, material, sounds);
         }
