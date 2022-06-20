@@ -53,10 +53,16 @@ export class Fists extends Weapon {
             const nextPunchingHand = (this.lastPunchingHand + 1) % 2;
             const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
             const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
-            this.executeActionCrossFade(nextPunchActionName, 'idle', 2.0);
+
+            const punchAction = this.getRequiredAnimationAction(nextPunchActionName);
+            punchAction.stop().reset().fadeOut(0.625).play();
+
+            const idleAction = this.getRequiredAnimationAction('idle');
+            idleAction.stop().reset().fadeIn(1.875).play();
+
             this.playWooshSound();
 
-            this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
+            this.lastPunchAnimationAction = punchAction;
             this.lastPunchingHand = nextPunchingHand;
         }
     }
