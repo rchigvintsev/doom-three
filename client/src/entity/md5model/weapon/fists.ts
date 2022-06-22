@@ -4,8 +4,12 @@ import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
+import {AttackEvent} from '../../../event/attack-event';
+
+const PUNCH_FORCE = 200;
 
 export class Fists extends Weapon {
+    private readonly attackDistance: number;
     private readonly punchAnimationActionNames = new Map<Hand, string[]>();
 
     private lastPunchingHand = Hand.LEFT;
@@ -16,6 +20,7 @@ export class Fists extends Weapon {
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(config, geometry, materials, sounds);
+        this.attackDistance = 20 * config.worldScale;
     }
 
     init() {
@@ -60,23 +65,27 @@ export class Fists extends Weapon {
             const idleAction = this.getRequiredAnimationAction('idle');
             idleAction.stop().reset().fadeIn(1.875).play();
 
-            this.playWooshSound();
-
             this.lastPunchAnimationAction = punchAction;
             this.lastPunchingHand = nextPunchingHand;
+
+            this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
+    }
+
+    playRaiseSound() {
+        this.playFirstSound('raise', 0.1);
+    }
+
+    playImpactSound() {
+        this.playRandomSound('impact');
+    }
+
+    playWooshSound() {
+        this.playRandomSound('woosh', 0.1);
     }
 
     private isAttacking(): boolean {
         return !!(this.lastPunchAnimationAction && this.lastPunchAnimationAction.isRunning());
-    }
-
-    private playRaiseSound() {
-        this.playFirstSound('raise', 0.1);
-    }
-
-    private playWooshSound() {
-        this.playRandomSound('woosh', 0.1);
     }
 }
 

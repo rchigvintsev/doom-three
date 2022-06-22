@@ -8,6 +8,7 @@ import {Weapon} from '../md5model/weapon/weapon';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {PlayerCollisionModel} from './player-collision-model';
 import {GameConfig} from '../../game-config';
+import {AttackEvent} from '../../event/attack-event';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -31,7 +32,7 @@ export class Player extends Object3D implements Entity {
     private _airborne = false;
     private _landedAt = 0;
 
-    constructor(camera: PerspectiveCamera,
+    constructor(readonly camera: PerspectiveCamera,
                 readonly weapons: Map<string, Weapon>,
                 sounds: Map<string, Audio<AudioNode>[]>,
                 private readonly collisionModel: PlayerCollisionModel,
@@ -39,7 +40,7 @@ export class Player extends Object3D implements Entity {
         super();
 
         this._pitchObject = new Object3D();
-        this._pitchObject.add(camera);
+        this._pitchObject.add(this.camera);
         this.add(this._pitchObject);
 
         this.weapons.forEach(weapon => {
@@ -47,6 +48,7 @@ export class Player extends Object3D implements Entity {
             if (!this.currentWeapon) {
                 this.currentWeapon = weapon;
             }
+            weapon.addEventListener(AttackEvent.TYPE, e => this.onAttack(<AttackEvent><unknown>e));
         });
 
         const footstepSounds = sounds.get('footsteps');
@@ -83,6 +85,10 @@ export class Player extends Object3D implements Entity {
                 }
             }
         }
+    }
+
+    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
+        // Do nothing
     }
 
     move(velocity: Vector3) {
@@ -163,13 +169,13 @@ export class Player extends Object3D implements Entity {
         }
     }
 
-    playJumpSound() {
+    private playJumpSound() {
         if (this.jumpSound && !this.jumpSound.isPlaying) {
             this.jumpSound.play();
         }
     }
 
-    playLandSound() {
+    private playLandSound() {
         if (!this.lastLandSound || !this.lastLandSound.isPlaying) {
             const sound = this.landSounds[randomInt(0, this.landSounds.length)];
             sound.play();
@@ -185,6 +191,10 @@ export class Player extends Object3D implements Entity {
                 && this._movementDirection.z !== 0;
         }
         return directionChanged;
+    }
+
+    private onAttack(e: AttackEvent) {
+        this.dispatchEvent(e);
     }
 }
 

@@ -7,13 +7,15 @@ import {
     Material,
     Scene,
     SkeletonHelper,
-    SkinnedMesh
+    SkinnedMesh,
+    Vector3
 } from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
+import {Weapon} from './weapon/weapon';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
@@ -79,6 +81,10 @@ export class Md5Model extends SkinnedMesh implements Entity {
         if (this._wireframeModel) {
             this._wireframeModel.update(deltaTime);
         }
+    }
+
+    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
+        // Do nothing
     }
 
     set wireframeModel(wireframeModel: Md5Model) {

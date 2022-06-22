@@ -1,8 +1,9 @@
-import {Group, Light, Scene} from 'three';
+import {Group, Light, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
 import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
+import {Weapon} from '../md5model/weapon/weapon';
 
 export class Area extends Group implements Entity {
     constructor(private readonly surfaces: Surface[], private readonly lights: Light[]) {
@@ -23,5 +24,9 @@ export class Area extends Group implements Entity {
         for (const surface of this.surfaces) {
             surface.update(deltaTime);
         }
+    }
+
+    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
+        // Do nothing
     }
 }
