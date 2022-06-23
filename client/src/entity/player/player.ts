@@ -48,7 +48,7 @@ export class Player extends Object3D implements Entity {
             if (!this.currentWeapon) {
                 this.currentWeapon = weapon;
             }
-            weapon.addEventListener(AttackEvent.TYPE, e => this.onAttack(<AttackEvent><unknown>e));
+            weapon.addEventListener(AttackEvent.TYPE, e => this._onAttack(<AttackEvent><unknown>e));
         });
 
         const footstepSounds = sounds.get('footsteps');
@@ -87,8 +87,8 @@ export class Player extends Object3D implements Entity {
         }
     }
 
-    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
-        // Do nothing
+    onAttack(_hitPoint: Vector3, _weapon: Weapon) {
+        // Do nothing for now
     }
 
     move(velocity: Vector3) {
@@ -193,7 +193,7 @@ export class Player extends Object3D implements Entity {
         return directionChanged;
     }
 
-    private onAttack(e: AttackEvent) {
+    private _onAttack(e: AttackEvent) {
         this.dispatchEvent(e);
     }
 }

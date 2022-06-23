@@ -1,12 +1,11 @@
 import {Group, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
-import {Entity, isHittableEntity} from '../entity';
+import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {Player} from '../player/player';
 import {Weapon} from '../md5model/weapon/weapon';
 import {AttackEvent} from '../../event/attack-event';
-import {Fists} from '../md5model/weapon/fists';
 
 export class GameMap extends Group implements Entity {
     private readonly raycaster = new Raycaster();
@@ -29,7 +28,7 @@ export class GameMap extends Group implements Entity {
                 this.add(weapon.skeletonHelper);
             }
         });
-        this.player.addEventListener(AttackEvent.TYPE, e => this.onAttack(<AttackEvent><unknown>e));
+        this.player.addEventListener(AttackEvent.TYPE, e => this._onAttack(<AttackEvent><unknown>e));
     }
 
     registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
@@ -44,11 +43,11 @@ export class GameMap extends Group implements Entity {
         this.player.update(deltaTime);
     }
 
-    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
+    onAttack(_hitPoint: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
-    private onAttack(e: AttackEvent) {
+    private _onAttack(e: AttackEvent) {
         let hits = 0;
 
         this.raycaster.far = e.distance;
@@ -56,17 +55,17 @@ export class GameMap extends Group implements Entity {
         const intersections = this.raycaster.intersectObjects(this.areas);
         for (const intersection of intersections) {
             let target: any = intersection.object;
-            while (!(isHittableEntity(target)) && target.parent) {
+            while (!target.onAttack && target.parent) {
                 target = target.parent;
             }
-            if (isHittableEntity(target)) {
-                (<Entity>target).onHit(intersection.point, e.weapon);
+            if (target.onAttack) {
+                (<Entity>target).onAttack(intersection.point, e.weapon);
                 hits++;
             }
         }
 
-        if (hits === 0 && e.weapon instanceof Fists) {
-            e.weapon.playWooshSound();
+        if (hits === 0) {
+            e.weapon.onMiss();
         }
     }
 }

@@ -8,9 +8,11 @@ export interface Entity {
 
     update(deltaTime: number): void;
 
-    onHit(hitPoint: Vector3, weapon: Weapon): void;
-}
-
-export function isHittableEntity(obj: any): boolean {
-    return obj && obj.onHit;
+    /**
+     * Called when someone attack this entity with the given weapon.
+     *
+     * @param hitPoint hit point
+     * @param weapon weapon
+     */
+    onAttack(hitPoint: Vector3, weapon: Weapon): void;
 }

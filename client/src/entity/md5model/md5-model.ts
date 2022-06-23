@@ -83,8 +83,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
     }
 
-    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
-        // Do nothing
+    onAttack(_hitPoint: Vector3, _weapon: Weapon) {
+        // Do nothing by default
     }
 
     set wireframeModel(wireframeModel: Md5Model) {

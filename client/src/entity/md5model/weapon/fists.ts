@@ -1,4 +1,4 @@
-import {AnimationAction, Audio, BufferGeometry, Material} from 'three';
+import {AnimationAction, Audio, BufferGeometry, Material, Object3D} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -72,15 +72,23 @@ export class Fists extends Weapon {
         }
     }
 
-    playRaiseSound() {
+    onHit(_target: Object3D): void {
+        this.playImpactSound();
+    }
+
+    onMiss(): void {
+        this.playWooshSound();
+    }
+
+    private playRaiseSound() {
         this.playFirstSound('raise', 0.1);
     }
 
-    playImpactSound() {
+    private playImpactSound() {
         this.playRandomSound('impact');
     }
 
-    playWooshSound() {
+    private playWooshSound() {
         this.playRandomSound('woosh', 0.1);
     }
 

@@ -4,7 +4,6 @@ import {Entity} from '../entity';
 import {CollisionModel} from '../../physics/collision-model';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {Weapon} from '../md5model/weapon/weapon';
-import {Fists} from '../md5model/weapon/fists';
 
 export class Surface extends Mesh implements Entity {
     constructor(geometry: BufferGeometry,
@@ -21,9 +20,7 @@ export class Surface extends Mesh implements Entity {
         this.collisionModel.update(deltaTime);
     }
 
-    onHit(hitPoint: Vector3, weapon: Weapon): void {
-        if (weapon instanceof Fists) {
-            weapon.playImpactSound();
-        }
+    onAttack(hitPoint: Vector3, weapon: Weapon) {
+        weapon.onHit(this);
     }
 }

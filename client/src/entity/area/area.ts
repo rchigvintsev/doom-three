@@ -26,7 +26,7 @@ export class Area extends Group implements Entity {
         }
     }
 
-    onHit(_hitPoint: Vector3, _weapon: Weapon): void {
+    onAttack(_hitPoint: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 }

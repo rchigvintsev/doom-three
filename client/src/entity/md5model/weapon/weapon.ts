@@ -1,4 +1,4 @@
-import {Audio, BufferGeometry, Euler, Material, Vector3} from 'three';
+import {Audio, BufferGeometry, Euler, Material, Object3D, Vector3} from 'three';
 
 import {Md5Model} from '../md5-model';
 import {GameConfig} from '../../../game-config';
@@ -68,6 +68,18 @@ export abstract class Weapon extends Md5Model {
     abstract disable(): void;
 
     abstract attack(): void;
+
+    /**
+     * Called when this weapon hit some target during the attack.
+     *
+     * @param target target object that was hit during the attack
+     */
+    abstract onHit(target: Object3D): void;
+
+    /**
+     * Called when this weapon misses during the attack.
+     */
+    abstract onMiss(): void;
 
     private updateAcceleration(direction: Vector3) {
         if (direction.x !== this.previousDirection.x) {
