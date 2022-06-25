@@ -948,14 +948,16 @@
     "name": "textures/object/a_sopbox2_d01",
     "diffuseMap": "textures/object/a_sopbox2_d01",
     "specularMap": "textures/object/a_sopbox2_s01",
-    "normalMap": {
+    "normalMap": "textures/object/a_sopbox2_local",
+    "_normalMap": {
       "name": "textures/object/a_sopbox2_local+textures/object/a_sopbox2_b01",
       "addNormals": {
         "normalMap": "textures/object/a_sopbox2_local",
         "bumpMap": "textures/object/a_sopbox2_b01",
         "scale": 2
       }
-    }
+    },
+    "side": "double"
   },
   {
     "name": "textures/base_wall/gotendo1",

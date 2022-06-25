@@ -32,12 +32,9 @@ export class PlayerCollisionModel extends CollisionModel {
         }
     }
 
-    register(physicsWorld: PhysicsWorld, scene: Scene) {
+    register(physicsWorld: PhysicsWorld, _scene: Scene) {
         for (const body of this.delegate.bodies) {
             physicsWorld.addBody(body);
-            if (body.helper) {
-                scene.add(body.helper);
-            }
         }
     }
 
