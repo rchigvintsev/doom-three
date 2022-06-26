@@ -18,6 +18,10 @@ export class Surface extends Mesh implements Entity {
 
     update(deltaTime: number) {
         this.collisionModel.update(deltaTime);
+        if (this.collisionModel.hasMass()) {
+            this.position.copy(this.collisionModel.position);
+            this.quaternion.copy(this.collisionModel.quaternion);
+        }
     }
 
     onAttack(hitPoint: Vector3, weapon: Weapon) {

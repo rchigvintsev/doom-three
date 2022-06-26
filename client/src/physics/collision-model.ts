@@ -1,9 +1,14 @@
-import {Object3D, Scene} from 'three';
+import {Object3D, Scene, Vector3, Quaternion} from 'three';
 
-import {Body, BodyType, Material, Quaternion, Shape, Vec3} from 'cannon-es';
+import {Body, BodyType, Material, Shape, Vec3} from 'cannon-es';
+import {Quaternion as Quat} from 'cannon-es';
+
 import {PhysicsWorld} from './physics-world';
 
 export class CollisionModel {
+    private readonly _position = new Vector3();
+    private readonly _quaternion = new Quaternion();
+
     constructor(readonly bodies: CollisionModelBody[]) {
     }
 
@@ -28,6 +33,30 @@ export class CollisionModel {
             }
         }
     }
+
+    hasMass(): boolean {
+        if (this.bodies.length > 0) {
+            const body = this.bodies[0];
+            return body.mass > 0;
+        }
+        return false;
+    }
+
+    get position(): Vector3 {
+        if (this.bodies.length > 0) {
+            const body = this.bodies[0];
+            this._position.set(body.position.x, body.position.y, body.position.z);
+        }
+        return this._position;
+    }
+
+    get quaternion(): Quaternion {
+        if (this.bodies.length > 0) {
+            const body = this.bodies[0];
+            this._quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+        }
+        return this._quaternion;
+    }
 }
 
 export class CollisionModelBody extends Body {
@@ -46,7 +75,7 @@ export class CollisionModelBody extends Body {
         allowSleep?: boolean;
         sleepSpeedLimit?: number;
         sleepTimeLimit?: number;
-        quaternion?: Quaternion;
+        quaternion?: Quat
         angularVelocity?: Vec3;
         fixedRotation?: boolean;
         angularDamping?: number;
