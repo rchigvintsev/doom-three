@@ -948,8 +948,7 @@
     "name": "textures/object/a_sopbox2_d01",
     "diffuseMap": "textures/object/a_sopbox2_d01",
     "specularMap": "textures/object/a_sopbox2_s01",
-    "normalMap": "textures/object/a_sopbox2_local",
-    "_normalMap": {
+    "normalMap": {
       "name": "textures/object/a_sopbox2_local+textures/object/a_sopbox2_b01",
       "addNormals": {
         "normalMap": "textures/object/a_sopbox2_local",

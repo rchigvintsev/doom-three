@@ -1,4 +1,5 @@
 import {TgaImage} from './tga-image';
+import {Vector3} from "three";
 
 const TGA_HEADER_LENGTH = 18;
 
@@ -17,7 +18,7 @@ const TGA_ORIGIN_BR = 0x01;
 const TGA_ORIGIN_UL = 0x02;
 const TGA_ORIGIN_UR = 0x03;
 
-export class Images {
+export class TgaImages {
     static parseTga(data: ArrayBuffer, negate=false): TgaImage {
         const buffer = new Uint8Array(data);
         if (buffer.length < TGA_HEADER_LENGTH) {
@@ -25,8 +26,8 @@ export class Images {
         }
 
         const image = new TgaImage();
-        let offset = Images.parseTgaHeader(buffer, image);
-        Images.checkTga(image);
+        let offset = TgaImages.parseTgaHeader(buffer, image);
+        TgaImages.checkTga(image);
 
         if (image.commentLength + TGA_HEADER_LENGTH > buffer.length) {
             throw new Error('No data');
@@ -221,22 +222,48 @@ export class Images {
         }
     }
 
+    static addNormals(normalMap: ArrayBuffer, bumpMap: ArrayBuffer, scale: number) {
+        const normalMapTga = TgaImages.parseTga(normalMap);
+        let bumpMapTga = TgaImages.parseTga(bumpMap);
+        bumpMapTga = TgaImages.bumpMapToNormalMap(bumpMapTga, scale);
+
+        if (bumpMapTga.width !== normalMapTga.width || bumpMapTga.height !== normalMapTga.height) {
+            throw new Error('Images of different size are not supported');
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = normalMapTga.width;
+        canvas.height = normalMapTga.height;
+
+        const context = canvas.getContext('2d');
+        if (context) {
+            const imageData = context.createImageData(normalMapTga.width, normalMapTga.height);
+            for (let i = 0; i < normalMapTga.data.length; i++) {
+                imageData.data[i] = normalMapTga.data[i];
+            }
+            TgaImages.addNormalMaps(imageData.data, normalMapTga, bumpMapTga);
+            TgaImages.flip(imageData);
+            context.putImageData(imageData, 0, 0);
+        }
+        return canvas;
+    }
+
     private static parseTgaHeader(buffer: Uint8Array, image: TgaImage): number {
         let offset = 0;
 
         image.commentLength = buffer[offset++];
         image.colorMapType = buffer[offset++];
         image.type = buffer[offset++];
-        image.colorMapIndex = Images.readShort(buffer, offset);
+        image.colorMapIndex = TgaImages.readShort(buffer, offset);
         offset += 2;
-        image.colorMapLength = Images.readShort(buffer, offset);
+        image.colorMapLength = TgaImages.readShort(buffer, offset);
         offset += 2;
         image.colorMapSize = buffer[offset++];
-        image.origin.set(Images.readShort(buffer, offset), Images.readShort(buffer, offset + 2));
+        image.origin.set(TgaImages.readShort(buffer, offset), TgaImages.readShort(buffer, offset + 2));
         offset += 4;
-        image.width = Images.readShort(buffer, offset);
+        image.width = TgaImages.readShort(buffer, offset);
         offset += 2;
-        image.height = Images.readShort(buffer, offset);
+        image.height = TgaImages.readShort(buffer, offset);
         offset += 2;
         image.pixelSize = buffer[offset++];
         image.attributes = buffer[offset++];
@@ -280,5 +307,88 @@ export class Images {
 
     private static readShort(buffer: Uint8Array, offset: number): number {
         return buffer[offset] | buffer[offset + 1] << 8;
+    }
+    /*
+     * Based on the code of Image_program.cpp file from DOOM 3 GitHub repository
+     * (https://github.com/id-Software/DOOM-3).
+     */
+
+    private static bumpMapToNormalMap(bumpMap: TgaImage, scale: number) {
+        scale = scale / 256;
+
+        // Copy and convert to grey scale
+        const depth = [];
+        const n = bumpMap.width * bumpMap.height;
+        for (let i = 0; i < n; i++) {
+            depth[i] = (bumpMap.data[i * 4] + bumpMap.data[i * 4 + 1] + bumpMap.data[i * 4 + 2]) / 3;
+        }
+
+        const dir = new Vector3();
+        const dir2 = new Vector3();
+
+        const result = new TgaImage();
+        result.copy(bumpMap);
+
+        for (let i = 0; i < bumpMap.height; i++) {
+            for (let j = 0; j < bumpMap.width; j++) {
+                let a1, a2;
+                let d1, d2, d3;
+
+                // Look at three points to estimate the gradient
+                a1 = d1 = depth[i * bumpMap.width + j];
+                d2 = depth[i * bumpMap.width + ((j + 1) & (bumpMap.width - 1))];
+                const a3 = d3 = depth[((i + 1) & (bumpMap.height - 1)) * bumpMap.width + j];
+                a2 = depth[((i + 1) & (bumpMap.height - 1)) * bumpMap.width + ((j + 1) & (bumpMap.width - 1))];
+
+                d2 -= d1;
+                d3 -= d1;
+
+                dir.set(-d2 * scale, -d3 * scale, 1);
+                dir.normalize();
+
+                a1 -= a3;
+                a2 -= a3;
+
+                dir2.set(-a2 * scale, a1 * scale, 1);
+                dir2.normalize();
+
+                dir.add(dir2);
+                dir.normalize();
+
+                a1 = (i * bumpMap.width + j) * 4;
+                result.data[a1] = dir.x * 127 + 128;
+                result.data[a1 + 1] = dir.y * 127 + 128;
+                result.data[a1 + 2] = dir.z * 127 + 128;
+                result.data[a1 + 3] = 255;
+            }
+        }
+
+        return result;
+    }
+
+    private static addNormalMaps(dst: Uint8ClampedArray, normalMap: TgaImage, bumpMap: TgaImage) {
+        // Add the normal change from the second and renormalize
+        for (let i = 0; i < normalMap.height; i++) {
+            for (let j = 0; j < normalMap.width; j++) {
+                const pos = (i * normalMap.width + j) * 4;
+                const n = new Vector3();
+                n.set((dst[pos] - 128) / 127.0, (dst[pos + 1] - 128) / 127.0, (dst[pos + 2] - 128) / 127.0);
+
+                // There are some normal maps that blend to 0,0,0 at the edges. This screws up compression,
+                // so we try to correct that here by instead fading it to 0,0,1
+                if (n.length() < 1.0) {
+                    n.z = Math.sqrt(1.0 - (n.x * n.x) - (n.y * n.y));
+                }
+
+                n.x += (bumpMap.data[pos] - 128) / 127.0;
+                n.y += (bumpMap.data[pos + 1] - 128) / 127.0;
+                n.normalize();
+
+                dst[pos] = n.x * 127 + 128;
+                dst[pos + 1] = n.y * 127 + 128;
+                dst[pos + 2] = n.z * 127 + 128;
+                dst[pos + 3] = 255;
+            }
+        }
     }
 }

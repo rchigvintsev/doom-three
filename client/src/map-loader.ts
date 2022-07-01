@@ -19,9 +19,11 @@ import {CollisionModelFactory} from './physics/collision-model-factory';
 import {Game} from './game';
 import {PlayerFactory} from './entity/player/player-factory';
 import {Player} from './entity/player/player';
+import {TgaImages} from "./util/tga-images";
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
+    private readonly binaryFileLoader: FileLoader;
     private readonly tgaLoader = new TgaLoader();
     private readonly md5MeshLoader = new Md5MeshLoader();
     private readonly md5AnimationLoader = new Md5AnimationLoader();
@@ -29,6 +31,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     constructor(private readonly game: Game) {
         super();
+        this.binaryFileLoader = new FileLoader();
+        this.binaryFileLoader.setResponseType('arraybuffer');
     }
 
     load(mapName: string): Promise<GameMap> {
@@ -60,14 +64,15 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 context.modelsToLoad.add(weaponDef.model);
                 if (!config.renderOnlyWireframe) {
                     this.getTextureSources(weaponDef, materialDefs)
-                        .forEach(source => context.texturesToLoad.add(source));
+                        .forEach((source, name) => context.texturesToLoad.set(name, source));
                 }
                 this.getAnimationSources(weaponDef).forEach(animation => context.animationsToLoad.add(animation));
                 this.getSoundSources(weaponDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
             });
 
             if (!config.renderOnlyWireframe) {
-                this.getTextureSources(mapMeta, materialDefs).forEach(source => context.texturesToLoad.add(source));
+                this.getTextureSources(mapMeta, materialDefs)
+                    .forEach((source, name) => context.texturesToLoad.set(name, source));
             }
             this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
             this.getAnimationSources(mapMeta).forEach(source => context.animationsToLoad.add(source));
@@ -138,17 +143,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     private loadTextures(context: LoadingContext): Promise<Texture[]> {
         const texturePromises: Promise<any>[] = [];
-        for (const textureName of context.texturesToLoad) {
-            texturePromises.push(this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(texture => {
-                console.debug(`Texture "${textureName}" is loaded`);
-                context.onTextureLoad(textureName, texture);
+        context.texturesToLoad.forEach(textureSource => {
+            texturePromises.push(textureSource.loadAsync().then(texture => {
+                context.onTextureLoad(textureSource.name, texture);
                 this.publishProgress(context);
-                return texture;
-            }).catch(reason => {
-                console.error(`Failed to load texture "${textureName}"`, reason);
-                return Promise.reject(reason);
             }));
-        }
+        });
         return Promise.all(texturePromises);
     }
 
@@ -208,22 +208,16 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(soundPromises);
     }
 
-    private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Set<string> {
-        const result = new Set<string>();
+    private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Map<string, TextureSource> {
+        const result = new Map<string, TextureSource>();
         (<string[]>entityDef.materials).forEach(materialName => {
             const materialDef = materialDefs.get(materialName);
             if (materialDef) {
-                if (materialDef.diffuseMap) {
-                    result.add(materialDef.diffuseMap);
-                }
-                if (materialDef.specularMap) {
-                    result.add(materialDef.specularMap);
-                }
-                if (materialDef.normalMap) {
-                    result.add(materialDef.normalMap);
-                }
-                if (materialDef.alphaMap) {
-                    result.add(materialDef.alphaMap);
+                for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'alphaMap']) {
+                    if (materialDef[mapName]) {
+                        const source = new TextureSource(materialDef[mapName], this.tgaLoader, this.binaryFileLoader);
+                        result.set(source.name, source);
+                    }
                 }
             } else {
                 console.error(`Definition of material "${materialName}" is not found`);
@@ -310,7 +304,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 }
 
 class LoadingContext {
-    readonly texturesToLoad = new Set<string>();
+    readonly texturesToLoad = new Map<string, TextureSource>();
     readonly modelsToLoad = new Set<string>();
     readonly animationsToLoad = new Set<string>();
     readonly soundsToLoad = new Set<string>();
@@ -342,5 +336,54 @@ class LoadingContext {
     onSoundLoad(soundName: string, sound: AudioBuffer) {
         this.assets.sounds.set(soundName, sound);
         this.loaded++;
+    }
+}
+
+class TextureSource {
+    readonly name: string;
+
+    constructor(readonly textureDef: any, readonly tgaLoader: TgaLoader, readonly binaryFileLoader: FileLoader) {
+        this.name = typeof textureDef === 'string' ? textureDef : textureDef.name;
+    }
+
+    loadAsync(): Promise<Texture> {
+        if (typeof this.textureDef === 'string') {
+            return this.loadTexture(this.textureDef);
+        }
+
+        const addNormals = this.textureDef.addNormals;
+        if (addNormals) {
+            return Promise.all([
+                this.loadTextureBuffer(addNormals.normalMap),
+                this.loadTextureBuffer(addNormals.bumpMap)
+            ]).then(results => {
+                const canvas = TgaImages.addNormals(results[0], results[1], addNormals.scale);
+                const texture = new Texture();
+                texture.image = canvas;
+                return texture;
+            });
+        }
+
+        return Promise.reject(`Map "${this.name}" has invalid declaration`);
+    }
+
+    private loadTexture(textureName: string): Promise<Texture> {
+        return this.tgaLoader.loadAsync(`assets/${textureName}.tga`).then(texture => {
+            console.debug(`Texture "${textureName}" is loaded`);
+            return texture;
+        }).catch(reason => {
+            console.error(`Failed to load texture "${textureName}"`, reason);
+            return Promise.reject(reason);
+        });
+    }
+
+    private loadTextureBuffer(textureName: string): Promise<ArrayBuffer> {
+        return this.binaryFileLoader.loadAsync(`assets/${textureName}.tga`).then(texture => {
+            console.debug(`Texture "${textureName}" is loaded`);
+            return texture as ArrayBuffer;
+        }).catch(reason => {
+            console.error(`Failed to load texture "${textureName}"`, reason);
+            return Promise.reject(reason);
+        });
     }
 }

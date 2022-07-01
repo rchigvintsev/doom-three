@@ -1,6 +1,6 @@
 import {FileLoader, Loader, LoadingManager, Texture} from 'three';
 
-import {Images} from '../util/images';
+import {TgaImages} from '../util/tga-images';
 import {TgaImage} from "../util/tga-image";
 
 export class TgaLoader extends Loader {
@@ -23,7 +23,7 @@ export class TgaLoader extends Loader {
     }
 
     parse(buffer: ArrayBuffer) {
-        const tgaImage = Images.parseTga(buffer);
+        const tgaImage = TgaImages.parseTga(buffer);
 
         const canvas = document.createElement('canvas');
         canvas.width = tgaImage.width;
@@ -45,7 +45,7 @@ export class TgaLoader extends Loader {
         for (let i = 0; i < tgaImage.data.length; i++) {
             imageData.data[i] = tgaImage.data[i];
         }
-        Images.flip(imageData);
+        TgaImages.flip(imageData);
         return imageData;
     }
 }

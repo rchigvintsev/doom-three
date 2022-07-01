@@ -38,7 +38,10 @@ export class MaterialFactory {
 
         if (materialDef.normalMap) {
             if (material instanceof MeshPhongMaterial) {
-                material.normalMap = this.getTexture(materialDef.normalMap);
+                const mapName = typeof materialDef.normalMap === 'string'
+                    ? materialDef.normalMap
+                    : materialDef.normalMap.name;
+                material.normalMap = this.getTexture(mapName);
                 this.setTextureWrapping(material.normalMap, materialDef.clamp);
             } else {
                 console.warn(`Definition of material "${materialDef.name}" has unsupported property "normalMap"`);
