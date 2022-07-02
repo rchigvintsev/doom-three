@@ -12,7 +12,8 @@ export interface Entity {
      * Called when someone attack this entity with the given weapon.
      *
      * @param hitPoint hit point
+     * @param forceVector force vector
      * @param weapon weapon
      */
-    onAttack(hitPoint: Vector3, weapon: Weapon): void;
+    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
 }

@@ -6,7 +6,8 @@ import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
 import {AttackEvent} from '../../../event/attack-event';
 
-const PUNCH_FORCE = 200;
+const PUNCH_FORCE = 50;
+const ATTACK_DISTANCE = 30;
 
 export class Fists extends Weapon {
     private readonly attackDistance: number;
@@ -20,7 +21,7 @@ export class Fists extends Weapon {
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(config, geometry, materials, sounds);
-        this.attackDistance = 20 * config.worldScale;
+        this.attackDistance = ATTACK_DISTANCE * config.worldScale;
     }
 
     init() {

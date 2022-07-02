@@ -10,6 +10,7 @@ import {AttackEvent} from '../../event/attack-event';
 export class GameMap extends Group implements Entity {
     private readonly raycaster = new Raycaster();
     private readonly mouseCoords = new Vector2();
+    private readonly forceVector = new Vector3();
 
     constructor(readonly player: Player, private readonly areas: Area[], private readonly lights: Light[]) {
         super();
@@ -43,7 +44,7 @@ export class GameMap extends Group implements Entity {
         this.player.update(deltaTime);
     }
 
-    onAttack(_hitPoint: Vector3, _weapon: Weapon) {
+    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing
     }
 
@@ -52,6 +53,10 @@ export class GameMap extends Group implements Entity {
 
         this.raycaster.far = e.distance;
         this.raycaster.setFromCamera(this.mouseCoords, this.player.camera);
+
+        this.player.camera.getWorldDirection(this.forceVector);
+        this.forceVector.negate().multiplyScalar(e.force);
+
         const intersections = this.raycaster.intersectObjects(this.areas);
         for (const intersection of intersections) {
             let target: any = intersection.object;
@@ -59,7 +64,7 @@ export class GameMap extends Group implements Entity {
                 target = target.parent;
             }
             if (target.onAttack) {
-                (<Entity>target).onAttack(intersection.point, e.weapon);
+                (<Entity>target).onAttack(intersection.point, this.forceVector, e.weapon);
                 hits++;
             }
         }
