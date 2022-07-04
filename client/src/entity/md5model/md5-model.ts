@@ -3,7 +3,6 @@ import {
     AnimationMixer,
     Audio,
     BufferGeometry,
-    LoopOnce,
     Material,
     Scene,
     SkeletonHelper,
@@ -16,6 +15,8 @@ import {randomInt} from 'mathjs';
 import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {Weapon} from './weapon/weapon';
+import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
+import {Animations} from '../../util/animations';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
@@ -24,9 +25,9 @@ export class Md5Model extends SkinnedMesh implements Entity {
     private readonly animationActions = new Map<string, AnimationAction>();
 
     private animationMixer?: AnimationMixer;
-    private _wireframeModel?: Md5Model;
-
     private initialized = false;
+
+    private _wireframeHelper?: Md5ModelWireframeHelper;
 
     constructor(geometry: BufferGeometry,
                 materials: Material | Material[],
@@ -43,31 +44,11 @@ export class Md5Model extends SkinnedMesh implements Entity {
                 this.animationMixer = new AnimationMixer(this);
                 this.initAnimationActions(this.animationMixer);
             }
-            if (this._wireframeModel) {
-                this._wireframeModel.init();
+            if (this._wireframeHelper) {
+                this._wireframeHelper.init();
             }
             this.initialized = true;
         }
-    }
-
-    clone(recursive?: boolean): this {
-        const clone = super.clone(recursive);
-        if (this.sounds) {
-            this.sounds.forEach((value, key) => clone.sounds.set(key, value));
-        }
-        if (this.animations) {
-            clone.animations = this.animations.map(animation => animation.clone());
-        }
-        this.animationActions.forEach((value, key) => clone.animationActions.set(key, value));
-        clone.animationMixer = this.animationMixer;
-        if (this.skeletonHelper) {
-            clone.skeletonHelper = this.skeletonHelper;
-        }
-        if (this._wireframeModel) {
-            clone.wireframeModel = this._wireframeModel;
-        }
-        clone.initialized = this.initialized;
-        return clone;
     }
 
     registerCollisionModels(_physicsWorld: PhysicsWorld, _scene: Scene) {
@@ -78,8 +59,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
         if (this.animationMixer) {
             this.animationMixer.update(deltaTime);
         }
-        if (this._wireframeModel) {
-            this._wireframeModel.update(deltaTime);
+        if (this._wireframeHelper) {
+            this._wireframeHelper.update(deltaTime);
         }
     }
 
@@ -87,9 +68,44 @@ export class Md5Model extends SkinnedMesh implements Entity {
         // Do nothing by default
     }
 
-    set wireframeModel(wireframeModel: Md5Model) {
-        this._wireframeModel = wireframeModel;
-        this.add(wireframeModel);
+    get wireframeHelper(): Md5ModelWireframeHelper | undefined {
+        return this._wireframeHelper;
+    }
+
+    set wireframeHelper(helper: Md5ModelWireframeHelper | undefined) {
+        this._wireframeHelper = helper;
+        if (helper) {
+            this.add(helper);
+        }
+    }
+
+    animateCrossFadeTo(startActionName: string, endActionName: string, duration: number) {
+        const startAction = this.getRequiredAnimationAction(startActionName);
+        const endAction = this.getRequiredAnimationAction(endActionName);
+
+        startAction.play();
+        endAction.reset().play();
+        startAction.crossFadeTo(endAction, duration, false);
+
+        if (this._wireframeHelper) {
+            this._wireframeHelper.animateCrossFadeTo(startActionName, endActionName, duration);
+        }
+    }
+
+    animateFadeOutFadeIn(fadeOutActionName: string,
+                         fadeOutActionDuration: number,
+                         fadeInActionName: string,
+                         fadeInActionDuration: number) {
+        const fadeOutAction = this.getRequiredAnimationAction(fadeOutActionName);
+        const fadeInAction = this.getRequiredAnimationAction(fadeInActionName);
+
+        fadeOutAction.stop().reset().fadeOut(fadeOutActionDuration).play();
+        fadeInAction.stop().reset().fadeIn(fadeInActionDuration).play();
+
+        if (this._wireframeHelper) {
+            this._wireframeHelper.animateFadeOutFadeIn(fadeOutActionName, fadeOutActionDuration,
+                fadeInActionName, fadeInActionDuration);
+        }
     }
 
     protected playFirstSound(soundName: string, delay?: number) {
@@ -109,20 +125,6 @@ export class Md5Model extends SkinnedMesh implements Entity {
             if (!sound.isPlaying) {
                 sound.play(delay);
             }
-        }
-    }
-
-    protected executeActionCrossFade(startActionName: string, endActionName: string, duration: number) {
-        const startAction = this.getRequiredAnimationAction(startActionName);
-        const endAction = this.getRequiredAnimationAction(endActionName);
-
-        startAction.reset().play();
-        endAction.enabled = true;
-        endAction.reset().play();
-        startAction.crossFadeTo(endAction, duration, false);
-
-        if (this._wireframeModel) {
-            this._wireframeModel.executeActionCrossFade(startActionName, endActionName, duration);
         }
     }
 
@@ -147,13 +149,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
     }
 
     private initAnimationActions(animationMixer: AnimationMixer) {
-        for (let i = 0; i < this.animations.length; i++) {
-            const animation = this.animations[i];
-            const action = animationMixer.clipAction(animation);
-            if (animation.name !== 'idle') {
-                action.setLoop(LoopOnce, 1);
-            }
-            this.animationActions.set(animation.name, action);
-        }
+        Animations.createAnimationActions(animationMixer, this.animations)
+            .forEach((action, name) => this.animationActions.set(name, action));
     }
 }

@@ -33,19 +33,7 @@ export abstract class Weapon extends Md5Model {
     init() {
         super.init();
         this.origin.copy(this.position);
-    }
-
-    clone(recursive?: boolean): this {
-        const clone = super.clone(recursive);
-        clone.config = this.config;
-        clone.enabled = this.enabled;
-        clone.origin.copy(this.origin);
-        clone.bobbingOffset.copy(this.bobbingOffset);
-        clone.previousDirection.copy(this.previousDirection);
-        clone.acceleration.copy(this.acceleration);
-        clone.v.copy(this.v);
-        clone.e.copy(this.e);
-        return clone;
+        this.visible = false;
     }
 
     update(deltaTime: number, player?: Player) {

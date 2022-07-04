@@ -21,6 +21,8 @@ import {Md5MeshGeometry} from '../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../animation/md5-animation';
 import {Md5Model} from './md5-model';
 import {SoundFactory} from '../sound/sound-factory';
+import {Flashlight} from "./weapon/flashlight";
+import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 
 // noinspection JSMethodCanBeStatic
 export class Md5ModelFactory implements EntityFactory<Md5Model> {
@@ -38,7 +40,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         const sounds = this.createSounds(modelDef);
         const model = this.createModel(modelDef, mesh.geometry, material, animations, sounds);
         if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
-            model.wireframeModel = this.createWireframeModel(model, animations);
+            model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
         model.init();
         return model;
@@ -60,7 +62,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         (<Md5MeshGeometry>mesh.geometry).bindPose(animation.getFrame(0, true));
     }
 
-    private bindSkeleton(model: Md5Model, skeleton: Skeleton) {
+    private bindSkeleton(model: SkinnedMesh, skeleton: Skeleton) {
         model.add(skeleton.bones[0]);
         model.bind(skeleton);
         return skeleton;
@@ -139,14 +141,13 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         return model;
     }
 
-    private createWireframeModel(model: Md5Model, animations: Md5Animation[]) {
-        const wireframeModel = model.clone();
-        wireframeModel.material = new MeshBasicMaterial({wireframe: true});
-        this.bindSkeleton(wireframeModel, this.createSkeleton(animations[0]));
-        wireframeModel.scale.setScalar(1);
-        wireframeModel.position.setScalar(0);
-        wireframeModel.rotation.set(0, 0, 0);
-        return wireframeModel;
+    private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {
+        const helper = new Md5ModelWireframeHelper(model.geometry.clone());
+        if (model.animations) {
+            helper.animations = model.animations.map(animation => animation.clone());
+        }
+        this.bindSkeleton(helper, this.createSkeleton(animations[0]));
+        return helper;
     }
 
     private createAnimationClips(animations: Md5Animation[], skeleton: Skeleton) {

@@ -30,15 +30,6 @@ export class Fists extends Weapon {
         this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
-    clone(recursive?: boolean): this {
-        const clone = super.clone(recursive);
-        this.punchAnimationActionNames.forEach((value, key) =>
-            clone.punchAnimationActionNames.set(key, value));
-        clone.lastPunchingHand = this.lastPunchingHand;
-        clone.lastPunchAnimationAction = this.lastPunchAnimationAction;
-        return clone;
-    }
-
     enable() {
         if (!this.enabled) {
             this.executeActionCrossFade('raise', 'idle', 0.40);
@@ -60,14 +51,14 @@ export class Fists extends Weapon {
             const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
             const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
 
-            const punchAction = this.getRequiredAnimationAction(nextPunchActionName);
-            punchAction.stop().reset().fadeOut(0.625).play();
+            this.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
 
-            const idleAction = this.getRequiredAnimationAction('idle');
-            idleAction.stop().reset().fadeIn(1.875).play();
-
-            this.lastPunchAnimationAction = punchAction;
+            this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.lastPunchingHand = nextPunchingHand;
+
+            if (this.wireframeHelper) {
+                this.wireframeHelper.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
+            }
 
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
