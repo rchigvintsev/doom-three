@@ -4,7 +4,7 @@ import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
-import {AttackEvent} from '../../../event/attack-event';
+import {AttackEvent} from '../../../event/weapon-events';
 
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
@@ -22,31 +22,29 @@ export class Fists extends Weapon {
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(config, geometry, materials, sounds);
         this.attackDistance = ATTACK_DISTANCE * config.worldScale;
-    }
-
-    init() {
-        super.init();
         this.punchAnimationActionNames.set(Hand.LEFT, ['berserk_punch1', 'berserk_punch3']);
         this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
     enable() {
         if (!this.enabled) {
-            this.executeActionCrossFade('raise', 'idle', 0.40);
-            this.playRaiseSound();
             this.enabled = true;
+            this.animateCrossFadeTo('raise', 'idle', 0.40);
+            this.playRaiseSound();
+            // Weapon visibility will be changed on next rendering step
         }
     }
 
     disable() {
         if (this.enabled) {
-            this.executeActionCrossFade('idle', 'lower', 0.25);
             this.enabled = false;
+            this.animateCrossFadeTo('idle', 'lower', 0.25);
+            // Weapon visibility will be changed on "lower" animation finish
         }
     }
 
-    attack(): void {
-        if (!this.isAttacking()) {
+    attack() {
+        if (this.canAttack()) {
             const nextPunchingHand = (this.lastPunchingHand + 1) % 2;
             const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
             const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
@@ -64,12 +62,16 @@ export class Fists extends Weapon {
         }
     }
 
-    onHit(_target: Object3D): void {
+    onHit(_target: Object3D) {
         this.playImpactSound();
     }
 
-    onMiss(): void {
+    onMiss() {
         this.playWooshSound();
+    }
+
+    private canAttack() {
+        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking();
     }
 
     private playRaiseSound() {

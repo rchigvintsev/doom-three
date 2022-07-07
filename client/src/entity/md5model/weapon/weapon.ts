@@ -1,8 +1,9 @@
-import {Audio, BufferGeometry, Euler, Material, Object3D, Vector3} from 'three';
+import {Audio, BufferGeometry, Euler, Event, Material, Object3D, Vector3} from 'three';
 
 import {Md5Model} from '../md5-model';
 import {GameConfig} from '../../../game-config';
 import {Player} from '../../player/player';
+import {WeaponDisableEvent} from '../../../event/weapon-events';
 
 const BOBBING_MAGNITUDE_X = 0.40;
 const BOBBING_MAGNITUDE_Y = 0.40;
@@ -13,7 +14,7 @@ const LAND_DEFLECT_TIME = 150;
 const LAND_RETURN_TIME = 300;
 
 export abstract class Weapon extends Md5Model {
-    protected enabled = false;
+    enabled = false;
 
     private readonly origin = new Vector3();
     private readonly bobbingOffset = new Vector3();
@@ -28,16 +29,18 @@ export abstract class Weapon extends Md5Model {
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(geometry, materials, sounds);
+        this.visible = false;
     }
 
     init() {
         super.init();
         this.origin.copy(this.position);
-        this.visible = false;
     }
 
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime);
+        // Deferred visibility change to prevent weapon flickering when enabled
+        this.visible = this.enabled;
         if (!this.config.ghostMode && player) {
             this.updateAcceleration(player.movementDirection);
             this.drop(player.landedAt, player.pitchObject.rotation.x * -1);
@@ -51,9 +54,19 @@ export abstract class Weapon extends Md5Model {
         this.position.addVectors(this.origin, this.acceleration.offset).add(this.bobbingOffset);
     }
 
-    abstract enable(): void;
+    enable() {
+        if (!this.enabled) {
+            this.enabled = true;
+            this.visible = true;
+        }
+    }
 
-    abstract disable(): void;
+    disable() {
+        if (this.enabled) {
+            this.enabled = false;
+            this.visible = false;
+        }
+    }
 
     abstract attack(): void;
 
@@ -68,6 +81,23 @@ export abstract class Weapon extends Md5Model {
      * Called when this weapon misses during the attack.
      */
     abstract onMiss(): void;
+
+    protected onAnimationFinished(e: Event) {
+        if (e.action === this.getAnimationAction('lower') && !this.enabled) {
+            this.visible = false;
+            this.dispatchEvent(new WeaponDisableEvent(this));
+        }
+    }
+
+    protected isRaising(): boolean {
+        const action = this.getAnimationAction('raise');
+        return !!action && action.isRunning();
+    }
+
+    protected isLowering(): boolean {
+        const action = this.getAnimationAction('lower');
+        return !!action && action.isRunning();
+    }
 
     private updateAcceleration(direction: Vector3) {
         if (direction.x !== this.previousDirection.x) {

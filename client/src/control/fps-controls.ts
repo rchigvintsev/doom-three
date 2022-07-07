@@ -77,7 +77,9 @@ export class FpsControls {
             this.player.attack();
         else {
             if (this.keyboardState.isKeyPressed(KeyboardState.KEY_G)) {
-                this.player.fists.enable();
+                this.player.enableFists();
+            } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_F)) {
+                this.player.enableFlashlight();
             }
         }
     }

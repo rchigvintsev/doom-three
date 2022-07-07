@@ -10,7 +10,7 @@ import {FpsControls} from './control/fps-controls';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
 import {PhysicsWorld} from './physics/physics-world';
-import {PointerUnlockEvent} from './event/pointer-unlock-event';
+import {PointerUnlockEvent} from './event/pointer-lock-events';
 
 const TIME_STEP = 1 / 60;
 

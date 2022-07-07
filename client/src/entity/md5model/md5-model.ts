@@ -3,6 +3,7 @@ import {
     AnimationMixer,
     Audio,
     BufferGeometry,
+    Event,
     Material,
     Scene,
     SkeletonHelper,
@@ -43,6 +44,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
             if (this.animations) {
                 this.animationMixer = new AnimationMixer(this);
                 this.initAnimationActions(this.animationMixer);
+                this.animationMixer.addEventListener('finished', e => this.onAnimationFinished(e));
             }
             if (this._wireframeHelper) {
                 this._wireframeHelper.init();
@@ -83,7 +85,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
         const startAction = this.getRequiredAnimationAction(startActionName);
         const endAction = this.getRequiredAnimationAction(endActionName);
 
-        startAction.play();
+        startAction.reset().play();
         endAction.reset().play();
         startAction.crossFadeTo(endAction, duration, false);
 
@@ -146,6 +148,10 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     protected getAnimationAction(actionName: string): AnimationAction | undefined {
         return this.animationActions.get(actionName);
+    }
+
+    protected onAnimationFinished(_e: Event) {
+        // Do nothing by default
     }
 
     private initAnimationActions(animationMixer: AnimationMixer) {

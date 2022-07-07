@@ -280,10 +280,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                          collisionModelFactory: CollisionModelFactory): Player {
         const playerFactory = new PlayerFactory(this.game.config, this.game.camera, weapons, soundFactory,
             collisionModelFactory);
-
-        const player = playerFactory.create(playerDef);
-        player.fists.enable();
-        return player;
+        return playerFactory.create(playerDef);
     }
 
     private createMap(mapDef: any,

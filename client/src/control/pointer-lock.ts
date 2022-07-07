@@ -1,7 +1,6 @@
 import {EventDispatcher} from 'three';
 
-import {PointerLockEvent} from '../event/pointer-lock-event';
-import {PointerUnlockEvent} from '../event/pointer-unlock-event';
+import {PointerLockEvent, PointerUnlockEvent} from '../event/pointer-lock-events';
 
 export class PointerLock extends EventDispatcher {
     enabled = false;

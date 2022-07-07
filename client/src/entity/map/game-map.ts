@@ -5,7 +5,7 @@ import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {Player} from '../player/player';
 import {Weapon} from '../md5model/weapon/weapon';
-import {AttackEvent} from '../../event/attack-event';
+import {AttackEvent} from '../../event/weapon-events';
 
 export class GameMap extends Group implements Entity {
     private readonly raycaster = new Raycaster();

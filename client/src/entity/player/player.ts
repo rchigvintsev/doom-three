@@ -3,12 +3,11 @@ import {Audio, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 import {random, randomInt} from 'mathjs';
 
 import {Entity} from '../entity';
-import {Fists} from '../md5model/weapon/fists';
 import {Weapon} from '../md5model/weapon/weapon';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {PlayerCollisionModel} from './player-collision-model';
 import {GameConfig} from '../../game-config';
-import {AttackEvent} from '../../event/attack-event';
+import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -45,10 +44,7 @@ export class Player extends Object3D implements Entity {
 
         this.weapons.forEach(weapon => {
             this._pitchObject.add(weapon);
-            if (!this.currentWeapon) {
-                this.currentWeapon = weapon;
-            }
-            weapon.addEventListener(AttackEvent.TYPE, e => this._onAttack(<AttackEvent><unknown>e));
+            weapon.addEventListener(AttackEvent.TYPE, e => this.onWeaponAttack(<AttackEvent><unknown>e));
         });
 
         const footstepSounds = sounds.get('footsteps');
@@ -112,6 +108,14 @@ export class Player extends Object3D implements Entity {
         }
     }
 
+    enableFists() {
+        this.enableWeapon('fists');
+    }
+
+    enableFlashlight() {
+        this.enableWeapon('flashlight');
+    }
+
     attack() {
         if (this.currentWeapon) {
             this.currentWeapon.attack();
@@ -125,10 +129,6 @@ export class Player extends Object3D implements Entity {
 
     get pitchObject(): Object3D {
         return this._pitchObject;
-    }
-
-    get fists(): Fists {
-        return <Fists>this.weapons.get('fists');
     }
 
     get airborne(): boolean {
@@ -193,7 +193,36 @@ export class Player extends Object3D implements Entity {
         return directionChanged;
     }
 
-    private _onAttack(e: AttackEvent) {
+    private enableWeapon(weaponName: string) {
+        const weapon = this.weapons.get(weaponName);
+        if (!weapon) {
+            console.debug(`Weapon "${weaponName}" is not found and cannot be enabled`);
+            return;
+        }
+
+        if (this.currentWeapon) {
+            if (this.currentWeapon.name === weaponName || !this.currentWeapon.enabled) {
+                // Ignore if current weapon is already a requested weapon or player is in process of weapon switching
+                return;
+            }
+
+            const disableListener = () => {
+                if (this.currentWeapon) {
+                    this.currentWeapon.removeEventListener(WeaponDisableEvent.TYPE, disableListener);
+                }
+                this.currentWeapon = weapon;
+                weapon.enable();
+            };
+            this.currentWeapon.addEventListener(WeaponDisableEvent.TYPE, disableListener);
+            this.currentWeapon.disable();
+            return;
+        }
+
+        this.currentWeapon = weapon;
+        weapon.enable();
+    }
+
+    private onWeaponAttack(e: AttackEvent) {
         this.dispatchEvent(e);
     }
 }

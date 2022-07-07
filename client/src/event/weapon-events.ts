@@ -12,3 +12,14 @@ export class AttackEvent implements Event {
         return AttackEvent.TYPE;
     }
 }
+
+export class WeaponDisableEvent implements Event {
+    static readonly TYPE = 'weaponDisable';
+
+    constructor(readonly weapon: Weapon) {
+    }
+
+    get type(): string {
+        return WeaponDisableEvent.TYPE;
+    }
+}

@@ -19,7 +19,9 @@ export class PlayerFactory implements EntityFactory<Player> {
     create(playerDef: any): Player {
         const sounds = this.createSounds(playerDef);
         const collisionModel = new PlayerCollisionModel(this.collisionModelFactory.create(playerDef));
-        return new Player(this.camera, this.weapons, sounds, collisionModel, this.config);
+        const player = new Player(this.camera, this.weapons, sounds, collisionModel, this.config);
+        player.enableFists();
+        return player;
     }
 
     private createSounds(playerDef: any): Map<string, Audio<AudioNode>[]> {
