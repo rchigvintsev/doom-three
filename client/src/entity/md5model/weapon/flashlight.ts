@@ -9,11 +9,10 @@ import {AttackEvent} from '../../../event/weapon-events';
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
 
-export class Fists extends Weapon {
-    private readonly attackDistance: number;
-    private readonly punchAnimationActionNames = new Map<Hand, string[]>();
+export class Flashlight extends Weapon {
+    private readonly attackDistance!: number;
+    private readonly punchAnimationActionNames = ['swing1', 'swing2'];
 
-    private lastPunchingHand = Hand.LEFT;
     private lastPunchAnimationAction?: AnimationAction;
 
     constructor(config: GameConfig,
@@ -22,8 +21,6 @@ export class Fists extends Weapon {
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(config, geometry, materials, sounds);
         this.attackDistance = ATTACK_DISTANCE * config.worldScale;
-        this.punchAnimationActionNames.set(Hand.LEFT, ['berserk_punch1', 'berserk_punch3']);
-        this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
     enable() {
@@ -43,30 +40,20 @@ export class Fists extends Weapon {
         }
     }
 
-    attack() {
+    attack(): void {
         if (this.canAttack()) {
-            const nextPunchingHand = (this.lastPunchingHand + 1) % 2;
-            const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
-            const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
-
+            const nextPunchActionName = this.punchAnimationActionNames[randomInt(0, this.punchAnimationActionNames.length)];
             this.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
-
             this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
-            this.lastPunchingHand = nextPunchingHand;
-
-            if (this.wireframeHelper) {
-                this.wireframeHelper.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
-            }
-
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
     }
 
-    onHit(_target: Object3D) {
+    onHit(_target: Object3D): void {
         this.playImpactSound();
     }
 
-    onMiss() {
+    onMiss(): void {
         this.playWooshSound();
     }
 
@@ -89,8 +76,4 @@ export class Fists extends Weapon {
     private playWooshSound() {
         this.playRandomSound('woosh', 0.1);
     }
-}
-
-enum Hand {
-    LEFT, RIGHT
 }

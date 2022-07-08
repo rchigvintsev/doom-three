@@ -40,7 +40,9 @@ export abstract class Weapon extends Md5Model {
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime);
         // Deferred visibility change to prevent weapon flickering when enabled
-        this.visible = this.enabled;
+        if (this.enabled && !this.visible) {
+            this.visible = true;
+        }
         if (!this.config.ghostMode && player) {
             this.updateAcceleration(player.movementDirection);
             this.drop(player.landedAt, player.pitchObject.rotation.x * -1);

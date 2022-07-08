@@ -36,9 +36,9 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         const mesh = this.getRequiredModelMesh(modelDef);
         const animations = this.getAnimations(modelDef);
         this.bindPose(mesh, animations[0]);
-        const material = this.createMaterial(modelDef);
+        const materials = this.createMaterials(modelDef);
         const sounds = this.createSounds(modelDef);
-        const model = this.createModel(modelDef, mesh.geometry, material, animations, sounds);
+        const model = this.createModel(modelDef, mesh.geometry, materials, animations, sounds);
         if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
@@ -104,26 +104,42 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         return new Skeleton(bones);
     }
 
-    private createMaterial(modelDef: any): Material {
+    private createMaterials(modelDef: any): Material[] {
+        const materials: Material[] = [];
         if (this.config.renderOnlyWireframe) {
-            return new MeshBasicMaterial({wireframe: true});
+            if (modelDef.materials) {
+                for (let i = 0; i < modelDef.materials.length; i++) {
+                    materials.push(new MeshBasicMaterial({wireframe: true}));
+                }
+            }
+            if (materials.length == 0) {
+                materials.push(new MeshBasicMaterial({wireframe: true}));
+            }
+        } else {
+            if (modelDef.materials) {
+                for (let i = 0; i < modelDef.materials.length; i++) {
+                    materials.push(this.materialFactory.create(modelDef.materials[i])[0]);
+                }
+            }
+            if (materials.length == 0) {
+                materials.push(new MeshPhongMaterial());
+            }
         }
-        if (modelDef.materials) {
-            return this.materialFactory.create(modelDef.materials[0])[0];
-        }
-        return new MeshPhongMaterial();
+        return materials;
     }
 
     private createModel(modelDef: any,
                         geometry: BufferGeometry,
-                        material: Material,
+                        materials: Material[],
                         animations: Md5Animation[],
                         sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists(this.config, geometry, material, sounds);
+            model = new Fists(this.config, geometry, materials, sounds);
+        } else if (modelDef.name === 'flashlight') {
+            model = new Flashlight(this.config, geometry, materials, sounds);
         } else {
-            model = new Md5Model(geometry, material, sounds);
+            model = new Md5Model(geometry, materials, sounds);
         }
         model.name = modelDef.name;
 
