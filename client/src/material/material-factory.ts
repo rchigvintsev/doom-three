@@ -5,15 +5,23 @@ import {
     Color,
     DoubleSide,
     FrontSide,
+    IUniform,
     Material,
     MeshBasicMaterial,
     MeshPhongMaterial,
     MultiplyBlending,
     RepeatWrapping,
+    ShaderMaterial,
     SubtractiveBlending,
-    Texture
+    Texture,
+    Vector4
 } from 'three';
+
+import {compile, EvalFunction} from 'mathjs';
+
 import {GameAssets} from '../game-assets';
+import {CustomShaderLib} from '../shader/custom-shader-lib';
+import {UpdatableShaderMaterial} from './updatable-shader-material';
 
 // noinspection JSMethodCanBeStatic
 export class MaterialFactory {
@@ -27,9 +35,71 @@ export class MaterialFactory {
         }
 
         const materials: Material[] = [];
+        if (materialDef.type === 'shader') {
+            materials.push(this.createShaderMaterial(materialDef));
+        } else {
+            materials.push(this.createBasicOrPhongMaterial(materialDef));
+        }
+        return materials;
+    }
 
-        const material = this.createMaterial(materialDef);
-        materials.push(material);
+    private createShaderMaterial(materialDef: any): ShaderMaterial {
+        if (!materialDef.shader) {
+            throw new Error(`Shader name is not specified for material "${materialDef.name}"`);
+        }
+        const shader = CustomShaderLib[materialDef.shader];
+        if (!shader) {
+            throw new Error(`Shader "${materialDef.shader}" is not found`);
+        }
+
+        const uniforms: { [uniform: string]: IUniform } = {};
+        const rotationExpressions: EvalFunction[] = [];
+
+        if (materialDef.maps) {
+            for (let i = 0; i < materialDef.maps.length; i++) {
+                const mapDef = materialDef.maps[i];
+                let textureName;
+                if (typeof mapDef !== 'string') {
+                    textureName = mapDef.name;
+
+                    if (mapDef.repeat) {
+                        const offsetRepeat = new Vector4(0, 0, mapDef.repeat[0], mapDef.repeat[1]);
+                        uniforms['u_offsetRepeat' + (i + 1)] = {value: offsetRepeat};
+                    }
+
+                    if (mapDef.rotate) {
+                        uniforms['u_rotation' + (i + 1)] = {value: 0};
+                        rotationExpressions[i] = compile(mapDef.rotate);
+                    }
+                } else {
+                    textureName = mapDef;
+                }
+
+                const texture = this.getTexture(textureName);
+                texture.wrapS = texture.wrapT = RepeatWrapping;
+                uniforms['u_texture' + (i + 1)] = {value: texture};
+            }
+        }
+
+        const material = new UpdatableShaderMaterial({
+            uniforms,
+            vertexShader: shader.vertexShader,
+            fragmentShader: shader.fragmentShader
+        });
+        material.rotationExpressions = rotationExpressions;
+        this.setTransparency(material, materialDef);
+        this.setSide(material, materialDef);
+        return material;
+    }
+
+    private createBasicOrPhongMaterial(materialDef: any): MeshBasicMaterial | MeshPhongMaterial {
+        let material;
+        if (materialDef.type === 'basic') {
+            material = this.createBasicMaterial();
+        } else {
+            material = this.createPhongMaterial();
+        }
+        material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
             material.map = this.getTexture(materialDef.diffuseMap);
@@ -61,12 +131,7 @@ export class MaterialFactory {
             material.color.setHex(materialDef.color);
         }
 
-        if (materialDef.transparent) {
-            material.transparent = true;
-            if (materialDef.opacity) {
-                material.opacity = materialDef.opacity;
-            }
-        }
+        this.setTransparency(material, materialDef);
 
         if (materialDef.alphaTest) {
             material.alphaTest = materialDef.alphaTest;
@@ -95,17 +160,6 @@ export class MaterialFactory {
             material.depthWrite = materialDef.depthWrite;
         }
 
-        return materials;
-    }
-
-    private createMaterial(materialDef: any): MeshBasicMaterial | MeshPhongMaterial {
-        let material;
-        if (materialDef.type === 'basic') {
-            material = this.createBasicMaterial();
-        } else {
-            material = this.createPhongMaterial();
-        }
-        material.name = materialDef.name;
         return material;
     }
 
@@ -133,6 +187,15 @@ export class MaterialFactory {
         }
     }
 
+    private setTransparency(material: Material, materialDef: any) {
+        if (materialDef.transparent) {
+            material.transparent = true;
+            if (materialDef.opacity) {
+                material.opacity = materialDef.opacity;
+            }
+        }
+    }
+
     private setBlending(material: MeshBasicMaterial | MeshPhongMaterial, materialDef: any) {
         if (materialDef.blending) {
             if (materialDef.blending === 'additive') {
@@ -148,7 +211,7 @@ export class MaterialFactory {
         }
     }
 
-    private setSide(material: MeshBasicMaterial | MeshPhongMaterial, materialDef: any) {
+    private setSide(material: Material, materialDef: any) {
         if (materialDef.side === 'double') {
             material.side = DoubleSide;
         } else if (materialDef.side === 'front') {

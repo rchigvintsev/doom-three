@@ -219,6 +219,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                         result.set(source.name, source);
                     }
                 }
+                if (materialDef.maps) { // Shader material
+                    for (const mapDef of materialDef.maps) {
+                        const source = new TextureSource(mapDef, this.tgaLoader, this.binaryFileLoader);
+                        result.set(source.name, source);
+                    }
+                }
             } else {
                 console.error(`Definition of material "${materialName}" is not found`);
             }
@@ -361,7 +367,7 @@ class TextureSource {
             });
         }
 
-        return Promise.reject(`Map "${this.name}" has invalid declaration`);
+        return this.loadTexture(this.name);
     }
 
     private loadTexture(textureName: string): Promise<Texture> {

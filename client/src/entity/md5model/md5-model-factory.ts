@@ -139,7 +139,7 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         } else if (modelDef.name === 'flashlight') {
             model = new Flashlight(this.config, geometry, materials, sounds);
         } else {
-            model = new Md5Model(geometry, materials, sounds);
+            model = new Md5Model(this.config, geometry, materials, sounds);
         }
         model.name = modelDef.name;
 

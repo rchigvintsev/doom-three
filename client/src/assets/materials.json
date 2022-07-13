@@ -14,15 +14,13 @@
   {
     "name": "models/items/flashlight/beam1",
     "type": "shader",
-    "textures": [
+    "shader": "dust",
+    "maps": [
       "models/items/flashlight/beam1",
       {
         "name": "models/items/flashlight/dust",
-        "repeat": [
-          4,
-          4
-        ],
-        "rotate": "time * -0.02"
+        "repeat": [4, 4],
+        "rotate": "time * (round(time / 10) % 120 < 60 ? 0.02 : -0.02)"
       }
     ],
     "transparent": true,

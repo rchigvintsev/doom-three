@@ -18,6 +18,8 @@ import {PhysicsWorld} from '../../physics/physics-world';
 import {Weapon} from './weapon/weapon';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Animations} from '../../util/animations';
+import {isUpdatableMaterial} from '../../material/updatable-material';
+import {GameConfig} from '../../game-config';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
@@ -30,7 +32,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     private _wireframeHelper?: Md5ModelWireframeHelper;
 
-    constructor(geometry: BufferGeometry,
+    constructor(protected config: GameConfig,
+                geometry: BufferGeometry,
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>) {
         super(geometry, materials);
@@ -63,6 +66,9 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
         if (this._wireframeHelper) {
             this._wireframeHelper.update(deltaTime);
+        }
+        if (!this.config.renderOnlyWireframe) {
+            this.updateMaterials(deltaTime);
         }
     }
 
@@ -157,5 +163,17 @@ export class Md5Model extends SkinnedMesh implements Entity {
     private initAnimationActions(animationMixer: AnimationMixer) {
         Animations.createAnimationActions(animationMixer, this.animations)
             .forEach((action, name) => this.animationActions.set(name, action));
+    }
+
+    private updateMaterials(deltaTime: number) {
+        if (Array.isArray(this.material)) {
+            for (const material of this.material) {
+                if (isUpdatableMaterial(material)) {
+                    material.update(deltaTime);
+                }
+            }
+        } else if (isUpdatableMaterial(this.material)) {
+            this.material.update(deltaTime);
+        }
     }
 }

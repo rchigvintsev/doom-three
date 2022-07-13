@@ -24,11 +24,11 @@ export abstract class Weapon extends Md5Model {
     private readonly v = new Vector3(0, 1, 0);
     private readonly e = new Euler();
 
-    constructor(private config: GameConfig,
+    constructor(config: GameConfig,
                 geometry: BufferGeometry,
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>) {
-        super(geometry, materials, sounds);
+        super(config, geometry, materials, sounds);
         this.visible = false;
     }
 
