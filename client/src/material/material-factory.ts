@@ -13,15 +13,15 @@ import {
     RepeatWrapping,
     ShaderMaterial,
     SubtractiveBlending,
-    Texture,
-    Vector4
+    Texture
 } from 'three';
 
-import {compile, EvalFunction} from 'mathjs';
+import {compile} from 'mathjs';
 
 import {GameAssets} from '../game-assets';
 import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
+import {UpdatableTexture} from '../texture/updatable-texture';
 
 // noinspection JSMethodCanBeStatic
 export class MaterialFactory {
@@ -53,31 +53,42 @@ export class MaterialFactory {
         }
 
         const uniforms: { [uniform: string]: IUniform } = {};
-        const rotationExpressions: EvalFunction[] = [];
 
         if (materialDef.maps) {
             for (let i = 0; i < materialDef.maps.length; i++) {
                 const mapDef = materialDef.maps[i];
-                let textureName;
+
                 if (typeof mapDef !== 'string') {
-                    textureName = mapDef.name;
+                    const texture = new UpdatableTexture();
+                    texture.copy(this.getTexture(mapDef.name));
+                    texture.wrapS = texture.wrapT = RepeatWrapping;
+                    texture.matrixAutoUpdate = false;
 
                     if (mapDef.repeat) {
-                        const offsetRepeat = new Vector4(0, 0, mapDef.repeat[0], mapDef.repeat[1]);
-                        uniforms['u_offsetRepeat' + (i + 1)] = {value: offsetRepeat};
+                        if (mapDef.repeat.length !== 2) {
+                            throw new Error(`Material "${materialDef.name}" has map "${mapDef.name}" with invalid `
+                                + `number of repeat values: ${mapDef.repeat.length}`);
+                        }
+                        texture.repeat.set(mapDef.repeat[0], mapDef.repeat[1]);
+                    }
+
+                    if (mapDef.scroll) {
+                        if (mapDef.scroll.length !== 2) {
+                            throw new Error(`Material "${materialDef.name}" has map "${mapDef.name}" with invalid `
+                                + `number of scroll expressions: ${mapDef.scroll.length}`);
+                        }
+                        texture.setScroll(compile(mapDef.scroll[0]), compile(mapDef.scroll[1]));
                     }
 
                     if (mapDef.rotate) {
-                        uniforms['u_rotation' + (i + 1)] = {value: 0};
-                        rotationExpressions[i] = compile(mapDef.rotate);
+                        texture.rotate = compile(mapDef.rotate);
                     }
-                } else {
-                    textureName = mapDef;
-                }
 
-                const texture = this.getTexture(textureName);
-                texture.wrapS = texture.wrapT = RepeatWrapping;
-                uniforms['u_texture' + (i + 1)] = {value: texture};
+                    uniforms['u_map' + (i + 1)] = {value: texture};
+                    uniforms[`uv_transform${i + 1}`] = {value: texture.matrix};
+                } else {
+                    uniforms['u_map' + (i + 1)] = {value: this.getTexture(mapDef)};
+                }
             }
         }
 
@@ -86,7 +97,6 @@ export class MaterialFactory {
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader
         });
-        material.rotationExpressions = rotationExpressions;
         this.setTransparency(material, materialDef);
         this.setSide(material, materialDef);
         return material;

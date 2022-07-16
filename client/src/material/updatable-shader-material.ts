@@ -1,32 +1,29 @@
-import {ShaderMaterial} from 'three';
+import {ShaderMaterial, Texture} from 'three';
 import {ShaderMaterialParameters} from 'three/src/materials/ShaderMaterial';
 
-import {EvalFunction} from 'mathjs';
-
 import {UpdatableMaterial} from './updatable-material';
+import {UpdatableTexture} from '../texture/updatable-texture';
 
 export class UpdatableShaderMaterial extends ShaderMaterial implements UpdatableMaterial {
-    private _rotationExpressions: EvalFunction[] = [];
-
     constructor(parameters?: ShaderMaterialParameters) {
         super(parameters);
     }
 
-    update(_deltaTime: number) {
-        const evalScope = {time: performance.now() * 0.01};
-        this.updateRotation(evalScope);
+    update(deltaTime: number) {
+        this.updateMaps(deltaTime);
     }
 
-    set rotationExpressions(expressions: EvalFunction[]) {
-        this._rotationExpressions = expressions;
-    }
+    private updateMaps(deltaTime: number) {
+        for (let i = 0; ; i++) {
+            const mapUniform = this.uniforms[`u_map${i + 1}`];
+            if (!mapUniform) {
+                break;
+            }
 
-    private updateRotation(evalScope: { time: number }) {
-        for (let i = 0; i < this._rotationExpressions.length; i++) {
-            const rotationUniform = this.uniforms['u_rotation' + (i + 1)];
-            if (rotationUniform) {
-                const expression = this._rotationExpressions[i];
-                rotationUniform.value = expression.evaluate(evalScope);
+            const texture: Texture = mapUniform.value;
+            if (texture instanceof UpdatableTexture) {
+                texture.update(deltaTime);
+                this.uniforms[`uv_transform${i + 1}`].value.copy(texture.matrix);
             }
         }
     }
