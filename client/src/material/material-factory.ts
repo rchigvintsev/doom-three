@@ -99,6 +99,7 @@ export class MaterialFactory {
         });
         this.setTransparency(material, materialDef);
         this.setSide(material, materialDef);
+        this.setDepthWrite(material, materialDef);
         return material;
     }
 
@@ -165,6 +166,7 @@ export class MaterialFactory {
 
         this.setBlending(material, materialDef);
         this.setSide(material, materialDef);
+        this.setDepthWrite(material, materialDef);
 
         if (materialDef.depthWrite) {
             material.depthWrite = materialDef.depthWrite;
@@ -228,6 +230,12 @@ export class MaterialFactory {
             material.side = FrontSide;
         } else {
             material.side = BackSide;
+        }
+    }
+
+    private setDepthWrite(material: Material, materialDef: any) {
+        if (materialDef.depthWrite != undefined) {
+            material.depthWrite = materialDef.depthWrite;
         }
     }
 }

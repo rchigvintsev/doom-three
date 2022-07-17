@@ -43,6 +43,8 @@ export class Flashlight extends Weapon {
             this.add(this.light);
             this.add(this.light.target);
         }
+
+        this.applyTubeDeformToBeam(this.geometry);
     }
 
 
@@ -83,6 +85,109 @@ export class Flashlight extends Weapon {
 
     onMiss(): void {
         this.playWooshSound();
+    }
+
+    protected updateAcceleration(direction: Vector3) {
+        super.updateAcceleration(direction);
+        const offset = this.acceleration.offset;
+        if (offset.x !== 0 || offset.y !== 0) {
+            this.applyTubeDeformToBeam(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToBeam(this.wireframeHelper.geometry, offset);
+            }
+        }
+    }
+
+    protected drop(time: number, rotationX: number): Vector3 | undefined {
+        const offset = super.drop(time, rotationX);
+        if (offset) {
+            this.applyTubeDeformToBeam(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToBeam(this.wireframeHelper.geometry, offset);
+            }
+        }
+        return offset;
+    }
+
+    private applyTubeDeformToBeam(geometry: BufferGeometry, offset?: Vector3) {
+        const view = new Vector3(0, 0, -15);
+        if (offset) {
+            view.z -= offset.x / this.config.worldScale;
+            view.y += offset.y / this.config.worldScale;
+        }
+
+        const positions = geometry.getAttribute('position');
+
+        /*
+         *  Flashlight beam faces
+         *  =====================
+         *
+         *     Player's view direction
+         *               |
+         *         2481  V
+         *    2480 |\  --------- 2483
+         *         | \ \       |
+         *         |  \ \      |
+         *         |   \ \     |
+         *  Bottom |    \ \    | Top
+         *         |     \ \   |
+         *         |      \ \  |
+         *         |       \ \ |
+         *    2478 |________\ \| 2482
+         *                  2479
+         */
+
+        // Beam vertices
+        const i = 2481, j = 2478, k = 2483, l = 2479;
+        const v1 = new Vector3(positions.getX(i), positions.getY(i), positions.getZ(i));
+        const v2 = new Vector3(positions.getX(j), positions.getY(j), positions.getZ(j));
+        const v3 = new Vector3(positions.getX(k), positions.getY(k), positions.getZ(k));
+        const v4 = new Vector3(positions.getX(l), positions.getY(l), positions.getZ(l));
+
+        // v1 - v3 and v2 - v4 have the shortest distances
+
+        const v1v3Len = v4.clone().sub(v2).length();
+        const v2v4Len = v3.clone().sub(v1).length();
+
+        const v1v3Mid = new Vector3(
+            0.5 * (v1.x + v3.x),
+            0.5 * (v1.y + v3.y),
+            0.5 * (v1.z + v3.z)
+        );
+
+        const v2v4Mid = new Vector3(
+            0.5 * (v2.x + v4.x),
+            0.5 * (v2.y + v4.y),
+            0.5 * (v2.z + v4.z)
+        );
+
+        const major = new Vector3().subVectors(v1v3Mid, v2v4Mid);
+        const minor = new Vector3();
+
+        let dir = v1v3Mid.clone().sub(view);
+        minor.crossVectors(major, dir).normalize();
+
+        minor.multiplyScalar(0.5 * v1v3Len);
+        v1.copy(v1v3Mid.clone().sub(minor));
+        v3.copy(v1v3Mid.clone().add(minor));
+
+        dir = v2v4Mid.clone().sub(view);
+        minor.crossVectors(major, dir).normalize();
+
+        minor.multiplyScalar(0.5 * v2v4Len);
+        v2.copy(v2v4Mid.clone().add(minor));
+        v4.copy(v2v4Mid.clone().sub(minor));
+
+        positions.setXYZ(i, v1.x, v1.y, v1.z);
+        positions.setXYZ(j, v2.x, v2.y, v2.z);
+        positions.setXYZ(k, v3.x, v3.y, v3.z);
+        positions.setXYZ(l, v4.x, v4.y, v4.z);
+
+        // Additionally change vertices with the same positions as v1 and v2
+        positions.setXYZ(2480, v1.x, v1.y, v1.z);
+        positions.setXYZ(2482, v2.x, v2.y, v2.z);
+
+        positions.needsUpdate = true;
     }
 
     private updateLight() {

@@ -16,10 +16,11 @@ const LAND_RETURN_TIME = 300;
 export abstract class Weapon extends Md5Model {
     enabled = false;
 
+    protected readonly acceleration = new Acceleration();
+
     private readonly origin = new Vector3();
     private readonly bobbingOffset = new Vector3();
     private readonly previousDirection = new Vector3();
-    private readonly acceleration = new Acceleration();
 
     private readonly v = new Vector3(0, 1, 0);
     private readonly e = new Euler();
@@ -101,7 +102,7 @@ export abstract class Weapon extends Md5Model {
         return !!action && action.isRunning();
     }
 
-    private updateAcceleration(direction: Vector3) {
+    protected updateAcceleration(direction: Vector3) {
         if (direction.x !== this.previousDirection.x) {
             this.logAcceleration(direction.x - this.previousDirection.x, 0, 0);
         }
@@ -136,19 +137,7 @@ export abstract class Weapon extends Md5Model {
         this.position.addVectors(this.origin, this.bobbingOffset).add(this.acceleration.offset);
     }
 
-    private logAcceleration(x: number, y: number, z: number) {
-        const accelerationIndex = this.acceleration.logLength % ACCELERATION_MAX_LOG_LENGTH;
-        let acceleration = this.acceleration.log[accelerationIndex];
-        this.acceleration.logLength++;
-        if (!acceleration) {
-            acceleration = {direction: new Vector3(), time: 0};
-            this.acceleration.log[accelerationIndex] = acceleration;
-        }
-        acceleration.time = performance.now();
-        acceleration.direction.set(x, y, z);
-    }
-
-    private drop(time: number, rotationX: number): Vector3 | undefined {
+    protected drop(time: number, rotationX: number): Vector3 | undefined {
         const delta = performance.now() - time;
         if (delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME) {
             this.v.set(0, 1, 0);
@@ -165,6 +154,18 @@ export abstract class Weapon extends Md5Model {
             return this.v;
         }
         return undefined;
+    }
+
+    private logAcceleration(x: number, y: number, z: number) {
+        const accelerationIndex = this.acceleration.logLength % ACCELERATION_MAX_LOG_LENGTH;
+        let acceleration = this.acceleration.log[accelerationIndex];
+        this.acceleration.logLength++;
+        if (!acceleration) {
+            acceleration = {direction: new Vector3(), time: 0};
+            this.acceleration.log[accelerationIndex] = acceleration;
+        }
+        acceleration.time = performance.now();
+        acceleration.direction.set(x, y, z);
     }
 }
 

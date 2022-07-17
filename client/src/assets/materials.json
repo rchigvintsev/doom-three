@@ -25,7 +25,6 @@
       }
     ],
     "transparent": true,
-    "side": "double",
     "depthWrite": false
   },
   {
