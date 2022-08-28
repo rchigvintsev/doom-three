@@ -13,7 +13,9 @@ import {
     RepeatWrapping,
     ShaderMaterial,
     SubtractiveBlending,
-    Texture
+    Texture,
+    UniformsUtils,
+    Vector3
 } from 'three';
 
 import {compile} from 'mathjs';
@@ -22,10 +24,13 @@ import {GameAssets} from '../game-assets';
 import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
+import {Flashlight} from '../entity/md5model/weapon/flashlight';
 
 // noinspection JSMethodCanBeStatic
 export class MaterialFactory {
-    constructor(private readonly materialDefs: Map<string, any>, private readonly assets: GameAssets) {
+    constructor(private readonly materialDefs: Map<string, any>,
+                private readonly assets: GameAssets,
+                private readonly flashlight?: Flashlight) {
     }
 
     create(materialName: string): Material[] {
@@ -35,12 +40,49 @@ export class MaterialFactory {
         }
 
         const materials: Material[] = [];
-        if (materialDef.type === 'shader') {
+        if (materialDef.type === 'basic') {
+            materials.push(this.createBasicMaterial(materialDef));
+        } else if (materialDef.type === 'shader') {
             materials.push(this.createShaderMaterial(materialDef));
         } else {
-            materials.push(this.createBasicOrPhongMaterial(materialDef));
+            materials.push(this.createPhongMaterial(materialDef));
         }
         return materials;
+    }
+
+    private createBasicMaterial(materialDef: any): MeshBasicMaterial {
+        const material = new MeshBasicMaterial();
+        material.name = materialDef.name;
+
+        if (materialDef.diffuseMap) {
+            material.map = this.getTexture(materialDef.diffuseMap);
+            this.setTextureWrapping(material.map, materialDef.clamp);
+        }
+
+        if (materialDef.specularMap) {
+            material.specularMap = this.getTexture(materialDef.specularMap);
+            this.setTextureWrapping(material.specularMap, materialDef.clamp);
+        }
+
+        if (materialDef.alphaMap) {
+            material.alphaMap = this.getTexture(materialDef.alphaMap);
+        }
+
+        if (materialDef.color) {
+            material.color.setHex(materialDef.color);
+        }
+
+        this.setTransparency(material, materialDef);
+
+        if (materialDef.alphaTest) {
+            material.alphaTest = materialDef.alphaTest;
+        }
+
+        this.setBlending(material, materialDef);
+        this.setSide(material, materialDef);
+        this.setDepthWrite(material, materialDef);
+
+        return material;
     }
 
     private createShaderMaterial(materialDef: any): ShaderMaterial {
@@ -97,90 +139,99 @@ export class MaterialFactory {
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader
         });
+        material.name = materialDef.name;
         this.setTransparency(material, materialDef);
         this.setSide(material, materialDef);
         this.setDepthWrite(material, materialDef);
         return material;
     }
 
-    private createBasicOrPhongMaterial(materialDef: any): MeshBasicMaterial | MeshPhongMaterial {
-        let material;
-        if (materialDef.type === 'basic') {
-            material = this.createBasicMaterial();
-        } else {
-            material = this.createPhongMaterial();
+    private createPhongMaterial(materialDef: any): ShaderMaterial {
+        const uniforms: any = UniformsUtils.clone(CustomShaderLib.phongFlashlight.uniforms);
+
+        if (this.flashlight) {
+            uniforms.flashlight.value.color = new Color().copy(this.flashlight.lightColor);
+            uniforms.flashlight.value.color.multiplyScalar(this.flashlight.lightIntensity * Math.PI);
+            uniforms.flashlight.value.position = new Vector3();
+            uniforms.flashlight.value.direction = new Vector3();
+            uniforms.flashlight.value.distance = this.flashlight.lightDistance;
+            uniforms.flashlight.value.coneCos = Math.cos(this.flashlight.lightAngle);
+            uniforms.flashlight.value.penumbraCos = Math.cos(this.flashlight.lightAngle);
+            uniforms.flashlight.value.decay = this.flashlight.lightDecay;
+            uniforms.flashlight.value.projectedTexture = this.getTexture('lights/flashlight5');
         }
-        material.name = materialDef.name;
+
+        const defines: any = {};
 
         if (materialDef.diffuseMap) {
-            material.map = this.getTexture(materialDef.diffuseMap);
-            this.setTextureWrapping(material.map, materialDef.clamp);
+            uniforms.map.value = this.getTexture(materialDef.diffuseMap);
+            this.setTextureWrapping(uniforms.map.value, materialDef.clamp);
+            defines.USE_UV = '';
+            defines.USE_MAP = '';
         }
 
         if (materialDef.normalMap) {
-            if (material instanceof MeshPhongMaterial) {
-                const mapName = typeof materialDef.normalMap === 'string'
-                    ? materialDef.normalMap
-                    : materialDef.normalMap.name;
-                material.normalMap = this.getTexture(mapName);
-                this.setTextureWrapping(material.normalMap, materialDef.clamp);
-            } else {
-                console.warn(`Definition of material "${materialDef.name}" has unsupported property "normalMap"`);
-            }
+            const mapName = typeof materialDef.normalMap === 'string'
+                ? materialDef.normalMap
+                : materialDef.normalMap.name;
+            uniforms.normalMap.value = this.getTexture(mapName);
+            this.setTextureWrapping(uniforms.normalMap.value, materialDef.clamp);
+            defines.USE_UV = '';
+            defines.USE_NORMALMAP = '';
+            defines.TANGENTSPACE_NORMALMAP = '';
         }
 
         if (materialDef.specularMap) {
-            material.specularMap = this.getTexture(materialDef.specularMap);
-            this.setTextureWrapping(material.specularMap, materialDef.clamp);
+            uniforms.specularMap.value = this.getTexture(materialDef.specularMap);
+            this.setTextureWrapping(uniforms.specularMap.value, materialDef.clamp);
+            defines.USE_UV = '';
+            defines.USE_SPECULARMAP = '';
         }
 
         if (materialDef.alphaMap) {
-            material.alphaMap = this.getTexture(materialDef.alphaMap);
+            uniforms.alphaMap.value = this.getTexture(materialDef.alphaMap);
+            defines.USE_UV = '';
+            defines.USE_ALPHAMAP = '';
         }
 
         if (materialDef.color) {
-            material.color.setHex(materialDef.color);
+            uniforms.diffuse.value.setHex(materialDef.color);
+            defines.USE_COLOR = '';
         }
 
-        this.setTransparency(material, materialDef);
-
         if (materialDef.alphaTest) {
-            material.alphaTest = materialDef.alphaTest;
+            uniforms.alphaTest.value = materialDef.alphaTest;
         }
 
         if (materialDef.specular) {
-            if (material instanceof MeshPhongMaterial) {
-                material.specular = new Color().setHex(materialDef.specular);
-            } else {
-                console.warn(`Definition of material "${materialDef.name}" has unsupported property "specular"`);
-            }
+            uniforms.specular.value.setHex(materialDef.specular);
         }
 
         if (materialDef.shininess) {
-            if (material instanceof MeshPhongMaterial) {
-                material.shininess = materialDef.shininess;
-            } else {
-                console.warn(`Definition of material "${materialDef.name}" has unsupported property "shininess"`);
-            }
+            uniforms.shininess.value = materialDef.shininess;
         }
 
-        this.setBlending(material, materialDef);
+        const material = new UpdatableShaderMaterial({
+            uniforms,
+            defines,
+            vertexShader: CustomShaderLib.phongFlashlight.vertexShader,
+            fragmentShader: CustomShaderLib.phongFlashlight.fragmentShader
+        });
+        material.name = materialDef.name;
+        material.lights = true;
+        material.update = () => {
+            if (this.flashlight) {
+                uniforms.flashlightVisible.value = this.flashlight.visible;
+                this.flashlight.updateLightDirection(uniforms.flashlight.value.direction);
+                this.flashlight.updateLightTextureProjectionMatrix(uniforms.flashlightTextureProjectionMatrix.value);
+            }
+        };
+
+        this.setTransparency(material, materialDef);
         this.setSide(material, materialDef);
         this.setDepthWrite(material, materialDef);
 
-        if (materialDef.depthWrite) {
-            material.depthWrite = materialDef.depthWrite;
-        }
-
         return material;
-    }
-
-    private createBasicMaterial(): MeshBasicMaterial {
-        return new MeshBasicMaterial();
-    }
-
-    private createPhongMaterial(): MeshPhongMaterial {
-        return new MeshPhongMaterial();
     }
 
     private getTexture(textureName: string): Texture {

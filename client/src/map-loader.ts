@@ -86,12 +86,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
-                const materialFactory = new MaterialFactory(materialDefs, assets);
                 const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
                 const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
-                const weapons = this.createWeapons(weaponDefs, assets, materialFactory, soundFactory);
+
+                const weapons = this.createWeapons(weaponDefs, materialDefs, assets, soundFactory);
                 const player = this.createPlayer(playerDef, weapons, soundFactory, collisionModelFactory);
-                return this.createMap(mapDef, player, materialFactory, collisionModelFactory);
+                return this.createMap(mapDef, materialDefs, assets, player, collisionModelFactory);
             });
         });
     }
@@ -269,10 +269,14 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     }
 
     private createWeapons(weaponDefs: Map<string, any>,
+                          materialDefs: Map<string, any>,
                           assets: GameAssets,
-                          materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
-        const modelFactory = new Md5ModelFactory(this.game.config, materialFactory, soundFactory, assets);
+        const config = this.game.config;
+        const camera = this.game.camera;
+
+        const materialFactory = new MaterialFactory(materialDefs, assets);
+        const modelFactory = new Md5ModelFactory(config, camera, materialFactory, soundFactory, assets);
 
         const weapons = new Map<string, Weapon>();
         weaponDefs.forEach((weaponDef, weaponName) =>
@@ -290,11 +294,13 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     }
 
     private createMap(mapDef: any,
+                      materialDefs: Map<string, any>,
+                      assets: GameAssets,
                       player: Player,
-                      materialFactory: MaterialFactory,
                       collisionModelFactory: CollisionModelFactory): GameMap {
         const config = this.game.config;
 
+        const materialFactory = new MaterialFactory(materialDefs, assets, player.flashlight);
         const surfaceFactory = new SurfaceFactory(config, materialFactory, collisionModelFactory);
         const lightFactory = new LightFactory(config);
         const areaFactory = new AreaFactory(config, surfaceFactory, lightFactory);

@@ -184,7 +184,7 @@ export class Game {
     }
 
     private render() {
-        this.renderer.render(this._scene, this.camera);
+        this.renderer.render(this._scene, this._camera);
     }
 
     private onWindowResize() {

@@ -97,6 +97,11 @@ export class FpsControls {
         const pitchObject = this.player.pitchObject;
         pitchObject.rotation.x -= movementY * this.config.playerLookSpeed;
         pitchObject.rotation.x = Math.max(-1 * Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
+
+        const flashlight = this.player.flashlight;
+        if (flashlight) {
+            flashlight.updateLightCamera();
+        }
     }
 
     private get activated(): boolean {

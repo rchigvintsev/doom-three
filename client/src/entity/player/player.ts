@@ -8,6 +8,8 @@ import {PhysicsWorld} from '../../physics/physics-world';
 import {PlayerCollisionModel} from './player-collision-model';
 import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
+import {Fists} from '../md5model/weapon/fists';
+import {Flashlight} from '../md5model/weapon/flashlight';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -106,6 +108,14 @@ export class Player extends Object3D implements Entity {
             this._airborne = true;
             this.playJumpSound();
         }
+    }
+
+    get fists(): Fists | undefined {
+        return <Fists>this.weapons.get('fists');
+    }
+
+    get flashlight(): Flashlight | undefined {
+        return <Flashlight>this.weapons.get('flashlight');
     }
 
     enableFists() {
