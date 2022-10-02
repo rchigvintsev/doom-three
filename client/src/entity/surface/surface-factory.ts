@@ -5,6 +5,7 @@ import {Surface} from './surface';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
+import {BufferAttributes} from '../../util/buffer-attributes';
 
 // noinspection JSMethodCanBeStatic
 export class SurfaceFactory implements EntityFactory<Surface> {
@@ -71,12 +72,15 @@ export class SurfaceFactory implements EntityFactory<Surface> {
         }
 
         const bufferGeometry = new BufferGeometry();
-        const position = new BufferAttribute(new Float32Array(vertices.length * 3), 3).copyVector3sArray(vertices);
+        const positionAttr = new BufferAttribute(new Float32Array(vertices.length * 3), 3);
+        const position = BufferAttributes.copyVector3sArray(positionAttr, vertices);
         bufferGeometry.setAttribute('position', position);
-        const normal = new BufferAttribute(new Float32Array(normals.length * 3), 3).copyVector3sArray(normals);
+        const normalAttr = new BufferAttribute(new Float32Array(normals.length * 3), 3);
+        const normal = BufferAttributes.copyVector3sArray(normalAttr, normals);
         bufferGeometry.setAttribute('normal', normal);
         if (uvs.length > 0) {
-            const uv = new BufferAttribute(new Float32Array(uvs.length * 2), 2).copyVector2sArray(uvs);
+            const uvAttr = new BufferAttribute(new Float32Array(uvs.length * 2), 2);
+            const uv = BufferAttributes.copyVector2sArray(uvAttr, uvs);
             bufferGeometry.setAttribute('uv', uv);
         }
         bufferGeometry.groups = [{

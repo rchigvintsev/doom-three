@@ -3350,5 +3350,9 @@
     "diffuseMap": "models/mapobjects/doors/techdoor1/techdr1rt_cop_d",
     "normalMap": "models/mapobjects/doors/techdoor1/techdr1rt_local",
     "specularMap": "models/mapobjects/doors/techdoor1/techdr1rt_cop_s"
+  },
+  {
+    "name": "textures/uv_grid_opengl",
+    "diffuseMap": "textures/uv_grid_opengl"
   }
 ]

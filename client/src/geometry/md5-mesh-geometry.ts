@@ -3,6 +3,7 @@ import {BufferGeometry, Float32BufferAttribute, Vector2, Vector3, Vector4} from 
 import {round} from 'mathjs';
 
 import {Md5AnimationJoint} from '../animation/md5-animation';
+import {BufferAttributes} from '../util/buffer-attributes';
 
 export class Md5MeshGeometry extends BufferGeometry {
     constructor(readonly faces: Md5MeshFace[],
@@ -139,15 +140,18 @@ export class Md5MeshGeometry extends BufferGeometry {
     }
 
     private setFloat32Vector2Attribute(name: string, values: Vector2[]) {
-        this.setAttribute(name, new Float32BufferAttribute(values.length * 2, 2).copyVector2sArray(values));
+        const attr = new Float32BufferAttribute(values.length * 2, 2);
+        this.setAttribute(name, BufferAttributes.copyVector2sArray(attr, values));
     }
 
     private setFloat32Vector3Attribute(name: string, values: Vector3[]) {
-        this.setAttribute(name, new Float32BufferAttribute(values.length * 3, 3).copyVector3sArray(values));
+        const attr = new Float32BufferAttribute(values.length * 3, 3);
+        this.setAttribute(name, BufferAttributes.copyVector3sArray(attr, values));
     }
 
     private setFloat32Vector4Attribute(name: string, values: Vector4[]) {
-        this.setAttribute(name, new Float32BufferAttribute(values.length * 4, 4).copyVector4sArray(values));
+        const attr = new Float32BufferAttribute(values.length * 4, 4);
+        this.setAttribute(name, BufferAttributes.copyVector4sArray(attr, values));
     }
 }
 

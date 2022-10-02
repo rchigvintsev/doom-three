@@ -1,15 +1,4 @@
-import {
-    AnimationAction,
-    Audio,
-    BufferGeometry,
-    Camera, Color,
-    Material,
-    MathUtils,
-    Matrix4,
-    Object3D,
-    PerspectiveCamera,
-    Vector3
-} from 'three';
+import {AnimationAction, Audio, BufferGeometry, Material, Object3D, SpotLight, Texture, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -21,7 +10,6 @@ import {Player} from '../../player/player';
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
 
-const LIGHT_COLOR = new Color();
 const LIGHT_INTENSITY = 2.0;
 const LIGHT_DISTANCE = 1000;
 const LIGHT_ANGLE = Math.PI / 6;
@@ -34,10 +22,11 @@ export class Flashlight extends Weapon {
     private readonly bone5Position = new Vector3();
     private readonly bone6Position = new Vector3();
 
-    private readonly lightCamera?: PerspectiveCamera;
+    private readonly light?: SpotLight;
+    private readonly lightDirection?: Vector3;
     private readonly lightPosition?: Vector3;
     private readonly lightTargetPosition?: Vector3;
-    private readonly lightCameraTargetPosition?: Vector3;
+    private readonly shadowCameraUp ?: Vector3;
 
     private lastPunchAnimationAction?: AnimationAction;
 
@@ -45,76 +34,35 @@ export class Flashlight extends Weapon {
                 geometry: BufferGeometry,
                 materials: Material | Material[],
                 sounds: Map<string, Audio<AudioNode>[]>,
-                private readonly camera: Camera) {
+                lightMap?: Texture) {
         super(config, geometry, materials, sounds);
 
         this.attackDistance = ATTACK_DISTANCE * config.worldScale;
 
         if (!config.renderOnlyWireframe) {
-            this.lightCamera = new PerspectiveCamera(MathUtils.radToDeg(2 * LIGHT_ANGLE), 1.0, 1, 1000);
-            this.add(this.lightCamera);
+            this.light = new SpotLight();
+            this.light.intensity = LIGHT_INTENSITY;
+            this.light.distance = LIGHT_DISTANCE;
+            this.light.angle = LIGHT_ANGLE;
+            this.light.decay = LIGHT_DECAY;
+            (<any>this.light).map = lightMap;
 
+            this.add(this.light);
+            this.add(this.light.target);
+
+            this.lightDirection = new Vector3();
             this.lightPosition = new Vector3();
             this.lightTargetPosition = new Vector3();
-            this.lightCameraTargetPosition = new Vector3();
+
+            this.shadowCameraUp = this.light.shadow.camera.up.clone();
         }
 
         this.applyTubeDeformToBeam(this.geometry);
     }
 
-    get lightColor(): Color {
-        return LIGHT_COLOR;
-    }
-
-    get lightIntensity(): number {
-        return LIGHT_INTENSITY;
-    }
-
-    get lightDistance(): number {
-        return LIGHT_DISTANCE * this.config.worldScale;
-    }
-
-    get lightAngle(): number {
-        return LIGHT_ANGLE;
-    }
-
-    get lightDecay(): number {
-        return LIGHT_DECAY;
-    }
-
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime, player);
         this.updateLight();
-        this.updateLightCamera();
-    }
-
-    updateLightCamera() {
-        if (this.visible && !this.config.renderOnlyWireframe) {
-            this.lightCamera!.position.copy(this.lightPosition!);
-            this.localToWorld(this.lightCameraTargetPosition!.copy(this.lightTargetPosition!));
-            this.lightCamera!.lookAt(this.lightCameraTargetPosition!);
-        }
-    }
-
-    updateLightDirection(direction: Vector3) {
-        if (this.visible && !this.config.renderOnlyWireframe) {
-            direction.copy(this.bone6Position)
-                .sub(this.bone5Position)
-                .transformDirection(this.camera.matrixWorldInverse);
-        }
-    }
-
-    updateLightTextureProjectionMatrix(m: Matrix4) {
-        if (this.visible && !this.config.renderOnlyWireframe) {
-            m.set(
-                0.5, 0.0, 0.0, 0.5,
-                0.0, 0.5, 0.0, 0.5,
-                0.0, 0.0, 0.5, 0.5,
-                0.0, 0.0, 0.0, 1.0
-            )
-                .multiply(this.lightCamera!.projectionMatrix)
-                .multiply(this.lightCamera!.matrixWorldInverse);
-        }
     }
 
     enable() {
@@ -263,8 +211,17 @@ export class Flashlight extends Weapon {
             this.bone5Position.setFromMatrixPosition(bones[5].matrixWorld);
             this.bone6Position.setFromMatrixPosition(bones[6].matrixWorld);
 
-            this.worldToLocal(this.lightPosition!.copy(this.bone5Position));
-            this.worldToLocal(this.lightTargetPosition!.copy(this.bone6Position));
+            this.lightDirection!.subVectors(this.bone5Position, this.bone6Position).normalize();
+
+            this.light!.position
+                .copy(this.worldToLocal(this.lightPosition!.copy(this.bone5Position)));
+            this.light!.target.position
+                .copy(this.worldToLocal(this.lightTargetPosition!.copy(this.bone5Position).add(this.lightDirection!)));
+
+            this.light!.shadow.camera.up
+                .copy(this.shadowCameraUp!)
+                .applyQuaternion(this.parent!.quaternion)
+                .applyQuaternion(this.parent!.parent!.quaternion);
         }
     }
 

@@ -3,7 +3,6 @@ import {
     Audio,
     Bone,
     BufferGeometry,
-    Camera,
     Material,
     MathUtils,
     MeshBasicMaterial,
@@ -28,10 +27,9 @@ import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 // noinspection JSMethodCanBeStatic
 export class Md5ModelFactory implements EntityFactory<Md5Model> {
     constructor(private readonly config: GameConfig,
-                private readonly camera: Camera,
+                private readonly assets: GameAssets,
                 private readonly materialFactory: MaterialFactory,
-                private readonly soundFactory: SoundFactory,
-                private readonly assets: GameAssets) {
+                private readonly soundFactory: SoundFactory) {
     }
 
     create(modelDef: any): Md5Model {
@@ -139,7 +137,11 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         if (modelDef.name === 'fists') {
             model = new Fists(this.config, geometry, materials, sounds);
         } else if (modelDef.name === 'flashlight') {
-            model = new Flashlight(this.config, geometry, materials, sounds, this.camera);
+            let flashlightMap = undefined;
+            if (!this.config.renderOnlyWireframe) {
+                flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
+            }
+            model = new Flashlight(this.config, geometry, materials, sounds, flashlightMap);
         } else {
             model = new Md5Model(this.config, geometry, materials, sounds);
         }
