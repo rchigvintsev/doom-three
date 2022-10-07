@@ -23,6 +23,7 @@ import {Md5Model} from './md5-model';
 import {SoundFactory} from '../sound/sound-factory';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
+import {Pistol} from './weapon/pistol';
 
 // noinspection JSMethodCanBeStatic
 export class Md5ModelFactory implements EntityFactory<Md5Model> {
@@ -142,6 +143,8 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
                 flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
             }
             model = new Flashlight(this.config, geometry, materials, sounds, flashlightMap);
+        } else if (modelDef.name === 'pistol') {
+            model = new Pistol(this.config, geometry, materials, sounds);
         } else {
             model = new Md5Model(this.config, geometry, materials, sounds);
         }
@@ -156,7 +159,9 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         model.animations = this.createAnimationClips(animations, skeleton);
 
         model.scale.setScalar(this.config.worldScale);
-        model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
+        if (modelDef.position) {
+            model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
+        }
         model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         return model;
     }

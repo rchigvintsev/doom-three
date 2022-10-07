@@ -76,10 +76,12 @@ export class FpsControls {
         if (this.mouseState.isButtonPressed(MouseState.BUTTON_LEFT))
             this.player.attack();
         else {
-            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_G)) {
-                this.player.enableFists();
-            } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_F)) {
+            if (this.keyboardState.isKeyPressed(KeyboardState.KEY_F)) {
                 this.player.enableFlashlight();
+            } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_ONE)) {
+                this.player.enableFists();
+            } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_TWO)) {
+                this.player.enablePistol();
             }
         }
     }

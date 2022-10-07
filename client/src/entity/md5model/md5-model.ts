@@ -1,6 +1,5 @@
 import {
     AnimationAction,
-    AnimationMixer,
     Audio,
     BufferGeometry,
     Event,
@@ -17,17 +16,16 @@ import {Entity} from '../entity';
 import {PhysicsWorld} from '../../physics/physics-world';
 import {Weapon} from './weapon/weapon';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {Animations} from '../../util/animations';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {GameConfig} from '../../game-config';
+import {CustomAnimationMixer} from '../../animation/custom-animation-mixer';
 
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
 
     private readonly sounds = new Map<string, Audio<AudioNode>[]>();
-    private readonly animationActions = new Map<string, AnimationAction>();
 
-    private animationMixer?: AnimationMixer;
+    protected animationMixer?: CustomAnimationMixer;
     private initialized = false;
 
     private _wireframeHelper?: Md5ModelWireframeHelper;
@@ -45,8 +43,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
     init() {
         if (!this.initialized) {
             if (this.animations) {
-                this.animationMixer = new AnimationMixer(this);
-                this.initAnimationActions(this.animationMixer);
+                this.animationMixer = new CustomAnimationMixer(this);
                 this.animationMixer.addEventListener('finished', e => this.onAnimationFinished(e));
             }
             if (this._wireframeHelper) {
@@ -87,32 +84,34 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
     }
 
-    animateCrossFadeTo(startActionName: string, endActionName: string, duration: number) {
-        const startAction = this.getRequiredAnimationAction(startActionName);
-        const endAction = this.getRequiredAnimationAction(endActionName);
-
-        startAction.reset().play();
-        endAction.reset().play();
-        startAction.crossFadeTo(endAction, duration, false);
-
-        if (this._wireframeHelper) {
-            this._wireframeHelper.animateCrossFadeTo(startActionName, endActionName, duration);
+    animateCrossFade(startActionName: string, endActionName: string, duration: number) {
+        if (this.animationMixer) {
+            this.animationMixer.crossFade(startActionName, endActionName, duration);
+            if (this._wireframeHelper) {
+                this._wireframeHelper.animateCrossFade(startActionName, endActionName, duration);
+            }
         }
     }
 
-    animateFadeOutFadeIn(fadeOutActionName: string,
-                         fadeOutActionDuration: number,
-                         fadeInActionName: string,
-                         fadeInActionDuration: number) {
-        const fadeOutAction = this.getRequiredAnimationAction(fadeOutActionName);
-        const fadeInAction = this.getRequiredAnimationAction(fadeInActionName);
+    animateCrossFadeAsync(startActionName: string,
+                          endActionName: string,
+                          fadeOutDuration: number,
+                          fadeInDuration: number) {
+        if (this.animationMixer) {
+            this.animationMixer.crossFadeAsync(startActionName, endActionName, fadeOutDuration, fadeInDuration);
+            if (this._wireframeHelper) {
+                this._wireframeHelper.animateCrossFadeAsync(startActionName, endActionName, fadeOutDuration,
+                    fadeInDuration);
+            }
+        }
+    }
 
-        fadeOutAction.stop().reset().fadeOut(fadeOutActionDuration).play();
-        fadeInAction.stop().reset().fadeIn(fadeInActionDuration).play();
-
-        if (this._wireframeHelper) {
-            this._wireframeHelper.animateFadeOutFadeIn(fadeOutActionName, fadeOutActionDuration,
-                fadeInActionName, fadeInActionDuration);
+    animateCrossFadeDelayed(startActionName: string, endActionName: string, delay: number, duration?: number) {
+        if (this.animationMixer) {
+            this.animationMixer.crossFadeDelayed(startActionName, endActionName, delay, duration);
+            if (this._wireframeHelper) {
+                this._wireframeHelper.animateCrossFadeDelayed(startActionName, endActionName, delay, duration);
+            }
         }
     }
 
@@ -144,25 +143,14 @@ export class Md5Model extends SkinnedMesh implements Entity {
         return sounds;
     }
 
-    protected getRequiredAnimationAction(actionName: string): AnimationAction {
-        const action = this.getAnimationAction(actionName);
-        if (!action) {
-            throw new Error(`Animation action "${actionName}" is not found in MD5 model "${this.name}"`);
-        }
-        return action;
-    }
-
     protected getAnimationAction(actionName: string): AnimationAction | undefined {
-        return this.animationActions.get(actionName);
+        if (this.animationMixer) {
+            return this.animationMixer.getAnimationAction(actionName);
+        }
     }
 
     protected onAnimationFinished(_e: Event) {
         // Do nothing by default
-    }
-
-    private initAnimationActions(animationMixer: AnimationMixer) {
-        Animations.createAnimationActions(animationMixer, this.animations)
-            .forEach((action, name) => this.animationActions.set(name, action));
     }
 
     private updateMaterials(deltaTime: number) {

@@ -10,6 +10,7 @@ import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../md5model/weapon/fists';
 import {Flashlight} from '../md5model/weapon/flashlight';
+import {Pistol} from '../md5model/weapon/pistol';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -118,12 +119,20 @@ export class Player extends Object3D implements Entity {
         return <Flashlight>this.weapons.get('flashlight');
     }
 
+    get pistol(): Pistol | undefined {
+        return <Pistol>this.weapons.get('pistol');
+    }
+
     enableFists() {
         this.enableWeapon('fists');
     }
 
     enableFlashlight() {
         this.enableWeapon('flashlight');
+    }
+
+    enablePistol() {
+        this.enableWeapon('pistol');
     }
 
     attack() {

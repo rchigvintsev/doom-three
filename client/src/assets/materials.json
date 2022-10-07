@@ -46,7 +46,14 @@
     "name": "models/characters/player/arm2",
     "diffuseMap": "models/characters/player/arm2",
     "specularMap": "models/characters/player/arm2_s",
-    "normalMap": "models/characters/player/arm2_local",
+    "normalMap": {
+      "name": "models/characters/player/arm2_local+arm2_h",
+      "addNormals": {
+        "normalMap": "models/characters/player/arm2_local",
+        "bumpMap": "models/characters/player/arm2_h",
+        "scale": 5
+      }
+    },
     "side": "front"
   },
   {
@@ -54,6 +61,36 @@
     "diffuseMap": "models/weapons/berserk/fist",
     "specularMap": "models/weapons/berserk/fist_s",
     "normalMap": "models/weapons/berserk/fist_local",
+    "side": "front"
+  },
+  {
+    "name": "models/weapons/pistol/pistol",
+    "diffuseMap": "models/weapons/pistol/pistol",
+    "specularMap": "models/weapons/pistol/pistol_s",
+    "normalMap": {
+      "name": "models/weapons/pistol/pistol_local+pistol_h",
+      "addNormals": {
+        "normalMap": "models/weapons/pistol/pistol_local",
+        "bumpMap": "models/weapons/pistol/pistol_h",
+        "scale": 5
+      }
+    },
+    "specular": "0xbbbbbb",
+    "shininess": 20,
+    "side": "front"
+  },
+  {
+    "name": "models/weapons/hands/hand",
+    "diffuseMap": "models/weapons/hands/hand_df",
+    "specularMap": "models/weapons/hands/hand_sp",
+    "normalMap": {
+      "name": "models/weapons/hands/hand_local+hand_add",
+      "addNormals": {
+        "normalMap": "models/weapons/hands/hand_local",
+        "bumpMap": "models/weapons/hands/hand_add",
+        "scale": 3
+      }
+    },
     "side": "front"
   },
   {

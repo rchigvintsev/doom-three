@@ -47,6 +47,39 @@
     ]
   },
   {
+    "name": "player_pistol_raise_01",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/pistol/pistol_use_01.wav"
+    ]
+  },
+  {
+    "name": "player_pistol_fire",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/pistol/pistol_shot_02a.wav",
+      "sound/weapons/pistol/pistol_shot_03a.wav",
+      "sound/weapons/pistol/pistol_shot_04a.wav",
+      "sound/weapons/pistol/pistol_shot_05a.wav"
+    ]
+  },
+  {
+    "name": "player_pistol_reload",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/pistol/pistol_reload_01.wav"
+    ]
+  },
+  {
+    "name": "player_pistol_empty",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/pistol/dryfire/pdf_01.wav",
+      "sound/weapons/pistol/dryfire/pdf_03.wav",
+      "sound/weapons/pistol/dryfire/pdf_04.wav"
+    ]
+  },
+  {
     "name": "fist_raise",
     "type": "plain",
     "sources": [

@@ -45,5 +45,28 @@
       "woosh": "fist_whoosh",
       "impact": "monster_zombie_fat_wrench"
     }
+  },
+  {
+    "name": "pistol",
+    "model": "models/md5/weapons/pistol_view/viewpistol.md5mesh",
+    "materials": [
+      "models/weapons/pistol/pistol",
+      "models/characters/player/arm2"
+    ],
+    "animations": [
+      "models/md5/weapons/pistol_view/idle.md5anim",
+      "models/md5/weapons/pistol_view/idle_empty.md5anim",
+      "models/md5/weapons/pistol_view/raise.md5anim",
+      "models/md5/weapons/pistol_view/put_away.md5anim",
+      "models/md5/weapons/pistol_view/fire1.md5anim",
+      "models/md5/weapons/pistol_view/reload_empty.md5anim",
+      "models/md5/weapons/pistol_view/empty_reload_start.md5anim"
+    ],
+    "sounds": {
+      "raise": "player_pistol_raise_01",
+      "fire": "player_pistol_fire",
+      "reload": "player_pistol_reload",
+      "empty": "player_pistol_empty"
+    }
   }
 ]

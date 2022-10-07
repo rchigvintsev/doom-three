@@ -68,7 +68,7 @@ export class Flashlight extends Weapon {
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.animateCrossFadeTo('raise', 'idle', 0.40);
+            this.animateCrossFade('raise', 'idle', 0.40);
             this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
@@ -77,7 +77,7 @@ export class Flashlight extends Weapon {
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.animateCrossFadeTo('idle', 'lower', 0.25);
+            this.animateCrossFade('idle', 'lower', 0.25);
             // Weapon visibility will be changed on "lower" animation finish
         }
     }
@@ -86,7 +86,7 @@ export class Flashlight extends Weapon {
         if (this.canAttack()) {
             const nextPunchActionIndex = randomInt(0, this.punchAnimationActionNames.length);
             const nextPunchActionName = this.punchAnimationActionNames[nextPunchActionIndex];
-            this.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
+            this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
             this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }

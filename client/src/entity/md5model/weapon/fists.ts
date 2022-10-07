@@ -29,7 +29,7 @@ export class Fists extends Weapon {
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.animateCrossFadeTo('raise', 'idle', 0.40);
+            this.animateCrossFade('raise', 'idle', 0.40);
             this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
@@ -38,7 +38,7 @@ export class Fists extends Weapon {
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.animateCrossFadeTo('idle', 'lower', 0.25);
+            this.animateCrossFade('idle', 'lower', 0.25);
             // Weapon visibility will be changed on "lower" animation finish
         }
     }
@@ -49,13 +49,13 @@ export class Fists extends Weapon {
             const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
             const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
 
-            this.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
+            this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
 
             this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.lastPunchingHand = nextPunchingHand;
 
             if (this.wireframeHelper) {
-                this.wireframeHelper.animateFadeOutFadeIn(nextPunchActionName, 0.625, 'idle', 1.875);
+                this.wireframeHelper.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
             }
 
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
