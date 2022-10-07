@@ -121,6 +121,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
             const sound = sounds[0];
             if (!sound.isPlaying) {
                 sound.play(delay);
+            } else {
+                sound.stop().play(delay);
             }
         }
     }
@@ -131,6 +133,8 @@ export class Md5Model extends SkinnedMesh implements Entity {
             const sound = sounds[randomInt(0, sounds.length)];
             if (!sound.isPlaying) {
                 sound.play(delay);
+            } else {
+                sound.stop().play(delay);
             }
         }
     }

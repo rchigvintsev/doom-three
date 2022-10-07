@@ -31,7 +31,9 @@ export class Pistol extends Weapon {
 
     attack() {
         if (this.canAttack()) {
-            // Do nothing
+            this.animateCrossFade('idle', 'fire1', 0.1);
+            this.animateCrossFadeDelayed('fire1', 'idle', 0.30);
+            this.playFireSound();
         }
     }
 
@@ -55,10 +57,15 @@ export class Pistol extends Weapon {
     }
 
     private isAttacking(): boolean {
-        return false;
+        const fireAction = this.getAnimationAction('fire1');
+        return !!fireAction && fireAction.isRunning();
     }
 
     private playRaiseSound() {
         this.playFirstSound('raise', 0.1);
+    }
+
+    private playFireSound() {
+        this.playFirstSound('fire', 0);
     }
 }
