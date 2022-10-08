@@ -4,7 +4,13 @@ import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
 import {WeaponDisableEvent} from '../../../event/weapon-events';
 
+const AMMO_CARTRIDGE_SIZE = 12;
+
 export class Pistol extends Weapon {
+    // -1 means infinite
+    private ammoReserve = -1;
+    private ammoCartridge = AMMO_CARTRIDGE_SIZE;
+
     constructor(config: GameConfig,
                 geometry: BufferGeometry,
                 materials: Material | Material[],
@@ -31,9 +37,29 @@ export class Pistol extends Weapon {
 
     attack() {
         if (this.canAttack()) {
-            this.animateCrossFade('idle', 'fire1', 0.1);
-            this.animateCrossFadeDelayed('fire1', 'idle', 0.30);
-            this.playFireSound();
+            if (this.ammoCartridge === 0) {
+                this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
+                this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+                if (this.ammoReserve === -1) { // Infinite reserve
+                    this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
+                } else if (this.ammoReserve < AMMO_CARTRIDGE_SIZE) {
+                    this.ammoCartridge = this.ammoReserve;
+                    this.ammoReserve = 0;
+                } else {
+                    this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
+                    this.ammoReserve -= AMMO_CARTRIDGE_SIZE;
+                }
+                this.playReloadSound();
+            } else {
+                this.animateCrossFade('idle', 'fire1', 0.1);
+                if (this.ammoCartridge > 1) {
+                    this.animateCrossFadeDelayed('fire1', 'idle', 0.3);
+                } else {
+                    this.animateCrossFadeDelayed('fire1', 'idle_empty', 0.2);
+                }
+                this.ammoCartridge--;
+                this.playFireSound();
+            }
         }
     }
 
@@ -53,7 +79,7 @@ export class Pistol extends Weapon {
     }
 
     private canAttack() {
-        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking();
+        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking() && !this.isReloading();
     }
 
     private isAttacking(): boolean {
@@ -61,11 +87,20 @@ export class Pistol extends Weapon {
         return !!fireAction && fireAction.isRunning();
     }
 
+    private isReloading(): boolean {
+        const reloadAction = this.getAnimationAction('reload_empty');
+        return !!reloadAction && reloadAction.isRunning();
+    }
+
     private playRaiseSound() {
         this.playFirstSound('raise', 0.1);
     }
 
     private playFireSound() {
-        this.playFirstSound('fire', 0);
+        this.playFirstSound('fire');
+    }
+
+    private playReloadSound() {
+        this.playFirstSound('reload');
     }
 }

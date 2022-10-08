@@ -7,7 +7,7 @@ export class Animations {
         for (let i = 0; i < clips.length; i++) {
             const clip = clips[i];
             const action = animationMixer.clipAction(clip);
-            if (clip.name !== 'idle') {
+            if (!clip.name.includes('idle')) {
                 action.setLoop(LoopOnce, 1);
             }
             actions.set(clip.name, action);

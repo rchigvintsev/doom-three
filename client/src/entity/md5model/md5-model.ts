@@ -84,7 +84,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
     }
 
-    animateCrossFade(startActionName: string, endActionName: string, duration: number) {
+    animateCrossFade(startActionName: string, endActionName: string, duration = 1) {
         if (this.animationMixer) {
             this.animationMixer.crossFade(startActionName, endActionName, duration);
             if (this._wireframeHelper) {

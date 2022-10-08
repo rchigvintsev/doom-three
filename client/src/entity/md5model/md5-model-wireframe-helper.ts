@@ -24,7 +24,7 @@ export class Md5ModelWireframeHelper extends SkinnedMesh {
         }
     }
 
-    animateCrossFade(startActionName: string, endActionName: string, duration: number) {
+    animateCrossFade(startActionName: string, endActionName: string, duration = 1) {
         if (this.animationMixer) {
             this.animationMixer.crossFade(startActionName, endActionName, duration);
         }

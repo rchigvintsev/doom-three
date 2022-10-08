@@ -22,7 +22,7 @@ export class CustomAnimationMixer extends AnimationMixer {
         return this;
     }
 
-    crossFade(startActionName: string, endActionName: string, duration: number) {
+    crossFade(startActionName: string, endActionName: string, duration = 1) {
         const startAction = this.getRequiredAnimationAction(startActionName);
         const endAction = this.getRequiredAnimationAction(endActionName);
 
