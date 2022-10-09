@@ -11,6 +11,7 @@ import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../md5model/weapon/fists';
 import {Flashlight} from '../md5model/weapon/flashlight';
 import {Pistol} from '../md5model/weapon/pistol';
+import {isReloadableWeapon} from '../md5model/weapon/reloadable-weapon';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -133,6 +134,12 @@ export class Player extends Object3D implements Entity {
 
     enablePistol() {
         this.enableWeapon('pistol');
+    }
+
+    reloadWeapon() {
+        if (this.currentWeapon && isReloadableWeapon(this.currentWeapon)) {
+            this.currentWeapon.reload();
+        }
     }
 
     attack() {

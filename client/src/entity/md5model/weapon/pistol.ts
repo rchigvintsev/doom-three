@@ -3,10 +3,11 @@ import {Audio, BufferGeometry, Event, Material, Object3D} from 'three';
 import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
 import {WeaponDisableEvent} from '../../../event/weapon-events';
+import {ReloadableWeapon} from './reloadable-weapon';
 
 const AMMO_CARTRIDGE_SIZE = 12;
 
-export class Pistol extends Weapon {
+export class Pistol extends Weapon implements ReloadableWeapon {
     // -1 means infinite
     private ammoReserve = -1;
     private ammoCartridge = AMMO_CARTRIDGE_SIZE;
@@ -40,15 +41,7 @@ export class Pistol extends Weapon {
             if (this.ammoCartridge === 0) {
                 this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
                 this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
-                if (this.ammoReserve === -1) { // Infinite reserve
-                    this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
-                } else if (this.ammoReserve < AMMO_CARTRIDGE_SIZE) {
-                    this.ammoCartridge = this.ammoReserve;
-                    this.ammoReserve = 0;
-                } else {
-                    this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
-                    this.ammoReserve -= AMMO_CARTRIDGE_SIZE;
-                }
+                this.updateAmmoCountersOnReload();
                 this.playReloadSound();
             } else {
                 this.animateCrossFade('idle', 'fire1', 0.1);
@@ -60,6 +53,15 @@ export class Pistol extends Weapon {
                 this.ammoCartridge--;
                 this.playFireSound();
             }
+        }
+    }
+
+    reload(): void {
+        if (this.canReload() && this.ammoCartridge < AMMO_CARTRIDGE_SIZE) {
+            this.animateCrossFade('idle', 'reload_empty', 0.5);
+            this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+            this.updateAmmoCountersOnReload();
+            this.playReloadSound();
         }
     }
 
@@ -79,6 +81,14 @@ export class Pistol extends Weapon {
     }
 
     private canAttack() {
+        return this.isIdle();
+    }
+
+    private canReload() {
+        return this.isIdle();
+    }
+
+    private isIdle() {
         return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking() && !this.isReloading();
     }
 
@@ -102,5 +112,17 @@ export class Pistol extends Weapon {
 
     private playReloadSound() {
         this.playFirstSound('reload');
+    }
+
+    private updateAmmoCountersOnReload() {
+        if (this.ammoReserve === -1) { // Infinite reserve
+            this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
+        } else if (this.ammoReserve < AMMO_CARTRIDGE_SIZE) {
+            this.ammoCartridge = this.ammoReserve;
+            this.ammoReserve = 0;
+        } else {
+            this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
+            this.ammoReserve -= AMMO_CARTRIDGE_SIZE;
+        }
     }
 }
