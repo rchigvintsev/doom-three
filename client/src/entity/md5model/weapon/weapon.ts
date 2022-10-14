@@ -86,7 +86,7 @@ export abstract class Weapon extends Md5Model {
     abstract onMiss(): void;
 
     protected onAnimationFinished(e: Event) {
-        if (e.action === this.getAnimationAction('lower') && !this.enabled) {
+        if (e.action.getClip().name === 'lower' && !this.enabled) {
             this.visible = false;
             this.dispatchEvent(new WeaponDisableEvent(this));
         }

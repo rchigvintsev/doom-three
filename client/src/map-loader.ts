@@ -20,6 +20,7 @@ import {Game} from './game';
 import {PlayerFactory} from './entity/player/player-factory';
 import {Player} from './entity/player/player';
 import {TgaImages} from "./util/tga-images";
+import {GameConfig} from './game-config';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -42,6 +43,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.loadMapMeta(mapName),
             this.loadMapDef(mapName),
             this.loadMaterialDefs(),
+            this.loadTableDefs(),
             this.loadSoundDefs(),
             this.loadPlayerDef(),
             this.loadWeaponDefs(),
@@ -49,9 +51,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             const mapMeta = result[0];
             const mapDef = result[1];
             const materialDefs = result[2];
-            const soundDefs = result[3];
-            const playerDef = result[4];
-            const weaponDefs = result[5];
+            const tableDefs = result[3];
+            const soundDefs = result[4];
+            const playerDef = result[5];
+            const weaponDefs = result[6];
 
             const assets = new GameAssets();
             const context = new LoadingContext(assets);
@@ -86,7 +89,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
-                const materialFactory = new MaterialFactory(materialDefs, assets);
+                const evalScope = this.getExpressionEvaluationScope(config, tableDefs);
+                const materialFactory = new MaterialFactory(materialDefs, assets, evalScope);
                 const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
                 const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
 
@@ -109,6 +113,16 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return this.loadJson('assets/materials.json').then((materialDefs: any[]) => {
             const result = new Map<string, any>();
             materialDefs.forEach(materialDef => result.set(materialDef.name, materialDef));
+            return result;
+        });
+    }
+
+    private loadTableDefs(): Promise<Map<string, any>> {
+        return this.loadJson('assets/tables.json').then((tableDefs: any[]) => {
+            const result = new Map<string, any>();
+            for (const table of tableDefs) {
+                result.set(table.name, table);
+            }
             return result;
         });
     }
@@ -304,6 +318,28 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         const map = mapFactory.create(mapDef);
         map.registerCollisionModels(this.game.physicsWorld, this.game.scene);
         return map;
+    }
+
+    private getExpressionEvaluationScope(config: GameConfig, tables: Map<string, any>): any {
+        if (config.renderOnlyWireframe) {
+            return undefined;
+        }
+
+        const evalScope: any = {};
+        tables.forEach((table, name) => {
+            evalScope[name] = (deltaTime: number) => {
+                const val = deltaTime % table.values.length;
+                if (!table.snap) {
+                    const floor = Math.floor(val);
+                    const ceil = Math.min(Math.ceil(val), table.values.length);
+                    const floorVal = table.values[floor];
+                    const ceilVal = table.values[ceil];
+                    return floorVal + (val - floor) * 100 * ((ceilVal - floorVal) / 100);
+                }
+                return table.values[Math.floor(val)];
+            };
+        });
+        return evalScope;
     }
 }
 

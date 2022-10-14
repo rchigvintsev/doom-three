@@ -9,21 +9,33 @@ export class UpdatableShaderMaterial extends ShaderMaterial implements Updatable
         super(parameters);
     }
 
-    update(deltaTime: number) {
-        this.updateMaps(deltaTime);
+    update(deltaTime = 0) {
+        if (this.visible) {
+            this.updateMaps(deltaTime);
+        }
+    }
+
+    setParameters(params: Map<string, any>) {
+        this.forEachMap(map => (<UpdatableTexture>map).setParameters(params), map => map instanceof UpdatableTexture);
     }
 
     private updateMaps(deltaTime: number) {
+        this.forEachMap((map: Texture, i) => {
+            (<UpdatableTexture>map).update(deltaTime);
+            this.uniforms[`uv_transform${i + 1}`].value.copy(map.matrix);
+        }, map => map instanceof UpdatableTexture);
+    }
+
+    private forEachMap(callbackFn: (map: Texture, index: number) => void,
+                       filterFn: (map: Texture, index: number) => boolean = () => true) {
         for (let i = 0; ; i++) {
             const mapUniform = this.uniforms[`u_map${i + 1}`];
             if (!mapUniform) {
                 break;
             }
-
-            const texture: Texture = mapUniform.value;
-            if (texture instanceof UpdatableTexture) {
-                texture.update(deltaTime);
-                this.uniforms[`uv_transform${i + 1}`].value.copy(texture.matrix);
+            const map: Texture = mapUniform.value;
+            if (filterFn(map, i)) {
+                callbackFn(map, i);
             }
         }
     }

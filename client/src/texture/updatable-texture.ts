@@ -7,8 +7,19 @@ export class UpdatableTexture extends Texture {
     private scrollY?: EvalFunction;
     private _rotate?: EvalFunction;
 
+    private readonly evalScope: any;
+
+    constructor(parentEvalScope: any) {
+        super();
+        this.evalScope = {...parentEvalScope, ...{time: 0}};
+    }
+
     update(_deltaTime: number) {
         this.updateTransformMatrix();
+    }
+
+    setParameters(params: Map<string, any>) {
+        params.forEach((value, key) => this.evalScope[key] = value);
     }
 
     setScroll(scrollX: EvalFunction, scrollY: EvalFunction) {
@@ -25,20 +36,22 @@ export class UpdatableTexture extends Texture {
 
         let scrollX = 0, scrollY = 0;
         if (this.scrollX || this.scrollY) {
-            const evalScope = {time: now * 0.01};
+            this.evalScope.time = now * 0.01;
             if (this.scrollX) {
-                scrollX = this.scrollX.evaluate(evalScope);
+                scrollX = this.scrollX.evaluate(this.evalScope) * this.repeat.x;
             }
             if (this.scrollY) {
-                scrollY = this.scrollY.evaluate(evalScope);
+                scrollY = this.scrollY.evaluate(this.evalScope) * this.repeat.y;
             }
         }
 
         let rotate = 0;
         if (this._rotate) {
-            rotate = this._rotate.evaluate({time: now * 0.005});
+            this.evalScope.time = now * 0.005;
+            rotate = this._rotate.evaluate(this.evalScope);
         }
 
-        this.matrix.setUvTransform(scrollX, scrollY, this.repeat.x, this.repeat.y, rotate, 0.5, 0.5);
+        this.matrix.setUvTransform(scrollX, scrollY, this.repeat.x, this.repeat.y, rotate,
+            this.center.x, this.center.y);
     }
 }

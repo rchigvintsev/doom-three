@@ -22,10 +22,13 @@ import {GameAssets} from '../game-assets';
 import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
+import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
 
 // noinspection JSMethodCanBeStatic
 export class MaterialFactory {
-    constructor(private readonly materialDefs: Map<string, any>, private readonly assets: GameAssets) {
+    constructor(private readonly materialDefs: Map<string, any>,
+                private readonly assets: GameAssets,
+                private readonly evalScope?: any) {
     }
 
     create(materialName: string): Material[] {
@@ -54,21 +57,36 @@ export class MaterialFactory {
     }
 
     private createBasicMaterial(materialDef: any): MeshBasicMaterial {
-        const material = new MeshBasicMaterial();
+        const material = new UpdatableMeshBasicMaterial();
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
-            material.map = this.getTexture(materialDef.diffuseMap);
+            if (typeof materialDef.diffuseMap !== 'string') {
+                material.map = this.createUpdatableMap(materialDef.name, materialDef.diffuseMap);
+            } else {
+                material.map = this.getTexture(materialDef.diffuseMap);
+            }
             this.setTextureWrapping(material.map, materialDef.clamp);
         }
 
         if (materialDef.specularMap) {
-            material.specularMap = this.getTexture(materialDef.specularMap);
+            if (typeof materialDef.specularMap !== 'string') {
+                material.specularMap = this.createUpdatableMap(materialDef.name, materialDef.specularMap);
+            } else {
+                material.specularMap = this.getTexture(materialDef.specularMap);
+            }
             this.setTextureWrapping(material.specularMap, materialDef.clamp);
         }
 
         if (materialDef.alphaMap) {
-            material.alphaMap = this.getTexture(materialDef.alphaMap);
+            if (typeof materialDef.alphaMap !== 'string') {
+                material.alphaMap = this.createUpdatableMap(materialDef.name, materialDef.alphaMap);
+            } else {
+                material.alphaMap = this.getTexture(materialDef.alphaMap);
+            }
+            this.setTextureWrapping(material.alphaMap, materialDef.clamp);
+        } else if (materialDef.transparent) {
+            material.alphaMap = material.map;
         }
 
         if (materialDef.color) {
@@ -102,35 +120,11 @@ export class MaterialFactory {
         if (materialDef.maps) {
             for (let i = 0; i < materialDef.maps.length; i++) {
                 const mapDef = materialDef.maps[i];
-
                 if (typeof mapDef !== 'string') {
-                    const texture = new UpdatableTexture();
-                    texture.copy(this.getTexture(mapDef.name));
-                    texture.wrapS = texture.wrapT = RepeatWrapping;
-                    texture.matrixAutoUpdate = false;
-
-                    if (mapDef.repeat) {
-                        if (mapDef.repeat.length !== 2) {
-                            throw new Error(`Material "${materialDef.name}" has map "${mapDef.name}" with invalid `
-                                + `number of repeat values: ${mapDef.repeat.length}`);
-                        }
-                        texture.repeat.set(mapDef.repeat[0], mapDef.repeat[1]);
-                    }
-
-                    if (mapDef.scroll) {
-                        if (mapDef.scroll.length !== 2) {
-                            throw new Error(`Material "${materialDef.name}" has map "${mapDef.name}" with invalid `
-                                + `number of scroll expressions: ${mapDef.scroll.length}`);
-                        }
-                        texture.setScroll(compile(mapDef.scroll[0]), compile(mapDef.scroll[1]));
-                    }
-
-                    if (mapDef.rotate) {
-                        texture.rotate = compile(mapDef.rotate);
-                    }
-
-                    uniforms['u_map' + (i + 1)] = {value: texture};
-                    uniforms[`uv_transform${i + 1}`] = {value: texture.matrix};
+                    const map = this.createUpdatableMap(materialDef.name, mapDef);
+                    this.setTextureWrapping(map, false);
+                    uniforms['u_map' + (i + 1)] = {value: map};
+                    uniforms[`uv_transform${i + 1}`] = {value: map.matrix};
                 } else {
                     uniforms['u_map' + (i + 1)] = {value: this.getTexture(mapDef)};
                 }
@@ -202,6 +196,42 @@ export class MaterialFactory {
         }
 
         return material;
+    }
+
+    private createUpdatableMap(materialName: string, mapDef: any): UpdatableTexture {
+        const texture = new UpdatableTexture(this.evalScope);
+        texture.copy(this.getTexture(mapDef.name));
+        texture.matrixAutoUpdate = false;
+
+        if (mapDef.repeat) {
+            if (mapDef.repeat.length !== 2) {
+                throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
+                    + `number of repeat values: ${mapDef.repeat.length}`);
+            }
+            texture.repeat.set(mapDef.repeat[0], mapDef.repeat[1]);
+        }
+
+        if (mapDef.scroll) {
+            if (mapDef.scroll.length !== 2) {
+                throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
+                    + `number of scroll expressions: ${mapDef.scroll.length}`);
+            }
+            texture.setScroll(compile(mapDef.scroll[0]), compile(mapDef.scroll[1]));
+        }
+
+        if (mapDef.rotate) {
+            texture.rotate = compile(mapDef.rotate);
+        }
+
+        if (mapDef.center) {
+            if (mapDef.scroll.length !== 2) {
+                throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
+                    + `number of center values: ${mapDef.center.length}`);
+            }
+            texture.center.set(mapDef.center[0], mapDef.center[1]);
+        }
+
+        return texture;
     }
 
     private setTextureWrapping(texture: Texture, clamp: boolean) {

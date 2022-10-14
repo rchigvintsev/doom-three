@@ -157,6 +157,19 @@ export class Md5Model extends SkinnedMesh implements Entity {
         // Do nothing by default
     }
 
+    protected findMaterialByName(name: string): Material | undefined {
+        if (Array.isArray(this.material)) {
+            for (const material of this.material) {
+                if (material.name === name) {
+                    return material;
+                }
+            }
+        } else if (this.material.name === name) {
+            return this.material;
+        }
+        return undefined;
+    }
+
     private updateMaterials(deltaTime: number) {
         if (Array.isArray(this.material)) {
             for (const material of this.material) {

@@ -21,7 +21,8 @@
         "name": "models/items/flashlight/dust",
         "repeat": [4, 4],
         "rotate": "time * -0.02",
-        "scroll": ["time * 0.001", "time * 0.001"]
+        "scroll": ["time * 0.001", "time * 0.001"],
+        "center": [0.5, 0.5]
       }
     ],
     "transparent": true,
@@ -78,6 +79,17 @@
     "specular": "0xbbbbbb",
     "shininess": 20,
     "side": "front"
+  },
+  {
+    "name": "models/weapons/pistol/pistol_mflash",
+    "type": "basic",
+    "diffuseMap": {
+      "name": "textures/particles/pistol_mflash_strip",
+      "repeat": [0.083, 1],
+      "scroll": ["table12(parm4)", "0"],
+      "rotate": "rotate90(parm5)"
+    },
+    "transparent": true
   },
   {
     "name": "models/weapons/hands/hand",
