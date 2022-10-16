@@ -86,8 +86,19 @@
     "diffuseMap": {
       "name": "textures/particles/pistol_mflash_strip",
       "repeat": [0.083, 1],
-      "scroll": ["table12(parm4)", "0"],
-      "rotate": "rotate90(parm5)"
+      "scroll": ["table12(pistolFlashScrollX)", "0"],
+      "rotate": "rotate90(pistolFlashRotate)"
+    },
+    "transparent": true,
+    "depthWrite": false
+  },
+  {
+    "name": "models/weapons/pistol/pistol_mflash2",
+    "type": "basic",
+    "diffuseMap": {
+      "name": "textures/particles/pistol_mflash2_strip",
+      "repeat": [0.25, 1],
+      "scroll": ["table4(pistolFlash2ScrollX)", "0"]
     },
     "transparent": true
   },

@@ -1,4 +1,4 @@
-import {Audio, BufferGeometry, Event, Material, Object3D} from 'three';
+import {Audio, BufferGeometry, Event, Material, Object3D, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -8,12 +8,14 @@ import {WeaponDisableEvent} from '../../../event/weapon-events';
 import {ReloadableWeapon} from './reloadable-weapon';
 import {Player} from '../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
+import {BufferGeometries} from '../../../util/buffer-geometries';
+import {Face3} from '../../../geometry/face3';
 
 const AMMO_CARTRIDGE_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
 
 export class Pistol extends Weapon implements ReloadableWeapon {
-    private fireFlashMaterial?: UpdatableMeshBasicMaterial;
+    private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
     private fireFlashMaterialParams?: Map<string, any>;
 
     // -1 means infinite
@@ -29,6 +31,7 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         if (!config.renderOnlyWireframe) {
             this.initFireFlash();
         }
+        this.applyTubeDeformToFireFlash(this.geometry);
     }
 
     update(deltaTime: number, player?: Player) {
@@ -106,44 +109,87 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         }
     }
 
+    protected updateAcceleration(direction: Vector3) {
+        super.updateAcceleration(direction);
+        const offset = this.acceleration.offset;
+        if (offset.x !== 0 || offset.y !== 0) {
+            this.applyTubeDeformToFireFlash(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
+            }
+        }
+    }
+
+    protected drop(time: number, rotationX: number): Vector3 | undefined {
+        const offset = super.drop(time, rotationX);
+        if (offset) {
+            this.applyTubeDeformToFireFlash(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
+            }
+        }
+        return offset;
+    }
+
     private initFireFlash() {
-        const materialName = 'models/weapons/pistol/pistol_mflash';
-        this.fireFlashMaterial = <UpdatableMeshBasicMaterial>this.findMaterialByName(materialName);
-        if (this.fireFlashMaterial) {
+        for (const materialName of ['models/weapons/pistol/pistol_mflash', 'models/weapons/pistol/pistol_mflash2']) {
+            const material = <UpdatableMeshBasicMaterial>this.findMaterialByName(materialName);
+            if (!material) {
+                console.error(`Material "${materialName}" is not found`);
+            } else {
+                material.visible = false;
+                this.fireFlashMaterials.push(material);
+            }
+        }
+        if (this.fireFlashMaterials.length > 0) {
             this.fireFlashMaterialParams = new Map<string, any>();
-            this.fireFlashMaterial.visible = false;
+            this.fireFlashMaterialParams!.set('pistolFlashScrollX', 0);
+            this.fireFlashMaterialParams!.set('pistolFlash2ScrollX', 0);
+            this.fireFlashMaterialParams!.set('pistolFlashRotate', 0);
         }
     }
 
     private showFireFlash() {
-        if (this.fireFlashMaterial) {
-            const rotation = randomInt(0, 2);
-            const scrolling = rotation < 2 ? 0 : 1;
+        if (this.fireFlashMaterials.length > 0) {
+            const flash1Rotate = randomInt(0, 2);
+            const flash1Scroll = flash1Rotate < 2 ? 0 : 1;
 
-            this.fireFlashMaterialParams!.set('parm4', scrolling);
-            this.fireFlashMaterialParams!.set('parm5', rotation);
-            this.fireFlashMaterial.setParameters(this.fireFlashMaterialParams!);
+            this.fireFlashMaterialParams!.set('pistolFlashScrollX', flash1Scroll);
+            this.fireFlashMaterialParams!.set('pistolFlashRotate', flash1Rotate);
+            this.fireFlashMaterialParams!.set('pistolFlash2ScrollX', 0);
 
-            this.fireFlashMaterial.visible = true;
-            this.fireFlashMaterial.update();
+            for (const material of this.fireFlashMaterials) {
+                material.setParameters(this.fireFlashMaterialParams!);
+                material.visible = true;
+                material.update();
+            }
         }
     }
 
     private updateFireFlash(deltaTime: number) {
-        if (this.fireFlashMaterial) {
-            let scrolling = Math.trunc(deltaTime / (FIRE_FLASH_DURATION_MILLIS / 12));
-            const rotation = this.fireFlashMaterialParams!.get('parm5');
-            if (rotation > 1) {
-                scrolling++;
+        if (this.fireFlashMaterials.length > 0) {
+            // Animation of flash 1 consists of 12 frames
+            let flash1Scroll = Math.trunc(deltaTime / (FIRE_FLASH_DURATION_MILLIS / 12));
+            // Animation of flash 2 consists of 4 frames
+            const flash2Scroll = Math.trunc(deltaTime / (FIRE_FLASH_DURATION_MILLIS / 4));
+
+            const flash1Rotate = this.fireFlashMaterialParams!.get('pistolFlashRotate');
+            if (flash1Rotate > 1) {
+                flash1Scroll++;
             }
-            this.fireFlashMaterialParams!.set('parm4', scrolling);
-            this.fireFlashMaterial.setParameters(this.fireFlashMaterialParams!);
+
+            this.fireFlashMaterialParams!.set('pistolFlashScrollX', flash1Scroll);
+            this.fireFlashMaterialParams!.set('pistolFlash2ScrollX', flash2Scroll);
+
+            for (const material of this.fireFlashMaterials) {
+                material.setParameters(this.fireFlashMaterialParams!);
+            }
         }
     }
 
     private hideFireFlash() {
-        if (this.fireFlashMaterial) {
-            this.fireFlashMaterial.visible = false;
+        for (const material of this.fireFlashMaterials) {
+            material.visible = false;
         }
     }
 
@@ -191,5 +237,33 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
             this.ammoReserve -= AMMO_CARTRIDGE_SIZE;
         }
+    }
+
+    private applyTubeDeformToFireFlash(geometry: BufferGeometry, offset?: Vector3) {
+        /*
+         *  Pistol flash faces
+         *  ==================
+         *
+         *     Player's view direction
+         *               |
+         *         6066  V
+         *    6069 |\  --------- 6067
+         *         | \ \       |
+         *         |  \ \      |
+         *         |   \ \     |
+         *     Top |    \ \    | Bottom
+         *         |     \ \   |
+         *         |      \ \  |
+         *         |       \ \ |
+         *    6071 |________\ \| 6068
+         *                  6070
+         */
+
+        const view = new Vector3(-15, 0, 0);
+        if (offset) {
+            view.y -= offset.x / this.config.worldScale;
+            view.z -= offset.y / this.config.worldScale;
+        }
+        BufferGeometries.applyTubeDeform(geometry, view, new Face3(6067, 6071, 6066), new Face3(6068, 6069, 6070));
     }
 }

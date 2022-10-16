@@ -1,4 +1,4 @@
-import {TgaImage} from './tga-image';
+import {TgaImage} from '../image/tga-image';
 import {Vector3} from "three";
 
 const TGA_HEADER_LENGTH = 18;

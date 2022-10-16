@@ -52,7 +52,8 @@
     "materials": [
       "models/weapons/pistol/pistol",
       "models/characters/player/arm2",
-      "models/weapons/pistol/pistol_mflash"
+      "models/weapons/pistol/pistol_mflash",
+      "models/weapons/pistol/pistol_mflash2"
     ],
     "animations": [
       "models/md5/weapons/pistol_view/idle.md5anim",

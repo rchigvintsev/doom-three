@@ -1,7 +1,7 @@
 import {FileLoader, Loader, LoadingManager, Texture} from 'three';
 
 import {TgaImages} from '../util/tga-images';
-import {TgaImage} from "../util/tga-image";
+import {TgaImage} from "../image/tga-image";
 
 export class TgaLoader extends Loader {
     private readonly fileLoader: FileLoader;
