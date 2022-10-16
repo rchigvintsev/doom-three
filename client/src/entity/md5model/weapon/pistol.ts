@@ -1,4 +1,4 @@
-import {Audio, BufferGeometry, Event, Material, Object3D, Vector3} from 'three';
+import {Audio, BufferGeometry, Event, Material, Object3D, PointLight, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -13,10 +13,13 @@ import {Face3} from '../../../geometry/face3';
 
 const AMMO_CARTRIDGE_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
+const FIRE_FLASH_COLOR = 0xffcc66;
+const FIRE_FLASH_DISTANCE = 120;
 
 export class Pistol extends Weapon implements ReloadableWeapon {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
     private fireFlashMaterialParams?: Map<string, any>;
+    private fireFlashLight?: PointLight;
 
     // -1 means infinite
     private ammoReserve = -1;
@@ -146,6 +149,10 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             this.fireFlashMaterialParams!.set('pistolFlashScrollX', 0);
             this.fireFlashMaterialParams!.set('pistolFlash2ScrollX', 0);
             this.fireFlashMaterialParams!.set('pistolFlashRotate', 0);
+
+            this.fireFlashLight = new PointLight(0x000);
+            this.fireFlashLight.distance = FIRE_FLASH_DISTANCE * this.config.worldScale;
+            this.add(this.fireFlashLight);
         }
     }
 
@@ -163,6 +170,9 @@ export class Pistol extends Weapon implements ReloadableWeapon {
                 material.visible = true;
                 material.update();
             }
+
+            // Simple changing light visibility causes micro-freeze at the first shot
+            this.fireFlashLight!.color.setHex(FIRE_FLASH_COLOR);
         }
     }
 
@@ -184,12 +194,18 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             for (const material of this.fireFlashMaterials) {
                 material.setParameters(this.fireFlashMaterialParams!);
             }
+
+            this.fireFlashLight!.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+            this.worldToLocal(this.fireFlashLight!.position);
         }
     }
 
     private hideFireFlash() {
-        for (const material of this.fireFlashMaterials) {
-            material.visible = false;
+        if (this.fireFlashMaterials.length > 0) {
+            for (const material of this.fireFlashMaterials) {
+                material.visible = false;
+            }
+            this.fireFlashLight!.color.setHex(0x000);
         }
     }
 
