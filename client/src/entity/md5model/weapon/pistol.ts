@@ -9,7 +9,6 @@ import {ReloadableWeapon} from './reloadable-weapon';
 import {Player} from '../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
 import {BufferGeometries} from '../../../util/buffer-geometries';
-import {Face3} from '../../../geometry/face3';
 
 const AMMO_CARTRIDGE_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -255,7 +254,7 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         }
     }
 
-    private applyTubeDeformToFireFlash(geometry: BufferGeometry, offset?: Vector3) {
+    private applyTubeDeformToFireFlash = (() => {
         /*
          *  Pistol flash faces
          *  ==================
@@ -275,11 +274,16 @@ export class Pistol extends Weapon implements ReloadableWeapon {
          *                  6070
          */
 
-        const view = new Vector3(-15, 0, 0);
-        if (offset) {
-            view.y -= offset.x / this.config.worldScale;
-            view.z -= offset.y / this.config.worldScale;
-        }
-        BufferGeometries.applyTubeDeform(geometry, view, new Face3(6067, 6071, 6066), new Face3(6068, 6069, 6070));
-    }
+        const view = new Vector3();
+        const face1 = new Vector3(6066, 6068, 6067);
+        const face2 = new Vector3(6071, 6069, 6070);
+        return (geometry: BufferGeometry, offset?: Vector3) => {
+            view.set(-15, 0, 0);
+            if (offset) {
+                view.y -= offset.x / this.config.worldScale;
+                view.z -= offset.y / this.config.worldScale;
+            }
+            BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
+        };
+    })();
 }

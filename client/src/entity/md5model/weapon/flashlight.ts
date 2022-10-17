@@ -7,7 +7,6 @@ import {GameConfig} from '../../../game-config';
 import {AttackEvent} from '../../../event/weapon-events';
 import {Player} from '../../player/player';
 import {BufferGeometries} from '../../../util/buffer-geometries';
-import {Face3} from '../../../geometry/face3';
 
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
@@ -124,7 +123,7 @@ export class Flashlight extends Weapon {
         return offset;
     }
 
-    private applyTubeDeformToBeam(geometry: BufferGeometry, offset?: Vector3) {
+    private applyTubeDeformToBeam = (() => {
         /*
          *  Flashlight beam faces
          *  =====================
@@ -144,13 +143,18 @@ export class Flashlight extends Weapon {
          *                  2479
          */
 
-        const view = new Vector3(0, 0, -15);
-        if (offset) {
-            view.z -= offset.x / this.config.worldScale;
-            view.y += offset.y / this.config.worldScale;
-        }
-        BufferGeometries.applyTubeDeform(geometry, view, new Face3(2481, 2478, 2483), new Face3(2479, 2480, 2482));
-    }
+        const view = new Vector3();
+        const face1 = new Vector3(2481, 2478, 2483);
+        const face2 = new Vector3(2479, 2480, 2482);
+        return (geometry: BufferGeometry, offset?: Vector3) => {
+            view.set(0, 0, -15);
+            if (offset) {
+                view.z -= offset.x / this.config.worldScale;
+                view.y += offset.y / this.config.worldScale;
+            }
+            BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
+        };
+    })();
 
     private updateLight() {
         if (this.visible && !this.config.renderOnlyWireframe) {

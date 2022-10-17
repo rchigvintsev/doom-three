@@ -100,7 +100,8 @@
       "repeat": [0.25, 1],
       "scroll": ["table4(pistolFlash2ScrollX)", "0"]
     },
-    "transparent": true
+    "transparent": true,
+    "side": "double"
   },
   {
     "name": "models/weapons/hands/hand",

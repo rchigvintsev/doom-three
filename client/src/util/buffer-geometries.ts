@@ -1,14 +1,13 @@
 import {BufferGeometry, Vector3} from 'three';
-import {Face3} from '../geometry/face3';
 
 export class BufferGeometries {
-    static applyTubeDeform(geometry: BufferGeometry, view: Vector3, face1: Face3, face2: Face3) {
+    static applyTubeDeform(geometry: BufferGeometry, view: Vector3, face1: Vector3, face2: Vector3) {
         const positions = geometry.getAttribute('position');
 
-        const v1 = new Vector3(positions.getX(face1.a), positions.getY(face1.a), positions.getZ(face1.a));
-        const v2 = new Vector3(positions.getX(face1.b), positions.getY(face1.b), positions.getZ(face1.b));
-        const v3 = new Vector3(positions.getX(face1.c), positions.getY(face1.c), positions.getZ(face1.c));
-        const v4 = new Vector3(positions.getX(face2.a), positions.getY(face2.a), positions.getZ(face2.a));
+        const v1 = new Vector3(positions.getX(face1.x), positions.getY(face1.x), positions.getZ(face1.x));
+        const v2 = new Vector3(positions.getX(face1.y), positions.getY(face1.y), positions.getZ(face1.y));
+        const v3 = new Vector3(positions.getX(face1.z), positions.getY(face1.z), positions.getZ(face1.z));
+        const v4 = new Vector3(positions.getX(face2.x), positions.getY(face2.x), positions.getZ(face2.x));
 
         // v1 - v3 and v2 - v4 have the shortest distances
 
@@ -44,14 +43,14 @@ export class BufferGeometries {
         v2.copy(v2v4Mid.clone().add(minor));
         v4.copy(v2v4Mid.clone().sub(minor));
 
-        positions.setXYZ(face1.a, v1.x, v1.y, v1.z);
-        positions.setXYZ(face1.b, v2.x, v2.y, v2.z);
-        positions.setXYZ(face1.c, v3.x, v3.y, v3.z);
-        positions.setXYZ(face2.a, v4.x, v4.y, v4.z);
+        positions.setXYZ(face1.x, v1.x, v1.y, v1.z);
+        positions.setXYZ(face1.y, v2.x, v2.y, v2.z);
+        positions.setXYZ(face1.z, v3.x, v3.y, v3.z);
+        positions.setXYZ(face2.x, v4.x, v4.y, v4.z);
 
-        // Additionally change vertices with the same positions as v3 and v4
-        positions.setXYZ(face2.b, v3.x, v3.y, v3.z);
-        positions.setXYZ(face2.c, v4.x, v4.y, v4.z);
+        // Additionally change vertices with the same positions as v1 and v2
+        positions.setXYZ(face2.y, v1.x, v1.y, v1.z);
+        positions.setXYZ(face2.z, v2.x, v2.y, v2.z);
 
         positions.needsUpdate = true;
     }
