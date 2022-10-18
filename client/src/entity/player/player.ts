@@ -1,6 +1,8 @@
-import {Audio, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Audio, Euler, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {degToRad} from 'three/src/math/MathUtils';
 
 import {random, randomInt} from 'mathjs';
+import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
 import {Weapon} from '../md5model/weapon/weapon';
@@ -21,6 +23,7 @@ export class Player extends Object3D implements Entity {
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
     private readonly jumpSound?: Audio<AudioNode>;
     private readonly landSounds: Audio<AudioNode>[];
+    private readonly recoilTween: Tween<Euler>;
 
     private readonly _pitchObject: Object3D;
     private readonly _movementDirection = new Vector3();
@@ -61,6 +64,10 @@ export class Player extends Object3D implements Entity {
             this.jumpSound = jumpSounds[0];
         }
         this.landSounds = sounds.get('landings') || [];
+
+        this.recoilTween = new Tween(this.camera.rotation)
+            .to({x: degToRad(0.5)}, 50)
+            .chain(new Tween(this.camera.rotation).to({x: 0}, 50));
     }
 
     registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
@@ -250,6 +257,10 @@ export class Player extends Object3D implements Entity {
 
     private onWeaponAttack(e: AttackEvent) {
         this.dispatchEvent(e);
+        if (this.currentWeapon instanceof Pistol) {
+            // Emulate recoil on fire
+            this.recoilTween.start();
+        }
     }
 }
 

@@ -4,7 +4,7 @@ import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
 import {GameConfig} from '../../../game-config';
-import {WeaponDisableEvent} from '../../../event/weapon-events';
+import {AttackEvent, WeaponDisableEvent} from '../../../event/weapon-events';
 import {ReloadableWeapon} from './reloadable-weapon';
 import {Player} from '../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
@@ -82,6 +82,8 @@ export class Pistol extends Weapon implements ReloadableWeapon {
                 this.ammoCartridge--;
                 this.playFireSound();
                 this.lastFireTime = performance.now();
+
+                this.dispatchEvent(new AttackEvent(this, 0, 0));
             }
         }
     }

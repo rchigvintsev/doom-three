@@ -2,6 +2,7 @@ import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRende
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GSSolver, SplitSolver} from 'cannon-es';
+import * as TWEEN from "@tweenjs/tween.js";
 
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
@@ -116,6 +117,7 @@ export class Game {
         }
         this.controls.update();
         this._physicsWorld.step(TIME_STEP, deltaTime);
+        TWEEN.update();
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
