@@ -2,7 +2,7 @@ import {Group, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
 import {Entity} from '../entity';
-import {PhysicsWorld} from '../../physics/physics-world';
+import {PhysicsSystem} from '../../physics/physics-system';
 import {Player} from '../player/player';
 import {Weapon} from '../md5model/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
@@ -32,9 +32,9 @@ export class GameMap extends Group implements Entity {
         this.player.addEventListener(AttackEvent.TYPE, e => this._onAttack(<AttackEvent><unknown>e));
     }
 
-    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
-        this.areas.forEach(area => area.registerCollisionModels(physicsWorld, scene));
-        this.player.registerCollisionModels(physicsWorld, scene);
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.areas.forEach(area => area.registerCollisionModels(physicsSystem, scene));
+        this.player.registerCollisionModels(physicsSystem, scene);
     }
 
     update(deltaTime: number) {

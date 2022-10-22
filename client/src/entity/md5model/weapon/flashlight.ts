@@ -1,12 +1,12 @@
-import {AnimationAction, Audio, BufferGeometry, Material, Object3D, SpotLight, Texture, Vector3} from 'three';
+import {AnimationAction, BufferGeometry, Object3D, SpotLight, Texture, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
-import {GameConfig} from '../../../game-config';
 import {AttackEvent} from '../../../event/weapon-events';
 import {Player} from '../../player/player';
 import {BufferGeometries} from '../../../util/buffer-geometries';
+import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
@@ -31,22 +31,18 @@ export class Flashlight extends Weapon {
 
     private lastPunchAnimationAction?: AnimationAction;
 
-    constructor(config: GameConfig,
-                geometry: BufferGeometry,
-                materials: Material | Material[],
-                sounds: Map<string, Audio<AudioNode>[]>,
-                lightMap?: Texture) {
-        super(config, geometry, materials, sounds);
+    constructor(parameters: FlashlightParameters) {
+        super(parameters);
 
-        this.attackDistance = ATTACK_DISTANCE * config.worldScale;
+        this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
 
-        if (!config.renderOnlyWireframe) {
+        if (!this.config.renderOnlyWireframe) {
             this.light = new SpotLight();
             this.light.intensity = LIGHT_INTENSITY;
             this.light.distance = LIGHT_DISTANCE;
             this.light.angle = LIGHT_ANGLE;
             this.light.decay = LIGHT_DECAY;
-            (<any>this.light).map = lightMap;
+            (<any>this.light).map = parameters.lightMap;
 
             this.add(this.light);
             this.add(this.light.target);
@@ -197,4 +193,8 @@ export class Flashlight extends Weapon {
     private playWooshSound() {
         this.playRandomSound('woosh', 0.1);
     }
+}
+
+export class FlashlightParameters extends Md5ModelParameters {
+    lightMap?: Texture;
 }

@@ -6,8 +6,8 @@ import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
 import {Weapon} from '../md5model/weapon/weapon';
-import {PhysicsWorld} from '../../physics/physics-world';
-import {PlayerCollisionModel} from './player-collision-model';
+import {PhysicsSystem} from '../../physics/physics-system';
+import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
 import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../md5model/weapon/fists';
@@ -67,11 +67,11 @@ export class Player extends Object3D implements Entity {
 
         this.recoilTween = new Tween(this.camera.rotation)
             .to({x: degToRad(0.5)}, 50)
-            .chain(new Tween(this.camera.rotation).to({x: 0}, 50));
+            .chain(new Tween(this.camera.rotation).to({x: 0}, 75));
     }
 
-    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
-        this.collisionModel.register(physicsWorld, scene);
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.collisionModel.register(physicsSystem, scene);
     }
 
     update(deltaTime: number) {

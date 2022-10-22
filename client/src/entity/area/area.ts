@@ -2,7 +2,7 @@ import {Group, Light, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
 import {Entity} from '../entity';
-import {PhysicsWorld} from '../../physics/physics-world';
+import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../md5model/weapon/weapon';
 
 export class Area extends Group implements Entity {
@@ -16,8 +16,8 @@ export class Area extends Group implements Entity {
         }
     }
 
-    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
-        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsWorld, scene));
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsSystem, scene));
     }
 
     update(deltaTime: number) {

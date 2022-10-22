@@ -24,13 +24,15 @@ import {SoundFactory} from '../sound/sound-factory';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
+import {ParticleSystem} from '../../particles/particle-system';
 
 // noinspection JSMethodCanBeStatic
 export class Md5ModelFactory implements EntityFactory<Md5Model> {
     constructor(private readonly config: GameConfig,
                 private readonly assets: GameAssets,
                 private readonly materialFactory: MaterialFactory,
-                private readonly soundFactory: SoundFactory) {
+                private readonly soundFactory: SoundFactory,
+                private readonly particleSystem: ParticleSystem) {
     }
 
     create(modelDef: any): Md5Model {
@@ -136,17 +138,13 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
                         sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists(this.config, geometry, materials, sounds);
+            model = new Fists({config: this.config, geometry, materials, sounds});
         } else if (modelDef.name === 'flashlight') {
-            let flashlightMap = undefined;
-            if (!this.config.renderOnlyWireframe) {
-                flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
-            }
-            model = new Flashlight(this.config, geometry, materials, sounds, flashlightMap);
+            model = this.createFlashlight(geometry, materials, sounds);
         } else if (modelDef.name === 'pistol') {
-            model = new Pistol(this.config, geometry, materials, sounds);
+            model = this.createPistol(modelDef, geometry, materials, sounds);
         } else {
-            model = new Md5Model(this.config, geometry, materials, sounds);
+            model = new Md5Model({config: this.config, geometry, materials, sounds});
         }
         model.name = modelDef.name;
 
@@ -164,6 +162,28 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         }
         model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         return model;
+    }
+
+    private createPistol(modelDef: any,
+                         geometry: BufferGeometry,
+                         materials: Material[],
+                         sounds: Map<string, Audio<AudioNode>[]>) {
+        return new Pistol({
+            config: this.config,
+            geometry,
+            materials,
+            sounds,
+            particleSystem: this.particleSystem,
+            muzzleSmokeParticleName: modelDef.muzzleSmoke
+        });
+    }
+
+    private createFlashlight(geometry: BufferGeometry, materials: Material[], sounds: Map<string, Audio<AudioNode>[]>) {
+        let flashlightMap = undefined;
+        if (!this.config.renderOnlyWireframe) {
+            flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
+        }
+        return new Flashlight({config: this.config, geometry, materials, sounds, lightMap: flashlightMap});
     }
 
     private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {

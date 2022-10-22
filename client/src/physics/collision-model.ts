@@ -2,7 +2,7 @@ import {Object3D, Quaternion, Scene, Vector3} from 'three';
 
 import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
 
-import {PhysicsWorld} from './physics-world';
+import {PhysicsSystem} from './physics-system';
 import {Weapon} from "../entity/md5model/weapon/weapon";
 
 export class CollisionModel {
@@ -15,9 +15,9 @@ export class CollisionModel {
     constructor(readonly bodies: CollisionModelBody[]) {
     }
 
-    register(physicsWorld: PhysicsWorld, scene: Scene) {
+    register(physicsSystem: PhysicsSystem, scene: Scene) {
         for (const body of this.bodies) {
-            physicsWorld.addBody(body);
+            physicsSystem.addBody(body);
             if (body.helper) {
                 scene.add(body.helper);
             }

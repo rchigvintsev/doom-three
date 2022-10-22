@@ -13,7 +13,7 @@ import {
 import {randomInt} from 'mathjs';
 
 import {Entity} from '../entity';
-import {PhysicsWorld} from '../../physics/physics-world';
+import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from './weapon/weapon';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {isUpdatableMaterial} from '../../material/updatable-material';
@@ -23,20 +23,17 @@ import {CustomAnimationMixer} from '../../animation/custom-animation-mixer';
 export class Md5Model extends SkinnedMesh implements Entity {
     skeletonHelper?: SkeletonHelper;
 
-    private readonly sounds = new Map<string, Audio<AudioNode>[]>();
-
     protected animationMixer?: CustomAnimationMixer;
-    private initialized = false;
 
+    private readonly sounds = new Map<string, Audio<AudioNode>[]>();
+    private initialized = false;
     private _wireframeHelper?: Md5ModelWireframeHelper;
 
-    constructor(protected config: GameConfig,
-                geometry: BufferGeometry,
-                materials: Material | Material[],
-                sounds: Map<string, Audio<AudioNode>[]>) {
-        super(geometry, materials);
-        if (sounds) {
-            sounds.forEach((value, key) => this.sounds.set(key, value));
+    constructor(protected readonly parameters: Md5ModelParameters) {
+        super(parameters.geometry, parameters.materials);
+        this.parameters = parameters;
+        if (parameters.sounds) {
+            parameters.sounds.forEach((value, key) => this.sounds.set(key, value));
         }
     }
 
@@ -53,7 +50,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
     }
 
-    registerCollisionModels(_physicsWorld: PhysicsWorld, _scene: Scene) {
+    registerCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
         // Do nothing for now
     }
 
@@ -71,6 +68,10 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing by default
+    }
+
+    get config(): GameConfig {
+        return this.parameters.config;
     }
 
     get wireframeHelper(): Md5ModelWireframeHelper | undefined {
@@ -181,4 +182,11 @@ export class Md5Model extends SkinnedMesh implements Entity {
             this.material.update(deltaTime);
         }
     }
+}
+
+export class Md5ModelParameters {
+    config!: GameConfig;
+    geometry!: BufferGeometry;
+    materials!: Material | Material[];
+    sounds?: Map<string, Audio<AudioNode>[]>;
 }

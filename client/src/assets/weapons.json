@@ -69,6 +69,7 @@
       "fire": "player_pistol_fire",
       "reload": "player_pistol_reload",
       "empty": "player_pistol_empty"
-    }
+    },
+    "muzzleSmoke": "muzzlesmoke"
   }
 ]

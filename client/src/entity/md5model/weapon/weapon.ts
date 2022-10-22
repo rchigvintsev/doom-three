@@ -1,7 +1,6 @@
-import {Audio, BufferGeometry, Euler, Event, Material, Object3D, Vector3} from 'three';
+import {Euler, Event, Object3D, Vector3} from 'three';
 
-import {Md5Model} from '../md5-model';
-import {GameConfig} from '../../../game-config';
+import {Md5Model, Md5ModelParameters} from '../md5-model';
 import {Player} from '../../player/player';
 import {WeaponDisableEvent} from '../../../event/weapon-events';
 
@@ -25,11 +24,8 @@ export abstract class Weapon extends Md5Model {
     private readonly v = new Vector3(0, 1, 0);
     private readonly e = new Euler();
 
-    constructor(config: GameConfig,
-                geometry: BufferGeometry,
-                materials: Material | Material[],
-                sounds: Map<string, Audio<AudioNode>[]>) {
-        super(config, geometry, materials, sounds);
+    constructor(parameters: Md5ModelParameters) {
+        super(parameters);
         this.visible = false;
     }
 

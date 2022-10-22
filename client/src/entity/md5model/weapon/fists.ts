@@ -1,10 +1,10 @@
-import {AnimationAction, Audio, BufferGeometry, Material, Object3D} from 'three';
+import {AnimationAction, Object3D} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
-import {GameConfig} from '../../../game-config';
 import {AttackEvent} from '../../../event/weapon-events';
+import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 50;
 const ATTACK_DISTANCE = 30;
@@ -16,12 +16,9 @@ export class Fists extends Weapon {
     private lastPunchingHand = Hand.LEFT;
     private lastPunchAnimationAction?: AnimationAction;
 
-    constructor(config: GameConfig,
-                geometry: BufferGeometry,
-                materials: Material | Material[],
-                sounds: Map<string, Audio<AudioNode>[]>) {
-        super(config, geometry, materials, sounds);
-        this.attackDistance = ATTACK_DISTANCE * config.worldScale;
+    constructor(parameters: Md5ModelParameters) {
+        super(parameters);
+        this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
         this.punchAnimationActionNames.set(Hand.LEFT, ['berserk_punch1', 'berserk_punch3']);
         this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }

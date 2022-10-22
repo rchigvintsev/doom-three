@@ -16,11 +16,15 @@ import {SoundFactory} from './entity/sound/sound-factory';
 import {Md5Animation} from './animation/md5-animation';
 import {Weapon} from './entity/md5model/weapon/weapon';
 import {CollisionModelFactory} from './physics/collision-model-factory';
-import {Game} from './game';
 import {PlayerFactory} from './entity/player/player-factory';
 import {Player} from './entity/player/player';
 import {TgaImages} from "./util/tga-images";
 import {GameConfig} from './game-config';
+import {PhysicsSystem} from './physics/physics-system';
+import {GameSystemType} from './game-system';
+import {Game} from './game';
+import {ParticleFactory} from './entity/particle/particle-factory';
+import {ParticleSystem} from './particles/particle-system';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -44,6 +48,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.loadMapDef(mapName),
             this.loadMaterialDefs(),
             this.loadTableDefs(),
+            this.loadParticleDefs(),
             this.loadSoundDefs(),
             this.loadPlayerDef(),
             this.loadWeaponDefs(),
@@ -52,9 +57,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             const mapDef = result[1];
             const materialDefs = result[2];
             const tableDefs = result[3];
-            const soundDefs = result[4];
-            const playerDef = result[5];
-            const weaponDefs = result[6];
+            const particleDefs = result[4];
+            const soundDefs = result[5];
+            const playerDef = result[6];
+            const weaponDefs = result[7];
 
             const assets = new GameAssets();
             const context = new LoadingContext(assets);
@@ -66,7 +72,16 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             weaponDefs.forEach(weaponDef => {
                 context.modelsToLoad.add(weaponDef.model);
                 if (!config.renderOnlyWireframe) {
-                    this.getTextureSources(weaponDef, materialDefs)
+                    const materials = [...weaponDef.materials];
+                    if (weaponDef.muzzleSmoke) {
+                        const particleDef = particleDefs.get(weaponDef.muzzleSmoke);
+                        if (!particleDef) {
+                            console.error(`Definition of particle "${weaponDef.muzzleSmoke}" is not found`);
+                        } else {
+                            materials.push(particleDef.material);
+                        }
+                    }
+                    this.getTextureSources(materials, materialDefs)
                         .forEach((source, name) => context.texturesToLoad.set(name, source));
                 }
                 this.getAnimationSources(weaponDef).forEach(animation => context.animationsToLoad.add(animation));
@@ -74,7 +89,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             });
 
             if (!config.renderOnlyWireframe) {
-                this.getTextureSources(mapMeta, materialDefs)
+                this.getTextureSources(mapMeta.materials, materialDefs)
                     .forEach((source, name) => context.texturesToLoad.set(name, source));
             }
             this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
@@ -92,9 +107,15 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const evalScope = this.getExpressionEvaluationScope(config, tableDefs);
                 const materialFactory = new MaterialFactory(materialDefs, assets, evalScope);
                 const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
-                const collisionModelFactory = new CollisionModelFactory(config, this.game.physicsWorld);
+                const particleFactory = new ParticleFactory(this.game.config, particleDefs, materialFactory);
+
+                this.initParticleSystem(particleFactory);
 
                 const weapons = this.createWeapons(weaponDefs, assets, materialFactory, soundFactory);
+
+                const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
+
                 const player = this.createPlayer(playerDef, weapons, soundFactory, collisionModelFactory);
                 return this.createMap(mapDef, player, materialFactory, collisionModelFactory);
             });
@@ -122,6 +143,16 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             const result = new Map<string, any>();
             for (const table of tableDefs) {
                 result.set(table.name, table);
+            }
+            return result;
+        });
+    }
+
+    private loadParticleDefs(): Promise<Map<string, any>> {
+        return this.loadJson('assets/particles.json').then((particleDefs: any[]) => {
+            const result = new Map<string, any>();
+            for (const particle of particleDefs) {
+                result.set(particle.name, particle);
             }
             return result;
         });
@@ -223,9 +254,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         return Promise.all(soundPromises);
     }
 
-    private getTextureSources(entityDef: any, materialDefs: Map<string, any>): Map<string, TextureSource> {
+    private getTextureSources(materials: string[], materialDefs: Map<string, any>): Map<string, TextureSource> {
         const result = new Map<string, TextureSource>();
-        (<string[]>entityDef.materials).forEach(materialName => {
+        materials.forEach(materialName => {
             const materialDef = materialDefs.get(materialName);
             if (materialDef) {
                 for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'alphaMap']) {
@@ -283,12 +314,17 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         this.dispatchEvent(new ProgressEvent(context.total, context.loaded));
     }
 
+    private initParticleSystem(particleFactory: ParticleFactory) {
+        this.game.systems.set(GameSystemType.PARTICLE, new ParticleSystem(this.game.scene, particleFactory));
+    }
+
     private createWeapons(weaponDefs: Map<string, any>,
                           assets: GameAssets,
                           materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
         const config = this.game.config;
-        const modelFactory = new Md5ModelFactory(config, assets, materialFactory, soundFactory);
+        const particleSystem = <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE);
+        const modelFactory = new Md5ModelFactory(config, assets, materialFactory, soundFactory, particleSystem);
         const weapons = new Map<string, Weapon>();
         weaponDefs.forEach((weaponDef, weaponName) =>
             weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));
@@ -316,7 +352,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         const mapFactory = new MapFactory(config, player, areaFactory, lightFactory);
 
         const map = mapFactory.create(mapDef);
-        map.registerCollisionModels(this.game.physicsWorld, this.game.scene);
+        const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+        map.registerCollisionModels(physicsSystem, this.game.scene);
         return map;
     }
 

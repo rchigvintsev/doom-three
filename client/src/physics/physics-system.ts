@@ -1,12 +1,20 @@
 import {Material, World, ContactMaterial} from 'cannon-es';
 
-export class PhysicsWorld extends World {
+import {GameSystem} from '../game-system';
+
+const TIME_STEP = 1 / 60;
+
+export class PhysicsSystem extends World implements GameSystem {
     readonly materials = new Map<string, Material>();
 
     constructor() {
         super();
         this.gravity.set(0, -9.8, 0);
         this.initMaterials();
+    }
+
+    update(deltaTime: number) {
+        this.step(TIME_STEP, deltaTime);
     }
 
     private initMaterials() {

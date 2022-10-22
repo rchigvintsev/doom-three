@@ -4,12 +4,12 @@ import {Body, Box, Cylinder, Heightfield, Material, Quaternion, Shape, Sphere, T
 
 import {GameConfig} from '../game-config';
 import {CollisionModel, CollisionModelBody} from './collision-model';
-import {PhysicsWorld} from './physics-world';
+import {PhysicsSystem} from './physics-system';
 import {NamedSphere} from './cannon/named-sphere';
 import {NamedBox} from './cannon/named-box';
 
 export class CollisionModelFactory {
-    constructor(private readonly config: GameConfig, private readonly physicsWorld: PhysicsWorld) {
+    constructor(private readonly config: GameConfig, private readonly physicsSystem: PhysicsSystem) {
     }
 
     create(entityDef: any): CollisionModel {
@@ -96,10 +96,10 @@ export class CollisionModelFactory {
     private getBodyMaterial(bodyDef: any): Material {
         let material = undefined;
         if (bodyDef.material) {
-            material = this.physicsWorld.materials.get(bodyDef.material);
+            material = this.physicsSystem.materials.get(bodyDef.material);
         }
         if (!material) {
-            material = this.physicsWorld.materials.get('default');
+            material = this.physicsSystem.materials.get('default');
         }
         return material!;
     }

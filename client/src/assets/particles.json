@@ -1,0 +1,17 @@
+[
+  {
+    "name": "muzzlesmoke",
+    "count": 1,
+    "material": "muzzleSmokePuff",
+    "time": 1000,
+    "speed": 2,
+    "size": {
+      "from": 2,
+      "to": 6.5
+    },
+    "fadeIn": 0.2,
+    "fadeOut": 0.5,
+    "color": "0x404040",
+    "gravity": [0, -10]
+  }
+]

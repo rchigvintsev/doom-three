@@ -2,7 +2,7 @@ import {BufferGeometry, Material, Mesh, Scene, Vector3} from 'three';
 
 import {Entity} from '../entity';
 import {CollisionModel} from '../../physics/collision-model';
-import {PhysicsWorld} from '../../physics/physics-world';
+import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../md5model/weapon/weapon';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 
@@ -13,8 +13,8 @@ export class Surface extends Mesh implements Entity {
         super(geometry, materials);
     }
 
-    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene) {
-        this.collisionModel.register(physicsWorld, scene);
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.collisionModel.register(physicsSystem, scene);
     }
 
     update(deltaTime: number) {

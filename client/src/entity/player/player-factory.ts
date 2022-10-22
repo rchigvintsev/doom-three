@@ -4,7 +4,7 @@ import {EntityFactory} from '../entity-factory';
 import {Player} from './player';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {Weapon} from '../md5model/weapon/weapon';
-import {PlayerCollisionModel} from './player-collision-model';
+import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
 import {GameConfig} from '../../game-config';
 import {SoundFactory} from '../sound/sound-factory';
 

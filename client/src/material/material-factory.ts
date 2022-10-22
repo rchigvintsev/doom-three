@@ -3,6 +3,7 @@ import {
     BackSide,
     ClampToEdgeWrapping,
     Color,
+    CustomBlending,
     DoubleSide,
     FrontSide,
     IUniform,
@@ -12,6 +13,7 @@ import {
     MultiplyBlending,
     RepeatWrapping,
     ShaderMaterial,
+    SpriteMaterial,
     SubtractiveBlending,
     Texture
 } from 'three';
@@ -23,6 +25,7 @@ import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
+import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 
 // noinspection JSMethodCanBeStatic
 export class MaterialFactory {
@@ -42,6 +45,8 @@ export class MaterialFactory {
             materials.push(this.createBasicMaterial(materialDef));
         } else if (materialDef.type === 'shader') {
             materials.push(this.createShaderMaterial(materialDef));
+        } else if (materialDef.type === 'sprite') {
+            materials.push(this.createSpriteMaterial(materialDef));
         } else {
             materials.push(this.createPhongMaterial(materialDef));
         }
@@ -140,6 +145,21 @@ export class MaterialFactory {
         this.setTransparency(material, materialDef);
         this.setSide(material, materialDef);
         this.setDepthWrite(material, materialDef);
+        return material;
+    }
+
+    private createSpriteMaterial(materialDef: any): SpriteMaterial {
+        const material = new SpriteMaterial();
+        material.name = materialDef.name;
+
+        if (materialDef.diffuseMap) {
+            material.map = this.getTexture(materialDef.diffuseMap);
+            this.setTextureWrapping(material.map, materialDef.clamp);
+        }
+
+        this.setTransparency(material, materialDef);
+        this.setBlending(material, materialDef);
+
         return material;
     }
 
@@ -251,7 +271,7 @@ export class MaterialFactory {
         }
     }
 
-    private setBlending(material: MeshBasicMaterial | MeshPhongMaterial, materialDef: any) {
+    private setBlending(material: Material, materialDef: any) {
         if (materialDef.blending) {
             if (materialDef.blending === 'additive') {
                 material.blending = AdditiveBlending;
@@ -259,6 +279,14 @@ export class MaterialFactory {
                 material.blending = SubtractiveBlending;
             } else if (materialDef.blending === 'multiply') {
                 material.blending = MultiplyBlending;
+            } else if (materialDef.blending === 'custom') {
+                material.blending = CustomBlending;
+                if (materialDef.blendSrc === 'gl_zero') {
+                    material.blendSrc = ZeroFactor;
+                }
+                if (materialDef.blendDst === 'gl_one_minus_src_color') {
+                    material.blendDst = OneMinusSrcColorFactor;
+                }
             } else {
                 const message = `Definition of material "${materialDef.name}" has property "blending" with unsupported value: ${materialDef.blending}`;
                 console.error(message);

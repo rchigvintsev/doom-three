@@ -1,36 +1,35 @@
-import {Audio, BufferGeometry, Event, Material, Object3D, PointLight, Vector3} from 'three';
+import {BufferGeometry, Event, Object3D, PointLight, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
-import {GameConfig} from '../../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../../event/weapon-events';
 import {ReloadableWeapon} from './reloadable-weapon';
 import {Player} from '../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
 import {BufferGeometries} from '../../../util/buffer-geometries';
+import {ParticleSystem} from '../../../particles/particle-system';
+import {Md5ModelParameters} from '../md5-model';
 
-const AMMO_CARTRIDGE_SIZE = 12;
+const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
 const FIRE_FLASH_COLOR = 0xffcc66;
 const FIRE_FLASH_DISTANCE = 120;
 
 export class Pistol extends Weapon implements ReloadableWeapon {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
+
     private fireFlashMaterialParams?: Map<string, any>;
     private fireFlashLight?: PointLight;
 
     // -1 means infinite
     private ammoReserve = -1;
-    private ammoCartridge = AMMO_CARTRIDGE_SIZE;
+    private ammoClip = AMMO_CLIP_SIZE;
     private lastFireTime = 0;
 
-    constructor(config: GameConfig,
-                geometry: BufferGeometry,
-                materials: Material | Material[],
-                sounds: Map<string, Audio<AudioNode>[]>) {
-        super(config, geometry, materials, sounds);
-        if (!config.renderOnlyWireframe) {
+    constructor(parameters: PistolParameters) {
+        super(parameters);
+        if (!this.config.renderOnlyWireframe) {
             this.initFireFlash();
         }
         this.applyTubeDeformToFireFlash(this.geometry);
@@ -66,7 +65,7 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     attack() {
         if (this.canAttack()) {
-            if (this.ammoCartridge === 0) {
+            if (this.ammoClip === 0) {
                 this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
                 this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
                 this.updateAmmoCountersOnReload();
@@ -74,14 +73,22 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             } else {
                 this.showFireFlash();
                 this.animateCrossFade('idle', 'fire1', 0.1);
-                if (this.ammoCartridge > 1) {
+                if (this.ammoClip > 1) {
                     this.animateCrossFadeDelayed('fire1', 'idle', 0.3);
                 } else {
                     this.animateCrossFadeDelayed('fire1', 'idle_empty', 0.2);
                 }
-                this.ammoCartridge--;
+                this.ammoClip--;
                 this.playFireSound();
                 this.lastFireTime = performance.now();
+
+                if (!this.config.renderOnlyWireframe) {
+                    const muzzleSmokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
+                    for (const particle of muzzleSmokeParticles) {
+                        particle.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+                        particle.show();
+                    }
+                }
 
                 this.dispatchEvent(new AttackEvent(this, 0, 0));
             }
@@ -89,7 +96,7 @@ export class Pistol extends Weapon implements ReloadableWeapon {
     }
 
     reload(): void {
-        if (this.canReload() && this.ammoCartridge < AMMO_CARTRIDGE_SIZE) {
+        if (this.canReload() && this.ammoClip < AMMO_CLIP_SIZE) {
             this.animateCrossFade('idle', 'reload_empty', 0.5);
             this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
             this.updateAmmoCountersOnReload();
@@ -133,6 +140,14 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             }
         }
         return offset;
+    }
+
+    private get particleSystem(): ParticleSystem {
+        return (<PistolParameters>this.parameters).particleSystem;
+    }
+
+    private get muzzleSmokeParticleName(): string {
+        return (<PistolParameters>this.parameters).muzzleSmokeParticleName;
     }
 
     private initFireFlash() {
@@ -246,13 +261,13 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     private updateAmmoCountersOnReload() {
         if (this.ammoReserve === -1) { // Infinite reserve
-            this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
-        } else if (this.ammoReserve < AMMO_CARTRIDGE_SIZE) {
-            this.ammoCartridge = this.ammoReserve;
+            this.ammoClip = AMMO_CLIP_SIZE;
+        } else if (this.ammoReserve < AMMO_CLIP_SIZE) {
+            this.ammoClip = this.ammoReserve;
             this.ammoReserve = 0;
         } else {
-            this.ammoCartridge = AMMO_CARTRIDGE_SIZE;
-            this.ammoReserve -= AMMO_CARTRIDGE_SIZE;
+            this.ammoClip = AMMO_CLIP_SIZE;
+            this.ammoReserve -= AMMO_CLIP_SIZE;
         }
     }
 
@@ -288,4 +303,9 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
     })();
+}
+
+export class PistolParameters extends Md5ModelParameters {
+    particleSystem!: ParticleSystem;
+    muzzleSmokeParticleName!: string;
 }

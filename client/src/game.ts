@@ -2,7 +2,6 @@ import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRende
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GSSolver, SplitSolver} from 'cannon-es';
-import * as TWEEN from "@tweenjs/tween.js";
 
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
@@ -10,20 +9,19 @@ import {ProgressEvent} from './event/progress-event';
 import {FpsControls} from './control/fps-controls';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
-import {PhysicsWorld} from './physics/physics-world';
+import {PhysicsSystem} from './physics/physics-system';
 import {PointerUnlockEvent} from './event/pointer-lock-events';
-
-const TIME_STEP = 1 / 60;
+import {GameSystem, GameSystemType} from './game-system';
+import {TweenAnimationSystem} from './animation/tween-animation-system';
 
 // noinspection JSMethodCanBeStatic
 export class Game {
-    private readonly clock = new Clock();
+    readonly systems = new Map<GameSystemType, GameSystem>();
 
     private _config!: GameConfig;
     private _scene!: Scene;
     private _camera!: PerspectiveCamera;
     private _audioListener!: AudioListener;
-    private _physicsWorld!: PhysicsWorld;
 
     private container!: HTMLElement;
     private pointerLock!: PointerLock;
@@ -33,6 +31,8 @@ export class Game {
     private map?: GameMap;
 
     private initialized = false;
+
+    private readonly clock = new Clock();
 
     init() {
         if (!this.initialized) {
@@ -46,7 +46,8 @@ export class Game {
             this.initPointerLock(this.container);
             this.initControls(this._config, this.pointerLock);
             this.initRenderer(this._config, this.container);
-            this.initPhysics();
+            this.initAnimationSystem();
+            this.initPhysicsSystem();
             this.initStats(this._config, this.container);
 
             // Disable context menu
@@ -106,18 +107,15 @@ export class Game {
         return this._audioListener;
     }
 
-    get physicsWorld(): PhysicsWorld {
-        return this._physicsWorld;
-    }
-
     private update() {
         const deltaTime = this.clock.getDelta();
         if (this.map) {
             this.map.update(deltaTime);
         }
+        for (const system of this.systems.values()) {
+            system.update(deltaTime);
+        }
         this.controls.update();
-        this._physicsWorld.step(TIME_STEP, deltaTime);
-        TWEEN.update();
     }
 
     private getRequiredGameCanvasContainer(): HTMLElement {
@@ -165,17 +163,23 @@ export class Game {
         parent.appendChild(this.renderer.domElement);
     }
 
-    private initPhysics() {
-        this._physicsWorld = new PhysicsWorld();
-        this._physicsWorld.allowSleep = true;
+    private initAnimationSystem() {
+        this.systems.set(GameSystemType.ANIMATION, new TweenAnimationSystem());
+    }
 
-        this._physicsWorld.defaultContactMaterial.contactEquationStiffness = 1e9;
-        this._physicsWorld.defaultContactMaterial.contactEquationRelaxation = 4;
+    private initPhysicsSystem() {
+        const physicsSystem = new PhysicsSystem();
+        physicsSystem.allowSleep = true;
+
+        physicsSystem.defaultContactMaterial.contactEquationStiffness = 1e9;
+        physicsSystem.defaultContactMaterial.contactEquationRelaxation = 4;
 
         const solver = new GSSolver();
         solver.iterations = 7;
         solver.tolerance = 0.1;
-        this._physicsWorld.solver = new SplitSolver(solver);
+        physicsSystem.solver = new SplitSolver(solver);
+
+        this.systems.set(GameSystemType.PHYSICS, physicsSystem);
     }
 
     private initStats(config: GameConfig, parent: HTMLElement) {

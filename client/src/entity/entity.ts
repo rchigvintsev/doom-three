@@ -1,15 +1,15 @@
 import {Scene, Vector3} from 'three';
 
-import {PhysicsWorld} from '../physics/physics-world';
+import {PhysicsSystem} from '../physics/physics-system';
 import {Weapon} from './md5model/weapon/weapon';
 
 export interface Entity {
-    registerCollisionModels(physicsWorld: PhysicsWorld, scene: Scene): void;
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
 
     update(deltaTime: number): void;
 
     /**
-     * Called when someone attack this entity with the given weapon.
+     * Called when someone attacks this entity with the given weapon.
      *
      * @param hitPoint hit point
      * @param forceVector force vector
