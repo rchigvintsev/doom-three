@@ -525,7 +525,8 @@
             -128.0
           ],
           "color": "#c7c7d6",
-          "distance": 272
+          "distance": 272,
+          "intensity": 1.5
         },
         {
           "type": "point",
@@ -535,7 +536,8 @@
             128.0
           ],
           "color": "#c7c7d6",
-          "distance": 272
+          "distance": 272,
+          "intensity": 1.5
         },
         {
           "type": "point",
@@ -545,7 +547,8 @@
             -128.0
           ],
           "color": "#c7c7d6",
-          "distance": 272
+          "distance": 272,
+          "intensity": 1.5
         },
         {
           "type": "point",
@@ -555,7 +558,8 @@
             128.0
           ],
           "color": "#c7c7d6",
-          "distance": 272
+          "distance": 272,
+          "intensity": 1.5
         }
       ]
     }
