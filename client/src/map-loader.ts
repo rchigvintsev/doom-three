@@ -43,58 +43,38 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     load(mapName: string): Promise<GameMap> {
         console.debug(`Loading of map "${mapName}"...`);
 
+        const assets = new GameAssets();
+        const context = new LoadingContext(assets);
+
         return Promise.all([
-            this.loadMapMeta(mapName),
-            this.loadMapDef(mapName),
-            this.loadMaterialDefs(),
-            this.loadTableDefs(),
-            this.loadParticleDefs(),
-            this.loadSoundDefs(),
-            this.loadPlayerDef(),
-            this.loadWeaponDefs(),
-        ]).then(result => {
-            const mapMeta = result[0];
-            const mapDef = result[1];
-            const materialDefs = result[2];
-            const tableDefs = result[3];
-            const particleDefs = result[4];
-            const soundDefs = result[5];
-            const playerDef = result[6];
-            const weaponDefs = result[7];
-
-            const assets = new GameAssets();
-            const context = new LoadingContext(assets);
-
+            this.loadMapMeta(context, mapName),
+            this.loadMapDef(context, mapName),
+            this.loadMaterialDefs(context),
+            this.loadTableDefs(context),
+            this.loadParticleDefs(context),
+            this.loadSoundDefs(context),
+            this.loadPlayerDef(context),
+            this.loadWeaponDefs(context),
+        ]).then(() => {
             const config = this.game.config;
 
-            this.getSoundSources(playerDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
+            if (!config.renderOnlyWireframe) {
+                this.collectTextureSources(context, context.mapMeta.materials);
+            }
+            this.collectModelSources(context, context.mapMeta);
+            this.collectAnimationSources(context, context.mapMeta);
+            this.collectSoundSources(context, context.mapMeta);
 
-            weaponDefs.forEach(weaponDef => {
+            this.collectSoundSources(context, context.playerDef);
+
+            context.weaponDefs.forEach(weaponDef => {
                 context.modelsToLoad.add(weaponDef.model);
                 if (!config.renderOnlyWireframe) {
-                    const materials = [...weaponDef.materials];
-                    if (weaponDef.muzzleSmoke) {
-                        const particleDef = particleDefs.get(weaponDef.muzzleSmoke);
-                        if (!particleDef) {
-                            console.error(`Definition of particle "${weaponDef.muzzleSmoke}" is not found`);
-                        } else {
-                            materials.push(particleDef.material);
-                        }
-                    }
-                    this.getTextureSources(materials, materialDefs)
-                        .forEach((source, name) => context.texturesToLoad.set(name, source));
+                    this.collectTextureSourcesFromWeaponDef(context, weaponDef);
                 }
-                this.getAnimationSources(weaponDef).forEach(animation => context.animationsToLoad.add(animation));
-                this.getSoundSources(weaponDef, soundDefs).forEach(source => context.soundsToLoad.add(source));
+                this.collectAnimationSources(context, weaponDef);
+                this.collectSoundSources(context, weaponDef);
             });
-
-            if (!config.renderOnlyWireframe) {
-                this.getTextureSources(mapMeta.materials, materialDefs)
-                    .forEach((source, name) => context.texturesToLoad.set(name, source));
-            }
-            this.getModelSources(mapMeta).forEach(source => context.modelsToLoad.add(source));
-            this.getAnimationSources(mapMeta).forEach(source => context.animationsToLoad.add(source));
-            this.getSoundSources(mapMeta, soundDefs).forEach(source => context.soundsToLoad.add(source));
 
             console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
@@ -104,76 +84,90 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
-                const evalScope = this.getExpressionEvaluationScope(config, tableDefs);
-                const materialFactory = new MaterialFactory(materialDefs, assets, evalScope);
-                const soundFactory = new SoundFactory(this.game.audioListener, soundDefs, assets);
-                const particleFactory = new ParticleFactory(this.game.config, particleDefs, materialFactory);
+                const evalScope = this.getExpressionEvaluationScope(config, context.tableDefs);
+                const materialFactory = new MaterialFactory(context.materialDefs, assets, evalScope);
+                const soundFactory = new SoundFactory(this.game.audioListener, context.soundDefs, assets);
+                const particleFactory = new ParticleFactory(this.game.config, context.particleDefs, materialFactory);
 
                 this.initParticleSystem(particleFactory);
 
-                const weapons = this.createWeapons(weaponDefs, assets, materialFactory, soundFactory);
+                const weapons = this.createWeapons(context.weaponDefs, assets, materialFactory, soundFactory);
 
                 const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
                 const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
 
-                const player = this.createPlayer(playerDef, weapons, soundFactory, collisionModelFactory);
-                return this.createMap(mapDef, player, materialFactory, collisionModelFactory);
+                const player = this.createPlayer(context.playerDef, weapons, soundFactory, collisionModelFactory);
+                return this.createMap(context.mapDef, player, materialFactory, collisionModelFactory);
             });
         });
     }
 
-    private loadMapMeta(mapName: string): Promise<any> {
-        return this.loadJson(`assets/maps/${mapName}.meta.json`);
+    private loadMapMeta(context: LoadingContext, mapName: string): Promise<any> {
+        return this.loadJson(`assets/maps/${mapName}.meta.json`).then(mapMeta => {
+            context.mapMeta = mapMeta;
+            return mapMeta;
+        });
     }
 
-    private loadMapDef(mapName: string): Promise<any> {
-        return this.loadJson(`assets/maps/${mapName}.json`);
+    private loadMapDef(context: LoadingContext, mapName: string): Promise<any> {
+        return this.loadJson(`assets/maps/${mapName}.json`).then(mapDef => {
+            context.mapDef = mapDef;
+            return mapDef;
+        });
     }
 
-    private loadMaterialDefs(): Promise<Map<string, any>> {
+    private loadMaterialDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/materials.json').then((materialDefs: any[]) => {
             const result = new Map<string, any>();
             materialDefs.forEach(materialDef => result.set(materialDef.name, materialDef));
+            context.materialDefs = result;
             return result;
         });
     }
 
-    private loadTableDefs(): Promise<Map<string, any>> {
+    private loadTableDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/tables.json').then((tableDefs: any[]) => {
             const result = new Map<string, any>();
             for (const table of tableDefs) {
                 result.set(table.name, table);
             }
+            context.tableDefs = result;
             return result;
         });
     }
 
-    private loadParticleDefs(): Promise<Map<string, any>> {
+    private loadParticleDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/particles.json').then((particleDefs: any[]) => {
             const result = new Map<string, any>();
             for (const particle of particleDefs) {
                 result.set(particle.name, particle);
             }
+            context.particleDefs = result;
             return result;
         });
     }
 
-    private loadSoundDefs(): Promise<Map<string, any>> {
+    private loadSoundDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/sounds.json').then((soundDefs: any[]) => {
             const result = new Map<string, any>();
             soundDefs.forEach(soundDef => result.set(soundDef.name, soundDef));
+            context.soundDefs = result;
             return result;
         });
     }
 
-    private loadPlayerDef(): Promise<any> {
-        return this.loadJson('assets/player.json');
+    private loadPlayerDef(context: LoadingContext): Promise<any> {
+        return this.loadJson('assets/player.json').then(playerDef => {
+            context.playerDef = playerDef;
+            return playerDef;
+        });
     }
 
-    private loadWeaponDefs(): Promise<Map<string, any>> {
+    private loadWeaponDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/weapons.json').then((weaponDefs: any[]) => {
             const result = new Map<string, any>();
             weaponDefs.forEach(weaponDef => result.set(weaponDef.name, weaponDef));
+            context.weaponDefs = result;
             return result;
         });
     }
@@ -185,6 +179,67 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 console.error(`Failed to load JSON file "${url}"`, reason);
                 return Promise.reject(reason);
             });
+    }
+
+    private collectTextureSourcesFromWeaponDef(context: LoadingContext, weaponDef: any) {
+        const materials = [...weaponDef.materials];
+        if (weaponDef.muzzleSmoke) {
+            const particleDef = context.particleDefs.get(weaponDef.muzzleSmoke);
+            if (!particleDef) {
+                console.error(`Definition of particle "${weaponDef.muzzleSmoke}" is not found`);
+            } else {
+                materials.push(particleDef.material);
+            }
+        }
+        this.collectTextureSources(context, materials);
+    }
+
+    private collectTextureSources(context: LoadingContext, materials: string[]) {
+        materials.forEach(materialName => {
+            const materialDef = context.materialDefs.get(materialName);
+            if (materialDef) {
+                for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'alphaMap']) {
+                    if (materialDef[mapName]) {
+                        const source = new TextureSource(materialDef[mapName], this.tgaLoader, this.binaryFileLoader);
+                        context.texturesToLoad.set(source.name, source);
+                    }
+                }
+                if (materialDef.maps) { // Shader material
+                    for (const mapDef of materialDef.maps) {
+                        const source = new TextureSource(mapDef, this.tgaLoader, this.binaryFileLoader);
+                        context.texturesToLoad.set(source.name, source);
+                    }
+                }
+            } else {
+                console.error(`Definition of material "${materialName}" is not found`);
+            }
+        });
+    }
+
+    private collectModelSources(context: LoadingContext, entityDef: any) {
+        if (entityDef.models) {
+            entityDef.models.forEach((modelName: string) => context.modelsToLoad.add(modelName));
+        }
+    }
+
+    private collectAnimationSources(context: LoadingContext, entityDef: any) {
+        if (entityDef.animations) {
+            (<string[]>entityDef.animations).forEach(animationName => context.animationsToLoad.add(animationName));
+        }
+    }
+
+    private collectSoundSources(context: LoadingContext, entityDef: any) {
+        if (entityDef.sounds) {
+            Object.keys(entityDef.sounds).forEach(key => {
+                const soundName = entityDef.sounds[key];
+                const soundDef = context.soundDefs.get(soundName);
+                if (soundDef) {
+                    soundDef.sources.forEach((source: string) => context.soundsToLoad.add(source));
+                } else {
+                    console.error(`Definition of sound "${soundName}" is not found`);
+                }
+            });
+        }
     }
 
     private loadTextures(context: LoadingContext): Promise<Texture[]> {
@@ -252,62 +307,6 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             }));
         }
         return Promise.all(soundPromises);
-    }
-
-    private getTextureSources(materials: string[], materialDefs: Map<string, any>): Map<string, TextureSource> {
-        const result = new Map<string, TextureSource>();
-        materials.forEach(materialName => {
-            const materialDef = materialDefs.get(materialName);
-            if (materialDef) {
-                for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'alphaMap']) {
-                    if (materialDef[mapName]) {
-                        const source = new TextureSource(materialDef[mapName], this.tgaLoader, this.binaryFileLoader);
-                        result.set(source.name, source);
-                    }
-                }
-                if (materialDef.maps) { // Shader material
-                    for (const mapDef of materialDef.maps) {
-                        const source = new TextureSource(mapDef, this.tgaLoader, this.binaryFileLoader);
-                        result.set(source.name, source);
-                    }
-                }
-            } else {
-                console.error(`Definition of material "${materialName}" is not found`);
-            }
-        });
-        return result;
-    }
-
-    private getModelSources(entityDef: any): Set<string> {
-        const result = new Set<string>();
-        if (entityDef.models) {
-            entityDef.models.forEach((modelName: string) => result.add(modelName));
-        }
-        return result;
-    }
-
-    private getAnimationSources(entityDef: any): Set<string> {
-        const result = new Set<string>();
-        if (entityDef.animations) {
-            (<string[]>entityDef.animations).forEach(animationName => result.add(animationName));
-        }
-        return result;
-    }
-
-    private getSoundSources(entityDef: any, soundDefs: Map<string, any>): Set<string> {
-        const result = new Set<string>();
-        if (entityDef.sounds) {
-            Object.keys(entityDef.sounds).forEach(key => {
-                const soundName = entityDef.sounds[key];
-                const soundDef = soundDefs.get(soundName);
-                if (soundDef) {
-                    soundDef.sources.forEach((source: string) => result.add(source));
-                } else {
-                    console.error(`Definition of sound "${soundName}" is not found`);
-                }
-            });
-        }
-        return result;
     }
 
     private publishProgress(context: LoadingContext) {
@@ -381,10 +380,21 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 }
 
 class LoadingContext {
+    private static EMPTY_MAP = new Map<string, any>();
+
     readonly texturesToLoad = new Map<string, TextureSource>();
     readonly modelsToLoad = new Set<string>();
     readonly animationsToLoad = new Set<string>();
     readonly soundsToLoad = new Set<string>();
+
+    mapMeta: any;
+    mapDef: any;
+    playerDef: any;
+    materialDefs = LoadingContext.EMPTY_MAP;
+    tableDefs = LoadingContext.EMPTY_MAP;
+    particleDefs = LoadingContext.EMPTY_MAP;
+    soundDefs = LoadingContext.EMPTY_MAP;
+    weaponDefs = LoadingContext.EMPTY_MAP;
 
     loaded = 0;
 
