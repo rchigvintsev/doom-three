@@ -44,6 +44,7 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
                 fadeIn: particleDef.fadeIn,
                 fadeOut: particleDef.fadeOut,
                 time: particleDef.time,
+                interval: particleDef.interval,
                 scaleFrom: particleDef.size.from * SCALE_FACTOR * worldScale,
                 scaleTo: particleDef.size.to * SCALE_FACTOR * worldScale,
                 gravity: gravity

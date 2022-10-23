@@ -2,6 +2,7 @@ import {BufferGeometry, Event, Object3D, PointLight, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
+import {Md5ModelParameters} from '../md5-model';
 import {Weapon} from './weapon';
 import {AttackEvent, WeaponDisableEvent} from '../../../event/weapon-events';
 import {ReloadableWeapon} from './reloadable-weapon';
@@ -9,7 +10,7 @@ import {Player} from '../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
 import {BufferGeometries} from '../../../util/buffer-geometries';
 import {ParticleSystem} from '../../../particles/particle-system';
-import {Md5ModelParameters} from '../md5-model';
+import {Particle} from '../../particle/particle';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -83,11 +84,9 @@ export class Pistol extends Weapon implements ReloadableWeapon {
                 this.lastFireTime = performance.now();
 
                 if (!this.config.renderOnlyWireframe) {
-                    const muzzleSmokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
-                    for (const particle of muzzleSmokeParticles) {
-                        particle.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
-                        particle.show();
-                    }
+                    const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
+                    smokeParticles.onShowParticle = particle => this.setMuzzleSmokeParticlePosition(particle);
+                    smokeParticles.show();
                 }
 
                 this.dispatchEvent(new AttackEvent(this, 0, 0));
@@ -148,6 +147,10 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     private get muzzleSmokeParticleName(): string {
         return (<PistolParameters>this.parameters).muzzleSmokeParticleName;
+    }
+
+    private setMuzzleSmokeParticlePosition(particle: Particle) {
+        return particle.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
     }
 
     private initFireFlash() {

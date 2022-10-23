@@ -8,7 +8,12 @@ import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../md5model/weapon/weapon';
 
 export class Particle extends Sprite implements Entity {
+    onShow?: () => void;
+    onHide?: () => void;
+
     private readonly fadeInTween: Tween<SpriteMaterial>;
+
+    private showedAt = 0;
 
     constructor(private readonly parameters: ParticleParameters) {
         super(parameters.material);
@@ -19,7 +24,12 @@ export class Particle extends Sprite implements Entity {
             .to({opacity: 0}, fadeOutTime)
             .delay(this.parameters.time - fadeOutTime)
             .onUpdate(o => this.material.opacity = o.opacity)
-            .onComplete(() => this.visible = false);
+            .onComplete(() => {
+                this.visible = false;
+                if (this.onHide) {
+                    this.onHide();
+                }
+            });
 
         const scaleTo = parameters.scaleTo;
         const scaleTween = new Tween(this.scale)
@@ -41,16 +51,29 @@ export class Particle extends Sprite implements Entity {
 
     update(_deltaTime: number) {
         if (this.visible) {
-            this.position.x += this.parameters.gravity.x;
-            this.position.y += this.parameters.gravity.y;
+            const now = performance.now();
+            const fadeInTime = this.parameters.time * this.parameters.fadeIn;
+            if (now - this.showedAt > fadeInTime) {
+                this.position.x += this.parameters.gravity.x;
+                this.position.y += this.parameters.gravity.y;
+            }
         }
     }
 
     show() {
-        this.visible = true;
         this.material.opacity = 0;
         this.scale.setScalar(this.parameters.scaleFrom);
+        this.visible = true;
+        this.showedAt = performance.now();
         this.fadeInTween.start();
+
+        if (this.onShow) {
+            this.onShow();
+        }
+    }
+
+    get interval(): number {
+        return this.parameters.interval;
     }
 }
 
@@ -58,6 +81,7 @@ export class ParticleParameters {
     material?: SpriteMaterial;
     fadeIn!: number;
     fadeOut!: number;
+    interval!: number;
     time!: number;
     scaleFrom!: number;
     scaleTo!: number;

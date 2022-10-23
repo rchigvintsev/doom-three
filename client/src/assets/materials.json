@@ -3420,7 +3420,6 @@
     "name": "muzzleSmokePuff",
     "type": "sprite",
     "diffuseMap": "textures/particles/smokepuff",
-    "transparent": "true",
     "blending": "custom",
     "blendSrc": "gl_zero",
     "blendDst": "gl_one_minus_src_color"
