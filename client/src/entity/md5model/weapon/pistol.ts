@@ -96,7 +96,8 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     reload(): void {
         if (this.canReload() && this.ammoClip < AMMO_CLIP_SIZE) {
-            this.animateCrossFade('idle', 'reload_empty', 0.5);
+            const idleAnimationName = this.ammoClip === 0 ? 'idle_empty' : 'idle';
+            this.animateCrossFade(idleAnimationName, 'reload_empty', 0.5);
             this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
             this.updateAmmoCountersOnReload();
             this.playReloadSound();
