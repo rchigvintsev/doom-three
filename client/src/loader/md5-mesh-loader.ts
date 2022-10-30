@@ -88,8 +88,8 @@ export class Md5MeshLoader extends Loader {
                               weights: Md5MeshWeight[],
                               shaders: string[]): SkinnedMesh {
         let materialIndex = undefined;
-        let group: { start: number; count: number; materialIndex?: number } | undefined = undefined;
-        const groups: { start: number; count: number; materialIndex?: number }[] = [];
+        let group: { start: number, count: number, materialIndex?: number } | undefined = undefined;
+        const groups: { start: number, count: number, materialIndex?: number }[] = [];
 
         let i = 0;
         for (; i < faces.length; i++) {
