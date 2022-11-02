@@ -1,30 +1,31 @@
 import {AudioLoader, EventDispatcher, FileLoader, Mesh, Texture} from 'three';
 
+import {Game} from './game';
+import {GameConfig} from './game-config';
+import {GameAssets} from './game-assets';
+import {GameSystemType} from './game-system';
+import {GameMap} from './entity/map/game-map';
 import {TgaLoader} from './loader/tga-loader';
 import {Md5MeshLoader} from './loader/md5-mesh-loader';
 import {Md5AnimationLoader} from './loader/md5-animation-loader';
 import {ProgressEvent} from './event/progress-event';
-import {GameAssets} from './game-assets';
 import {AreaFactory} from './entity/area/area-factory';
 import {SurfaceFactory} from './entity/surface/surface-factory';
 import {MaterialFactory} from './material/material-factory';
-import {GameMap} from './entity/map/game-map';
 import {MapFactory} from './entity/map/map-factory';
 import {LightFactory} from './entity/light/light-factory';
-import {Md5ModelFactory} from './entity/md5model/md5-model-factory';
+import {Md5ModelFactory} from './entity/model/md5/md5-model-factory';
 import {SoundFactory} from './entity/sound/sound-factory';
 import {Md5Animation} from './animation/md5-animation';
-import {Weapon} from './entity/md5model/weapon/weapon';
+import {Weapon} from './entity/model/md5/weapon/weapon';
 import {CollisionModelFactory} from './physics/collision-model-factory';
 import {PlayerFactory} from './entity/player/player-factory';
 import {Player} from './entity/player/player';
 import {TgaImages} from "./util/tga-images";
-import {GameConfig} from './game-config';
 import {PhysicsSystem} from './physics/physics-system';
-import {GameSystemType} from './game-system';
-import {Game} from './game';
 import {ParticleFactory} from './entity/particle/particle-factory';
 import {ParticleSystem} from './particles/particle-system';
+import {Lwo2MeshLoader} from './loader/lwo2-mesh-loader';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -32,6 +33,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly tgaLoader = new TgaLoader();
     private readonly md5MeshLoader = new Md5MeshLoader();
     private readonly md5AnimationLoader = new Md5AnimationLoader();
+    private readonly lwoMeshLoader = new Lwo2MeshLoader();
     private readonly soundLoader = new AudioLoader();
 
     constructor(private readonly game: Game) {
@@ -55,6 +57,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.loadSoundDefs(context),
             this.loadPlayerDef(context),
             this.loadWeaponDefs(context),
+            this.loadDebrisDefs(context)
         ]).then(() => {
             const config = this.game.config;
 
@@ -76,6 +79,14 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.collectSoundSources(context, weaponDef);
             });
 
+            context.debrisDefs.forEach(ammoDef => {
+                context.modelsToLoad.add(ammoDef.model);
+                if (!config.renderOnlyWireframe) {
+                    this.collectTextureSources(context, ammoDef.materials);
+                }
+                this.collectSoundSources(context, ammoDef);
+            });
+
             console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
             return Promise.all([
@@ -91,11 +102,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
                 this.initParticleSystem(particleFactory);
 
-                const weapons = this.createWeapons(context.weaponDefs, assets, materialFactory, soundFactory);
-
                 const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
                 const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
 
+                const weapons = this.createWeapons(context.weaponDefs, assets, materialFactory, soundFactory);
                 const player = this.createPlayer(context.playerDef, weapons, soundFactory, collisionModelFactory);
                 return this.createMap(context.mapDef, player, materialFactory, collisionModelFactory);
             });
@@ -118,41 +128,29 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     private loadMaterialDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/materials.json').then((materialDefs: any[]) => {
-            const result = new Map<string, any>();
-            materialDefs.forEach(materialDef => result.set(materialDef.name, materialDef));
-            context.materialDefs = result;
-            return result;
+            materialDefs.forEach(materialDef => context.materialDefs.set(materialDef.name, materialDef));
+            return context.materialDefs;
         });
     }
 
     private loadTableDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/tables.json').then((tableDefs: any[]) => {
-            const result = new Map<string, any>();
-            for (const table of tableDefs) {
-                result.set(table.name, table);
-            }
-            context.tableDefs = result;
-            return result;
+            tableDefs.forEach(tableDef => context.tableDefs.set(tableDef.name, tableDef));
+            return context.tableDefs;
         });
     }
 
     private loadParticleDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/particles.json').then((particleDefs: any[]) => {
-            const result = new Map<string, any>();
-            for (const particle of particleDefs) {
-                result.set(particle.name, particle);
-            }
-            context.particleDefs = result;
-            return result;
+            particleDefs.forEach(particleDef => context.particleDefs.set(particleDef.name, particleDef));
+            return context.particleDefs;
         });
     }
 
     private loadSoundDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/sounds.json').then((soundDefs: any[]) => {
-            const result = new Map<string, any>();
-            soundDefs.forEach(soundDef => result.set(soundDef.name, soundDef));
-            context.soundDefs = result;
-            return result;
+            soundDefs.forEach(soundDef => context.soundDefs.set(soundDef.name, soundDef));
+            return context.soundDefs;
         });
     }
 
@@ -165,10 +163,15 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
     private loadWeaponDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/weapons.json').then((weaponDefs: any[]) => {
-            const result = new Map<string, any>();
-            weaponDefs.forEach(weaponDef => result.set(weaponDef.name, weaponDef));
-            context.weaponDefs = result;
-            return result;
+            weaponDefs.forEach(weaponDef => context.weaponDefs.set(weaponDef.name, weaponDef));
+            return context.weaponDefs;
+        });
+    }
+
+    private loadDebrisDefs(context: LoadingContext): Promise<Map<string, any>> {
+        return this.loadJson('assets/debris.json').then((debrisDefs: any[]) => {
+            debrisDefs.forEach(debrisDef => context.debrisDefs.set(debrisDef.name, debrisDef));
+            return context.debrisDefs;
         });
     }
 
@@ -256,19 +259,24 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
     private loadModels(context: LoadingContext): Promise<Mesh[]> {
         const modelPromises: Promise<Mesh>[] = [];
         for (const modelName of context.modelsToLoad) {
+            let modelLoader;
             if (modelName.toLowerCase().endsWith('.md5mesh')) {
-                modelPromises.push(this.md5MeshLoader.loadAsync(`assets/${modelName}`).then(mesh => {
-                    console.debug(`Model "${modelName}" is loaded`);
-                    context.onModelMeshLoad(modelName, mesh);
-                    this.publishProgress(context);
-                    return mesh;
-                }).catch(reason => {
-                    console.error(`Failed to load model "${modelName}"`, reason);
-                    return Promise.reject(reason);
-                }));
+                modelLoader = this.md5MeshLoader;
+            } else if (modelName.toLowerCase().endsWith('.lwo')) {
+                modelLoader = this.lwoMeshLoader;
             } else {
                 throw new Error(`Model "${modelName}" has unsupported type`);
             }
+
+            modelPromises.push(modelLoader.loadAsync(`assets/${modelName}`).then(mesh => {
+                console.debug(`Model "${modelName}" is loaded`);
+                context.onModelMeshLoad(modelName, mesh);
+                this.publishProgress(context);
+                return mesh;
+            }).catch(reason => {
+                console.error(`Failed to load model "${modelName}"`, reason);
+                return Promise.reject(reason);
+            }));
         }
         return Promise.all(modelPromises);
     }
@@ -380,8 +388,6 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 }
 
 class LoadingContext {
-    private static EMPTY_MAP = new Map<string, any>();
-
     readonly texturesToLoad = new Map<string, TextureSource>();
     readonly modelsToLoad = new Set<string>();
     readonly animationsToLoad = new Set<string>();
@@ -390,11 +396,13 @@ class LoadingContext {
     mapMeta: any;
     mapDef: any;
     playerDef: any;
-    materialDefs = LoadingContext.EMPTY_MAP;
-    tableDefs = LoadingContext.EMPTY_MAP;
-    particleDefs = LoadingContext.EMPTY_MAP;
-    soundDefs = LoadingContext.EMPTY_MAP;
-    weaponDefs = LoadingContext.EMPTY_MAP;
+
+    readonly materialDefs = new Map<string, any>();
+    readonly tableDefs = new Map<string, any>();
+    readonly particleDefs = new Map<string, any>();
+    readonly soundDefs = new Map<string, any>();
+    readonly weaponDefs = new Map<string, any>();
+    readonly debrisDefs = new Map<string, any>();
 
     loaded = 0;
 

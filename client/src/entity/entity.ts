@@ -1,7 +1,7 @@
 import {Scene, Vector3} from 'three';
 
 import {PhysicsSystem} from '../physics/physics-system';
-import {Weapon} from './md5model/weapon/weapon';
+import {Weapon} from './model/md5/weapon/weapon';
 
 export interface Entity {
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;

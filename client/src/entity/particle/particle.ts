@@ -5,7 +5,7 @@ import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
 import {PhysicsSystem} from '../../physics/physics-system';
-import {Weapon} from '../md5model/weapon/weapon';
+import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Particle extends Sprite implements Entity {
     onShow?: () => void;

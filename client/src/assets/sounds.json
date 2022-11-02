@@ -148,5 +148,15 @@
     "sources": [
       "sound/ed/doors/_door_blue_singlepaned/close4.ogg"
     ]
+  },
+  {
+    "name": "casings_small_mix",
+    "type": "positional",
+    "sources": [
+      "sound/weapons/casings/small_metal_02.wav",
+      "sound/weapons/casings/small_lino_02.wav",
+      "sound/weapons/casings/small_conc_02.wav",
+      "sound/weapons/casings/small_single_conc_03.wav"
+    ]
   }
 ]

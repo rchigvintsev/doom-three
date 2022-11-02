@@ -3,9 +3,9 @@ import {AnimationAction, BufferGeometry, Object3D, SpotLight, Texture, Vector3} 
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
-import {AttackEvent} from '../../../event/weapon-events';
-import {Player} from '../../player/player';
-import {BufferGeometries} from '../../../util/buffer-geometries';
+import {AttackEvent} from '../../../../event/weapon-events';
+import {Player} from '../../../player/player';
+import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 50;

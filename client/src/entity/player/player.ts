@@ -5,15 +5,15 @@ import {random, randomInt} from 'mathjs';
 import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
-import {Weapon} from '../md5model/weapon/weapon';
+import {Weapon} from '../model/md5/weapon/weapon';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
 import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
-import {Fists} from '../md5model/weapon/fists';
-import {Flashlight} from '../md5model/weapon/flashlight';
-import {Pistol} from '../md5model/weapon/pistol';
-import {isReloadableWeapon} from '../md5model/weapon/reloadable-weapon';
+import {Fists} from '../model/md5/weapon/fists';
+import {Flashlight} from '../model/md5/weapon/flashlight';
+import {Pistol} from '../model/md5/weapon/pistol';
+import {isReloadableWeapon} from '../model/md5/weapon/reloadable-weapon';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;

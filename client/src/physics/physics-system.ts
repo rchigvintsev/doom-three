@@ -1,8 +1,6 @@
-import {Material, World, ContactMaterial} from 'cannon-es';
+import {ContactMaterial, Material, World} from 'cannon-es';
 
 import {GameSystem} from '../game-system';
-
-const TIME_STEP = 1 / 60;
 
 export class PhysicsSystem extends World implements GameSystem {
     readonly materials = new Map<string, Material>();
@@ -13,8 +11,8 @@ export class PhysicsSystem extends World implements GameSystem {
         this.initMaterials();
     }
 
-    update(deltaTime: number) {
-        this.step(TIME_STEP, deltaTime);
+    update(_deltaTime: number) {
+        this.fixedStep();
     }
 
     private initMaterials() {
@@ -23,6 +21,8 @@ export class PhysicsSystem extends World implements GameSystem {
         this.materials.set('models/player', playerMaterial);
         const floorMaterial = new Material();
         this.materials.set('floor', floorMaterial);
+        const weaponShellMaterial = new Material();
+        this.materials.set('models/weapons/shell', weaponShellMaterial);
         this.addContactMaterial(new ContactMaterial(playerMaterial, this.defaultMaterial, {
             friction: 0.02,
             restitution: 0,
@@ -32,5 +32,11 @@ export class PhysicsSystem extends World implements GameSystem {
             restitution: 0,
             frictionEquationRelaxation: 0.1
         }));
+        this.addContactMaterial(new ContactMaterial(weaponShellMaterial, floorMaterial, {
+            restitution: 0.4,
+            contactEquationStiffness: 1e9,
+            contactEquationRelaxation: 2
+        }));
+        this.addContactMaterial(new ContactMaterial(weaponShellMaterial, playerMaterial, {friction: 0}));
     }
 }

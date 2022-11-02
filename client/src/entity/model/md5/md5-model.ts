@@ -1,26 +1,19 @@
-import {
-    AnimationAction,
-    Audio,
-    BufferGeometry,
-    Event,
-    Material,
-    Scene,
-    SkeletonHelper,
-    SkinnedMesh,
-    Vector3
-} from 'three';
+import {AnimationAction, Audio, Event, Material, Mesh, Scene, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
-import {Entity} from '../entity';
-import {PhysicsSystem} from '../../physics/physics-system';
+import {Entity} from '../../entity';
+import {PhysicsSystem} from '../../../physics/physics-system';
 import {Weapon} from './weapon/weapon';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {isUpdatableMaterial} from '../../material/updatable-material';
-import {GameConfig} from '../../game-config';
-import {CustomAnimationMixer} from '../../animation/custom-animation-mixer';
+import {GameConfig} from '../../../game-config';
+import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
+import {ModelParameters} from '../model-parameters';
+import {MeshBasedEntity, MeshBasedEntityMixin} from '../../mesh-based-entity';
+import {applyMixins} from '../../../util/mixins';
+import {CollisionModel} from '../../../physics/collision-model';
 
-export class Md5Model extends SkinnedMesh implements Entity {
+export class Md5Model extends SkinnedMesh implements Entity, MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
 
     protected animationMixer?: CustomAnimationMixer;
@@ -39,13 +32,7 @@ export class Md5Model extends SkinnedMesh implements Entity {
 
     init() {
         if (!this.initialized) {
-            if (this.animations) {
-                this.animationMixer = new CustomAnimationMixer(this);
-                this.animationMixer.addEventListener('finished', e => this.onAnimationFinished(e));
-            }
-            if (this._wireframeHelper) {
-                this._wireframeHelper.init();
-            }
+            this.doInit();
             this.initialized = true;
         }
     }
@@ -62,8 +49,16 @@ export class Md5Model extends SkinnedMesh implements Entity {
             this._wireframeHelper.update(deltaTime);
         }
         if (!this.config.renderOnlyWireframe) {
-            this.updateMaterials(deltaTime);
+            this.updateMaterials(this, deltaTime);
         }
+    }
+
+    updateMaterials(_mesh: Mesh, _deltaTime: number) {
+        // Implemented in MeshBasedEntityMixin
+    }
+
+    updateCollisionModel(_mesh: Mesh, _collisionModel: CollisionModel | undefined, _deltaTime: number) {
+        // Implemented in MeshBasedEntityMixin
     }
 
     onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
@@ -113,6 +108,16 @@ export class Md5Model extends SkinnedMesh implements Entity {
             if (this._wireframeHelper) {
                 this._wireframeHelper.animateCrossFadeDelayed(startActionName, endActionName, delay, duration);
             }
+        }
+    }
+
+    protected doInit() {
+        if (this.animations) {
+            this.animationMixer = new CustomAnimationMixer(this);
+            this.animationMixer.addEventListener('finished', e => this.onAnimationFinished(e));
+        }
+        if (this._wireframeHelper) {
+            this._wireframeHelper.init();
         }
     }
 
@@ -170,23 +175,10 @@ export class Md5Model extends SkinnedMesh implements Entity {
         }
         return undefined;
     }
-
-    private updateMaterials(deltaTime: number) {
-        if (Array.isArray(this.material)) {
-            for (const material of this.material) {
-                if (isUpdatableMaterial(material)) {
-                    material.update(deltaTime);
-                }
-            }
-        } else if (isUpdatableMaterial(this.material)) {
-            this.material.update(deltaTime);
-        }
-    }
 }
 
-export class Md5ModelParameters {
-    config!: GameConfig;
-    geometry!: BufferGeometry;
-    materials!: Material | Material[];
+applyMixins(Md5Model, MeshBasedEntityMixin);
+
+export class Md5ModelParameters extends ModelParameters {
     sounds?: Map<string, Audio<AudioNode>[]>;
 }

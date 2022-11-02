@@ -4,13 +4,13 @@ import {randomInt} from 'mathjs';
 
 import {Md5ModelParameters} from '../md5-model';
 import {Weapon} from './weapon';
-import {AttackEvent, WeaponDisableEvent} from '../../../event/weapon-events';
+import {AttackEvent, WeaponDisableEvent} from '../../../../event/weapon-events';
 import {ReloadableWeapon} from './reloadable-weapon';
-import {Player} from '../../player/player';
-import {UpdatableMeshBasicMaterial} from '../../../material/updatable-mesh-basic-material';
-import {BufferGeometries} from '../../../util/buffer-geometries';
-import {ParticleSystem} from '../../../particles/particle-system';
-import {Particle} from '../../particle/particle';
+import {Player} from '../../../player/player';
+import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
+import {BufferGeometries} from '../../../../util/buffer-geometries';
+import {ParticleSystem} from '../../../../particles/particle-system';
+import {Particle} from '../../../particle/particle';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;

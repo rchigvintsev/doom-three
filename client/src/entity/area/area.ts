@@ -3,7 +3,7 @@ import {Group, Light, Scene, Vector3} from 'three';
 import {Surface} from '../surface/surface';
 import {Entity} from '../entity';
 import {PhysicsSystem} from '../../physics/physics-system';
-import {Weapon} from '../md5model/weapon/weapon';
+import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Area extends Group implements Entity {
     constructor(private readonly surfaces: Surface[], private readonly lights: Light[]) {

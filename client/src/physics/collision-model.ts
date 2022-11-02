@@ -3,7 +3,7 @@ import {Object3D, Quaternion, Scene, Vector3} from 'three';
 import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
 
 import {PhysicsSystem} from './physics-system';
-import {Weapon} from "../entity/md5model/weapon/weapon";
+import {Weapon} from "../entity/model/md5/weapon/weapon";
 
 export class CollisionModel {
     private readonly _position = new Vector3();

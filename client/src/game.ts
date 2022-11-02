@@ -14,7 +14,6 @@ import {PointerUnlockEvent} from './event/pointer-lock-events';
 import {GameSystem, GameSystemType} from './game-system';
 import {TweenAnimationSystem} from './animation/tween-animation-system';
 
-// noinspection JSMethodCanBeStatic
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
 
@@ -170,15 +169,9 @@ export class Game {
     private initPhysicsSystem() {
         const physicsSystem = new PhysicsSystem();
         physicsSystem.allowSleep = true;
-
         physicsSystem.defaultContactMaterial.contactEquationStiffness = 1e9;
         physicsSystem.defaultContactMaterial.contactEquationRelaxation = 4;
-
-        const solver = new GSSolver();
-        solver.iterations = 7;
-        solver.tolerance = 0.1;
-        physicsSystem.solver = new SplitSolver(solver);
-
+        physicsSystem.solver = new SplitSolver(new GSSolver());
         this.systems.set(GameSystemType.PHYSICS, physicsSystem);
     }
 

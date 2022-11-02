@@ -3,7 +3,7 @@ import {AnimationAction, Object3D} from 'three';
 import {randomInt} from 'mathjs';
 
 import {Weapon} from './weapon';
-import {AttackEvent} from '../../../event/weapon-events';
+import {AttackEvent} from '../../../../event/weapon-events';
 import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 50;

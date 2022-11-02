@@ -1,4 +1,14 @@
-import {BoxGeometry, BufferGeometry, Group, MathUtils, Mesh, MeshBasicMaterial, SphereGeometry, Vector3} from 'three';
+import {
+    BoxGeometry,
+    BufferGeometry,
+    CylinderGeometry,
+    Group,
+    MathUtils,
+    Mesh,
+    MeshBasicMaterial,
+    SphereGeometry,
+    Vector3
+} from 'three';
 
 import {Body, Box, Cylinder, Heightfield, Material, Quaternion, Shape, Sphere, Trimesh, Vec3} from 'cannon-es';
 
@@ -57,7 +67,7 @@ export class CollisionModelFactory {
                 body.allowSleep = bodyDef.allowSleep;
             }
             if (body.allowSleep) {
-                body.sleepSpeedLimit = 0.2;
+                body.sleepSpeedLimit = bodyDef.sleepSpeedLimit || 0.2;
             }
         }
 
@@ -162,6 +172,12 @@ export class CollisionModelFactory {
             case Shape.types.BOX: {
                 const halfExtents = (<Box>shape).halfExtents;
                 return new BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+            }
+            case Shape.types.CYLINDER: {
+                const radiusTop = (<Cylinder>shape).radiusTop;
+                const radiusBottom = (<Cylinder>shape).radiusBottom;
+                const height = (<Cylinder>shape).height;
+                return new CylinderGeometry(radiusTop, radiusBottom, height);
             }
             default:
                 throw new Error(`Unsupported shape type: "${shape.type}"`);

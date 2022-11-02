@@ -5,43 +5,41 @@ import {
     BufferGeometry,
     Material,
     MathUtils,
-    MeshBasicMaterial,
-    MeshPhongMaterial,
     Skeleton,
     SkeletonHelper,
     SkinnedMesh
 } from 'three';
 
-import {EntityFactory} from '../entity-factory';
-import {GameAssets} from '../../game-assets';
-import {GameConfig} from '../../game-config';
-import {MaterialFactory} from '../../material/material-factory';
+import {GameAssets} from '../../../game-assets';
+import {GameConfig} from '../../../game-config';
+import {MaterialFactory} from '../../../material/material-factory';
 import {Fists} from './weapon/fists';
-import {Md5MeshGeometry} from '../../geometry/md5-mesh-geometry';
-import {Md5Animation} from '../../animation/md5-animation';
+import {Md5MeshGeometry} from '../../../geometry/md5-mesh-geometry';
+import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
-import {SoundFactory} from '../sound/sound-factory';
+import {SoundFactory} from '../../sound/sound-factory';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
-import {ParticleSystem} from '../../particles/particle-system';
+import {ParticleSystem} from '../../../particles/particle-system';
+import {AbstractModelFactory} from '../abstract-model-factory';
 
-// noinspection JSMethodCanBeStatic
-export class Md5ModelFactory implements EntityFactory<Md5Model> {
-    constructor(private readonly config: GameConfig,
+export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
+    constructor(config: GameConfig,
                 private readonly assets: GameAssets,
-                private readonly materialFactory: MaterialFactory,
+                materialFactory: MaterialFactory,
                 private readonly soundFactory: SoundFactory,
                 private readonly particleSystem: ParticleSystem) {
+        super(config, materialFactory);
     }
 
     create(modelDef: any): Md5Model {
-        const mesh = this.getRequiredModelMesh(modelDef);
+        const modelMesh = this.getRequiredModelMesh(modelDef);
         const animations = this.getAnimations(modelDef);
-        this.bindPose(mesh, animations[0]);
+        this.bindPose(modelMesh, animations[0]);
         const materials = this.createMaterials(modelDef);
         const sounds = this.createSounds(modelDef);
-        const model = this.createModel(modelDef, mesh.geometry, materials, animations, sounds);
+        const model = this.createModel(modelDef, modelMesh.geometry, materials, animations, sounds);
         if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
@@ -105,30 +103,6 @@ export class Md5ModelFactory implements EntityFactory<Md5Model> {
         }
 
         return new Skeleton(bones);
-    }
-
-    private createMaterials(modelDef: any): Material[] {
-        const materials: Material[] = [];
-        if (this.config.renderOnlyWireframe) {
-            if (modelDef.materials) {
-                for (let i = 0; i < modelDef.materials.length; i++) {
-                    materials.push(new MeshBasicMaterial({wireframe: true}));
-                }
-            }
-            if (materials.length == 0) {
-                materials.push(new MeshBasicMaterial({wireframe: true}));
-            }
-        } else {
-            if (modelDef.materials) {
-                for (let i = 0; i < modelDef.materials.length; i++) {
-                    materials.push(this.materialFactory.create(modelDef.materials[i])[0]);
-                }
-            }
-            if (materials.length == 0) {
-                materials.push(new MeshPhongMaterial());
-            }
-        }
-        return materials;
     }
 
     private createModel(modelDef: any,

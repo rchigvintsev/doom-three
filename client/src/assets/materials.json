@@ -3414,6 +3414,7 @@
   },
   {
     "name": "textures/uv_grid_opengl",
+    "type": "basic",
     "diffuseMap": "textures/uv_grid_opengl"
   },
   {
@@ -3423,5 +3424,27 @@
     "blending": "custom",
     "blendSrc": "gl_zero",
     "blendDst": "gl_one_minus_src_color"
+  },
+  {
+    "name": "models/weapons/shell1/mshell",
+    "diffuseMap": "models/weapons/shell1/mshell",
+    "normalMap": "models/weapons/shell1/mshell_local",
+    "specularMap": "models/weapons/shell1/mshell_s",
+    "shininess": 40,
+    "noShadows": true,
+    "renderBump": true
+  },
+  {
+    "name": "models/items/aircannister/aircannister",
+    "diffuseMap": "models/items/aircannister/aircannister_d",
+    "normalMap": "models/items/aircannister/aircannister_local",
+    "specularMap": "models/items/aircannister/aircannister_s",
+    "noSelfShadow": true
+  },
+  {
+    "name": "models/mapobjects/healthgui/healthguidirty",
+    "diffuseMap": "models/mapobjects/healthgui/healthguidirty",
+    "specularMap": "models/mapobjects/healthgui/healthguidirty_s",
+    "normalMap": "models/mapobjects/healthgui/healthgui_local"
   }
 ]

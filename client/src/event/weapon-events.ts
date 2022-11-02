@@ -1,6 +1,6 @@
 import {Event} from 'three';
 
-import {Weapon} from '../entity/md5model/weapon/weapon';
+import {Weapon} from '../entity/model/md5/weapon/weapon';
 
 export class AttackEvent implements Event {
     static readonly TYPE = 'attack';

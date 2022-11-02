@@ -1,8 +1,8 @@
 import {Euler, Event, Object3D, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters} from '../md5-model';
-import {Player} from '../../player/player';
-import {WeaponDisableEvent} from '../../../event/weapon-events';
+import {Player} from '../../../player/player';
+import {WeaponDisableEvent} from '../../../../event/weapon-events';
 
 const BOBBING_MAGNITUDE_X = 0.40;
 const BOBBING_MAGNITUDE_Y = 0.40;
@@ -27,11 +27,6 @@ export abstract class Weapon extends Md5Model {
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
         this.visible = false;
-    }
-
-    init() {
-        super.init();
-        this.origin.copy(this.position);
     }
 
     update(deltaTime: number, player?: Player) {
@@ -80,6 +75,11 @@ export abstract class Weapon extends Md5Model {
      * Called when this weapon misses during the attack.
      */
     abstract onMiss(): void;
+
+    protected doInit() {
+        super.doInit();
+        this.origin.copy(this.position);
+    }
 
     protected onAnimationFinished(e: Event) {
         if (e.action.getClip().name === 'lower' && !this.enabled) {

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "debris_brass",
+    "model": "models/weapons/shell1/mshell_lo.lwo",
+    "materials": [
+      "models/weapons/shell1/mshell"
+    ],
+    "sounds": {
+      "bounce": "casings_small_mix"
+    },
+    "time": 3000,
+    "collisionModel": {
+      "bodies": [
+        {
+          "mass": 0.005,
+          "material": "models/weapons/shell",
+          "sleepSpeedLimit": 20,
+          "shapes": [
+            {
+              "type": "cylinder",
+              "name": "body",
+              "radiusTop": 0.3,
+              "radiusBottom": 0.3,
+              "height": 1.59,
+              "offset": [0, 0.065, 0]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

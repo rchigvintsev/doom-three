@@ -1,5 +1,5 @@
 import {BufferGeometry, MeshBasicMaterial, SkinnedMesh} from 'three';
-import {CustomAnimationMixer} from '../../animation/custom-animation-mixer';
+import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
 
 export class Md5ModelWireframeHelper extends SkinnedMesh {
     private animationMixer?: CustomAnimationMixer;

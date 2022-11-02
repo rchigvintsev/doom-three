@@ -4,7 +4,7 @@ import {Area} from '../area/area';
 import {Entity} from '../entity';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {Player} from '../player/player';
-import {Weapon} from '../md5model/weapon/weapon';
+import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 
 export class GameMap extends Group implements Entity {
