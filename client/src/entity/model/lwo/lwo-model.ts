@@ -29,7 +29,7 @@ export class LwoModel extends Mesh implements Entity, MeshBasedEntity {
         }
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 

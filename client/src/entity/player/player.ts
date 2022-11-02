@@ -94,7 +94,7 @@ export class Player extends Object3D implements Entity {
         }
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing for now
     }
 

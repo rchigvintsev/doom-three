@@ -61,7 +61,7 @@ export class Md5Model extends SkinnedMesh implements Entity, MeshBasedEntity {
         // Implemented in MeshBasedEntityMixin
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing by default
     }
 

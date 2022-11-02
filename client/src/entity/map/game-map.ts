@@ -44,7 +44,7 @@ export class GameMap extends Group implements Entity {
         this.player.update(deltaTime);
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing
     }
 
@@ -64,7 +64,7 @@ export class GameMap extends Group implements Entity {
                 target = target.parent;
             }
             if (target.onAttack) {
-                (<Entity>target).onAttack(intersection.point, this.forceVector, e.weapon);
+                (<Entity>target).onAttacked(intersection.point, this.forceVector, e.weapon);
                 hits++;
             }
         }

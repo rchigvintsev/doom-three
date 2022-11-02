@@ -23,7 +23,7 @@ export class Surface extends Mesh implements Entity, MeshBasedEntity {
         this.updateCollisionModel(this, this.collisionModel, deltaTime);
     }
 
-    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void {
+    onAttacked(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void {
         this.collisionModel.onAttack(this.worldToLocal(hitPoint), forceVector, weapon);
         weapon.onHit(this);
     }

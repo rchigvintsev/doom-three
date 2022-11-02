@@ -41,7 +41,7 @@ export class Particle extends Sprite implements Entity {
             .onStart(() => scaleTween.start());
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
