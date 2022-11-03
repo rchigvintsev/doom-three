@@ -1,34 +1,36 @@
-import {Mesh} from 'three';
-
 import {isUpdatableMaterial} from '../material/updatable-material';
 import {CollisionModel} from '../physics/collision-model';
+import {Entity} from './entity';
+import {Material, Quaternion, Vector3} from 'three';
 
-export interface MeshBasedEntity {
-    updateMaterials(mesh: Mesh, deltaTime: number): void;
+export interface MeshBasedEntity extends Entity {
+    get position(): Vector3;
 
-    updateCollisionModel(mesh: Mesh, collisionModel: CollisionModel | undefined, deltaTime: number): void;
+    get quaternion(): Quaternion;
+
+    get material(): Material | Material[];
+
+    get collisionModel(): CollisionModel | undefined;
 }
 
-export class MeshBasedEntityMixin implements MeshBasedEntity {
-    updateMaterials(mesh: Mesh, deltaTime: number) {
-        if (Array.isArray(mesh.material)) {
-            for (const material of mesh.material) {
-                if (isUpdatableMaterial(material)) {
-                    material.update(deltaTime);
-                }
+export function updateMaterials(entity: MeshBasedEntity, deltaTime: number) {
+    if (Array.isArray(entity.material)) {
+        for (const material of entity.material) {
+            if (isUpdatableMaterial(material)) {
+                material.update(deltaTime);
             }
-        } else if (isUpdatableMaterial(mesh.material)) {
-            mesh.material.update(deltaTime);
         }
+    } else if (isUpdatableMaterial(entity.material)) {
+        entity.material.update(deltaTime);
     }
+}
 
-    updateCollisionModel(mesh: Mesh, collisionModel: CollisionModel | undefined, deltaTime: number) {
-        if (collisionModel) {
-            collisionModel.update(deltaTime);
-            if (collisionModel.hasMass()) {
-                mesh.position.copy(collisionModel.position);
-                mesh.quaternion.copy(collisionModel.quaternion);
-            }
+export function updateCollisionModel(entity: MeshBasedEntity, deltaTime: number) {
+    if (entity.collisionModel) {
+        entity.collisionModel.update(deltaTime);
+        if (entity.collisionModel.hasMass()) {
+            entity.position.copy(entity.collisionModel.position);
+            entity.quaternion.copy(entity.collisionModel.quaternion);
         }
     }
 }

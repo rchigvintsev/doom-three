@@ -1,19 +1,17 @@
-import {AnimationAction, Audio, Event, Material, Mesh, Scene, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
+import {AnimationAction, Audio, Event, Material, Scene, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
-import {Entity} from '../../entity';
 import {PhysicsSystem} from '../../../physics/physics-system';
 import {Weapon} from './weapon/weapon';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {GameConfig} from '../../../game-config';
 import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
 import {ModelParameters} from '../model-parameters';
-import {MeshBasedEntity, MeshBasedEntityMixin} from '../../mesh-based-entity';
-import {applyMixins} from '../../../util/mixins';
+import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {CollisionModel} from '../../../physics/collision-model';
 
-export class Md5Model extends SkinnedMesh implements Entity, MeshBasedEntity {
+export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
 
     protected animationMixer?: CustomAnimationMixer;
@@ -49,20 +47,16 @@ export class Md5Model extends SkinnedMesh implements Entity, MeshBasedEntity {
             this._wireframeHelper.update(deltaTime);
         }
         if (!this.config.renderOnlyWireframe) {
-            this.updateMaterials(this, deltaTime);
+            updateMaterials(this, deltaTime);
         }
-    }
-
-    updateMaterials(_mesh: Mesh, _deltaTime: number) {
-        // Implemented in MeshBasedEntityMixin
-    }
-
-    updateCollisionModel(_mesh: Mesh, _collisionModel: CollisionModel | undefined, _deltaTime: number) {
-        // Implemented in MeshBasedEntityMixin
     }
 
     onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing by default
+    }
+
+    get collisionModel(): CollisionModel | undefined {
+        return undefined;
     }
 
     get config(): GameConfig {
@@ -176,8 +170,6 @@ export class Md5Model extends SkinnedMesh implements Entity, MeshBasedEntity {
         return undefined;
     }
 }
-
-applyMixins(Md5Model, MeshBasedEntityMixin);
 
 export class Md5ModelParameters extends ModelParameters {
     sounds?: Map<string, Audio<AudioNode>[]>;
