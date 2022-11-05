@@ -1,11 +1,10 @@
 import {Light, Mesh, MeshBasicMaterial, PointLight, SphereGeometry, SpotLight} from 'three';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {GameConfig} from '../../game-config';
 
-// noinspection JSMethodCanBeStatic
 export class LightFactory implements EntityFactory<Light> {
-    constructor(private readonly config: GameConfig) {
+    constructor(private readonly parameters: EntityFactoryParameters) {
     }
 
     create(lightDef: any): Light {
@@ -38,5 +37,9 @@ export class LightFactory implements EntityFactory<Light> {
         const sphereMaterial = new MeshBasicMaterial();
         sphereMaterial.color.set(lightDef.color);
         return new Mesh(sphereGeometry, sphereMaterial);
+    }
+
+    private get config(): GameConfig {
+        return this.parameters.config;
     }
 }

@@ -1,6 +1,6 @@
 import {Audio, PerspectiveCamera} from 'three';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Player} from './player';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {Weapon} from '../model/md5/weapon/weapon';
@@ -9,11 +9,7 @@ import {GameConfig} from '../../game-config';
 import {SoundFactory} from '../sound/sound-factory';
 
 export class PlayerFactory implements EntityFactory<Player> {
-    constructor(private readonly config: GameConfig,
-                private readonly camera: PerspectiveCamera,
-                private readonly weapons: Map<string, Weapon>,
-                private readonly soundFactory: SoundFactory,
-                private readonly collisionModelFactory: CollisionModelFactory) {
+    constructor(private readonly parameters: PlayerFactoryParameters) {
     }
 
     create(playerDef: any): Player {
@@ -33,4 +29,31 @@ export class PlayerFactory implements EntityFactory<Player> {
         }
         return sounds;
     }
+
+    private get config(): GameConfig {
+        return this.parameters.config;
+    }
+
+    private get camera(): PerspectiveCamera {
+        return this.parameters.camera;
+    }
+
+    private get weapons(): Map<string, Weapon> {
+        return this.parameters.weapons;
+    }
+
+    private get soundFactory(): SoundFactory {
+        return this.parameters.soundFactory;
+    }
+
+    private get collisionModelFactory(): CollisionModelFactory {
+        return this.parameters.collisionModelFactory;
+    }
+}
+
+export class PlayerFactoryParameters extends EntityFactoryParameters {
+    camera!: PerspectiveCamera;
+    weapons!: Map<string, Weapon>;
+    soundFactory!: SoundFactory;
+    collisionModelFactory!: CollisionModelFactory;
 }

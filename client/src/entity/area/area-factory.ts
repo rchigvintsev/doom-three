@@ -1,6 +1,6 @@
 import {Light} from 'three';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Area} from './area';
 import {SurfaceFactory} from '../surface/surface-factory';
 import {Surface} from '../surface/surface';
@@ -8,9 +8,7 @@ import {LightFactory} from '../light/light-factory';
 import {GameConfig} from '../../game-config';
 
 export class AreaFactory implements EntityFactory<Area> {
-    constructor(private readonly config: GameConfig,
-                private readonly surfaceFactory: SurfaceFactory,
-                private readonly lightFactory: LightFactory) {
+    constructor(private readonly parameters: AreaFactoryParameters) {
     }
 
     create(areaDef: any): Area {
@@ -26,4 +24,21 @@ export class AreaFactory implements EntityFactory<Area> {
         }
         return new Area(surfaces, lights);
     }
+
+    private get config(): GameConfig {
+        return this.parameters.config;
+    }
+
+    private get surfaceFactory(): SurfaceFactory {
+        return this.parameters.surfaceFactory;
+    }
+
+    private get lightFactory(): LightFactory {
+        return this.parameters.lightFactory;
+    }
+}
+
+export class AreaFactoryParameters extends EntityFactoryParameters {
+    surfaceFactory!: SurfaceFactory;
+    lightFactory!: LightFactory;
 }

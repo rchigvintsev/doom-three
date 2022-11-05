@@ -10,9 +10,6 @@ import {
     SkinnedMesh
 } from 'three';
 
-import {GameAssets} from '../../../game-assets';
-import {GameConfig} from '../../../game-config';
-import {MaterialFactory} from '../../../material/material-factory';
 import {Fists} from './weapon/fists';
 import {Md5MeshGeometry} from '../../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../../animation/md5-animation';
@@ -22,17 +19,13 @@ import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
 import {ParticleSystem} from '../../../particles/particle-system';
-import {AbstractModelFactory} from '../abstract-model-factory';
+import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
 import {DebrisSystem} from '../../../debris/debris-system';
+import {GameAssets} from '../../../game-assets';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
-    constructor(config: GameConfig,
-                private readonly assets: GameAssets,
-                materialFactory: MaterialFactory,
-                private readonly soundFactory: SoundFactory,
-                private readonly particleSystem: ParticleSystem,
-                private readonly debrisSystem: DebrisSystem) {
-        super(config, materialFactory);
+    constructor(parameters: Md5ModelFactoryParameters) {
+        super(parameters);
     }
 
     create(modelDef: any): Md5Model {
@@ -175,4 +168,26 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     private createAnimationClips(animations: Md5Animation[], skeleton: Skeleton) {
         return animations.map(animation => AnimationClip.parseAnimation(animation, skeleton.bones));
     }
+
+    private get assets(): GameAssets {
+        return (<Md5ModelFactoryParameters>this.parameters).assets!;
+    }
+
+    private get soundFactory(): SoundFactory {
+        return (<Md5ModelFactoryParameters>this.parameters).soundFactory;
+    }
+
+    private get particleSystem(): ParticleSystem {
+        return (<Md5ModelFactoryParameters>this.parameters).particleSystem;
+    }
+
+    private get debrisSystem(): DebrisSystem {
+        return (<Md5ModelFactoryParameters>this.parameters).debrisSystem;
+    }
+}
+
+export class Md5ModelFactoryParameters extends ModelFactoryParameters {
+    soundFactory!: SoundFactory;
+    particleSystem!: ParticleSystem;
+    debrisSystem!: DebrisSystem;
 }

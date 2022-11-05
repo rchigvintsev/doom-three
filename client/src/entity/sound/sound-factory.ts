@@ -1,12 +1,10 @@
 import {Audio, AudioListener, PositionalAudio} from 'three';
 
 import {GameAssets} from '../../game-assets';
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 
 export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
-    constructor(private readonly audioListener: AudioListener,
-                private readonly soundDefs: Map<string, any>,
-                private readonly assets: GameAssets) {
+    constructor(private readonly parameters: SoundFactoryParameters) {
     }
 
     create(soundName: string): Audio<AudioNode>[] {
@@ -34,4 +32,21 @@ export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
         }
         return new Audio(this.audioListener);
     }
+
+    private get assets(): GameAssets {
+        return this.parameters.assets!;
+    }
+    
+    private get soundDefs(): Map<string, any> {
+        return this.parameters.soundDefs;
+    }
+
+    private get audioListener(): AudioListener {
+        return this.parameters.audioListener;
+    }
+}
+
+export class SoundFactoryParameters extends EntityFactoryParameters {
+    soundDefs!: Map<string, any>;
+    audioListener!: AudioListener;
 }

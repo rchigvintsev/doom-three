@@ -3,7 +3,7 @@ import {degToRad} from 'three/src/math/MathUtils';
 
 import {randomInt} from 'mathjs';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
 import {GameConfig} from '../../game-config';
@@ -12,9 +12,7 @@ const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
 
 export class ParticleFactory implements EntityFactory<Particle[]> {
-    constructor(private readonly config: GameConfig,
-                private readonly particleDefs: Map<string, any>,
-                private readonly materialFactory: MaterialFactory) {
+    constructor(private readonly parameters: ParticleFactoryParameters) {
     }
 
     create(particleName: string): Particle[] {
@@ -52,4 +50,21 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
         }
         return particles;
     }
+
+    private get config(): GameConfig {
+        return this.parameters.config;
+    }
+
+    private get particleDefs(): Map<string, any> {
+        return this.parameters.particleDefs;
+    }
+
+    private get materialFactory(): MaterialFactory {
+        return this.parameters.materialFactory;
+    }
+}
+
+export class ParticleFactoryParameters extends EntityFactoryParameters {
+    particleDefs!: Map<string, any>;
+    materialFactory!: MaterialFactory;
 }

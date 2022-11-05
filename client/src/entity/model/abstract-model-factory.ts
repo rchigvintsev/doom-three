@@ -1,13 +1,12 @@
 import {Material, MeshBasicMaterial, MeshPhongMaterial} from 'three';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Entity} from '../entity';
 import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
 
 export abstract class AbstractModelFactory<T extends Entity> implements EntityFactory<T> {
-    constructor(protected readonly config: GameConfig,
-                protected readonly materialFactory: MaterialFactory) {
+    constructor(protected readonly parameters: ModelFactoryParameters) {
     }
 
     abstract create(entityDef: any): T;
@@ -35,4 +34,16 @@ export abstract class AbstractModelFactory<T extends Entity> implements EntityFa
         }
         return materials;
     }
+
+    protected get config(): GameConfig {
+        return this.parameters.config;
+    }
+
+    protected get materialFactory(): MaterialFactory {
+        return this.parameters.materialFactory;
+    }
+}
+
+export class ModelFactoryParameters extends EntityFactoryParameters {
+    materialFactory!: MaterialFactory;
 }

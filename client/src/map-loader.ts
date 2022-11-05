@@ -101,11 +101,25 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
                 const evalScope = this.getExpressionEvaluationScope(config, context.tableDefs);
                 const materialFactory = new MaterialFactory(context.materialDefs, assets, evalScope);
-                const soundFactory = new SoundFactory(this.game.audioListener, context.soundDefs, assets);
-                const particleFactory = new ParticleFactory(this.game.config, context.particleDefs, materialFactory);
+                const soundFactory = new SoundFactory({
+                    config,
+                    assets,
+                    audioListener: this.game.audioListener,
+                    soundDefs: context.soundDefs
+                });
+                const particleFactory = new ParticleFactory({
+                    config,
+                    particleDefs: context.particleDefs,
+                    materialFactory
+                });
                 const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
-                const debrisFactory = new DebrisFactory(this.game.config, context.debrisDefs, assets, materialFactory,
-                    collisionModelFactory);
+                const debrisFactory = new DebrisFactory({
+                    config,
+                    assets,
+                    debrisDefs: context.debrisDefs,
+                    materialFactory,
+                    collisionModelFactory
+                });
 
                 this.initParticleSystem(particleFactory);
                 this.initDebrisSystem(debrisFactory);
@@ -339,11 +353,14 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                           assets: GameAssets,
                           materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
-        const config = this.game.config;
-        const particleSystem = <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE);
-        const debrisSystem = <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS);
-        const modelFactory = new Md5ModelFactory(config, assets, materialFactory, soundFactory, particleSystem,
-            debrisSystem);
+        const modelFactory = new Md5ModelFactory({
+            config: this.game.config,
+            assets,
+            materialFactory,
+            soundFactory,
+            particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
+            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS)
+        });
         const weapons = new Map<string, Weapon>();
         weaponDefs.forEach((weaponDef, weaponName) =>
             weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));
@@ -354,9 +371,13 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                          weapons: Map<string, Weapon>,
                          soundFactory: SoundFactory,
                          collisionModelFactory: CollisionModelFactory): Player {
-        const playerFactory = new PlayerFactory(this.game.config, this.game.camera, weapons, soundFactory,
-            collisionModelFactory);
-        return playerFactory.create(playerDef);
+        return new PlayerFactory({
+            config: this.game.config,
+            camera: this.game.camera,
+            weapons,
+            soundFactory,
+            collisionModelFactory
+        }).create(playerDef);
     }
 
     private createMap(mapDef: any,
@@ -365,10 +386,10 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                       collisionModelFactory: CollisionModelFactory): GameMap {
         const config = this.game.config;
 
-        const surfaceFactory = new SurfaceFactory(config, materialFactory, collisionModelFactory);
-        const lightFactory = new LightFactory(config);
-        const areaFactory = new AreaFactory(config, surfaceFactory, lightFactory);
-        const mapFactory = new MapFactory(config, player, areaFactory, lightFactory);
+        const surfaceFactory = new SurfaceFactory({config, materialFactory, collisionModelFactory});
+        const lightFactory = new LightFactory({config});
+        const areaFactory = new AreaFactory({config, surfaceFactory, lightFactory});
+        const mapFactory = new MapFactory({config, player, areaFactory, lightFactory});
 
         const map = mapFactory.create(mapDef);
         const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);

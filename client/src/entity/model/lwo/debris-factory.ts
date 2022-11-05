@@ -1,20 +1,14 @@
 import {Material, Mesh} from 'three';
 
 import {LwoModelFactory} from './lwo-model-factory';
-import {GameConfig} from '../../../game-config';
-import {GameAssets} from '../../../game-assets';
-import {MaterialFactory} from '../../../material/material-factory';
 import {CollisionModelFactory} from '../../../physics/collision-model-factory';
 import {LwoModel} from './lwo-model';
 import {Debris} from './debris';
+import {ModelFactoryParameters} from '../abstract-model-factory';
 
 export class DebrisFactory extends LwoModelFactory {
-    constructor(config: GameConfig,
-                private readonly debrisDefs: Map<string, any>,
-                assets: GameAssets,
-                materialFactory: MaterialFactory,
-                private readonly collisionModelFactory: CollisionModelFactory) {
-        super(config, assets, materialFactory);
+    constructor(parameters: DebrisFactoryParameters) {
+        super(parameters);
     }
 
     create(debrisName: string): Debris {
@@ -29,4 +23,17 @@ export class DebrisFactory extends LwoModelFactory {
         const collisionModel = this.collisionModelFactory.create(modelDef);
         return new Debris({config: this.config, geometry: modelMesh.geometry, materials, collisionModel});
     }
+
+    private get debrisDefs(): Map<string, any> {
+        return (<DebrisFactoryParameters>this.parameters).debrisDefs;
+    }
+
+    private get collisionModelFactory(): CollisionModelFactory {
+        return (<DebrisFactoryParameters>this.parameters).collisionModelFactory;
+    }
+}
+
+export class DebrisFactoryParameters extends ModelFactoryParameters {
+    debrisDefs!: Map<string, any>;
+    collisionModelFactory!: CollisionModelFactory;
 }

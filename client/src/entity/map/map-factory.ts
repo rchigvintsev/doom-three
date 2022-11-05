@@ -1,6 +1,6 @@
 import {Light, Vector3} from 'three';
 
-import {EntityFactory} from '../entity-factory';
+import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {GameMap} from './game-map';
 import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
@@ -9,10 +9,7 @@ import {GameConfig} from '../../game-config';
 import {Player} from '../player/player';
 
 export class MapFactory implements EntityFactory<GameMap> {
-    constructor(private readonly config: GameConfig,
-                private readonly player: Player,
-                private readonly areaFactory: AreaFactory,
-                private readonly lightFactory: LightFactory) {
+    constructor(private readonly parameters: MapFactoryParameters) {
     }
 
     create(mapDef: any): GameMap {
@@ -31,4 +28,26 @@ export class MapFactory implements EntityFactory<GameMap> {
         }
         return new GameMap(this.player, areas, lights);
     }
+
+    private get config(): GameConfig {
+        return this.parameters.config;
+    }
+
+    private get player(): Player {
+        return this.parameters.player;
+    }
+
+    private get areaFactory(): AreaFactory {
+        return this.parameters.areaFactory;
+    }
+
+    private get lightFactory(): LightFactory {
+        return this.parameters.lightFactory;
+    }
+}
+
+export class MapFactoryParameters extends EntityFactoryParameters {
+    player!: Player;
+    areaFactory!: AreaFactory;
+    lightFactory!: LightFactory;
 }
