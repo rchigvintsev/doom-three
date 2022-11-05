@@ -15,5 +15,5 @@ export interface Entity {
      * @param forceVector force vector
      * @param weapon weapon
      */
-    onAttacked(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
+    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
 }

@@ -1,7 +1,9 @@
-import {LwoModel} from '../lwo-model';
-import {ModelParameters} from '../../model-parameters';
+import {LwoModel} from './lwo-model';
+import {ModelParameters} from '../model-parameters';
 
-export class WeaponShell extends LwoModel {
+export class Debris extends LwoModel {
+    onHide?: () => void;
+
     constructor(parameters: ModelParameters) {
         super(parameters);
     }

@@ -26,6 +26,8 @@ import {PhysicsSystem} from './physics/physics-system';
 import {ParticleFactory} from './entity/particle/particle-factory';
 import {ParticleSystem} from './particles/particle-system';
 import {Lwo2MeshLoader} from './loader/lwo2-mesh-loader';
+import {DebrisSystem} from './debris/debris-system';
+import {DebrisFactory} from './entity/model/lwo/debris-factory';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -95,15 +97,18 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 this.loadAnimations(context),
                 this.loadSounds(context)
             ]).then(() => {
+                const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+
                 const evalScope = this.getExpressionEvaluationScope(config, context.tableDefs);
                 const materialFactory = new MaterialFactory(context.materialDefs, assets, evalScope);
                 const soundFactory = new SoundFactory(this.game.audioListener, context.soundDefs, assets);
                 const particleFactory = new ParticleFactory(this.game.config, context.particleDefs, materialFactory);
+                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
+                const debrisFactory = new DebrisFactory(this.game.config, context.debrisDefs, assets, materialFactory,
+                    collisionModelFactory);
 
                 this.initParticleSystem(particleFactory);
-
-                const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
-                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
+                this.initDebrisSystem(debrisFactory);
 
                 const weapons = this.createWeapons(context.weaponDefs, assets, materialFactory, soundFactory);
                 const player = this.createPlayer(context.playerDef, weapons, soundFactory, collisionModelFactory);
@@ -325,13 +330,20 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         this.game.systems.set(GameSystemType.PARTICLE, new ParticleSystem(this.game.scene, particleFactory));
     }
 
+    private initDebrisSystem(debrisFactory: DebrisFactory) {
+        const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+        this.game.systems.set(GameSystemType.DEBRIS, new DebrisSystem(this.game.scene, debrisFactory, physicsSystem));
+    }
+
     private createWeapons(weaponDefs: Map<string, any>,
                           assets: GameAssets,
                           materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
         const config = this.game.config;
         const particleSystem = <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE);
-        const modelFactory = new Md5ModelFactory(config, assets, materialFactory, soundFactory, particleSystem);
+        const debrisSystem = <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS);
+        const modelFactory = new Md5ModelFactory(config, assets, materialFactory, soundFactory, particleSystem,
+            debrisSystem);
         const weapons = new Map<string, Weapon>();
         weaponDefs.forEach((weaponDef, weaponName) =>
             weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));

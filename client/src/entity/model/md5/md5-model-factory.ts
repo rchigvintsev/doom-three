@@ -23,13 +23,15 @@ import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
 import {ParticleSystem} from '../../../particles/particle-system';
 import {AbstractModelFactory} from '../abstract-model-factory';
+import {DebrisSystem} from '../../../debris/debris-system';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(config: GameConfig,
                 private readonly assets: GameAssets,
                 materialFactory: MaterialFactory,
                 private readonly soundFactory: SoundFactory,
-                private readonly particleSystem: ParticleSystem) {
+                private readonly particleSystem: ParticleSystem,
+                private readonly debrisSystem: DebrisSystem) {
         super(config, materialFactory);
     }
 
@@ -148,6 +150,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             materials,
             sounds,
             particleSystem: this.particleSystem,
+            debrisSystem: this.debrisSystem,
             muzzleSmokeParticleName: modelDef.muzzleSmoke
         });
     }

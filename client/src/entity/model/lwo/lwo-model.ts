@@ -1,9 +1,9 @@
-import {Mesh, Scene, Vector3} from 'three';
+import {Mesh, Quaternion, Scene, Vector3} from 'three';
 
 import {Weapon} from '../md5/weapon/weapon';
 import {PhysicsSystem} from '../../../physics/physics-system';
 import {ModelParameters} from '../model-parameters';
-import {MeshBasedEntity, updateCollisionModel, updateMaterials} from '../../mesh-based-entity';
+import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {CollisionModel} from '../../../physics/collision-model';
 import {GameConfig} from '../../../game-config';
 
@@ -12,6 +12,11 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
 
     constructor(protected readonly parameters: ModelParameters) {
         super(parameters.geometry, parameters.materials);
+        const collisionModel = parameters.collisionModel;
+        if (collisionModel && collisionModel.hasMass) {
+            collisionModel.onUpdate = (position, quaternion) =>
+                this.onCollisionModelUpdate(position, quaternion);
+        }
     }
 
     init() {
@@ -27,7 +32,7 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
         }
     }
 
-    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
@@ -35,7 +40,7 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
         if (!this.config.renderOnlyWireframe) {
             updateMaterials(this, deltaTime);
         }
-        updateCollisionModel(this, deltaTime);
+        this.collisionModel?.update(deltaTime);
     }
 
     get collisionModel(): CollisionModel | undefined {
@@ -48,5 +53,10 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
 
     protected doInit() {
         // Do nothing by default
+    }
+
+    private onCollisionModelUpdate(position: Vector3, quaternion: Quaternion) {
+        this.position.copy(position);
+        this.quaternion.copy(quaternion);
     }
 }

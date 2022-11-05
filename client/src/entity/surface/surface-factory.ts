@@ -7,7 +7,6 @@ import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {BufferAttributes} from '../../util/buffer-attributes';
 
-// noinspection JSMethodCanBeStatic
 export class SurfaceFactory implements EntityFactory<Surface> {
     constructor(private readonly config: GameConfig,
                 private readonly materialFactory: MaterialFactory,
@@ -28,6 +27,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
             }
         }
 
+        surface.name = surfaceDef.name;
         surface.scale.setScalar(this.config.worldScale);
         if (surfaceDef.position) {
             surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);

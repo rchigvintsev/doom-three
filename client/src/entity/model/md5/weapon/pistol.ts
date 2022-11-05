@@ -11,6 +11,7 @@ import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-ba
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
+import {DebrisSystem} from '../../../../debris/debris-system';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -311,5 +312,6 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
 export class PistolParameters extends Md5ModelParameters {
     particleSystem!: ParticleSystem;
+    debrisSystem!: DebrisSystem;
     muzzleSmokeParticleName!: string;
 }

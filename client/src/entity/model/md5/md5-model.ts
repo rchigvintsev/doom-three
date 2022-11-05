@@ -9,7 +9,6 @@ import {GameConfig} from '../../../game-config';
 import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
 import {ModelParameters} from '../model-parameters';
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
-import {CollisionModel} from '../../../physics/collision-model';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -51,12 +50,8 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    onAttacked(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing by default
-    }
-
-    get collisionModel(): CollisionModel | undefined {
-        return undefined;
     }
 
     get config(): GameConfig {

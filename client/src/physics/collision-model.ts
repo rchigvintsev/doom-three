@@ -3,16 +3,32 @@ import {Object3D, Quaternion, Scene, Vector3} from 'three';
 import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
 
 import {PhysicsSystem} from './physics-system';
-import {Weapon} from "../entity/model/md5/weapon/weapon";
+import {Weapon} from '../entity/model/md5/weapon/weapon';
 
 export class CollisionModel {
-    private readonly _position = new Vector3();
-    private readonly _quaternion = new Quaternion();
+    onUpdate?: (position: Vector3, quaternion: Quaternion) => void;
+
+    private _position = new Vector3();
+    private _quaternion = new Quaternion();
 
     private readonly hitPoint = new Vec3();
     private readonly forceVector = new Vec3();
 
     constructor(readonly bodies: CollisionModelBody[]) {
+    }
+
+    set position(position: Vector3) {
+        const body = this.getFirstBody();
+        if (body) {
+            body.position.set(position.x, position.y, position.z);
+        }
+    }
+
+    set quaternion(quaternion: Quaternion) {
+        const body = this.getFirstBody();
+        if (body) {
+            body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        }
     }
 
     register(physicsSystem: PhysicsSystem, scene: Scene) {
@@ -27,48 +43,44 @@ export class CollisionModel {
     update(_deltaTime: number) {
         for (let i = 0; i < this.bodies.length; i++) {
             const body = this.bodies[i];
-            if (body.helper) {
-                const position = body.position;
-                body.helper.position.set(position.x, position.y, position.z);
+            const position = body.position;
+            const quaternion = body.quaternion;
 
-                const quaternion = body.quaternion;
+            if (i === 0) {
+                this._position.set(position.x, position.y, position.z);
+                this._quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+            }
+
+            if (body.helper) {
+                body.helper.position.set(position.x, position.y, position.z);
                 body.helper.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
             }
+        }
+
+        if (this.onUpdate) {
+            this.onUpdate(this._position, this._quaternion);
         }
     }
 
     hasMass(): boolean {
-        if (this.bodies.length > 0) {
-            const body = this.bodies[0];
-            return body.mass > 0;
-        }
-        return false;
-    }
-
-    get position(): Vector3 {
-        if (this.bodies.length > 0) {
-            const body = this.bodies[0];
-            this._position.set(body.position.x, body.position.y, body.position.z);
-        }
-        return this._position;
-    }
-
-    get quaternion(): Quaternion {
-        if (this.bodies.length > 0) {
-            const body = this.bodies[0];
-            this._quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
-        }
-        return this._quaternion;
+        const body = this.getFirstBody();
+        return !!body && body.mass > 0;
     }
 
     onAttack(hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
         if (this.hasMass()) {
             this.hitPoint.set(hitPoint.x, hitPoint.y, hitPoint.z);
             this.forceVector.set(forceVector.x, forceVector.y, forceVector.z);
-            const body = this.bodies[0];
-            body.wakeUp();
-            body.applyForce(this.forceVector, this.hitPoint);
+            const body = this.getFirstBody();
+            if (body) {
+                body.wakeUp();
+                body.applyForce(this.forceVector, this.hitPoint);
+            }
         }
+    }
+
+    private getFirstBody(): CollisionModelBody | undefined {
+        return this.bodies.length > 0 ? this.bodies[0] : undefined;
     }
 }
 
