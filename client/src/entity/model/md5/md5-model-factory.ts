@@ -35,7 +35,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         const materials = this.createMaterials(modelDef);
         const sounds = this.createSounds(modelDef);
         const model = this.createModel(modelDef, modelMesh.geometry, materials, animations, sounds);
-        if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
+        if (this.parameters.config.showWireframe && !this.parameters.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
         model.init();
@@ -107,27 +107,27 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
                         sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists({config: this.config, geometry, materials, sounds});
+            model = new Fists({config: this.parameters.config, geometry, materials, sounds});
         } else if (modelDef.name === 'flashlight') {
             model = this.createFlashlight(geometry, materials, sounds);
         } else if (modelDef.name === 'pistol') {
             model = this.createPistol(modelDef, geometry, materials, sounds);
         } else {
-            model = new Md5Model({config: this.config, geometry, materials, sounds});
+            model = new Md5Model({config: this.parameters.config, geometry, materials, sounds});
         }
         model.name = modelDef.name;
 
         const skeleton = this.createSkeleton(animations[0]);
         this.bindSkeleton(model, skeleton);
-        if (this.config.showSkeletons) {
+        if (this.parameters.config.showSkeletons) {
             model.skeletonHelper = new SkeletonHelper(model);
         }
 
         model.animations = this.createAnimationClips(animations, skeleton);
 
-        model.scale.setScalar(this.config.worldScale);
+        model.scale.setScalar(this.parameters.config.worldScale);
         if (modelDef.position) {
-            model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
+            model.position.fromArray(modelDef.position).multiplyScalar(this.parameters.config.worldScale);
         }
         model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         return model;
@@ -138,7 +138,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
                          materials: Material[],
                          sounds: Map<string, Audio<AudioNode>[]>) {
         return new Pistol({
-            config: this.config,
+            config: this.parameters.config,
             geometry,
             materials,
             sounds,
@@ -150,10 +150,10 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 
     private createFlashlight(geometry: BufferGeometry, materials: Material[], sounds: Map<string, Audio<AudioNode>[]>) {
         let flashlightMap = undefined;
-        if (!this.config.renderOnlyWireframe) {
-            flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
+        if (!this.parameters.config.renderOnlyWireframe) {
+            flashlightMap = this.parameters.materialFactory.getTexture('lights/flashlight5');
         }
-        return new Flashlight({config: this.config, geometry, materials, sounds, lightMap: flashlightMap});
+        return new Flashlight({config: this.parameters.config, geometry, materials, sounds, lightMap: flashlightMap});
     }
 
     private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {

@@ -2,7 +2,6 @@ import {BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Vector2, Vecto
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Surface} from './surface';
-import {GameConfig} from '../../game-config';
 import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {BufferAttributes} from '../../util/buffer-attributes';
@@ -12,23 +11,24 @@ export class SurfaceFactory implements EntityFactory<Surface> {
     }
 
     create(surfaceDef: any): Surface {
+        const config = this.parameters.config;
         let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
-        const collisionModel = this.collisionModelFactory.create(surfaceDef);
-        if (this.config.renderOnlyWireframe) {
+        const collisionModel = this.parameters.collisionModelFactory.create(surfaceDef);
+        if (config.renderOnlyWireframe) {
             surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}), collisionModel);
         } else {
-            const materials = this.materialFactory.create(surfaceDef.material);
+            const materials = this.parameters.materialFactory.create(surfaceDef.material);
             surface = new Surface(geometry, materials, collisionModel);
-            if (this.config.showWireframe) {
+            if (config.showWireframe) {
                 surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
             }
         }
 
         surface.name = surfaceDef.name;
-        surface.scale.setScalar(this.config.worldScale);
+        surface.scale.setScalar(config.worldScale);
         if (surfaceDef.position) {
-            surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
+            surface.position.fromArray(surfaceDef.position).multiplyScalar(config.worldScale);
         }
 
         return surface;
@@ -100,18 +100,6 @@ export class SurfaceFactory implements EntityFactory<Surface> {
         cb.cross(ab);
         cb.normalize();
         return cb;
-    }
-
-    private get config(): GameConfig {
-        return this.parameters.config;
-    }
-
-    private get materialFactory(): MaterialFactory {
-        return this.parameters.materialFactory;
-    }
-
-    private get collisionModelFactory(): CollisionModelFactory {
-        return this.parameters.collisionModelFactory;
     }
 }
 

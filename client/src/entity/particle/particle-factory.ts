@@ -6,7 +6,6 @@ import {randomInt} from 'mathjs';
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
-import {GameConfig} from '../../game-config';
 
 const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
@@ -16,11 +15,11 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
     }
 
     create(particleName: string): Particle[] {
-        const particleDef = this.particleDefs.get(particleName);
+        const particleDef = this.parameters.particleDefs.get(particleName);
         if (!particleDef) {
             throw new Error(`Definition of particle "${particleName}" is not found`);
         }
-        const materials = this.materialFactory.create(particleDef.material);
+        const materials = this.parameters.materialFactory.create(particleDef.material);
         if (!(materials[0] instanceof SpriteMaterial)) {
             throw new Error(`Material "${particleDef.material}" is not SpriteMaterial`);
         }
@@ -31,7 +30,7 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
             particleMaterial.rotation = degToRad(randomInt(0, 360));
             particleMaterial.color.setHex(particleDef.color);
 
-            const worldScale = this.config.worldScale;
+            const worldScale = this.parameters.config.worldScale;
             const gravity = new Vector2(
                 particleDef.gravity[0] * GRAVITY_FACTOR * worldScale,
                 -particleDef.gravity[1] * GRAVITY_FACTOR * worldScale
@@ -49,18 +48,6 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
             }));
         }
         return particles;
-    }
-
-    private get config(): GameConfig {
-        return this.parameters.config;
-    }
-
-    private get particleDefs(): Map<string, any> {
-        return this.parameters.particleDefs;
-    }
-
-    private get materialFactory(): MaterialFactory {
-        return this.parameters.materialFactory;
     }
 }
 

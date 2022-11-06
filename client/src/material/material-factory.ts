@@ -27,15 +27,12 @@ import {UpdatableTexture} from '../texture/updatable-texture';
 import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
 import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 
-// noinspection JSMethodCanBeStatic
 export class MaterialFactory {
-    constructor(private readonly materialDefs: Map<string, any>,
-                private readonly assets: GameAssets,
-                private readonly evalScope?: any) {
+    constructor(private readonly parameters: MaterialFactoryParameters) {
     }
 
     create(materialName: string): Material[] {
-        const materialDef = this.materialDefs.get(materialName);
+        const materialDef = this.parameters.materialDefs.get(materialName);
         if (!materialDef) {
             throw new Error(`Definition of material "${materialName}" is not found`);
         }
@@ -54,7 +51,7 @@ export class MaterialFactory {
     }
 
     getTexture(textureName: string): Texture {
-        const texture = this.assets.textures.get(textureName);
+        const texture = this.parameters.assets.textures.get(textureName);
         if (!texture) {
             throw new Error(`Texture "${textureName}" is not found in game assets`);
         }
@@ -219,7 +216,7 @@ export class MaterialFactory {
     }
 
     private createUpdatableMap(materialName: string, mapDef: any): UpdatableTexture {
-        const texture = new UpdatableTexture(this.evalScope);
+        const texture = new UpdatableTexture(this.parameters.evalScope);
         texture.copy(this.getTexture(mapDef.name));
         texture.matrixAutoUpdate = false;
 
@@ -309,4 +306,10 @@ export class MaterialFactory {
             material.depthWrite = materialDef.depthWrite;
         }
     }
+}
+
+export class MaterialFactoryParameters {
+    materialDefs!: Map<string, any>;
+    assets!: GameAssets;
+    evalScope?: any;
 }

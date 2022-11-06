@@ -1,6 +1,4 @@
 import {Audio, AudioListener, PositionalAudio} from 'three';
-
-import {GameAssets} from '../../game-assets';
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 
 export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
@@ -8,14 +6,14 @@ export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
     }
 
     create(soundName: string): Audio<AudioNode>[] {
-        const soundDef = this.soundDefs.get(soundName);
+        const soundDef = this.parameters.soundDefs.get(soundName);
         if (!soundDef) {
             throw new Error(`Definition of sound "${soundName}" is not found`);
         }
 
         const sounds: Audio<AudioNode>[] = [];
         for (const soundSrc of soundDef.sources) {
-            const audioBuffer = this.assets.sounds.get(soundSrc);
+            const audioBuffer = this.parameters.assets!.sounds.get(soundSrc);
             if (!audioBuffer) {
                 throw new Error(`Sound "${soundSrc}" is not found in game assets`);
             }
@@ -27,28 +25,17 @@ export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
     }
 
     private createSound(soundDef: any): Audio<AudioNode> {
+        const audioListener = this.parameters.audioListener;
         let audio;
         if (soundDef.type === 'positional') {
-            audio = new PositionalAudio(this.audioListener);
+            audio = new PositionalAudio(audioListener);
         } else {
-            audio = new Audio(this.audioListener);
+            audio = new Audio(audioListener);
         }
         if (soundDef.volume != undefined) {
             audio.setVolume(soundDef.volume);
         }
         return audio;
-    }
-
-    private get assets(): GameAssets {
-        return this.parameters.assets!;
-    }
-    
-    private get soundDefs(): Map<string, any> {
-        return this.parameters.soundDefs;
-    }
-
-    private get audioListener(): AudioListener {
-        return this.parameters.audioListener;
     }
 }
 

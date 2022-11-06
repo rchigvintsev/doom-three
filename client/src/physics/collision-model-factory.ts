@@ -19,7 +19,7 @@ import {NamedSphere} from './cannon/named-sphere';
 import {NamedBox} from './cannon/named-box';
 
 export class CollisionModelFactory {
-    constructor(private readonly config: GameConfig, private readonly physicsSystem: PhysicsSystem) {
+    constructor(private readonly parameters: CollisionModelFactoryParameters) {
     }
 
     create(entityDef: any): CollisionModel {
@@ -28,7 +28,7 @@ export class CollisionModelFactory {
             for (const bodyDef of entityDef.collisionModel.bodies) {
                 const body = this.createBody(bodyDef);
                 bodies.push(body);
-                if (this.config.showCollisionModels) {
+                if (this.parameters.config.showCollisionModels) {
                     body.helper = this.bodyToMesh(body);
                 }
             }
@@ -43,8 +43,9 @@ export class CollisionModelFactory {
             collisionFilterMask: bodyDef.collisionFilterMask,
             material: this.getBodyMaterial(bodyDef)
         });
+        const config = this.parameters.config;
         if (bodyDef.position) {
-            const position = new Vector3().fromArray(bodyDef.position).multiplyScalar(this.config.worldScale);
+            const position = new Vector3().fromArray(bodyDef.position).multiplyScalar(config.worldScale);
             body.position.set(position.x, position.y, position.z);
         }
         if (bodyDef.rotation) {
@@ -76,8 +77,7 @@ export class CollisionModelFactory {
 
             let offset = undefined;
             if (shapeDef.offset) {
-                offset = new Vec3(shapeDef.offset[0], shapeDef.offset[1], shapeDef.offset[2])
-                    .scale(this.config.worldScale);
+                offset = new Vec3(shapeDef.offset[0], shapeDef.offset[1], shapeDef.offset[2]).scale(config.worldScale);
             }
 
             let orientation = undefined;
@@ -106,32 +106,32 @@ export class CollisionModelFactory {
     private getBodyMaterial(bodyDef: any): Material {
         let material = undefined;
         if (bodyDef.material) {
-            material = this.physicsSystem.materials.get(bodyDef.material);
+            material = this.parameters.physicsSystem.materials.get(bodyDef.material);
         }
         if (!material) {
-            material = this.physicsSystem.materials.get('default');
+            material = this.parameters.physicsSystem.materials.get('default');
         }
         return material!;
     }
 
     private createBodyShape(shapeDef: any): Shape {
+        const config = this.parameters.config;
         if (shapeDef.type === 'box') {
             const halfExtents = new Vec3(shapeDef.width / 2, shapeDef.height / 2, shapeDef.depth / 2)
-                .scale(this.config.worldScale);
+                .scale(config.worldScale);
             return new NamedBox(halfExtents, shapeDef.name);
         }
         if (shapeDef.type === 'sphere') {
-            return new NamedSphere(shapeDef.radius * this.config.worldScale, shapeDef.name);
+            return new NamedSphere(shapeDef.radius * config.worldScale, shapeDef.name);
         }
         if (shapeDef.type === 'cylinder') {
-            const size = new Vec3(shapeDef.radiusTop, shapeDef.radiusBottom, shapeDef.height)
-                .scale(this.config.worldScale);
+            const size = new Vec3(shapeDef.radiusTop, shapeDef.radiusBottom, shapeDef.height).scale(config.worldScale);
             return new Cylinder(size.x, size.y, size.z, shapeDef.segments);
         }
         if (shapeDef.type === 'trimesh') {
             const scaledVertices = [];
             for (let i = 0; i < shapeDef.vertices.length; i++) {
-                scaledVertices.push(shapeDef.vertices[i] * this.config.worldScale);
+                scaledVertices.push(shapeDef.vertices[i] * config.worldScale);
             }
             return new Trimesh(scaledVertices, shapeDef.indices);
         }
@@ -166,7 +166,7 @@ export class CollisionModelFactory {
         switch (shape.type) {
             case Shape.types.SPHERE: {
                 const radius = (<Sphere>shape).radius;
-                const segments = Math.round(radius / this.config.worldScale) * 2;
+                const segments = Math.round(radius / this.parameters.config.worldScale) * 2;
                 return new SphereGeometry(radius, segments, segments);
             }
             case Shape.types.BOX: {
@@ -183,4 +183,9 @@ export class CollisionModelFactory {
                 throw new Error(`Unsupported shape type: "${shape.type}"`);
         }
     }
+}
+
+export class CollisionModelFactoryParameters {
+    config!: GameConfig;
+    physicsSystem!: PhysicsSystem;
 }

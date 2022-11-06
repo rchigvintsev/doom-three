@@ -1,19 +1,19 @@
 import {Light, Mesh, MeshBasicMaterial, PointLight, SphereGeometry, SpotLight} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
-import {GameConfig} from '../../game-config';
 
 export class LightFactory implements EntityFactory<Light> {
     constructor(private readonly parameters: EntityFactoryParameters) {
     }
 
     create(lightDef: any): Light {
-        const light = this.createLight(lightDef, lightDef.distance * this.config.worldScale);
+        const worldScale = this.parameters.config.worldScale;
+        const light = this.createLight(lightDef, lightDef.distance * worldScale);
         light.name = lightDef.name;
-        light.position.fromArray(lightDef.position).multiplyScalar(this.config.worldScale);
+        light.position.fromArray(lightDef.position).multiplyScalar(worldScale);
         light.castShadow = lightDef.castShadow;
 
-        if (this.config.showLightSources) {
+        if (this.parameters.config.showLightSources) {
             const lightSphere = this.createLightSphere(lightDef);
             light.add(lightSphere);
         }
@@ -32,14 +32,10 @@ export class LightFactory implements EntityFactory<Light> {
     }
 
     private createLightSphere(lightDef: any) {
-        const sphereRadius = 5 * this.config.worldScale;
+        const sphereRadius = 5 * this.parameters.config.worldScale;
         const sphereGeometry = new SphereGeometry(sphereRadius);
         const sphereMaterial = new MeshBasicMaterial();
         sphereMaterial.color.set(lightDef.color);
         return new Mesh(sphereGeometry, sphereMaterial);
-    }
-
-    private get config(): GameConfig {
-        return this.parameters.config;
     }
 }

@@ -100,8 +100,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                 const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
 
                 const evalScope = this.getExpressionEvaluationScope(config, context.tableDefs);
-                const materialFactory = new MaterialFactory(context.materialDefs, assets, evalScope);
-                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
+                const materialFactory = new MaterialFactory({materialDefs: context.materialDefs, assets, evalScope});
+                const collisionModelFactory = new CollisionModelFactory({config, physicsSystem});
                 const soundFactory = new SoundFactory({
                     config,
                     assets,
