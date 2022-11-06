@@ -27,10 +27,16 @@ export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
     }
 
     private createSound(soundDef: any): Audio<AudioNode> {
+        let audio;
         if (soundDef.type === 'positional') {
-            return new PositionalAudio(this.audioListener);
+            audio = new PositionalAudio(this.audioListener);
+        } else {
+            audio = new Audio(this.audioListener);
         }
-        return new Audio(this.audioListener);
+        if (soundDef.volume != undefined) {
+            audio.setVolume(soundDef.volume);
+        }
+        return audio;
     }
 
     private get assets(): GameAssets {

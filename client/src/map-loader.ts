@@ -101,6 +101,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
                 const evalScope = this.getExpressionEvaluationScope(config, context.tableDefs);
                 const materialFactory = new MaterialFactory(context.materialDefs, assets, evalScope);
+                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
                 const soundFactory = new SoundFactory({
                     config,
                     assets,
@@ -112,12 +113,12 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
                     particleDefs: context.particleDefs,
                     materialFactory
                 });
-                const collisionModelFactory = new CollisionModelFactory(config, physicsSystem);
                 const debrisFactory = new DebrisFactory({
                     config,
                     assets,
                     debrisDefs: context.debrisDefs,
                     materialFactory,
+                    soundFactory,
                     collisionModelFactory
                 });
 

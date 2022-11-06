@@ -152,6 +152,7 @@
   {
     "name": "casings_small_mix",
     "type": "positional",
+    "volume": 0.6,
     "sources": [
       "sound/weapons/casings/small_metal_02.wav",
       "sound/weapons/casings/small_lino_02.wav",
