@@ -1,4 +1,4 @@
-import {Material, Mesh} from 'three';
+import {BufferGeometry, Material, Mesh, MeshBasicMaterial} from 'three';
 
 import {LwoModel} from './lwo-model';
 import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
@@ -10,8 +10,16 @@ export class LwoModelFactory extends AbstractModelFactory<LwoModel> {
 
     create(modelDef: any): LwoModel {
         const modelMesh = this.getRequiredModelMesh(modelDef);
-        const materials = this.createMaterials(modelDef);
-        const model = this.createModel(modelDef, modelMesh, materials);
+        let model;
+        if (this.parameters.config.renderOnlyWireframe) {
+            model = this.createModel(modelDef, modelMesh.geometry, new MeshBasicMaterial({wireframe: true}));
+        } else {
+            const materials = this.createMaterials(modelDef);
+            model = this.createModel(modelDef, modelMesh.geometry, materials);
+            if (this.parameters.config.showWireframe) {
+                model.add(new Mesh(modelMesh.geometry, new MeshBasicMaterial({wireframe: true})));
+            }
+        }
         model.name = modelDef.name;
         model.scale.setScalar(this.parameters.config.worldScale);
         if (modelDef.position) {
@@ -29,7 +37,7 @@ export class LwoModelFactory extends AbstractModelFactory<LwoModel> {
         return mesh;
     }
 
-    protected createModel(modelDef: any, modelMesh: Mesh, materials: Material[]) {
-        return new LwoModel({config: this.parameters.config, geometry: modelMesh.geometry, materials});
+    protected createModel(modelDef: any, geometry: BufferGeometry, materials: Material | Material[]) {
+        return new LwoModel({config: this.parameters.config, geometry, materials});
     }
 }

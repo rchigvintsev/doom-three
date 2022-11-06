@@ -1,4 +1,4 @@
-import {Audio, Material, Mesh} from 'three';
+import {Audio, BufferGeometry, Material} from 'three';
 
 import {LwoModelFactory} from './lwo-model-factory';
 import {CollisionModelFactory} from '../../../physics/collision-model-factory';
@@ -20,16 +20,10 @@ export class DebrisFactory extends LwoModelFactory {
         return <Debris>super.create(debrisDef);
     }
 
-    protected createModel(modelDef: any, modelMesh: Mesh, materials: Material[]): LwoModel {
+    protected createModel(modelDef: any, geometry: BufferGeometry, materials: Material[]): LwoModel {
         const sounds = this.createSounds(modelDef);
         const collisionModel = (<DebrisFactoryParameters>this.parameters).collisionModelFactory.create(modelDef);
-        return new Debris({
-            config: this.parameters.config,
-            geometry: modelMesh.geometry,
-            materials,
-            sounds,
-            collisionModel
-        });
+        return new Debris({config: this.parameters.config, geometry, materials, sounds, collisionModel});
     }
 
     private createSounds(modelDef: any): Map<string, Audio<AudioNode>[]> {
