@@ -70,6 +70,7 @@
       "reload": "player_pistol_reload",
       "empty": "player_pistol_empty"
     },
-    "muzzleSmoke": "muzzlesmoke"
+    "muzzleSmoke": "muzzlesmoke",
+    "shell": "debris_brass"
   }
 ]

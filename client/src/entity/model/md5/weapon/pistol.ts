@@ -1,4 +1,4 @@
-import {BufferGeometry, Event, Object3D, PointLight, Vector3} from 'three';
+import {BufferGeometry, Event, MathUtils, Matrix4, Object3D, PointLight, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -84,12 +84,8 @@ export class Pistol extends Weapon implements ReloadableWeapon {
                 this.playFireSound();
                 this.lastFireTime = performance.now();
 
-                if (!this.config.renderOnlyWireframe) {
-                    const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
-                    smokeParticles.onShowParticle = particle => this.setMuzzleSmokeParticlePosition(particle);
-                    smokeParticles.show();
-                }
-
+                this.showMuzzleSmoke();
+                this.ejectShell();
                 this.dispatchEvent(new AttackEvent(this, 0, 0));
             }
         }
@@ -147,8 +143,16 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         return (<PistolParameters>this.parameters).particleSystem;
     }
 
+    private get debrisSystem(): DebrisSystem {
+        return (<PistolParameters>this.parameters).debrisSystem;
+    }
+
     private get muzzleSmokeParticleName(): string {
         return (<PistolParameters>this.parameters).muzzleSmokeParticleName;
+    }
+
+    private get shellDebrisName(): string {
+        return (<PistolParameters>this.parameters).shellDebrisName;
     }
 
     private setMuzzleSmokeParticlePosition(particle: Particle) {
@@ -229,6 +233,43 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             this.fireFlashLight!.color.setHex(0x000);
         }
     }
+
+    private showMuzzleSmoke() {
+        if (!this.config.renderOnlyWireframe) {
+            const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
+            smokeParticles.onShowParticle = particle => this.setMuzzleSmokeParticlePosition(particle);
+            smokeParticles.show();
+        }
+    }
+
+    private ejectShell = (() => {
+        const position = new Vector3();
+        const eye = new Vector3();
+        const target = new Vector3();
+        const rotationMatrix = new Matrix4();
+        const quaternion = new Quaternion();
+        const rotationAngle = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(90));
+        const forceAngle = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(110));
+        const forceVector = new Vector3();
+
+        return () => {
+            const debris = this.debrisSystem.createDebris(this.shellDebrisName);
+            const collisionModel = debris.collisionModel!;
+
+            collisionModel.setPosition(position.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld));
+
+            eye.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+            target.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
+            collisionModel.setQuaternion(quaternion
+                .setFromRotationMatrix(rotationMatrix.lookAt(eye, target, this.up))
+                .multiply(rotationAngle));
+
+            collisionModel.applyForce(forceVector
+                .setScalar(1)
+                .applyQuaternion(quaternion.multiply(forceAngle))
+                .multiplyScalar(0.17));
+        };
+    })();
 
     private canAttack() {
         return this.isIdle();
@@ -314,4 +355,5 @@ export class PistolParameters extends Md5ModelParameters {
     particleSystem!: ParticleSystem;
     debrisSystem!: DebrisSystem;
     muzzleSmokeParticleName!: string;
+    shellDebrisName!: string;
 }

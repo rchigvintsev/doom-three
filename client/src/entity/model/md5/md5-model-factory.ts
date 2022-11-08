@@ -144,7 +144,8 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             sounds,
             particleSystem: this.particleSystem,
             debrisSystem: this.debrisSystem,
-            muzzleSmokeParticleName: modelDef.muzzleSmoke
+            muzzleSmokeParticleName: modelDef.muzzleSmoke,
+            shellDebrisName: modelDef.shell
         });
     }
 

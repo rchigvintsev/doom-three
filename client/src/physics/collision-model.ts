@@ -8,8 +8,8 @@ import {Weapon} from '../entity/model/md5/weapon/weapon';
 export class CollisionModel {
     onUpdate?: (position: Vector3, quaternion: Quaternion) => void;
 
-    private _position = new Vector3();
-    private _quaternion = new Quaternion();
+    private position = new Vector3();
+    private quaternion = new Quaternion();
 
     private readonly hitPoint = new Vec3();
     private readonly forceVector = new Vec3();
@@ -17,14 +17,14 @@ export class CollisionModel {
     constructor(readonly bodies: CollisionModelBody[]) {
     }
 
-    set position(position: Vector3) {
+    setPosition(position: Vector3) {
         const body = this.getFirstBody();
         if (body) {
             body.position.set(position.x, position.y, position.z);
         }
     }
 
-    set quaternion(quaternion: Quaternion) {
+    setQuaternion(quaternion: Quaternion) {
         const body = this.getFirstBody();
         if (body) {
             body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
@@ -47,8 +47,8 @@ export class CollisionModel {
             const quaternion = body.quaternion;
 
             if (i === 0) {
-                this._position.set(position.x, position.y, position.z);
-                this._quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+                this.position.set(position.x, position.y, position.z);
+                this.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
             }
 
             if (body.helper) {
@@ -58,7 +58,7 @@ export class CollisionModel {
         }
 
         if (this.onUpdate) {
-            this.onUpdate(this._position, this._quaternion);
+            this.onUpdate(this.position, this.quaternion);
         }
     }
 
@@ -69,12 +69,20 @@ export class CollisionModel {
 
     onAttack(hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
         if (this.hasMass()) {
-            this.hitPoint.set(hitPoint.x, hitPoint.y, hitPoint.z);
+            this.applyForce(forceVector, hitPoint);
+        }
+    }
+
+    applyForce(forceVector: Vector3, relativePoint?: Vector3) {
+        const body = this.getFirstBody();
+        if (body) {
+            body.wakeUp();
             this.forceVector.set(forceVector.x, forceVector.y, forceVector.z);
-            const body = this.getFirstBody();
-            if (body) {
-                body.wakeUp();
+            if (relativePoint) {
+                this.hitPoint.set(relativePoint.x, relativePoint.y, relativePoint.z);
                 body.applyForce(this.forceVector, this.hitPoint);
+            } else {
+                body.applyForce(this.forceVector);
             }
         }
     }
