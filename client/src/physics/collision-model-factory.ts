@@ -37,10 +37,15 @@ export class CollisionModelFactory {
     }
 
     private createBody(bodyDef: any): CollisionModelBody {
+        /*
+         * collisionFilterGroup = 1 for most objects
+         * collisionFilterGroup = 2 for objects that don't interact with player, since player body can only collide
+         * with objects from group 1
+         */
         const body = new CollisionModelBody({
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup,
-            collisionFilterMask: bodyDef.collisionFilterMask,
+            collisionFilterMask: bodyDef.collisionFilterMask || 3,
             material: this.getBodyMaterial(bodyDef)
         });
         const config = this.parameters.config;

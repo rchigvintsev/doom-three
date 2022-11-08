@@ -24,7 +24,8 @@
               "height": 1.59,
               "offset": [0, 0.065, 0]
             }
-          ]
+          ],
+          "collisionFilterGroup": 2
         }
       ]
     }
