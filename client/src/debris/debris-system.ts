@@ -18,8 +18,11 @@ export class DebrisSystem implements GameSystem {
         let debrisModel = this.getAvailableDebrisModel(debrisName);
         if (!debrisModel) {
             debrisModel = this.debrisFactory.create(debrisName);
-            debrisModel.registerCollisionModels(this.physicsSystem, this.scene);
-            debrisModel.onHide = () => this.setAvailableDebrisModel(debrisName, debrisModel!);
+            debrisModel.onShow = debris => debris.registerCollisionModels(this.physicsSystem, this.scene);
+            debrisModel.onHide = debris => {
+                debris.unregisterCollisionModels(this.physicsSystem, this.scene);
+                this.setAvailableDebrisModel(debrisName, debris);
+            };
             this.scene.add(debrisModel);
             this.setDebrisModel(debrisName, debrisModel);
             console.debug(`Debris model with name "${debrisName}" is created`);

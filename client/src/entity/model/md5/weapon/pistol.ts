@@ -248,8 +248,8 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         const target = new Vector3();
         const rotationMatrix = new Matrix4();
         const quaternion = new Quaternion();
-        const rotationAngle = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(90));
-        const forceAngle = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(110));
+        const x90Angle = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(90));
+        const y105Angle = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(105));
         const forceVector = new Vector3();
 
         return () => {
@@ -257,17 +257,21 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             const collisionModel = debris.collisionModel!;
 
             collisionModel.setPosition(position.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld));
+            debris.position.copy(position);
 
             eye.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
             target.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
             collisionModel.setQuaternion(quaternion
                 .setFromRotationMatrix(rotationMatrix.lookAt(eye, target, this.up))
-                .multiply(rotationAngle));
+                .multiply(x90Angle));
+            debris.quaternion.copy(quaternion);
 
             collisionModel.applyForce(forceVector
                 .setScalar(1)
-                .applyQuaternion(quaternion.multiply(forceAngle))
-                .multiplyScalar(0.17));
+                .applyQuaternion(quaternion.multiply(y105Angle))
+                .multiplyScalar(0.18));
+
+            debris.show(100);
         };
     })();
 

@@ -20,6 +20,10 @@ export class Area extends Group implements Entity {
         this.surfaces.forEach(surface => surface.registerCollisionModels(physicsSystem, scene));
     }
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.surfaces.forEach(surface => surface.unregisterCollisionModels(physicsSystem, scene));
+    }
+
     update(deltaTime: number) {
         for (const surface of this.surfaces) {
             surface.update(deltaTime);

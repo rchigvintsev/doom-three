@@ -74,6 +74,10 @@ export class Player extends Object3D implements Entity {
         this.collisionModel.register(physicsSystem, scene);
     }
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.collisionModel.unregister(physicsSystem, scene);
+    }
+
     update(deltaTime: number) {
         if (this.currentWeapon) {
             this.currentWeapon.update(deltaTime, this);

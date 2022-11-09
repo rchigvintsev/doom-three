@@ -6,6 +6,8 @@ import {Weapon} from './model/md5/weapon/weapon';
 export interface Entity {
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
+
     update(deltaTime: number): void;
 
     /**

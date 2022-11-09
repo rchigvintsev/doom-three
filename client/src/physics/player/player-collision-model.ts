@@ -38,6 +38,12 @@ export class PlayerCollisionModel extends CollisionModel {
         }
     }
 
+    unregister(physicsSystem: PhysicsSystem, _scene: Scene) {
+        for (const body of this.delegate.bodies) {
+            physicsSystem.removeBody(body);
+        }
+    }
+
     update(deltaTime: number) {
         this.delegate.update(deltaTime);
     }

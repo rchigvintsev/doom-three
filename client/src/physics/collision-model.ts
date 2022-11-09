@@ -18,6 +18,7 @@ export class CollisionModel {
     }
 
     setPosition(position: Vector3) {
+        this.position.copy(position);
         const body = this.getFirstBody();
         if (body) {
             body.position.set(position.x, position.y, position.z);
@@ -25,6 +26,7 @@ export class CollisionModel {
     }
 
     setQuaternion(quaternion: Quaternion) {
+        this.quaternion.copy(quaternion);
         const body = this.getFirstBody();
         if (body) {
             body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
@@ -36,6 +38,16 @@ export class CollisionModel {
             physicsSystem.addBody(body);
             if (body.helper) {
                 scene.add(body.helper);
+            }
+        }
+    }
+
+    unregister(physicsSystem: PhysicsSystem, scene: Scene) {
+        for (const body of this.bodies) {
+            physicsSystem.removeBody(body);
+            body.reset();
+            if (body.helper) {
+                scene.remove(body.helper);
             }
         }
     }
@@ -118,5 +130,31 @@ export class CollisionModelBody extends Body {
         isTrigger?: boolean;
     }) {
         super(options);
+    }
+
+    reset() {
+        this.angularFactor.set(1, 1, 1);
+        this.angularVelocity.setZero();
+        this.force.setZero();
+        this.initAngularVelocity.setZero();
+        this.initPosition.setZero();
+        this.initQuaternion.set(0, 0, 0, 0);
+        this.initVelocity.setZero();
+        this.interpolatedPosition.setZero();
+        this.interpolatedQuaternion.set(0, 0, 0, 0);
+        this.invInertiaSolve.setZero();
+        this.invInertiaWorldSolve.setZero();
+        this.invMassSolve = 0;
+        this.linearFactor.set(1, 1, 1);
+        this.position.setZero();
+        this.previousPosition.setZero();
+        this.quaternion.set(0, 0, 0, 0);
+        this.previousQuaternion.set(0, 0, 0, 0);
+        this.sleepState = 0;
+        this.timeLastSleepy = 0;
+        this.torque.setZero();
+        this.velocity.setZero();
+        this.vlambda.setZero();
+        this.wlambda.setZero();
     }
 }

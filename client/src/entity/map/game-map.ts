@@ -37,6 +37,11 @@ export class GameMap extends Group implements Entity {
         this.player.registerCollisionModels(physicsSystem, scene);
     }
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this.areas.forEach(area => area.unregisterCollisionModels(physicsSystem, scene));
+        this.player.unregisterCollisionModels(physicsSystem, scene);
+    }
+
     update(deltaTime: number) {
         for (const area of this.areas) {
             area.update(deltaTime);
@@ -44,7 +49,7 @@ export class GameMap extends Group implements Entity {
         this.player.update(deltaTime);
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 

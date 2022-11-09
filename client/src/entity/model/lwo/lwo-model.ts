@@ -32,15 +32,23 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
         }
     }
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        if (this.collisionModel) {
+            this.collisionModel.unregister(physicsSystem, scene);
+        }
+    }
+
     onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
     update(deltaTime: number) {
-        if (!this.config.renderOnlyWireframe) {
-            updateMaterials(this, deltaTime);
+        if (this.visible) {
+            if (!this.config.renderOnlyWireframe) {
+                updateMaterials(this, deltaTime);
+            }
+            this.collisionModel?.update(deltaTime);
         }
-        this.collisionModel?.update(deltaTime);
     }
 
     get collisionModel(): CollisionModel | undefined {

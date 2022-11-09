@@ -20,6 +20,10 @@ export class Surface extends Mesh implements MeshBasedEntity {
         this._collisionModel.register(physicsSystem, scene);
     }
 
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        this._collisionModel.unregister(physicsSystem, scene);
+    }
+
     update(deltaTime: number) {
         updateMaterials(this, deltaTime);
         this._collisionModel.update(deltaTime);

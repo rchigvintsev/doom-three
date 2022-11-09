@@ -8,8 +8,8 @@ import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Particle extends Sprite implements Entity {
-    onShow?: () => void;
-    onHide?: () => void;
+    onShow?: (particle: Particle) => void;
+    onHide?: (particle: Particle) => void;
 
     private readonly fadeInTween: Tween<SpriteMaterial>;
 
@@ -27,7 +27,7 @@ export class Particle extends Sprite implements Entity {
             .onComplete(() => {
                 this.visible = false;
                 if (this.onHide) {
-                    this.onHide();
+                    this.onHide(this);
                 }
             });
 
@@ -46,6 +46,10 @@ export class Particle extends Sprite implements Entity {
     }
 
     registerCollisionModels(_physicsWorld: PhysicsSystem, _scene: Scene) {
+        // Do nothing
+    }
+
+    unregisterCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
         // Do nothing
     }
 
@@ -68,7 +72,7 @@ export class Particle extends Sprite implements Entity {
         this.fadeInTween.start();
 
         if (this.onShow) {
-            this.onShow();
+            this.onShow(this);
         }
     }
 

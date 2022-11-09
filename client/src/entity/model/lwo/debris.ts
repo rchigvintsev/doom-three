@@ -8,12 +8,14 @@ import {ContactEquation} from 'equations/ContactEquation';
 import {CollisionModelBody} from '../../../physics/collision-model';
 
 export class Debris extends LwoModel {
-    onHide?: () => void;
+    onShow?: (debris: Debris) => void;
+    onHide?: (debris: Debris) => void;
 
     private readonly bounceSound: Audio<AudioNode>;
 
     constructor(parameters: DebrisParameters) {
         super(parameters);
+        this.visible = false;
 
         const bounceSounds = this.getRequiredSounds(parameters, 'bounce');
         this.bounceSound = bounceSounds[randomInt(0, bounceSounds.length)];
@@ -21,6 +23,22 @@ export class Debris extends LwoModel {
 
         if (parameters.collisionModel) {
             parameters.collisionModel.bodies[0].addEventListener('collide', (e: any) => this.onCollide(e));
+        }
+    }
+
+    show(delay = 0) {
+        if (delay > 0) {
+            setTimeout(() => this.doShow(), delay);
+        } else {
+            this.doShow();
+        }
+    }
+
+    hide(delay = 0) {
+        if (delay > 0) {
+            setTimeout(() => this.doHide(), delay);
+        } else {
+            this.doHide();
         }
     }
 
@@ -46,8 +64,24 @@ export class Debris extends LwoModel {
             this.bounceSound.stop().play(delay);
         }
     }
+
+    private doShow() {
+        this.visible = true;
+        this.hide((<DebrisParameters>this.parameters).time);
+        if (this.onShow) {
+            this.onShow(this);
+        }
+    }
+
+    private doHide() {
+        this.visible = false;
+        if (this.onHide) {
+            this.onHide(this);
+        }
+    }
 }
 
 export class DebrisParameters extends ModelParameters {
+    time!: number;
     sounds?: Map<string, Audio<AudioNode>[]>;
 }

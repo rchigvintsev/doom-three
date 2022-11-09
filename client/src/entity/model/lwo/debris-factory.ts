@@ -23,7 +23,14 @@ export class DebrisFactory extends LwoModelFactory {
     protected createModel(modelDef: any, geometry: BufferGeometry, materials: Material[]): LwoModel {
         const sounds = this.createSounds(modelDef);
         const collisionModel = (<DebrisFactoryParameters>this.parameters).collisionModelFactory.create(modelDef);
-        return new Debris({config: this.parameters.config, geometry, materials, sounds, collisionModel});
+        return new Debris({
+            config: this.parameters.config,
+            geometry,
+            materials,
+            sounds,
+            collisionModel,
+            time: modelDef.time
+        });
     }
 
     private createSounds(modelDef: any): Map<string, Audio<AudioNode>[]> {

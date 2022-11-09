@@ -38,6 +38,10 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         // Do nothing for now
     }
 
+    unregisterCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
+        // Do nothing for now
+    }
+
     update(deltaTime: number) {
         if (this.animationMixer) {
             this.animationMixer.update(deltaTime);
