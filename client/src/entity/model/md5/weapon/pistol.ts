@@ -21,6 +21,8 @@ const FIRE_FLASH_DISTANCE = 120;
 export class Pistol extends Weapon implements ReloadableWeapon {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
 
+    private shellTarget!: Object3D;
+
     private fireFlashMaterialParams?: Map<string, any>;
     private fireFlashLight?: PointLight;
 
@@ -107,6 +109,16 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     onMiss() {
         // Do nothing
+    }
+
+    protected doInit() {
+        super.doInit();
+
+        this.shellTarget = new Object3D();
+        this.shellTarget.position.copy(new Vector3()
+            .setFromMatrixPosition(this.skeleton.bones[24].matrixWorld)
+            .add(new Vector3(0, 3.4, 3.4)));
+        this.add(this.shellTarget);
     }
 
     protected onAnimationFinished(e: Event) {
@@ -243,33 +255,32 @@ export class Pistol extends Weapon implements ReloadableWeapon {
     }
 
     private ejectShell = (() => {
-        const position = new Vector3();
+        const shellPosition = new Vector3();
         const eye = new Vector3();
         const target = new Vector3();
-        const rotationMatrix = new Matrix4();
-        const quaternion = new Quaternion();
-        const x90Angle = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(90));
-        const y105Angle = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(105));
+        const shellRotationMatrix = new Matrix4();
+        const shellQuaternion = new Quaternion();
+        const xAngleAdjustment = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(-90));
+        const shellTargetPosition = new Vector3();
         const forceVector = new Vector3();
 
         return () => {
             const debris = this.debrisSystem.createDebris(this.shellDebrisName);
             const collisionModel = debris.collisionModel!;
 
-            collisionModel.setPosition(position.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld));
-            debris.position.copy(position);
+            collisionModel.setPosition(shellPosition.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld));
+            debris.position.copy(shellPosition);
 
-            eye.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
-            target.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
-            collisionModel.setQuaternion(quaternion
-                .setFromRotationMatrix(rotationMatrix.lookAt(eye, target, this.up))
-                .multiply(x90Angle));
-            debris.quaternion.copy(quaternion);
+            eye.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
+            target.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+            collisionModel.setQuaternion(shellQuaternion
+                .setFromRotationMatrix(shellRotationMatrix.lookAt(eye, target, this.up))
+                .multiply(xAngleAdjustment));
+            debris.quaternion.copy(shellQuaternion);
 
             collisionModel.applyForce(forceVector
-                .setScalar(1)
-                .applyQuaternion(quaternion.multiply(y105Angle))
-                .multiplyScalar(0.18));
+                .subVectors(shellTargetPosition.setFromMatrixPosition(this.shellTarget.matrixWorld), shellPosition)
+                .multiplyScalar(5.0));
 
             debris.show(100);
         };
