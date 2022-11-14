@@ -1,3 +1,7 @@
+import {degToRad} from 'three/src/math/MathUtils';
+
+import {randomInt} from 'mathjs';
+
 import {Particle} from '../entity/particle/particle';
 
 export class ParticleGroup {
@@ -34,8 +38,9 @@ export class ParticleGroup {
     }
 
     show() {
-        this.visible = true;
+        this.rotateParticlesRandomly();
         this.particles[0].show();
+        this.visible = true;
     }
 
     update(deltaTime: number) {
@@ -43,6 +48,12 @@ export class ParticleGroup {
             for (const particle of this.particles) {
                 particle.update(deltaTime);
             }
+        }
+    }
+
+    private rotateParticlesRandomly() {
+        for (const particle of this.particles) {
+            particle.material.rotation = degToRad(randomInt(0, 360));
         }
     }
 }

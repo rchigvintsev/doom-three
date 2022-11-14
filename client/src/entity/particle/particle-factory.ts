@@ -1,7 +1,4 @@
 import {SpriteMaterial, Vector2} from 'three';
-import {degToRad} from 'three/src/math/MathUtils';
-
-import {randomInt} from 'mathjs';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Particle} from './particle';
@@ -27,7 +24,6 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
         const particles: Particle[] = [];
         for (let i = 0; i < particleDef.count; i++) {
             const particleMaterial = materials[0].clone();
-            particleMaterial.rotation = degToRad(randomInt(0, 360));
             particleMaterial.color.setHex(particleDef.color);
 
             const worldScale = this.parameters.config.worldScale;
