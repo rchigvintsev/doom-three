@@ -38,8 +38,8 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
                 fadeOut: particleDef.fadeOut,
                 time: particleDef.time,
                 interval: particleDef.interval,
-                scaleFrom: particleDef.size.from * SCALE_FACTOR * worldScale,
-                scaleTo: particleDef.size.to * SCALE_FACTOR * worldScale,
+                scaleFrom: particleDef.scale.from * SCALE_FACTOR * worldScale,
+                scaleTo: particleDef.scale.to * SCALE_FACTOR * worldScale,
                 gravity: gravity
             }));
         }

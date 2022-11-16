@@ -4,7 +4,7 @@
     "count": 10,
     "material": "muzzleSmokePuff",
     "time": 1000,
-    "size": {
+    "scale": {
       "from": 2,
       "to": 6.5
     },
