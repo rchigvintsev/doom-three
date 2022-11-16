@@ -1,0 +1,26 @@
+{
+  "crosshair": {
+    "children": [
+      {
+        "name": "crosshaircenter",
+        "background": "crosshaircenter",
+        "scale": [32, 32]
+      },
+      {
+        "name": "crosshaircenter2",
+        "background": "crosshaircenter2",
+        "scale": [32, 32]
+      },
+      {
+        "name": "crosshairLight",
+        "background": "crosshairLight",
+        "scale": [32, 32]
+      },
+      {
+        "name": "crosshairFrame",
+        "background": "crosshairFrame",
+        "scale": [32, 32]
+      }
+    ]
+  }
+}

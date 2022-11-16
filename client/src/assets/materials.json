@@ -3446,5 +3446,47 @@
     "diffuseMap": "models/mapobjects/healthgui/healthguidirty",
     "specularMap": "models/mapobjects/healthgui/healthguidirty_s",
     "normalMap": "models/mapobjects/healthgui/healthgui_local"
+  },
+  {
+    "name": "crosshaircenter",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshaircenter",
+    "color": "0xb3ffce"
+  },
+  {
+    "name": "crosshaircenter2",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshaircenter2",
+    "color": "0x73b3a6",
+    "transparent": true,
+    "opacity": 0.5
+  },
+  {
+    "name": "crosshairLight",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshairlight",
+    "color": "0x73b3a6",
+    "transparent": true,
+    "opacity": 0.2
+  },
+  {
+    "name": "crosshairFrame",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshairframe",
+    "color": "0x73b3a6",
+    "transparent": true,
+    "opacity": 0.1
+  },
+  {
+    "name": "crosshairFrame2",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshairframe2",
+    "color": "0x1a8067"
+  },
+  {
+    "name": "crosshairFrame3",
+    "type": "sprite",
+    "diffuseMap": "guis/assets/common/crosshairframe2",
+    "color": "0x1a8080"
   }
 ]

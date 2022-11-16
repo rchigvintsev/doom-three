@@ -91,10 +91,7 @@ export class MaterialFactory {
             material.alphaMap = material.map;
         }
 
-        if (materialDef.color) {
-            material.color.setHex(materialDef.color);
-        }
-
+        this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
 
         if (materialDef.alphaTest) {
@@ -154,6 +151,7 @@ export class MaterialFactory {
             this.setTextureWrapping(material.map, materialDef.clamp);
         }
 
+        this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
         this.setBlending(material, materialDef);
 
@@ -186,10 +184,7 @@ export class MaterialFactory {
             material.alphaMap = this.getTexture(materialDef.alphaMap);
         }
 
-        if (materialDef.color) {
-            material.color.setHex(materialDef.color);
-        }
-
+        this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
 
         if (materialDef.alphaTest) {
@@ -256,6 +251,12 @@ export class MaterialFactory {
             texture.wrapS = texture.wrapT = ClampToEdgeWrapping;
         } else {
             texture.wrapS = texture.wrapT = RepeatWrapping;
+        }
+    }
+
+    private setColor(material: MeshBasicMaterial | MeshPhongMaterial | SpriteMaterial, materialDef: any) {
+        if (materialDef.color) {
+            material.color.setHex(materialDef.color);
         }
     }
 

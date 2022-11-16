@@ -1,13 +1,16 @@
-import {Audio} from 'three';
+import {Audio, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {LwoModel} from './lwo-model';
+import {TangibleEntity} from '../../tangible-entity';
 import {ModelParameters} from '../model-parameters';
 import {ContactEquation} from 'equations/ContactEquation';
 import {CollisionModelBody} from '../../../physics/collision-model';
+import {PhysicsSystem} from '../../../physics/physics-system';
+import {Weapon} from '../md5/weapon/weapon';
 
-export class Debris extends LwoModel {
+export class Debris extends LwoModel implements TangibleEntity {
     onShow?: (debris: Debris) => void;
     onHide?: (debris: Debris) => void;
 
@@ -24,6 +27,22 @@ export class Debris extends LwoModel {
         if (parameters.collisionModel) {
             parameters.collisionModel.bodies[0].addEventListener('collide', (e: any) => this.onCollide(e));
         }
+    }
+
+    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        if (this.collisionModel) {
+            this.collisionModel.register(physicsSystem, scene);
+        }
+    }
+
+    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+        if (this.collisionModel) {
+            this.collisionModel.unregister(physicsSystem, scene);
+        }
+    }
+
+    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+        // Do nothing
     }
 
     show(delay = 0) {

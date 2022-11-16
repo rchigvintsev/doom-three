@@ -1,9 +1,7 @@
-import {Mesh, Quaternion, Scene, Vector3} from 'three';
+import {Mesh, Quaternion, Vector3} from 'three';
 
-import {Weapon} from '../md5/weapon/weapon';
-import {PhysicsSystem} from '../../../physics/physics-system';
-import {ModelParameters} from '../model-parameters';
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
+import {ModelParameters} from '../model-parameters';
 import {CollisionModel} from '../../../physics/collision-model';
 import {GameConfig} from '../../../game-config';
 
@@ -24,22 +22,6 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
             this.doInit();
             this.initialized = true;
         }
-    }
-
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        if (this.collisionModel) {
-            this.collisionModel.register(physicsSystem, scene);
-        }
-    }
-
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        if (this.collisionModel) {
-            this.collisionModel.unregister(physicsSystem, scene);
-        }
-    }
-
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
     }
 
     update(deltaTime: number) {

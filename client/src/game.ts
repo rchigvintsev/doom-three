@@ -13,6 +13,7 @@ import {PhysicsSystem} from './physics/physics-system';
 import {PointerUnlockEvent} from './event/pointer-lock-events';
 import {GameSystem, GameSystemType} from './game-system';
 import {TweenAnimationSystem} from './animation/tween-animation-system';
+import {Hud} from './entity/player/hud/hud';
 
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
@@ -28,6 +29,7 @@ export class Game {
     private renderer!: WebGLRenderer;
     private stats!: Stats;
     private map?: GameMap;
+    private hud?: Hud;
 
     private initialized = false;
 
@@ -71,6 +73,8 @@ export class Game {
 
                 game.map = map;
                 game._scene.add(map);
+
+                game.hud = map.hud;
 
                 game.controls.player = map.player;
                 game.controls.enabled = true;
@@ -159,6 +163,7 @@ export class Game {
         this.renderer.shadowMap.type = PCFShadowMap;
         this.renderer.localClippingEnabled = true;
         this.renderer.domElement.id = 'game_canvas';
+        this.renderer.autoClear = false;
         parent.appendChild(this.renderer.domElement);
     }
 
@@ -183,7 +188,11 @@ export class Game {
     }
 
     private render() {
+        this.renderer.clear();
         this.renderer.render(this._scene, this._camera);
+        if (this.hud) {
+            this.hud.render(this.renderer);
+        }
     }
 
     private onWindowResize() {

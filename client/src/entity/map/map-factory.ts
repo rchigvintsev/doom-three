@@ -6,6 +6,7 @@ import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
 import {Player} from '../player/player';
+import {Hud} from '../player/hud/hud';
 
 export class MapFactory implements EntityFactory<GameMap> {
     constructor(private readonly parameters: MapFactoryParameters) {
@@ -27,12 +28,13 @@ export class MapFactory implements EntityFactory<GameMap> {
                 .fromArray(mapDef.player.origin)
                 .multiplyScalar(this.parameters.config.worldScale);
         }
-        return new GameMap(this.parameters.player, areas, lights);
+        return new GameMap(this.parameters.player, this.parameters.hud, areas, lights);
     }
 }
 
 export class MapFactoryParameters extends EntityFactoryParameters {
     player!: Player;
+    hud!: Hud;
     areaFactory!: AreaFactory;
     lightFactory!: LightFactory;
 }

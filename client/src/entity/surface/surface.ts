@@ -1,11 +1,12 @@
 import {BufferGeometry, Material, Mesh, Quaternion, Scene, Vector3} from 'three';
 
+import {MeshBasedEntity, updateMaterials} from '../mesh-based-entity';
+import {TangibleEntity} from '../tangible-entity';
 import {CollisionModel} from '../../physics/collision-model';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
-import {MeshBasedEntity, updateMaterials} from '../mesh-based-entity';
 
-export class Surface extends Mesh implements MeshBasedEntity {
+export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
     constructor(geometry: BufferGeometry,
                 materials: Material | Material[],
                 private readonly _collisionModel: CollisionModel) {
@@ -14,6 +15,10 @@ export class Surface extends Mesh implements MeshBasedEntity {
             _collisionModel.onUpdate = (position, quaternion) =>
                 this.onCollisionModelUpdate(position, quaternion);
         }
+    }
+
+    init() {
+        // Do nothing
     }
 
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {

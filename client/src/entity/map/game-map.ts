@@ -1,18 +1,22 @@
 import {Group, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
-import {Entity} from '../entity';
+import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {Player} from '../player/player';
+import {Hud} from '../player/hud/hud';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 
-export class GameMap extends Group implements Entity {
+export class GameMap extends Group implements TangibleEntity {
     private readonly raycaster = new Raycaster();
     private readonly mouseCoords = new Vector2();
     private readonly forceVector = new Vector3();
 
-    constructor(readonly player: Player, private readonly areas: Area[], private readonly lights: Light[]) {
+    constructor(readonly player: Player,
+                readonly hud: Hud,
+                private readonly areas: Area[],
+                private readonly lights: Light[]) {
         super();
 
         for (const area of areas) {
@@ -30,6 +34,10 @@ export class GameMap extends Group implements Entity {
             }
         });
         this.player.addEventListener(AttackEvent.TYPE, e => this._onAttack(<AttackEvent><unknown>e));
+    }
+
+    init() {
+        // Do nothing
     }
 
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
@@ -65,11 +73,11 @@ export class GameMap extends Group implements Entity {
         const intersections = this.raycaster.intersectObjects(this.areas);
         for (const intersection of intersections) {
             let target: any = intersection.object;
-            while (!target.onAttack && target.parent) {
+            while (!isTangibleEntity(target) && target.parent) {
                 target = target.parent;
             }
-            if (target.onAttack) {
-                (<Entity>target).onAttack(intersection.point, this.forceVector, e.weapon);
+            if (isTangibleEntity(target)) {
+                target.onAttack(intersection.point, this.forceVector, e.weapon);
                 hits++;
             }
         }

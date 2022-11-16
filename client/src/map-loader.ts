@@ -28,6 +28,8 @@ import {ParticleSystem} from './particles/particle-system';
 import {Lwo2MeshLoader} from './loader/lwo2-mesh-loader';
 import {DebrisSystem} from './debris/debris-system';
 import {DebrisFactory} from './entity/model/lwo/debris-factory';
+import {HudFactory} from './entity/player/hud/hud-factory';
+import {Hud} from './entity/player/hud/hud';
 
 export class MapLoader extends EventDispatcher<ProgressEvent> {
     private readonly jsonLoader = new FileLoader();
@@ -58,6 +60,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.loadParticleDefs(context),
             this.loadSoundDefs(context),
             this.loadPlayerDef(context),
+            this.loadHudDef(context),
             this.loadWeaponDefs(context),
             this.loadDebrisDefs(context)
         ]).then(() => {
@@ -69,8 +72,8 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             this.collectModelSources(context, context.mapMeta);
             this.collectAnimationSources(context, context.mapMeta);
             this.collectSoundSources(context, context.mapMeta);
-
             this.collectSoundSources(context, context.playerDef);
+            this.collectTextureSourcesFromHudDef(context, context.hudDef);
 
             context.weaponDefs.forEach(weaponDef => {
                 context.modelsToLoad.add(weaponDef.model);
@@ -127,7 +130,9 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
 
                 const weapons = this.createWeapons(context.weaponDefs, assets, materialFactory, soundFactory);
                 const player = this.createPlayer(context.playerDef, weapons, soundFactory, collisionModelFactory);
-                return this.createMap(context.mapDef, player, materialFactory, collisionModelFactory);
+                const hud = this.createHud(context.hudDef, materialFactory);
+
+                return this.createMap(context.mapDef, player, hud, materialFactory, collisionModelFactory);
             });
         });
     }
@@ -181,6 +186,13 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         });
     }
 
+    private loadHudDef(context: LoadingContext): Promise<any> {
+        return this.loadJson('assets/hud.json').then(hudDef => {
+            context.hudDef = hudDef;
+            return hudDef;
+        });
+    }
+
     private loadWeaponDefs(context: LoadingContext): Promise<Map<string, any>> {
         return this.loadJson('assets/weapons.json').then((weaponDefs: any[]) => {
             weaponDefs.forEach(weaponDef => context.weaponDefs.set(weaponDef.name, weaponDef));
@@ -215,6 +227,14 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
             }
         }
         this.collectTextureSources(context, materials);
+    }
+
+    private collectTextureSourcesFromHudDef(context: LoadingContext, hudDef: any) {
+        const hudMaterials = [];
+        for (const crosshairChild of hudDef.crosshair.children) {
+            hudMaterials.push(crosshairChild.background);
+        }
+        this.collectTextureSources(context, hudMaterials);
     }
 
     private collectTextureSources(context: LoadingContext, materials: string[]) {
@@ -381,8 +401,13 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         }).create(playerDef);
     }
 
+    private createHud(hudDef: any, materialFactory: MaterialFactory) {
+        return new HudFactory({config: this.game.config, materialFactory}).create(hudDef);
+    }
+
     private createMap(mapDef: any,
                       player: Player,
+                      hud: Hud,
                       materialFactory: MaterialFactory,
                       collisionModelFactory: CollisionModelFactory): GameMap {
         const config = this.game.config;
@@ -390,7 +415,7 @@ export class MapLoader extends EventDispatcher<ProgressEvent> {
         const surfaceFactory = new SurfaceFactory({config, materialFactory, collisionModelFactory});
         const lightFactory = new LightFactory({config});
         const areaFactory = new AreaFactory({config, surfaceFactory, lightFactory});
-        const mapFactory = new MapFactory({config, player, areaFactory, lightFactory});
+        const mapFactory = new MapFactory({config, player, hud, areaFactory, lightFactory});
 
         const map = mapFactory.create(mapDef);
         const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
@@ -430,6 +455,7 @@ class LoadingContext {
     mapMeta: any;
     mapDef: any;
     playerDef: any;
+    hudDef: any;
 
     readonly materialDefs = new Map<string, any>();
     readonly tableDefs = new Map<string, any>();

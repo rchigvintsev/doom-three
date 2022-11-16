@@ -1,11 +1,9 @@
-import {Scene, Sprite, Vector2, Vector3} from 'three';
+import {Sprite, Vector2} from 'three';
 import {SpriteMaterial} from 'three/src/materials/Materials';
 
 import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
-import {PhysicsSystem} from '../../physics/physics-system';
-import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Particle extends Sprite implements Entity {
     onShow?: (particle: Particle) => void;
@@ -41,15 +39,7 @@ export class Particle extends Sprite implements Entity {
             .onStart(() => scaleTween.start());
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
-    }
-
-    registerCollisionModels(_physicsWorld: PhysicsSystem, _scene: Scene) {
-        // Do nothing
-    }
-
-    unregisterCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
+    init() {
         // Do nothing
     }
 

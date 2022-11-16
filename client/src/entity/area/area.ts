@@ -1,11 +1,11 @@
 import {Group, Light, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
-import {Entity} from '../entity';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
+import {TangibleEntity} from '../tangible-entity';
 
-export class Area extends Group implements Entity {
+export class Area extends Group implements TangibleEntity {
     constructor(private readonly surfaces: Surface[], private readonly lights: Light[]) {
         super();
         for (const surface of surfaces) {
@@ -14,6 +14,10 @@ export class Area extends Group implements Entity {
         for (const light of lights) {
             this.add(light);
         }
+    }
+
+    init() {
+        // Do nothing
     }
 
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {

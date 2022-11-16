@@ -1,10 +1,11 @@
 import {Audio, Euler, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 import {degToRad} from 'three/src/math/MathUtils';
 
-import {random, randomInt} from 'mathjs';
 import {Tween} from '@tweenjs/tween.js';
 
-import {Entity} from '../entity';
+import {random, randomInt} from 'mathjs';
+
+import {TangibleEntity} from '../tangible-entity';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
@@ -18,7 +19,7 @@ import {isReloadableWeapon} from '../model/md5/weapon/reloadable-weapon';
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
 
-export class Player extends Object3D implements Entity {
+export class Player extends Object3D implements TangibleEntity {
     private readonly previousMovementDirection = new Vector3();
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
     private readonly jumpSound?: Audio<AudioNode>;
@@ -68,6 +69,10 @@ export class Player extends Object3D implements Entity {
         this.recoilTween = new Tween(this.camera.rotation)
             .to({x: degToRad(0.5)}, 50)
             .chain(new Tween(this.camera.rotation).to({x: 0}, 75));
+    }
+
+    init() {
+        // Do nothing
     }
 
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {

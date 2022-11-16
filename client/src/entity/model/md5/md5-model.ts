@@ -1,14 +1,12 @@
-import {AnimationAction, Audio, Event, Material, Scene, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
+import {AnimationAction, Audio, Event, Material, SkeletonHelper, SkinnedMesh} from 'three';
 
 import {randomInt} from 'mathjs';
 
-import {PhysicsSystem} from '../../../physics/physics-system';
-import {Weapon} from './weapon/weapon';
+import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {GameConfig} from '../../../game-config';
 import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
 import {ModelParameters} from '../model-parameters';
-import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -34,14 +32,6 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    registerCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
-        // Do nothing for now
-    }
-
-    unregisterCollisionModels(_physicsSystem: PhysicsSystem, _scene: Scene) {
-        // Do nothing for now
-    }
-
     update(deltaTime: number) {
         if (this.animationMixer) {
             this.animationMixer.update(deltaTime);
@@ -52,10 +42,6 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         if (!this.config.renderOnlyWireframe) {
             updateMaterials(this, deltaTime);
         }
-    }
-
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
-        // Do nothing by default
     }
 
     get config(): GameConfig {
