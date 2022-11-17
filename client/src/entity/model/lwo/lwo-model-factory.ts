@@ -30,7 +30,7 @@ export class LwoModelFactory extends AbstractModelFactory<LwoModel> {
     }
 
     protected getRequiredModelMesh(modelDef: any): Mesh {
-        const mesh = <Mesh>this.parameters.assets!.modelMeshes.get(modelDef.model);
+        const mesh = <Mesh>this.parameters.assets.modelMeshes.get(modelDef.model);
         if (!mesh) {
             throw new Error(`LWO model mesh "${modelDef.model}" is not found in game assets`);
         }

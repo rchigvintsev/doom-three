@@ -171,7 +171,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private get assets(): GameAssets {
-        return (<Md5ModelFactoryParameters>this.parameters).assets!;
+        return (<Md5ModelFactoryParameters>this.parameters).assets;
     }
 
     private get soundFactory(): SoundFactory {

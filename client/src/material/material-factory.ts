@@ -32,7 +32,7 @@ export class MaterialFactory {
     }
 
     create(materialName: string): Material[] {
-        const materialDef = this.parameters.materialDefs.get(materialName);
+        const materialDef = this.parameters.assets.materialDefs.get(materialName);
         if (!materialDef) {
             throw new Error(`Definition of material "${materialName}" is not found`);
         }
@@ -310,7 +310,6 @@ export class MaterialFactory {
 }
 
 export class MaterialFactoryParameters {
-    materialDefs!: Map<string, any>;
     assets!: GameAssets;
     evalScope?: any;
 }

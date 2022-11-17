@@ -3,6 +3,7 @@ import {SpriteMaterial, Vector2} from 'three';
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
+import {GameAssets} from '../../game-assets';
 
 const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
@@ -12,7 +13,7 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
     }
 
     create(particleName: string): Particle[] {
-        const particleDef = this.parameters.particleDefs.get(particleName);
+        const particleDef = this.parameters.assets.particleDefs.get(particleName);
         if (!particleDef) {
             throw new Error(`Definition of particle "${particleName}" is not found`);
         }
@@ -48,6 +49,6 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
 }
 
 export class ParticleFactoryParameters extends EntityFactoryParameters {
-    particleDefs!: Map<string, any>;
+    declare assets: GameAssets;
     materialFactory!: MaterialFactory;
 }

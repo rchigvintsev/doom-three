@@ -13,7 +13,7 @@ export class DebrisFactory extends LwoModelFactory {
     }
 
     create(debrisName: string): Debris {
-        const debrisDef = (<DebrisFactoryParameters>this.parameters).debrisDefs.get(debrisName);
+        const debrisDef = (<DebrisFactoryParameters>this.parameters).assets.debrisDefs.get(debrisName);
         if (!debrisDef) {
             throw new Error(`Definition of debris "${debrisName}" is not found`);
         }
@@ -46,7 +46,6 @@ export class DebrisFactory extends LwoModelFactory {
 }
 
 export class DebrisFactoryParameters extends ModelFactoryParameters {
-    debrisDefs!: Map<string, any>;
     soundFactory!: SoundFactory;
     collisionModelFactory!: CollisionModelFactory;
 }

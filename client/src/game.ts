@@ -14,6 +14,7 @@ import {PointerUnlockEvent} from './event/pointer-lock-events';
 import {GameSystem, GameSystemType} from './game-system';
 import {TweenAnimationSystem} from './animation/tween-animation-system';
 import {Hud} from './entity/player/hud/hud';
+import {AssetLoader} from './asset-loader';
 
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
@@ -66,8 +67,10 @@ export class Game {
             game.pointerLock.request();
             game.animate();
 
-            const mapLoader = new MapLoader(game);
-            mapLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
+            const assetLoader = new AssetLoader(game.config);
+            assetLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
+
+            const mapLoader = new MapLoader(game, assetLoader);
             mapLoader.load(mapName).then(map => {
                 console.debug(`Map "${mapName}" is loaded`);
 
