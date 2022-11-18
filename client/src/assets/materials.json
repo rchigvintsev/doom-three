@@ -61,7 +61,14 @@
     "name": "models/weapons/berserk/fist",
     "diffuseMap": "models/weapons/berserk/fist",
     "specularMap": "models/weapons/berserk/fist_s",
-    "normalMap": "models/weapons/berserk/fist_local",
+    "normalMap": {
+      "name": "models/weapons/berserk/fist_local+fist_h",
+      "addNormals": {
+        "normalMap": "models/weapons/berserk/fist_local",
+        "bumpMap": "models/weapons/berserk/fist_h",
+        "scale": 5
+      }
+    },
     "side": "front"
   },
   {
