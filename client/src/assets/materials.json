@@ -3488,5 +3488,16 @@
     "type": "sprite",
     "diffuseMap": "guis/assets/common/crosshairframe2",
     "color": "0x1a8080"
+  },
+  {
+    "name": "ScanLineLA",
+    "type": "sprite",
+    "diffuseMap": {
+      "name": "guis/assets/hud/mp/lborder1a1",
+      "repeat": [-1, 1]
+    },
+    "color": "0x000000",
+    "transparent": true,
+    "opacity": 0.3
   }
 ]

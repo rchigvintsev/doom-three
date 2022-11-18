@@ -12,18 +12,50 @@ export class HudFactory implements EntityFactory<Hud> {
 
     create(hudDef: any): Hud {
         const crosshair = this.createCrosshair(hudDef);
-        return new Hud({config: this.parameters.config, crosshair});
+        const ammoCounter = this.createAmmoCounter(hudDef);
+        return new Hud({config: this.parameters.config, crosshair, ammoCounter});
     }
 
     private createCrosshair(hudDef: any): Sprite[] {
         const crosshair = [];
-        for (const child of hudDef.crosshair.children) {
-            const childMaterials = this.parameters.materialFactory.create(child.background);
-            const childSprite = new Sprite(<SpriteMaterial>childMaterials[0]);
-            childSprite.scale.set(child.scale[0] * SCALE_FACTOR, child.scale[1] * SCALE_FACTOR, 1);
-            crosshair.push(childSprite);
+        for (const spriteDef of hudDef.crosshair) {
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+            const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
+            this.setScale(spriteDef, sprite);
+            crosshair.push(sprite);
         }
         return crosshair;
+    }
+
+    private createAmmoCounter(hudDef: any): Sprite[] {
+        const ammoCounter = [];
+        for (const spriteDef of hudDef.ammoCounter) {
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+            const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
+            this.setScale(spriteDef, sprite);
+            this.setPosition(spriteDef, sprite);
+            ammoCounter.push(sprite);
+        }
+        return ammoCounter;
+    }
+
+    private setScale(spriteDef: any, sprite: Sprite) {
+        if (spriteDef.scale) {
+            sprite.scale.set(spriteDef.scale[0] * SCALE_FACTOR, spriteDef.scale[1] * SCALE_FACTOR, 1);
+        }
+    }
+
+    private setPosition(spriteDef: any, sprite: Sprite) {
+        if (spriteDef.position) {
+            let x = 0, y = 0;
+            if (spriteDef.position.right) {
+                x = window.innerWidth / 2 - spriteDef.position.right;
+            }
+            if (spriteDef.position.bottom) {
+                y = (window.innerHeight / 2 - spriteDef.position.bottom) * -1;
+            }
+            sprite.position.set(x, y, 0);
+        }
     }
 }
 

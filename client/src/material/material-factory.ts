@@ -147,7 +147,11 @@ export class MaterialFactory {
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
-            material.map = this.getTexture(materialDef.diffuseMap);
+            if (typeof materialDef.diffuseMap !== 'string') {
+                material.map = this.createMap(materialDef.name, materialDef.diffuseMap);
+            } else {
+                material.map = this.getTexture(materialDef.diffuseMap);
+            }
             this.setTextureWrapping(material.map, materialDef.clamp);
         }
 
@@ -210,18 +214,19 @@ export class MaterialFactory {
         return material;
     }
 
+    private createMap(materialName: string, mapDef: any): Texture {
+        const texture = this.getTexture(mapDef.name);
+        this.setTextureRepeat(materialName, texture, mapDef);
+        this.setTextureCenter(materialName, texture, mapDef);
+        return texture;
+    }
+
     private createUpdatableMap(materialName: string, mapDef: any): UpdatableTexture {
         const texture = new UpdatableTexture(this.parameters.evalScope);
         texture.copy(this.getTexture(mapDef.name));
         texture.matrixAutoUpdate = false;
 
-        if (mapDef.repeat) {
-            if (mapDef.repeat.length !== 2) {
-                throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
-                    + `number of repeat values: ${mapDef.repeat.length}`);
-            }
-            texture.repeat.set(mapDef.repeat[0], mapDef.repeat[1]);
-        }
+        this.setTextureRepeat(materialName, texture, mapDef);
 
         if (mapDef.scroll) {
             if (mapDef.scroll.length !== 2) {
@@ -235,6 +240,22 @@ export class MaterialFactory {
             texture.rotate = compile(mapDef.rotate);
         }
 
+        this.setTextureCenter(materialName, texture, mapDef);
+
+        return texture;
+    }
+
+    private setTextureRepeat(materialName: string, texture: Texture, mapDef: any) {
+        if (mapDef.repeat) {
+            if (mapDef.repeat.length !== 2) {
+                throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
+                    + `number of repeat values: ${mapDef.repeat.length}`);
+            }
+            texture.repeat.set(mapDef.repeat[0], mapDef.repeat[1]);
+        }
+    }
+
+    private setTextureCenter(materialName: string, texture: Texture, mapDef: any) {
         if (mapDef.center) {
             if (mapDef.scroll.length !== 2) {
                 throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
@@ -242,8 +263,6 @@ export class MaterialFactory {
             }
             texture.center.set(mapDef.center[0], mapDef.center[1]);
         }
-
-        return texture;
     }
 
     private setTextureWrapping(texture: Texture, clamp: boolean) {

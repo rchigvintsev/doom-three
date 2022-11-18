@@ -9,8 +9,14 @@ export class Hud implements Entity {
 
     constructor(private readonly parameters: HudParameters) {
         this.camera = this.createCamera(this.parameters.config);
+
         const crosshair = this.parameters.crosshair;
         for (const child of crosshair) {
+            this.scene.add(child);
+        }
+
+        const ammoCounter = this.parameters.ammoCounter;
+        for (const child of ammoCounter) {
             this.scene.add(child);
         }
     }
@@ -38,4 +44,5 @@ export class Hud implements Entity {
 export class HudParameters {
     config!: GameConfig;
     crosshair!: Sprite[];
+    ammoCounter!: Sprite[];
 }
