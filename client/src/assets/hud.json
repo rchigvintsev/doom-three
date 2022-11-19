@@ -30,6 +30,15 @@
         "right": 255,
         "bottom": 63
       }
+    },
+    {
+      "name": "BorderLABottom",
+      "background": "BorderLABottom",
+      "scale": [241, 64],
+      "position": {
+        "right": 241,
+        "bottom": 64
+      }
     }
   ]
 }

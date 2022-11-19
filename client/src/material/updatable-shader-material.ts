@@ -5,18 +5,18 @@ import {UpdatableMaterial} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 
 export class UpdatableShaderMaterial extends ShaderMaterial implements UpdatableMaterial {
-    constructor(parameters?: ShaderMaterialParameters) {
+    constructor(parameters?: UpdatableShaderMaterialParameters) {
         super(parameters);
+    }
+
+    setParameters(params: Map<string, any>) {
+        this.forEachMap(map => (<UpdatableTexture>map).setParameters(params), map => map instanceof UpdatableTexture);
     }
 
     update(deltaTime = 0) {
         if (this.visible) {
             this.updateMaps(deltaTime);
         }
-    }
-
-    setParameters(params: Map<string, any>) {
-        this.forEachMap(map => (<UpdatableTexture>map).setParameters(params), map => map instanceof UpdatableTexture);
     }
 
     private updateMaps(deltaTime: number) {
@@ -39,4 +39,8 @@ export class UpdatableShaderMaterial extends ShaderMaterial implements Updatable
             }
         }
     }
+}
+
+export interface UpdatableShaderMaterialParameters extends ShaderMaterialParameters {
+    evalScope?: any;
 }

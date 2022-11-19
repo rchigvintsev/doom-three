@@ -41,6 +41,10 @@
     "values": [1, 0.85]
   },
   {
+    "name": "pdflick2",
+    "values": [1, 0.82]
+  },
+  {
     "name": "subtleflick",
     "values": [1, 0.92]
   },

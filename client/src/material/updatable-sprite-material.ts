@@ -1,16 +1,13 @@
-import {MeshBasicMaterial, Texture} from 'three';
-import {MeshBasicMaterialParameters} from 'three/src/materials/MeshBasicMaterial';
-
-import {EvalFunction} from 'mathjs';
-
+import {SpriteMaterial, SpriteMaterialParameters, Texture} from 'three';
 import {UpdatableMaterial, updateOpacity} from './updatable-material';
+import {EvalFunction} from 'mathjs';
 import {UpdatableTexture} from '../texture/updatable-texture';
 
-export class UpdatableMeshBasicMaterial extends MeshBasicMaterial implements UpdatableMaterial {
+export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial {
     evalScope: any;
     opacityExpression?: EvalFunction;
 
-    constructor(parameters?: UpdatableMeshBasicMaterialParameters) {
+    constructor(parameters?: UpdatableSpriteMaterialParameters) {
         super(parameters);
         if (parameters && parameters.evalScope) {
             this.evalScope = {...parameters.evalScope, ...{time: 0}};
@@ -38,15 +35,12 @@ export class UpdatableMeshBasicMaterial extends MeshBasicMaterial implements Upd
         if (this.map && filterFn(this.map)) {
             callbackFn(this.map);
         }
-        if (this.specularMap && filterFn(this.specularMap)) {
-            callbackFn(this.specularMap);
-        }
         if (this.alphaMap && this.alphaMap !== this.map && filterFn(this.alphaMap)) {
             callbackFn(this.alphaMap);
         }
     }
 }
 
-export interface UpdatableMeshBasicMaterialParameters extends MeshBasicMaterialParameters {
+export interface UpdatableSpriteMaterialParameters extends SpriteMaterialParameters {
     evalScope?: any;
 }

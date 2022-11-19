@@ -3506,5 +3506,16 @@
     "color": "0x000000",
     "transparent": true,
     "opacity": 0.3
+  },
+  {
+    "name": "BorderLABottom",
+    "type": "sprite",
+    "diffuseMap": {
+      "name": "guis/assets/hud/mp/lborder1b",
+      "repeat": [-1, 1]
+    },
+    "color": "0x337366",
+    "transparent": true,
+    "opacity": "pdflick2(time * .0025) / 3"
   }
 ]

@@ -2,21 +2,25 @@ import {OrthographicCamera, Scene, Sprite, WebGLRenderer} from 'three';
 
 import {Entity} from '../../entity';
 import {GameConfig} from '../../../game-config';
+import {isUpdatableMaterial} from '../../../material/updatable-material';
 
 export class Hud implements Entity {
     private readonly scene = new Scene();
     private readonly camera: OrthographicCamera;
 
+    private readonly crosshair: Sprite[];
+    private readonly ammoCounter: Sprite[];
+
     constructor(private readonly parameters: HudParameters) {
         this.camera = this.createCamera(this.parameters.config);
 
-        const crosshair = this.parameters.crosshair;
-        for (const child of crosshair) {
+        this.crosshair = this.parameters.crosshair;
+        for (const child of this.crosshair) {
             this.scene.add(child);
         }
 
-        const ammoCounter = this.parameters.ammoCounter;
-        for (const child of ammoCounter) {
+        this.ammoCounter = this.parameters.ammoCounter;
+        for (const child of this.ammoCounter) {
             this.scene.add(child);
         }
     }
@@ -25,8 +29,18 @@ export class Hud implements Entity {
         // Do nothing
     }
 
-    update(_deltaTime: number) {
-        // Do nothing
+    update(deltaTime: number) {
+        for (const child of this.crosshair) {
+            if (isUpdatableMaterial(child.material)) {
+                child.material.update(deltaTime);
+            }
+        }
+
+        for (const child of this.ammoCounter) {
+            if (isUpdatableMaterial(child.material)) {
+                child.material.update(deltaTime);
+            }
+        }
     }
 
     render(renderer: WebGLRenderer) {

@@ -113,17 +113,6 @@ export class Game {
         return this._audioListener;
     }
 
-    private update() {
-        const deltaTime = this.clock.getDelta();
-        if (this.map) {
-            this.map.update(deltaTime);
-        }
-        for (const system of this.systems.values()) {
-            system.update(deltaTime);
-        }
-        this.controls.update();
-    }
-
     private getRequiredGameCanvasContainer(): HTMLElement {
         const container = document.getElementById('game_canvas_container');
         if (!container) {
@@ -195,6 +184,20 @@ export class Game {
         this.renderer.render(this._scene, this._camera);
         if (this.hud) {
             this.hud.render(this.renderer);
+        }
+    }
+
+    private update() {
+        const deltaTime = this.clock.getDelta();
+        if (this.map) {
+            this.map.update(deltaTime);
+        }
+        for (const system of this.systems.values()) {
+            system.update(deltaTime);
+        }
+        this.controls.update();
+        if (this.hud) {
+            this.hud.update(deltaTime);
         }
     }
 

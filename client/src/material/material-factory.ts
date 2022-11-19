@@ -26,6 +26,9 @@ import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
 import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
+import {UpdatableMaterial} from './updatable-material';
+import {UpdatableSpriteMaterial} from './updatable-sprite-material';
+import {UpdatableMeshPhongMaterial} from './updatable-mesh-phong-material';
 
 export class MaterialFactory {
     constructor(private readonly parameters: MaterialFactoryParameters) {
@@ -59,7 +62,7 @@ export class MaterialFactory {
     }
 
     private createBasicMaterial(materialDef: any): MeshBasicMaterial {
-        const material = new UpdatableMeshBasicMaterial();
+        const material = new UpdatableMeshBasicMaterial({evalScope: this.parameters.evalScope});
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
@@ -133,7 +136,8 @@ export class MaterialFactory {
         const material = new UpdatableShaderMaterial({
             uniforms,
             vertexShader: shader.vertexShader,
-            fragmentShader: shader.fragmentShader
+            fragmentShader: shader.fragmentShader,
+            evalScope: this.parameters.evalScope
         });
         material.name = materialDef.name;
         this.setTransparency(material, materialDef);
@@ -143,7 +147,7 @@ export class MaterialFactory {
     }
 
     private createSpriteMaterial(materialDef: any): SpriteMaterial {
-        const material = new SpriteMaterial();
+        const material = new UpdatableSpriteMaterial({evalScope: this.parameters.evalScope});
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
@@ -163,7 +167,7 @@ export class MaterialFactory {
     }
 
     private createPhongMaterial(materialDef: any): MeshPhongMaterial {
-        const material = new MeshPhongMaterial();
+        const material = new UpdatableMeshPhongMaterial({evalScope: this.parameters.evalScope});
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
@@ -279,11 +283,15 @@ export class MaterialFactory {
         }
     }
 
-    private setTransparency(material: Material, materialDef: any) {
+    private setTransparency(material: UpdatableMaterial, materialDef: any) {
         if (materialDef.transparent) {
             material.transparent = true;
             if (materialDef.opacity) {
-                material.opacity = materialDef.opacity;
+                if (typeof materialDef.opacity === 'string') {
+                    material.opacityExpression = compile(materialDef.opacity);
+                } else {
+                    material.opacity = materialDef.opacity;
+                }
             }
         }
     }
@@ -305,7 +313,8 @@ export class MaterialFactory {
                     material.blendDst = OneMinusSrcColorFactor;
                 }
             } else {
-                const message = `Definition of material "${materialDef.name}" has property "blending" with unsupported value: ${materialDef.blending}`;
+                const message = `Definition of material "${materialDef.name}" has property "blending" with `
+                    + `unsupported value: ${materialDef.blending}`;
                 console.error(message);
             }
         }
