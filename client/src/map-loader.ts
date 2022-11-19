@@ -129,7 +129,7 @@ export class MapLoader {
                 const val = deltaTime % table.values.length;
                 if (!table.snap) {
                     const floor = Math.floor(val);
-                    const ceil = Math.min(Math.ceil(val), table.values.length);
+                    const ceil = Math.min(Math.ceil(val), table.values.length - 1);
                     const floorVal = table.values[floor];
                     const ceilVal = table.values[ceil];
                     return floorVal + (val - floor) * 100 * ((ceilVal - floorVal) / 100);
