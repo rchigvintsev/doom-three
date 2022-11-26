@@ -39,7 +39,8 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             this.loadPlayerDef(assets),
             this.loadHudDef(assets),
             this.loadWeaponDefs(assets),
-            this.loadDebrisDefs(assets)
+            this.loadDebrisDefs(assets),
+            this.loadFontDefs(assets)
         ]).then(() => {
             const context = new LoadingContext(assets);
 
@@ -48,6 +49,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             this.handleHudDef(context, assets);
             this.handleWeaponDefs(context, assets);
             this.handleDebrisDefs(context, assets);
+            this.handleFontDefs(context, assets);
 
             console.debug(`A total of ${context.total} assets need to be loaded for map "${mapName}"`);
 
@@ -130,6 +132,13 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
         });
     }
 
+    private loadFontDefs(assets: GameAssets) : Promise<Map<string, any>> {
+        return this.loadJson('assets/fonts.json').then((fontDefs: any[]) => {
+            fontDefs.forEach(fontDef => assets.fontDefs.set(fontDef.name, fontDef));
+            return assets.fontDefs;
+        });
+    }
+
     private loadJson(url: string): Promise<any> {
         return this.jsonLoader.loadAsync(url)
             .then(response => JSON.parse(<string>response))
@@ -190,6 +199,16 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
                 this.collectTextureSources(context, assets, debrisDef.materials);
             }
             this.collectSoundSources(context, assets, debrisDef);
+        });
+    }
+
+    private handleFontDefs(context: LoadingContext, assets: GameAssets) {
+        assets.fontDefs.forEach(fontDef => {
+            Object.keys(fontDef.characters).forEach(char => {
+                const charDef = fontDef.characters[char];
+                const source = new TextureSource(charDef.material.diffuseMap, this.tgaLoader, this.binaryFileLoader);
+                context.texturesToLoad.set(source.name, source);
+            });
         });
     }
 

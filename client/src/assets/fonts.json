@@ -1,0 +1,139 @@
+[
+  {
+    "name": "micro",
+    "characters": {
+      "-": {
+        "scale": [16, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.047, 0.078],
+            "scroll": [0.406, 0.727]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "0": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.066, 0.078],
+            "scroll": [0.594, 0.703]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "1": {
+        "scale": [16, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.047, 0.078],
+            "scroll": [0.691, 0.703]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "2": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.066, 0.078],
+            "scroll": [0.773, 0.703]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "3": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.859, 0.703]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "4": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.078, 0.078],
+            "scroll": [0, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "5": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.094, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "6": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.188, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "7": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.266, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "8": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.375, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      },
+      "9": {
+        "scale": [24, 24],
+        "material": {
+          "type": "sprite",
+          "diffuseMap": {
+            "name": "fonts/english/micro/fontimage_0_24",
+            "repeat": [0.07, 0.078],
+            "scroll": [0.469, 0.594]
+          },
+          "color": "0xffffff"
+        }
+      }
+    }
+  }
+]

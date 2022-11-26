@@ -14,6 +14,7 @@ export class GameAssets {
     readonly soundDefs = new Map<string, any>();
     readonly weaponDefs = new Map<string, any>();
     readonly debrisDefs = new Map<string, any>();
+    readonly fontDefs = new Map<string, any>();
 
     readonly textures = new Map<string, Texture>();
     readonly modelMeshes = new Map<string, Mesh>();

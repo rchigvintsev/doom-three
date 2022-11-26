@@ -3,8 +3,8 @@ import {Texture} from 'three';
 import {EvalFunction} from 'mathjs';
 
 export class UpdatableTexture extends Texture {
-    private scrollX?: EvalFunction;
-    private scrollY?: EvalFunction;
+    private scrollX?: number | EvalFunction;
+    private scrollY?: number | EvalFunction;
     private _rotate?: EvalFunction;
 
     private readonly evalScope: any;
@@ -22,7 +22,7 @@ export class UpdatableTexture extends Texture {
         params.forEach((value, key) => this.evalScope[key] = value);
     }
 
-    setScroll(scrollX: EvalFunction, scrollY: EvalFunction) {
+    setScroll(scrollX: number | EvalFunction, scrollY: number | EvalFunction) {
         this.scrollX = scrollX;
         this.scrollY = scrollY;
     }
@@ -38,10 +38,18 @@ export class UpdatableTexture extends Texture {
         if (this.scrollX || this.scrollY) {
             this.evalScope.time = now * 0.01;
             if (this.scrollX) {
-                scrollX = this.scrollX.evaluate(this.evalScope) * this.repeat.x;
+                if (typeof this.scrollX === 'number') {
+                    scrollX = this.scrollX;
+                } else {
+                    scrollX = this.scrollX.evaluate(this.evalScope) * this.repeat.x;
+                }
             }
             if (this.scrollY) {
-                scrollY = this.scrollY.evaluate(this.evalScope) * this.repeat.y;
+                if (typeof this.scrollY === 'number') {
+                    scrollY = this.scrollY;
+                } else {
+                    scrollY = this.scrollY.evaluate(this.evalScope) * this.repeat.y;
+                }
             }
         }
 

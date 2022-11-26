@@ -17,6 +17,7 @@ import {
     SubtractiveBlending,
     Texture
 } from 'three';
+import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 
 import {compile} from 'mathjs';
 
@@ -25,7 +26,6 @@ import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
-import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 import {UpdatableMaterial} from './updatable-material';
 import {UpdatableSpriteMaterial} from './updatable-sprite-material';
 import {UpdatableMeshPhongMaterial} from './updatable-mesh-phong-material';
@@ -34,10 +34,15 @@ export class MaterialFactory {
     constructor(private readonly parameters: MaterialFactoryParameters) {
     }
 
-    create(materialName: string): Material[] {
-        const materialDef = this.parameters.assets.materialDefs.get(materialName);
-        if (!materialDef) {
-            throw new Error(`Definition of material "${materialName}" is not found`);
+    create(materialName: any): Material[] {
+        let materialDef;
+        if (typeof materialName === 'string') {
+            materialDef = this.parameters.assets.materialDefs.get(materialName);
+            if (!materialDef) {
+                throw new Error(`Definition of material "${materialName}" is not found`);
+            }
+        } else {
+            materialDef = materialName;
         }
 
         const materials: Material[] = [];
@@ -152,7 +157,7 @@ export class MaterialFactory {
 
         if (materialDef.diffuseMap) {
             if (typeof materialDef.diffuseMap !== 'string') {
-                material.map = this.createMap(materialDef.name, materialDef.diffuseMap);
+                material.map = this.createUpdatableMap(materialDef.name, materialDef.diffuseMap);
             } else {
                 material.map = this.getTexture(materialDef.diffuseMap);
             }
@@ -218,13 +223,6 @@ export class MaterialFactory {
         return material;
     }
 
-    private createMap(materialName: string, mapDef: any): Texture {
-        const texture = this.getTexture(mapDef.name);
-        this.setTextureRepeat(materialName, texture, mapDef);
-        this.setTextureCenter(materialName, texture, mapDef);
-        return texture;
-    }
-
     private createUpdatableMap(materialName: string, mapDef: any): UpdatableTexture {
         const texture = new UpdatableTexture(this.parameters.evalScope);
         texture.copy(this.getTexture(mapDef.name));
@@ -237,7 +235,9 @@ export class MaterialFactory {
                 throw new Error(`Material "${materialName}" has map "${mapDef.name}" with invalid `
                     + `number of scroll expressions: ${mapDef.scroll.length}`);
             }
-            texture.setScroll(compile(mapDef.scroll[0]), compile(mapDef.scroll[1]));
+            const scrollX = typeof mapDef.scroll[0] === 'number' ? mapDef.scroll[0] : compile(mapDef.scroll[0]);
+            const scrollY = typeof mapDef.scroll[1] === 'number' ? mapDef.scroll[1] : compile(mapDef.scroll[1]);
+            texture.setScroll(scrollX, scrollY);
         }
 
         if (mapDef.rotate) {
