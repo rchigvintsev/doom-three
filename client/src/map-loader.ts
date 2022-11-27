@@ -22,6 +22,7 @@ import {DebrisFactory} from './entity/model/lwo/debris-factory';
 import {HudFactory} from './entity/player/hud/hud-factory';
 import {Hud} from './entity/player/hud/hud';
 import {AssetLoader} from './asset-loader';
+import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 
 export class MapLoader {
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
@@ -97,7 +98,9 @@ export class MapLoader {
     }
 
     private createHud(assets: GameAssets, materialFactory: MaterialFactory) {
-        return new HudFactory({config: this.game.config, materialFactory}).create(assets.hudDef);
+        const spriteTextFactory = new SpriteTextFactory({config: this.game.config, assets, materialFactory});
+        const hudFactory = new HudFactory({config: this.game.config, assets, materialFactory, spriteTextFactory});
+        return hudFactory.create(assets.hudDef);
     }
 
     private createMap(assets: GameAssets,

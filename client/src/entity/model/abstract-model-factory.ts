@@ -36,7 +36,7 @@ export abstract class AbstractModelFactory<T extends Entity> implements EntityFa
     }
 }
 
-export class ModelFactoryParameters extends EntityFactoryParameters {
-    declare assets: GameAssets;
-    materialFactory!: MaterialFactory;
+export interface ModelFactoryParameters extends EntityFactoryParameters {
+    assets: GameAssets;
+    materialFactory: MaterialFactory;
 }

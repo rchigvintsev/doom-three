@@ -45,7 +45,7 @@ export class DebrisFactory extends LwoModelFactory {
     }
 }
 
-export class DebrisFactoryParameters extends ModelFactoryParameters {
-    soundFactory!: SoundFactory;
-    collisionModelFactory!: CollisionModelFactory;
+export interface DebrisFactoryParameters extends ModelFactoryParameters {
+    soundFactory: SoundFactory;
+    collisionModelFactory: CollisionModelFactory;
 }

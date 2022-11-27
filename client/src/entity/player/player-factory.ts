@@ -36,9 +36,9 @@ export class PlayerFactory implements EntityFactory<Player> {
     }
 }
 
-export class PlayerFactoryParameters extends EntityFactoryParameters {
-    camera!: PerspectiveCamera;
-    weapons!: Map<string, Weapon>;
-    soundFactory!: SoundFactory;
-    collisionModelFactory!: CollisionModelFactory;
+export interface PlayerFactoryParameters extends EntityFactoryParameters {
+    camera: PerspectiveCamera;
+    weapons: Map<string, Weapon>;
+    soundFactory: SoundFactory;
+    collisionModelFactory: CollisionModelFactory;
 }

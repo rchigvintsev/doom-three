@@ -48,7 +48,7 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
     }
 }
 
-export class ParticleFactoryParameters extends EntityFactoryParameters {
-    declare assets: GameAssets;
-    materialFactory!: MaterialFactory;
+export interface ParticleFactoryParameters extends EntityFactoryParameters {
+    assets: GameAssets;
+    materialFactory: MaterialFactory;
 }

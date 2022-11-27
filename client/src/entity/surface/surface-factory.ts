@@ -103,7 +103,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
     }
 }
 
-export class SurfaceFactoryParameters extends EntityFactoryParameters {
-    materialFactory!: MaterialFactory;
-    collisionModelFactory!: CollisionModelFactory;
+export interface SurfaceFactoryParameters extends EntityFactoryParameters {
+    materialFactory: MaterialFactory;
+    collisionModelFactory: CollisionModelFactory;
 }

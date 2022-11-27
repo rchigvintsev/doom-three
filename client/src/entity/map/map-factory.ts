@@ -32,9 +32,9 @@ export class MapFactory implements EntityFactory<GameMap> {
     }
 }
 
-export class MapFactoryParameters extends EntityFactoryParameters {
-    player!: Player;
-    hud!: Hud;
-    areaFactory!: AreaFactory;
-    lightFactory!: LightFactory;
+export interface MapFactoryParameters extends EntityFactoryParameters {
+    player: Player;
+    hud: Hud;
+    areaFactory: AreaFactory;
+    lightFactory: LightFactory;
 }

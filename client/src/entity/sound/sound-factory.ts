@@ -40,7 +40,7 @@ export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
     }
 }
 
-export class SoundFactoryParameters extends EntityFactoryParameters {
-    declare assets: GameAssets;
-    audioListener!: AudioListener;
+export interface SoundFactoryParameters extends EntityFactoryParameters {
+    assets: GameAssets;
+    audioListener: AudioListener;
 }

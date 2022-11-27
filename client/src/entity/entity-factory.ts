@@ -8,7 +8,7 @@ export interface EntityFactory<T extends (Entity | Object3D | Object3D[])> {
     create(entityDef: any): T;
 }
 
-export class EntityFactoryParameters {
-    config!: GameConfig;
+export interface EntityFactoryParameters {
+    config: GameConfig;
     assets?: GameAssets;
 }

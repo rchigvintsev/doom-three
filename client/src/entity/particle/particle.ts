@@ -4,6 +4,7 @@ import {SpriteMaterial} from 'three/src/materials/Materials';
 import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
+import {isUpdatableMaterial} from '../../material/updatable-material';
 
 export class Particle extends Sprite implements Entity {
     onShow?: (particle: Particle) => void;
@@ -43,13 +44,17 @@ export class Particle extends Sprite implements Entity {
         // Do nothing
     }
 
-    update(_deltaTime: number) {
+    update(deltaTime: number) {
         if (this.visible) {
             const now = performance.now();
             const fadeInTime = this.parameters.time * this.parameters.fadeIn;
             if (now - this.showedAt > fadeInTime) {
                 this.position.x += this.parameters.gravity.x;
                 this.position.y += this.parameters.gravity.y;
+            }
+
+            if (isUpdatableMaterial(this.material)) {
+                this.material.update(deltaTime);
             }
         }
     }

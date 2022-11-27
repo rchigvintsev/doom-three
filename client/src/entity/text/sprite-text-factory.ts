@@ -1,67 +1,82 @@
-import {Object3D, Sprite, SpriteMaterial} from 'three';
+import {Object3D, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {SpriteText} from './sprite-text';
 import {GameAssets} from '../../game-assets';
 import {MaterialFactory} from '../../material/material-factory';
-import {TextStyle} from './text-style';
-import {TextAlign} from './text-align';
+import {FontStyle, parseFontStyle} from './font-style';
+import {parseTextAlign, TextAlign} from './text-align';
+import {SpriteChar} from './sprite-char';
 
-const TEXT_STYLE_ITALIC_SHIFT_FACTOR = 0.3;
+const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.3;
 
 export class SpriteTextFactory implements EntityFactory<SpriteText> {
+    private readonly fontChars = new Map<string, Map<string, SpriteChar>>();
+
     constructor(private readonly parameters: SpriteTextFactoryParameters) {
     }
 
     create(textDef: any): SpriteText {
-        const fontDef = this.parameters.assets.fontDefs.get(textDef.font);
-
-        const charSprites = new Map<string, Sprite>();
-        for (const char of Object.keys(fontDef.characters)) {
-            const charDef = fontDef.characters[char];
-            const charMaterial = this.parameters.materialFactory.create(charDef.material);
-            const charSprite = new Sprite(<SpriteMaterial>charMaterial[0]);
-            charSprite.userData['character'] = char;
-            charSprite.scale.x = charDef.scale[0] * textDef.textScale[0] / textDef.scale[0];
-            charSprite.scale.y = charDef.scale[1] * textDef.textScale[1] / textDef.scale[1];
-            this.applyTextStyle(textDef, charDef, charSprite);
-            charSprite.visible = false;
-            charSprites.set(char, charSprite);
+        const fontKey = `${textDef.font}__${textDef.fontStyle || FontStyle.NORMAL}`;
+        let fontChars = this.fontChars.get(fontKey);
+        if (!fontChars) {
+            fontChars = this.createFontChars(textDef);
+            this.fontChars.set(fontKey, fontChars);
         }
 
         const text = new SpriteText({
             fontName: textDef.font,
-            fontCharacters: charSprites,
+            fontStyle: this.getFontStyle(textDef),
+            fontChars: fontChars,
             textAlign: this.getTextAlign(textDef),
             textColor: textDef.textColor
         });
-        this.setScale(textDef, text);
-        this.setPosition(textDef, text);
+        this.setTextScale(textDef, text);
+        this.setTextPosition(textDef, text);
         return text;
     }
 
-    private applyTextStyle(textDef: any, charDef: any, character: Sprite) {
-        if (textDef.textStyle === TextStyle.BACK_ITALIC) {
-            character.geometry = character.geometry.clone();
-            const uvAttr = character.geometry.getAttribute("uv");
+    private createFontChars(textDef: any) {
+        const fontChars = new Map<string, SpriteChar>();
+        const fontDef = this.parameters.assets.fontDefs.get(textDef.font);
+        for (const ch of Object.keys(fontDef.characters)) {
+            const charDef = fontDef.characters[ch];
+            const materials = this.parameters.materialFactory.create(charDef.material);
+            const spriteChar = new SpriteChar(ch, <SpriteMaterial>materials[0]);
+            spriteChar.scale.x = charDef.scale[0] * textDef.textScale[0] / textDef.scale[0];
+            spriteChar.scale.y = charDef.scale[1] * textDef.textScale[1] / textDef.scale[1];
+            this.applyFontStyle(textDef, charDef, spriteChar);
+            fontChars.set(ch, spriteChar);
+        }
+        return fontChars;
+    }
+
+    private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {
+        if (this.getFontStyle(textDef) === FontStyle.BACK_ITALIC) {
+            char.geometry = char.geometry.clone();
+            const uvAttr = char.geometry.getAttribute("uv");
             const uvs = <number[]>uvAttr.array;
-            uvs[0] = uvs[0] + TEXT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
-            uvs[5] = uvs[5] + TEXT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
+            uvs[0] = uvs[0] + FONT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
+            uvs[5] = uvs[5] + FONT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
             uvAttr.needsUpdate = true;
         }
     }
 
-    private getTextAlign(textDef: any): TextAlign | undefined {
-        return textDef.textAlign === 'center' ? TextAlign.CENTER : undefined;
+    private getFontStyle(textDef: any): FontStyle {
+        return parseFontStyle(textDef.fontStyle);
     }
 
-    private setScale(textDef: any, sprite: Object3D) {
+    private getTextAlign(textDef: any): TextAlign {
+        return parseTextAlign(textDef.textAlign);
+    }
+
+    private setTextScale(textDef: any, sprite: Object3D) {
         if (textDef.scale) {
             sprite.scale.set(textDef.scale[0], textDef.scale[1], 1);
         }
     }
 
-    private setPosition(textDef: any, sprite: Object3D) {
+    private setTextPosition(textDef: any, sprite: Object3D) {
         if (textDef.position) {
             let x = 0, y = 0;
             if (textDef.position.right) {

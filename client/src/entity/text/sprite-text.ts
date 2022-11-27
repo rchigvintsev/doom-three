@@ -1,12 +1,14 @@
-import {Color, Object3D, Sprite} from 'three';
+import {Color, Object3D} from 'three';
 
 import {Entity} from '../entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {TextAlign} from './text-align';
+import {SpriteChar} from './sprite-char';
+import {FontStyle} from './font-style';
 
 export class SpriteText extends Object3D implements Entity {
-    private readonly characterCache = new Map<string, Sprite[]>();
-    private readonly textCharacters: Sprite[] = [];
+    private readonly charCache = new Map<string, SpriteChar[]>();
+    private readonly textChars: SpriteChar[] = [];
     private readonly textColor = new Color(0xffffff);
 
     constructor(private readonly parameters: SpriteTextParameters) {
@@ -20,83 +22,80 @@ export class SpriteText extends Object3D implements Entity {
         // Do nothing
     }
 
+    clearText() {
+        for (const char of this.textChars) {
+            char.visible = false;
+            this.charCache.get(char.char)!.push(char);
+        }
+        this.textChars.length = 0;
+    }
+
     setText(text: string) {
         this.clearText();
 
         let position = 0;
         for (let i = 0; i < text.length; i++) {
             const char = text.charAt(i);
-            const charSprite = this.getCharacterSprite(char);
-            if (charSprite) {
-                charSprite.material.color.copy(this.textColor);
-                charSprite.position.x = position;
-                charSprite.visible = true;
-                this.textCharacters.push(charSprite);
-                position += charSprite.scale.x;
+            const spriteChar = this.getSpriteChar(char);
+            if (spriteChar) {
+                spriteChar.material.color.copy(this.textColor);
+                spriteChar.position.x = position;
+                spriteChar.visible = true;
+                this.textChars.push(spriteChar);
+                position += spriteChar.scale.x;
             }
         }
 
-        if (this.textCharacters.length > 0) {
+        if (this.textChars.length > 0) {
             this.alignText();
         }
     }
 
-    clearText() {
-        for (const char of this.textCharacters) {
-            char.visible = false;
-            this.characterCache.get(char.userData['character'])!.push(char);
-        }
-        this.textCharacters.length = 0;
-    }
-
     setTextColor(color: number) {
         this.textColor.setHex(color);
-        for (const char of this.textCharacters) {
+        for (const char of this.textChars) {
             char.material.color.copy(this.textColor);
         }
     }
 
     update(deltaTime: number) {
-        for (const char of this.textCharacters) {
+        for (const char of this.textChars) {
             if (isUpdatableMaterial(char.material)) {
                 char.material.update(deltaTime);
             }
         }
     }
 
-    private getCharacterSprite(character: string): Sprite | undefined {
-        const fontCharSprite = this.parameters.fontCharacters.get(character);
-        if (!fontCharSprite) {
-            console.error(`Character "${character}" is not defined in font "${this.parameters.fontName}"`);
+    private getSpriteChar(char: string): SpriteChar | undefined {
+        const fontChar = this.parameters.fontChars.get(char);
+        if (!fontChar) {
+            console.error(`Character "${char}" is not defined in font "${this.parameters.fontName}"`);
             return undefined;
         }
 
-        let charSprite;
-        let cachedCharSprites = this.characterCache.get(character);
-        if (cachedCharSprites == undefined) {
-            this.characterCache.set(character, cachedCharSprites = []);
+        let spriteChar;
+        let cachedChars = this.charCache.get(char);
+        if (cachedChars == undefined) {
+            this.charCache.set(char, cachedChars = []);
         }
-        if (cachedCharSprites.length !== 0) {
-            charSprite = cachedCharSprites.shift();
+        if (cachedChars.length > 0) {
+            spriteChar = cachedChars.shift();
         } else {
-            charSprite = fontCharSprite.clone();
-            if (charSprite.geometry !== fontCharSprite.geometry) {
-                charSprite.geometry = fontCharSprite.geometry.clone();
-            }
-            this.add(charSprite);
-            console.debug(`Sprite character "${character}" is created (font "${this.parameters.fontName}")`);
+            spriteChar = fontChar.clone(this.parameters.fontStyle !== FontStyle.NORMAL);
+            this.add(spriteChar);
+            console.debug(`Sprite character "${char}" is created (font "${this.parameters.fontName}")`);
         }
-        return charSprite;
+        return spriteChar;
     }
 
     private alignText() {
         if (this.parameters.textAlign === TextAlign.CENTER) {
             let width = 0;
-            for (const char of this.textCharacters) {
+            for (const char of this.textChars) {
                 width += char.scale.x;
             }
-            for (const char of this.textCharacters) {
-                char.position.x -= (width / 2 - this.textCharacters[0].scale.x / 2);
+            for (const char of this.textChars) {
+                char.position.x -= (width / 2 - this.textChars[0].scale.x / 2);
             }
         }
     }
@@ -104,7 +103,8 @@ export class SpriteText extends Object3D implements Entity {
 
 export interface SpriteTextParameters {
     fontName: string,
-    fontCharacters: Map<string, Sprite>;
-    textAlign?: TextAlign;
+    fontStyle: FontStyle,
+    fontChars: Map<string, SpriteChar>;
+    textAlign: TextAlign;
     textColor?: number;
 }

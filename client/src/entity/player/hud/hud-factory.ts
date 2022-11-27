@@ -1,8 +1,11 @@
-import {Sprite, SpriteMaterial} from 'three';
+import {Object3D, Sprite, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../../entity-factory';
-import {Hud} from './hud';
+import {AmmoCounter, Hud} from './hud';
 import {MaterialFactory} from '../../../material/material-factory';
+import {GameAssets} from '../../../game-assets';
+import {SpriteTextFactory} from '../../text/sprite-text-factory';
+import {SpriteText} from '../../text/sprite-text';
 
 const SCALE_FACTOR = 2;
 
@@ -13,6 +16,7 @@ export class HudFactory implements EntityFactory<Hud> {
     create(hudDef: any): Hud {
         const crosshair = this.createCrosshair(hudDef);
         const ammoCounter = this.createAmmoCounter(hudDef);
+        ammoCounter.setValue(0);
         return new Hud({config: this.parameters.config, crosshair, ammoCounter});
     }
 
@@ -27,25 +31,31 @@ export class HudFactory implements EntityFactory<Hud> {
         return crosshair;
     }
 
-    private createAmmoCounter(hudDef: any): Sprite[] {
-        const ammoCounter = [];
+    private createAmmoCounter(hudDef: any): AmmoCounter {
+        const background: Sprite[] = [];
+        let text: SpriteText;
         for (const spriteDef of hudDef.ammoCounter) {
-            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
-            const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
-            this.setScale(spriteDef, sprite);
-            this.setPosition(spriteDef, sprite);
-            ammoCounter.push(sprite);
+            if (spriteDef.font) {
+                text = this.parameters.spriteTextFactory.create(spriteDef);
+                text.scale.multiplyScalar(SCALE_FACTOR);
+            } else {
+                const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+                const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
+                this.setScale(spriteDef, sprite);
+                this.setPosition(spriteDef, sprite);
+                background.push(sprite);
+            }
         }
-        return ammoCounter;
+        return new AmmoCounter(background, text!);
     }
 
-    private setScale(spriteDef: any, sprite: Sprite) {
+    private setScale(spriteDef: any, sprite: Object3D) {
         if (spriteDef.scale) {
             sprite.scale.set(spriteDef.scale[0] * SCALE_FACTOR, spriteDef.scale[1] * SCALE_FACTOR, 1);
         }
     }
 
-    private setPosition(spriteDef: any, sprite: Sprite) {
+    private setPosition(spriteDef: any, sprite: Object3D) {
         if (spriteDef.position) {
             let x = 0, y = 0;
             if (spriteDef.position.right) {
@@ -59,6 +69,8 @@ export class HudFactory implements EntityFactory<Hud> {
     }
 }
 
-export class HudFactoryParameters extends EntityFactoryParameters {
-    materialFactory!: MaterialFactory;
+export interface HudFactoryParameters extends EntityFactoryParameters {
+    assets: GameAssets;
+    materialFactory: MaterialFactory;
+    spriteTextFactory: SpriteTextFactory;
 }

@@ -2,29 +2,29 @@
   "crosshair": [
     {
       "name": "crosshaircenter",
-      "background": "crosshaircenter",
+      "background": "guis/assets/common/crosshaircenter",
       "scale": [32, 32]
     },
     {
       "name": "crosshaircenter2",
-      "background": "crosshaircenter2",
+      "background": "guis/assets/common/crosshaircenter2",
       "scale": [32, 32]
     },
     {
       "name": "crosshairLight",
-      "background": "crosshairLight",
+      "background": "guis/assets/common/crosshairlight",
       "scale": [32, 32]
     },
     {
       "name": "crosshairFrame",
-      "background": "crosshairFrame",
+      "background": "guis/assets/common/crosshairframe",
       "scale": [32, 32]
     }
   ],
   "ammoCounter": [
     {
       "name": "ScanLineLA",
-      "background": "ScanLineLA",
+      "background": "guis/assets/hud/mp/lborder1a1",
       "scale": [256, 64],
       "position": {
         "right": 255,
@@ -33,12 +33,64 @@
     },
     {
       "name": "BorderLABottom",
-      "background": "BorderLABottom",
+      "background": "guis/assets/hud/mp/lborder1b",
       "scale": [241, 64],
       "position": {
         "right": 241,
         "bottom": 64
       }
+    },
+    {
+      "name": "BorderLA",
+      "background": "guis/assets/hud/mp/lborder1a1",
+      "scale": [256, 64],
+      "position": {
+        "right": 256,
+        "bottom": 64
+      }
+    },
+    {
+      "name": "BgLA",
+      "background": "guis/assets/hud/mp/lbg1a1",
+      "scale": [256, 64],
+      "position": {
+        "right": 256,
+        "bottom": 64
+      }
+    },
+    {
+      "name": "Lines1A",
+      "background": "guis/assets/hud/mp/llines1a1",
+      "scale": [256, 64],
+      "position": {
+        "right": 256,
+        "bottom": 64
+      }
+    },
+    {
+      "name": "Lines2A",
+      "background": "guis/assets/hud/mp/llines2a1",
+      "scale": [256, 64],
+      "position": {
+        "right": 256,
+        "bottom": 64
+      }
+    },
+    {
+      "name": "ammovalue2Black",
+      "scale": [53, 21],
+      "position": {
+        "right": 192,
+        "bottom": 54
+      },
+      "font": "micro",
+      "fontStyle": "back-italic",
+      "text": "gui::player_ammo",
+      "textScale": [0.53, 0.53],
+      "textAlign": "center",
+      "textColor": "0x9ab3b3",
+      "textOpacity": 0.5,
+      "shear": [0, 0.33]
     }
   ]
 }

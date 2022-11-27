@@ -187,8 +187,8 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 }
 
-export class Md5ModelFactoryParameters extends ModelFactoryParameters {
-    soundFactory!: SoundFactory;
-    particleSystem!: ParticleSystem;
-    debrisSystem!: DebrisSystem;
+export interface Md5ModelFactoryParameters extends ModelFactoryParameters {
+    soundFactory: SoundFactory;
+    particleSystem: ParticleSystem;
+    debrisSystem: DebrisSystem;
 }

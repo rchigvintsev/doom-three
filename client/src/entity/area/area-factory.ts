@@ -25,7 +25,7 @@ export class AreaFactory implements EntityFactory<Area> {
     }
 }
 
-export class AreaFactoryParameters extends EntityFactoryParameters {
-    surfaceFactory!: SurfaceFactory;
-    lightFactory!: LightFactory;
+export interface AreaFactoryParameters extends EntityFactoryParameters {
+    surfaceFactory: SurfaceFactory;
+    lightFactory: LightFactory;
 }

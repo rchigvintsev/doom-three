@@ -1,15 +1,16 @@
-import {OrthographicCamera, Scene, Sprite, WebGLRenderer} from 'three';
+import {Object3D, OrthographicCamera, Scene, Sprite, WebGLRenderer} from 'three';
 
 import {Entity} from '../../entity';
 import {GameConfig} from '../../../game-config';
 import {isUpdatableMaterial} from '../../../material/updatable-material';
+import {SpriteText} from '../../text/sprite-text';
 
 export class Hud implements Entity {
     private readonly scene = new Scene();
     private readonly camera: OrthographicCamera;
 
-    private readonly crosshair: Sprite[];
-    private readonly ammoCounter: Sprite[];
+    private readonly crosshair: Object3D[];
+    private readonly ammoCounter: AmmoCounter;
 
     constructor(private readonly parameters: HudParameters) {
         this.camera = this.createCamera(this.parameters.config);
@@ -31,16 +32,12 @@ export class Hud implements Entity {
 
     update(deltaTime: number) {
         for (const child of this.crosshair) {
-            if (isUpdatableMaterial(child.material)) {
-                child.material.update(deltaTime);
+            const material = (<any>child).material;
+            if (isUpdatableMaterial(material)) {
+                material.update(deltaTime);
             }
         }
-
-        for (const child of this.ammoCounter) {
-            if (isUpdatableMaterial(child.material)) {
-                child.material.update(deltaTime);
-            }
-        }
+        this.ammoCounter.update(deltaTime);
     }
 
     render(renderer: WebGLRenderer) {
@@ -55,8 +52,33 @@ export class Hud implements Entity {
     }
 }
 
-export class HudParameters {
-    config!: GameConfig;
-    crosshair!: Sprite[];
-    ammoCounter!: Sprite[];
+export interface HudParameters {
+    config: GameConfig;
+    crosshair: Object3D[];
+    ammoCounter: AmmoCounter;
+}
+
+export class AmmoCounter implements Iterable<Object3D> {
+    constructor(private readonly background: Sprite[], private readonly text: SpriteText) {
+    }
+
+    setValue(value: number) {
+        this.text.setText(value.toString());
+    }
+
+    update(deltaTime: number) {
+        for (const backgroundElement of this.background) {
+            if (isUpdatableMaterial(backgroundElement.material)) {
+                backgroundElement.material.update(deltaTime);
+            }
+        }
+        this.text.update(deltaTime);
+    }
+
+    *[Symbol.iterator](): IterableIterator<Object3D> {
+        for (let i = 0; i < this.background.length; i++) {
+            yield this.background[i];
+        }
+        yield this.text;
+    }
 }

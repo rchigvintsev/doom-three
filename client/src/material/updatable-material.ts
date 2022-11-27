@@ -12,7 +12,7 @@ export interface UpdatableMaterial {
 }
 
 export function isUpdatableMaterial(material: any): material is UpdatableMaterial {
-    return !!material.update;
+    return material && !!material.update;
 }
 
 export function updateOpacity(material: UpdatableMaterial) {
