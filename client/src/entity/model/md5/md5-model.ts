@@ -156,6 +156,6 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     }
 }
 
-export class Md5ModelParameters extends ModelParameters {
+export interface Md5ModelParameters extends ModelParameters {
     sounds?: Map<string, Audio<AudioNode>[]>;
 }

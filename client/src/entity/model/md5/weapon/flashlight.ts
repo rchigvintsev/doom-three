@@ -195,6 +195,6 @@ export class Flashlight extends Weapon {
     }
 }
 
-export class FlashlightParameters extends Md5ModelParameters {
+export interface FlashlightParameters extends Md5ModelParameters {
     lightMap?: Texture;
 }

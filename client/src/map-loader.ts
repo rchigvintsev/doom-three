@@ -53,7 +53,7 @@ export class MapLoader {
 
             const weapons = this.createWeapons(assets, materialFactory, soundFactory);
             const player = this.createPlayer(assets, weapons, soundFactory, collisionModelFactory);
-            const hud = this.createHud(assets, materialFactory);
+            const hud = this.createHud(assets, player, materialFactory);
 
             return this.createMap(assets, player, hud, materialFactory, collisionModelFactory);
         });
@@ -97,9 +97,15 @@ export class MapLoader {
         }).create(assets.playerDef);
     }
 
-    private createHud(assets: GameAssets, materialFactory: MaterialFactory) {
+    private createHud(assets: GameAssets, player: Player, materialFactory: MaterialFactory) {
         const spriteTextFactory = new SpriteTextFactory({config: this.game.config, assets, materialFactory});
-        const hudFactory = new HudFactory({config: this.game.config, assets, materialFactory, spriteTextFactory});
+        const hudFactory = new HudFactory({
+            config: this.game.config,
+            assets,
+            player,
+            materialFactory,
+            spriteTextFactory
+        });
         return hudFactory.create(assets.hudDef);
     }
 

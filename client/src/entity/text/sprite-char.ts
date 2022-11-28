@@ -7,6 +7,7 @@ export class SpriteChar extends Sprite {
 
     clone(withGeometry?: boolean, recursive?: boolean): this {
         const clone = super.clone(recursive);
+        (<any>clone).char = this.char;
         if (withGeometry) {
             clone.geometry = this.geometry.clone();
         }

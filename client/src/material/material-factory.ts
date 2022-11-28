@@ -337,7 +337,7 @@ export class MaterialFactory {
     }
 }
 
-export class MaterialFactoryParameters {
-    assets!: GameAssets;
+export interface MaterialFactoryParameters {
+    assets: GameAssets;
     evalScope?: any;
 }

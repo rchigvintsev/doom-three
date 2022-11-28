@@ -3,5 +3,5 @@ export interface NamedShape {
 }
 
 export function isNamedShape(shape: object): shape is NamedShape {
-    return (shape as NamedShape).name != undefined;
+    return shape && (shape as NamedShape).name != undefined;
 }

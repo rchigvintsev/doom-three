@@ -11,6 +11,8 @@ export class SpriteText extends Object3D implements Entity {
     private readonly textChars: SpriteChar[] = [];
     private readonly textColor = new Color(0xffffff);
 
+    private _text?: string;
+
     constructor(private readonly parameters: SpriteTextParameters) {
         super();
         if (this.parameters.textColor != undefined) {
@@ -30,24 +32,33 @@ export class SpriteText extends Object3D implements Entity {
         this.textChars.length = 0;
     }
 
-    setText(text: string) {
-        this.clearText();
+    get text(): string | undefined {
+        return this._text;
+    }
 
-        let position = 0;
-        for (let i = 0; i < text.length; i++) {
-            const char = text.charAt(i);
-            const spriteChar = this.getSpriteChar(char);
-            if (spriteChar) {
-                spriteChar.material.color.copy(this.textColor);
-                spriteChar.position.x = position;
-                spriteChar.visible = true;
-                this.textChars.push(spriteChar);
-                position += spriteChar.scale.x;
+    set text(text: string | undefined) {
+        if (this._text !== text) {
+            this._text = text;
+            this.clearText();
+
+            if (text) {
+                let position = 0;
+                for (let i = 0; i < text.length; i++) {
+                    const char = text.charAt(i);
+                    const spriteChar = this.getSpriteChar(char);
+                    if (spriteChar) {
+                        spriteChar.material.color.copy(this.textColor);
+                        spriteChar.position.x = position;
+                        spriteChar.visible = true;
+                        this.textChars.push(spriteChar);
+                        position += spriteChar.scale.x;
+                    }
+                }
+
+                if (this.textChars.length > 0) {
+                    this.alignText();
+                }
             }
-        }
-
-        if (this.textChars.length > 0) {
-            this.alignText();
         }
     }
 
@@ -59,9 +70,11 @@ export class SpriteText extends Object3D implements Entity {
     }
 
     update(deltaTime: number) {
-        for (const char of this.textChars) {
-            if (isUpdatableMaterial(char.material)) {
-                char.material.update(deltaTime);
+        if (this.visible) {
+            for (const char of this.textChars) {
+                if (isUpdatableMaterial(char.material)) {
+                    char.material.update(deltaTime);
+                }
             }
         }
     }

@@ -5,20 +5,20 @@ import {randomInt} from 'mathjs';
 import {Md5ModelParameters} from '../md5-model';
 import {Weapon} from './weapon';
 import {AttackEvent, WeaponDisableEvent} from '../../../../event/weapon-events';
-import {ReloadableWeapon} from './reloadable-weapon';
 import {Player} from '../../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
 import {DebrisSystem} from '../../../../debris/debris-system';
+import {Firearm} from './firearm';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
 const FIRE_FLASH_COLOR = 0xffcc66;
 const FIRE_FLASH_DISTANCE = 120;
 
-export class Pistol extends Weapon implements ReloadableWeapon {
+export class Pistol extends Weapon implements Firearm {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
 
     private shellTarget!: Object3D;
@@ -72,7 +72,6 @@ export class Pistol extends Weapon implements ReloadableWeapon {
             if (this.ammoClip === 0) {
                 this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
                 this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
-                this.updateAmmoCountersOnReload();
                 this.playReloadSound();
             } else {
                 this.showFireFlash();
@@ -93,12 +92,19 @@ export class Pistol extends Weapon implements ReloadableWeapon {
         }
     }
 
+    ammo(): number {
+        return this.ammoClip;
+    }
+
+    totalAmmo(): number {
+        return this.ammoReserve;
+    }
+
     reload(): void {
         if (this.canReload() && this.ammoClip < AMMO_CLIP_SIZE) {
             const idleAnimationName = this.ammoClip === 0 ? 'idle_empty' : 'idle';
             this.animateCrossFade(idleAnimationName, 'reload_empty', 0.5);
             this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
-            this.updateAmmoCountersOnReload();
             this.playReloadSound();
         }
     }
@@ -123,9 +129,13 @@ export class Pistol extends Weapon implements ReloadableWeapon {
 
     protected onAnimationFinished(e: Event) {
         const clipName = e.action.getClip().name;
-        if (clipName === 'put_away' && !this.enabled) {
-            this.visible = false;
-            this.dispatchEvent(new WeaponDisableEvent(this));
+        if (clipName === 'put_away') {
+            if (!this.enabled) {
+                this.visible = false;
+                this.dispatchEvent(new WeaponDisableEvent(this));
+            }
+        } else if (clipName === 'reload_empty') {
+            this.updateAmmoCountersOnReload();
         }
     }
 
@@ -366,9 +376,9 @@ export class Pistol extends Weapon implements ReloadableWeapon {
     })();
 }
 
-export class PistolParameters extends Md5ModelParameters {
-    particleSystem!: ParticleSystem;
-    debrisSystem!: DebrisSystem;
-    muzzleSmokeParticleName!: string;
-    shellDebrisName!: string;
+export interface PistolParameters extends Md5ModelParameters {
+    particleSystem: ParticleSystem;
+    debrisSystem: DebrisSystem;
+    muzzleSmokeParticleName: string;
+    shellDebrisName: string;
 }

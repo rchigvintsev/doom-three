@@ -100,7 +100,7 @@ export class Debris extends LwoModel implements TangibleEntity {
     }
 }
 
-export class DebrisParameters extends ModelParameters {
-    time!: number;
+export interface DebrisParameters extends ModelParameters {
+    time: number;
     sounds?: Map<string, Audio<AudioNode>[]>;
 }

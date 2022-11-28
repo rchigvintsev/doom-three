@@ -32,15 +32,6 @@
       }
     },
     {
-      "name": "BorderLABottom",
-      "background": "guis/assets/hud/mp/lborder1b",
-      "scale": [241, 64],
-      "position": {
-        "right": 241,
-        "bottom": 64
-      }
-    },
-    {
       "name": "BorderLA",
       "background": "guis/assets/hud/mp/lborder1a1",
       "scale": [256, 64],
@@ -91,6 +82,17 @@
       "textColor": "0x9ab3b3",
       "textOpacity": 0.5,
       "shear": [0, 0.33]
+    }
+  ],
+  "weaponIndicator": [
+    {
+      "name": "BorderLABottom",
+      "background": "guis/assets/hud/mp/lborder1b",
+      "scale": [241, 64],
+      "position": {
+        "right": 241,
+        "bottom": 64
+      }
     }
   ]
 }

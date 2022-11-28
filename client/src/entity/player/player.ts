@@ -14,7 +14,7 @@ import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../model/md5/weapon/fists';
 import {Flashlight} from '../model/md5/weapon/flashlight';
 import {Pistol} from '../model/md5/weapon/pistol';
-import {isReloadableWeapon} from '../model/md5/weapon/reloadable-weapon';
+import {isFirearm} from '../model/md5/weapon/firearm';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -29,13 +29,13 @@ export class Player extends Object3D implements TangibleEntity {
     private readonly _pitchObject: Object3D;
     private readonly _movementDirection = new Vector3();
 
-    private currentWeapon?: Weapon;
     private lastFootstepSound?: Audio<AudioNode>;
     private lastLandSound?: Audio<AudioNode>;
     private lastFoot = Foot.LEFT;
     private tookOffAt = 0;
     private bobbingAngle = 0;
 
+    private _currentWeapon?: Weapon;
     private _airborne = false;
     private _landedAt = 0;
 
@@ -84,8 +84,8 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     update(deltaTime: number) {
-        if (this.currentWeapon) {
-            this.currentWeapon.update(deltaTime, this);
+        if (this._currentWeapon) {
+            this._currentWeapon.update(deltaTime, this);
         }
         this.collisionModel.update(deltaTime);
         if (!this.config.ghostMode) {
@@ -128,6 +128,10 @@ export class Player extends Object3D implements TangibleEntity {
         }
     }
 
+    getCurrentWeapon(): Weapon | undefined {
+        return this._currentWeapon;
+    }
+
     get fists(): Fists | undefined {
         return <Fists>this.weapons.get('fists');
     }
@@ -153,14 +157,14 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     reloadWeapon() {
-        if (this.currentWeapon && isReloadableWeapon(this.currentWeapon)) {
-            this.currentWeapon.reload();
+        if (this._currentWeapon && isFirearm(this._currentWeapon)) {
+            this._currentWeapon.reload();
         }
     }
 
     attack() {
-        if (this.currentWeapon) {
-            this.currentWeapon.attack();
+        if (this._currentWeapon) {
+            this._currentWeapon.attack();
         }
     }
 
@@ -191,10 +195,10 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     private updateBobbing() {
-        if (this.currentWeapon) {
+        if (this._currentWeapon) {
             this.bobbingAngle += BOBBING_SPEED;
             this._pitchObject.rotation.z = Math.sin(this.bobbingAngle) * VIEW_BOBBING_MAGNITUDE;
-            this.currentWeapon.updateBobbing(this.bobbingAngle);
+            this._currentWeapon.updateBobbing(this.bobbingAngle);
         }
     }
 
@@ -242,31 +246,31 @@ export class Player extends Object3D implements TangibleEntity {
             return;
         }
 
-        if (this.currentWeapon) {
-            if (this.currentWeapon.name === weaponName || !this.currentWeapon.enabled) {
+        if (this._currentWeapon) {
+            if (this._currentWeapon.name === weaponName || !this._currentWeapon.enabled) {
                 // Ignore if current weapon is already a requested weapon or player is in process of weapon switching
                 return;
             }
 
             const disableListener = () => {
-                if (this.currentWeapon) {
-                    this.currentWeapon.removeEventListener(WeaponDisableEvent.TYPE, disableListener);
+                if (this._currentWeapon) {
+                    this._currentWeapon.removeEventListener(WeaponDisableEvent.TYPE, disableListener);
                 }
-                this.currentWeapon = weapon;
+                this._currentWeapon = weapon;
                 weapon.enable();
             };
-            this.currentWeapon.addEventListener(WeaponDisableEvent.TYPE, disableListener);
-            this.currentWeapon.disable();
+            this._currentWeapon.addEventListener(WeaponDisableEvent.TYPE, disableListener);
+            this._currentWeapon.disable();
             return;
         }
 
-        this.currentWeapon = weapon;
+        this._currentWeapon = weapon;
         weapon.enable();
     }
 
     private onWeaponAttack(e: AttackEvent) {
         this.dispatchEvent(e);
-        if (this.currentWeapon instanceof Pistol) {
+        if (this._currentWeapon instanceof Pistol) {
             // Emulate recoil on fire
             this.recoilTween.start();
         }

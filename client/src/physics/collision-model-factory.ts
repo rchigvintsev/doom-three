@@ -190,7 +190,7 @@ export class CollisionModelFactory {
     }
 }
 
-export class CollisionModelFactoryParameters {
-    config!: GameConfig;
-    physicsSystem!: PhysicsSystem;
+export interface CollisionModelFactoryParameters {
+    config: GameConfig;
+    physicsSystem: PhysicsSystem;
 }

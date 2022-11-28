@@ -76,13 +76,13 @@ export class Particle extends Sprite implements Entity {
     }
 }
 
-export class ParticleParameters {
+export interface ParticleParameters {
     material?: SpriteMaterial;
-    fadeIn!: number;
-    fadeOut!: number;
-    interval!: number;
-    time!: number;
-    scaleFrom!: number;
-    scaleTo!: number;
-    gravity!: Vector2;
+    fadeIn: number;
+    fadeOut: number;
+    interval: number;
+    time: number;
+    scaleFrom: number;
+    scaleTo: number;
+    gravity: Vector2;
 }

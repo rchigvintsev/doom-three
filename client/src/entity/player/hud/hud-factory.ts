@@ -6,6 +6,7 @@ import {MaterialFactory} from '../../../material/material-factory';
 import {GameAssets} from '../../../game-assets';
 import {SpriteTextFactory} from '../../text/sprite-text-factory';
 import {SpriteText} from '../../text/sprite-text';
+import {Player} from '../player';
 
 const SCALE_FACTOR = 2;
 
@@ -16,8 +17,16 @@ export class HudFactory implements EntityFactory<Hud> {
     create(hudDef: any): Hud {
         const crosshair = this.createCrosshair(hudDef);
         const ammoCounter = this.createAmmoCounter(hudDef);
-        ammoCounter.setValue(0);
-        return new Hud({config: this.parameters.config, crosshair, ammoCounter});
+        const weaponIndicator = this.createWeaponIndicator(hudDef);
+        const hud = new Hud({
+            config: this.parameters.config,
+            player: this.parameters.player,
+            crosshair,
+            ammoCounter,
+            weaponIndicator
+        });
+        hud.init();
+        return hud;
     }
 
     private createCrosshair(hudDef: any): Sprite[] {
@@ -46,7 +55,22 @@ export class HudFactory implements EntityFactory<Hud> {
                 background.push(sprite);
             }
         }
-        return new AmmoCounter(background, text!);
+
+        const counter = new AmmoCounter(background, text!);
+        counter.setValue(0);
+        return counter;
+    }
+
+    private createWeaponIndicator(hudDef: any): Sprite[] {
+        const weaponIndicator = [];
+        for (const spriteDef of hudDef.weaponIndicator) {
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+            const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
+            this.setScale(spriteDef, sprite);
+            this.setPosition(spriteDef, sprite);
+            weaponIndicator.push(sprite);
+        }
+        return weaponIndicator;
     }
 
     private setScale(spriteDef: any, sprite: Object3D) {
@@ -71,6 +95,7 @@ export class HudFactory implements EntityFactory<Hud> {
 
 export interface HudFactoryParameters extends EntityFactoryParameters {
     assets: GameAssets;
+    player: Player;
     materialFactory: MaterialFactory;
     spriteTextFactory: SpriteTextFactory;
 }
