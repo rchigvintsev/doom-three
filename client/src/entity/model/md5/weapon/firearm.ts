@@ -1,11 +1,11 @@
 export interface Firearm {
-    ammo(): number;
+    getAmmo(): number;
 
-    totalAmmo(): number;
+    getAmmoReserve(): number;
 
     reload(): void;
 }
 
 export function isFirearm(weapon: any): weapon is Firearm {
-    return weapon && !!weapon.ammo && !!weapon.totalAmmo && !!weapon.reload;
+    return weapon && !!weapon.getAmmo && !!weapon.getAmmoReserve && !!weapon.reload;
 }

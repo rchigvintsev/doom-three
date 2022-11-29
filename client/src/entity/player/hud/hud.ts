@@ -32,8 +32,9 @@ export class Hud implements Entity {
     update(deltaTime: number) {
         const currentWeapon = this.parameters.player.getCurrentWeapon();
         if (isFirearm(currentWeapon)) {
+            this.parameters.ammoCounter.setAmmo(currentWeapon.getAmmo());
+            this.parameters.ammoCounter.setAmmoReserve(currentWeapon.getAmmoReserve());
             this.parameters.ammoCounter.visible = true;
-            this.parameters.ammoCounter.setValue(currentWeapon.ammo());
         } else {
             this.parameters.ammoCounter.visible = false;
         }
@@ -76,7 +77,9 @@ export interface HudParameters {
 export class AmmoCounter implements Iterable<Object3D> {
     private _visible = true;
 
-    constructor(private readonly background: Sprite[], private readonly text: SpriteText) {
+    constructor(private readonly background: Sprite[],
+                private readonly ammoText: SpriteText[],
+                private readonly ammoReserveText: SpriteText[]) {
         this.visible = false;
     }
 
@@ -90,12 +93,25 @@ export class AmmoCounter implements Iterable<Object3D> {
             for (const backgroundElement of this.background) {
                 backgroundElement.visible = visible;
             }
-            this.text.visible = visible;
+            for (const textElement of this.ammoText) {
+                textElement.visible = visible;
+            }
+            for (const textElement of this.ammoReserveText) {
+                textElement.visible = visible;
+            }
         }
     }
 
-    setValue(value: number) {
-        this.text.text = value.toString();
+    setAmmo(value: number) {
+        for (const textElement of this.ammoText) {
+            textElement.text = value.toString();
+        }
+    }
+
+    setAmmoReserve(value: number) {
+        for (const textElement of this.ammoReserveText) {
+            textElement.text = value.toString();
+        }
     }
 
     update(deltaTime: number) {
@@ -105,7 +121,12 @@ export class AmmoCounter implements Iterable<Object3D> {
                     backgroundElement.material.update(deltaTime);
                 }
             }
-            this.text.update(deltaTime);
+            for (const textElement of this.ammoText) {
+                textElement.update(deltaTime);
+            }
+            for (const textElement of this.ammoReserveText) {
+                textElement.update(deltaTime);
+            }
         }
     }
 
@@ -113,6 +134,11 @@ export class AmmoCounter implements Iterable<Object3D> {
         for (let i = 0; i < this.background.length; i++) {
             yield this.background[i];
         }
-        yield this.text;
+        for (let i = 0; i < this.ammoText.length; i++) {
+            yield this.ammoText[i];
+        }
+        for (let i = 0; i < this.ammoReserveText.length; i++) {
+            yield this.ammoReserveText[i];
+        }
     }
 }

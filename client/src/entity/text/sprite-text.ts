@@ -1,20 +1,21 @@
-import {Color, Object3D} from 'three';
+import {Color, Sprite, SpriteMaterial} from 'three';
 
 import {Entity} from '../entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
 import {FontStyle} from './font-style';
+import {SpriteTextScaler} from './sprite-text-scaler';
 
-export class SpriteText extends Object3D implements Entity {
-    private readonly charCache = new Map<string, SpriteChar[]>();
+export class SpriteText extends Sprite implements Entity {
     private readonly textChars: SpriteChar[] = [];
+    private readonly charCache = new Map<string, SpriteChar[]>();
     private readonly textColor = new Color(0xffffff);
 
     private _text?: string;
 
     constructor(private readonly parameters: SpriteTextParameters) {
-        super();
+        super(new SpriteMaterial({color: 0xff0000, transparent: true, opacity: 0}));
         if (this.parameters.textColor != undefined) {
             this.textColor.setHex(this.parameters.textColor);
         }
@@ -95,6 +96,7 @@ export class SpriteText extends Object3D implements Entity {
             spriteChar = cachedChars.shift();
         } else {
             spriteChar = fontChar.clone(this.parameters.fontStyle !== FontStyle.NORMAL);
+            this.parameters.textScaler.scale(spriteChar);
             this.add(spriteChar);
             console.debug(`Sprite character "${char}" is created (font "${this.parameters.fontName}")`);
         }
@@ -120,4 +122,5 @@ export interface SpriteTextParameters {
     fontChars: Map<string, SpriteChar>;
     textAlign: TextAlign;
     textColor?: number;
+    textScaler: SpriteTextScaler;
 }

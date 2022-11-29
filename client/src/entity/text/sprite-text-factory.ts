@@ -7,6 +7,7 @@ import {MaterialFactory} from '../../material/material-factory';
 import {FontStyle, parseFontStyle} from './font-style';
 import {parseTextAlign, TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
+import {SpriteTextScaler} from './sprite-text-scaler';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.3;
 
@@ -17,7 +18,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
     }
 
     create(textDef: any): SpriteText {
-        const fontKey = `${textDef.font}__${textDef.fontStyle || FontStyle.NORMAL}`;
+        const fontKey = `${textDef.font}__${this.getFontStyle(textDef)}`;
         let fontChars = this.fontChars.get(fontKey);
         if (!fontChars) {
             fontChars = this.createFontChars(textDef);
@@ -29,7 +30,8 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
             fontStyle: this.getFontStyle(textDef),
             fontChars: fontChars,
             textAlign: this.getTextAlign(textDef),
-            textColor: textDef.textColor
+            textColor: textDef.textColor,
+            textScaler: new SpriteTextScaler(this.getFontDef(textDef), textDef)
         });
         this.setTextScale(textDef, text);
         this.setTextPosition(textDef, text);
@@ -38,17 +40,19 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
 
     private createFontChars(textDef: any) {
         const fontChars = new Map<string, SpriteChar>();
-        const fontDef = this.parameters.assets.fontDefs.get(textDef.font);
+        const fontDef = this.getFontDef(textDef);
         for (const ch of Object.keys(fontDef.characters)) {
             const charDef = fontDef.characters[ch];
             const materials = this.parameters.materialFactory.create(charDef.material);
             const spriteChar = new SpriteChar(ch, <SpriteMaterial>materials[0]);
-            spriteChar.scale.x = charDef.scale[0] * textDef.textScale[0] / textDef.scale[0];
-            spriteChar.scale.y = charDef.scale[1] * textDef.textScale[1] / textDef.scale[1];
             this.applyFontStyle(textDef, charDef, spriteChar);
             fontChars.set(ch, spriteChar);
         }
         return fontChars;
+    }
+
+    private getFontDef(textDef: any) {
+        return this.parameters.assets.fontDefs.get(textDef.font);
     }
 
     private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {
@@ -56,8 +60,10 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
             char.geometry = char.geometry.clone();
             const uvAttr = char.geometry.getAttribute("uv");
             const uvs = <number[]>uvAttr.array;
-            uvs[0] = uvs[0] + FONT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
-            uvs[5] = uvs[5] + FONT_STYLE_ITALIC_SHIFT_FACTOR * (charDef.scale[1] / charDef.scale[0]);
+            const shift = FONT_STYLE_ITALIC_SHIFT_FACTOR * (textDef.textScale[1] / textDef.textScale[0])
+                * (charDef.scale[1] / charDef.scale[0]);
+            uvs[0] = uvs[0] + shift;
+            uvs[5] = uvs[5] + shift;
             uvAttr.needsUpdate = true;
         }
     }

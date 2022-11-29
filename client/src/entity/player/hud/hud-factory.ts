@@ -32,7 +32,7 @@ export class HudFactory implements EntityFactory<Hud> {
     private createCrosshair(hudDef: any): Sprite[] {
         const crosshair = [];
         for (const spriteDef of hudDef.crosshair) {
-            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.material);
             const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
             this.setScale(spriteDef, sprite);
             crosshair.push(sprite);
@@ -42,29 +42,38 @@ export class HudFactory implements EntityFactory<Hud> {
 
     private createAmmoCounter(hudDef: any): AmmoCounter {
         const background: Sprite[] = [];
-        let text: SpriteText;
-        for (const spriteDef of hudDef.ammoCounter) {
-            if (spriteDef.font) {
-                text = this.parameters.spriteTextFactory.create(spriteDef);
-                text.scale.multiplyScalar(SCALE_FACTOR);
-            } else {
-                const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
-                const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
-                this.setScale(spriteDef, sprite);
-                this.setPosition(spriteDef, sprite);
-                background.push(sprite);
-            }
+        for (const spriteDef of hudDef.ammoCounter.background) {
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.material);
+            const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
+            this.setScale(spriteDef, sprite);
+            this.setPosition(spriteDef, sprite);
+            background.push(sprite);
         }
 
-        const counter = new AmmoCounter(background, text!);
-        counter.setValue(0);
+        const ammoText: SpriteText[] = [];
+        for (const textDef of hudDef.ammoCounter.ammoText) {
+            const spriteText = this.parameters.spriteTextFactory.create(textDef);
+            spriteText.scale.multiplyScalar(SCALE_FACTOR);
+            ammoText.push(spriteText);
+        }
+
+        const ammoReserveText: SpriteText[] = [];
+        for (const textDef of hudDef.ammoCounter.ammoReserveText) {
+            const spriteText = this.parameters.spriteTextFactory.create(textDef);
+            spriteText.scale.multiplyScalar(SCALE_FACTOR);
+            ammoReserveText.push(spriteText);
+        }
+
+        const counter = new AmmoCounter(background, ammoText, ammoReserveText);
+        counter.setAmmo(0);
+        counter.setAmmoReserve(0);
         return counter;
     }
 
     private createWeaponIndicator(hudDef: any): Sprite[] {
         const weaponIndicator = [];
         for (const spriteDef of hudDef.weaponIndicator) {
-            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.background);
+            const spriteMaterials = this.parameters.materialFactory.create(spriteDef.material);
             const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
             this.setScale(spriteDef, sprite);
             this.setPosition(spriteDef, sprite);

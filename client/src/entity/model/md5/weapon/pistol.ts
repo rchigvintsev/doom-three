@@ -17,6 +17,7 @@ const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
 const FIRE_FLASH_COLOR = 0xffcc66;
 const FIRE_FLASH_DISTANCE = 120;
+const MAX_AMMO_RESERVE = 348;
 
 export class Pistol extends Weapon implements Firearm {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
@@ -27,7 +28,7 @@ export class Pistol extends Weapon implements Firearm {
     private fireFlashLight?: PointLight;
 
     // -1 means infinite
-    private ammoReserve = -1;
+    private ammoReserve = MAX_AMMO_RESERVE;
     private ammoClip = AMMO_CLIP_SIZE;
     private lastFireTime = 0;
 
@@ -92,11 +93,11 @@ export class Pistol extends Weapon implements Firearm {
         }
     }
 
-    ammo(): number {
+    getAmmo(): number {
         return this.ammoClip;
     }
 
-    totalAmmo(): number {
+    getAmmoReserve(): number {
         return this.ammoReserve;
     }
 
@@ -337,8 +338,8 @@ export class Pistol extends Weapon implements Firearm {
             this.ammoClip = this.ammoReserve;
             this.ammoReserve = 0;
         } else {
+            this.ammoReserve -= AMMO_CLIP_SIZE - this.ammoClip;
             this.ammoClip = AMMO_CLIP_SIZE;
-            this.ammoReserve -= AMMO_CLIP_SIZE;
         }
     }
 
