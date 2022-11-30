@@ -18,7 +18,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
     }
 
     create(textDef: any): SpriteText {
-        const fontKey = `${textDef.font}__${this.getFontStyle(textDef)}`;
+        const fontKey = `${textDef.font}__${textDef.fontSize}__${this.getFontStyle(textDef)}`;
         let fontChars = this.fontChars.get(fontKey);
         if (!fontChars) {
             fontChars = this.createFontChars(textDef);
@@ -52,7 +52,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
     }
 
     private getFontDef(textDef: any) {
-        return this.parameters.assets.fontDefs.get(textDef.font);
+        return this.parameters.assets.fontDefs.get(`${textDef.font}__${textDef.fontSize}`);
     }
 
     private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {

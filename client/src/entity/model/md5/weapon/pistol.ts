@@ -302,7 +302,7 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     private canReload() {
-        return this.isIdle();
+        return this.ammoReserve > 0 && this.isIdle();
     }
 
     private isIdle() {

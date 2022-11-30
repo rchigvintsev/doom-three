@@ -134,7 +134,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
 
     private loadFontDefs(assets: GameAssets) : Promise<Map<string, any>> {
         return this.loadJson('assets/fonts.json').then((fontDefs: any[]) => {
-            fontDefs.forEach(fontDef => assets.fontDefs.set(fontDef.name, fontDef));
+            fontDefs.forEach(fontDef => assets.fontDefs.set(`${fontDef.name}__${fontDef.size}`, fontDef));
             return assets.fontDefs;
         });
     }

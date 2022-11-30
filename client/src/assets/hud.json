@@ -78,6 +78,7 @@
           "bottom": 54
         },
         "font": "micro",
+        "fontSize": 24,
         "fontStyle": "back-italic",
         "textScale": [0.53, 0.53],
         "textAlign": "center",
@@ -93,8 +94,9 @@
           "bottom": 52
         },
         "font": "micro",
+        "fontSize": 12,
         "fontStyle": "back-italic",
-        "textScale": [0.28, 0.38],
+        "textScale": [0.60, 0.80],
         "textAlign": "center",
         "textColor": "0x4d6c66"
       }
