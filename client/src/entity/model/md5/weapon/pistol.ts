@@ -1,10 +1,10 @@
-import {BufferGeometry, Event, MathUtils, Matrix4, Object3D, PointLight, Quaternion, Vector3} from 'three';
+import {BufferGeometry, MathUtils, Matrix4, Object3D, PointLight, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Md5ModelParameters} from '../md5-model';
-import {Weapon} from './weapon';
-import {AttackEvent, WeaponDisableEvent} from '../../../../event/weapon-events';
+import {Weapon, WeaponState} from './weapon';
+import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
@@ -55,6 +55,7 @@ export class Pistol extends Weapon implements Firearm {
         if (!this.enabled) {
             this.enabled = true;
             this.animateCrossFadeDelayed('raise', 'idle', 0.50);
+            this.changeState(PistolState.RAISING);
             this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
@@ -64,6 +65,7 @@ export class Pistol extends Weapon implements Firearm {
         if (this.enabled) {
             this.enabled = false;
             this.animateCrossFade('idle', 'put_away', 0.25);
+            this.changeState(PistolState.LOWERING);
             // Weapon visibility will be changed on "lower" animation finish
         }
     }
@@ -73,6 +75,7 @@ export class Pistol extends Weapon implements Firearm {
             if (this.ammoClip === 0) {
                 this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
                 this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+                this.changeState(PistolState.RELOADING);
                 this.playReloadSound();
             } else {
                 this.showFireFlash();
@@ -83,9 +86,9 @@ export class Pistol extends Weapon implements Firearm {
                     this.animateCrossFadeDelayed('fire1', 'idle_empty', 0.2);
                 }
                 this.ammoClip--;
+                this.changeState(PistolState.SHOOTING);
                 this.playFireSound();
                 this.lastFireTime = performance.now();
-
                 this.showMuzzleSmoke();
                 this.ejectShell();
                 this.dispatchEvent(new AttackEvent(this, 0, 0));
@@ -106,6 +109,7 @@ export class Pistol extends Weapon implements Firearm {
             const idleAnimationName = this.ammoClip === 0 ? 'idle_empty' : 'idle';
             this.animateCrossFade(idleAnimationName, 'reload_empty', 0.5);
             this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+            this.changeState(PistolState.RELOADING);
             this.playReloadSound();
         }
     }
@@ -128,14 +132,30 @@ export class Pistol extends Weapon implements Firearm {
         this.add(this.shellTarget);
     }
 
-    protected onAnimationFinished(e: Event) {
-        const clipName = e.action.getClip().name;
-        if (clipName === 'put_away') {
-            if (!this.enabled) {
-                this.visible = false;
-                this.dispatchEvent(new WeaponDisableEvent(this));
-            }
-        } else if (clipName === 'reload_empty') {
+    protected updateState() {
+        super.updateState();
+        switch (this.currentState) {
+            case PistolState.LOWERING:
+                if (!this.isAnimationRunning('put_away')) {
+                    this.changeState(PistolState.INACTIVE);
+                }
+                break;
+            case PistolState.SHOOTING:
+                if (!this.isAnimationRunning('fire1')) {
+                    this.changeState(PistolState.IDLE);
+                }
+                break;
+            case PistolState.RELOADING:
+                if (!this.isAnimationRunning('reload_empty')) {
+                    this.changeState(PistolState.IDLE);
+                }
+                break;
+        }
+    }
+
+    protected changeState(newState: string) {
+        super.changeState(newState);
+        if (this.currentState === PistolState.IDLE && this.previousState === PistolState.RELOADING) {
             this.updateAmmoCountersOnReload();
         }
     }
@@ -306,17 +326,7 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     private isIdle() {
-        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking() && !this.isReloading();
-    }
-
-    private isAttacking(): boolean {
-        const fireAction = this.getAnimationAction('fire1');
-        return !!fireAction && fireAction.isRunning();
-    }
-
-    private isReloading(): boolean {
-        const reloadAction = this.getAnimationAction('reload_empty');
-        return !!reloadAction && reloadAction.isRunning();
+        return this.currentState === PistolState.IDLE;
     }
 
     private playRaiseSound() {
@@ -382,4 +392,9 @@ export interface PistolParameters extends Md5ModelParameters {
     debrisSystem: DebrisSystem;
     muzzleSmokeParticleName: string;
     shellDebrisName: string;
+}
+
+export class PistolState extends WeaponState {
+    static readonly SHOOTING = 'shooting';
+    static readonly RELOADING = 'reloading';
 }

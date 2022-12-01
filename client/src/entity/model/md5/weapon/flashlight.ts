@@ -2,7 +2,7 @@ import {AnimationAction, BufferGeometry, Object3D, SpotLight, Texture, Vector3} 
 
 import {randomInt} from 'mathjs';
 
-import {Weapon} from './weapon';
+import {Weapon, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
@@ -66,6 +66,7 @@ export class Flashlight extends Weapon {
         if (!this.enabled) {
             this.enabled = true;
             this.animateCrossFade('raise', 'idle', 0.40);
+            this.changeState(FlashlightState.RAISING);
             this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
@@ -75,6 +76,7 @@ export class Flashlight extends Weapon {
         if (this.enabled) {
             this.enabled = false;
             this.animateCrossFade('idle', 'lower', 0.25);
+            this.changeState(FlashlightState.LOWERING);
             // Weapon visibility will be changed on "lower" animation finish
         }
     }
@@ -84,6 +86,7 @@ export class Flashlight extends Weapon {
             const nextPunchActionIndex = randomInt(0, this.punchAnimationActionNames.length);
             const nextPunchActionName = this.punchAnimationActionNames[nextPunchActionIndex];
             this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
+            this.changeState(FlashlightState.PUNCHING);
             this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
@@ -95,6 +98,14 @@ export class Flashlight extends Weapon {
 
     onMiss(): void {
         this.playWooshSound();
+    }
+
+    protected updateState() {
+        super.updateState();
+        if (this.currentState === FlashlightState.PUNCHING
+            && (!this.lastPunchAnimationAction || !this.lastPunchAnimationAction.isRunning())) {
+            this.changeState(FlashlightState.IDLE);
+        }
     }
 
     protected updateAcceleration(direction: Vector3) {
@@ -175,11 +186,7 @@ export class Flashlight extends Weapon {
     }
 
     private canAttack() {
-        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking();
-    }
-
-    private isAttacking(): boolean {
-        return !!(this.lastPunchAnimationAction && this.lastPunchAnimationAction.isRunning());
+        return this.currentState === FlashlightState.IDLE;
     }
 
     private playRaiseSound() {
@@ -197,4 +204,8 @@ export class Flashlight extends Weapon {
 
 export interface FlashlightParameters extends Md5ModelParameters {
     lightMap?: Texture;
+}
+
+export class FlashlightState extends WeaponState {
+    static readonly PUNCHING = 'punching';
 }

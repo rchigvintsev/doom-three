@@ -1,6 +1,6 @@
-import {Euler, Event, Object3D, Vector3} from 'three';
+import {Euler, Object3D, Vector3} from 'three';
 
-import {Md5Model, Md5ModelParameters} from '../md5-model';
+import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Player} from '../../../player/player';
 import {WeaponDisableEvent} from '../../../../event/weapon-events';
 
@@ -31,6 +31,7 @@ export abstract class Weapon extends Md5Model {
 
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime);
+        this.updateState();
         // Deferred visibility change to prevent weapon flickering when enabled
         if (this.enabled && !this.visible) {
             this.visible = true;
@@ -81,21 +82,27 @@ export abstract class Weapon extends Md5Model {
         this.origin.copy(this.position);
     }
 
-    protected onAnimationFinished(e: Event) {
-        if (e.action.getClip().name === 'lower' && !this.enabled) {
-            this.visible = false;
-            this.dispatchEvent(new WeaponDisableEvent(this));
+    protected updateState() {
+        switch (this.currentState) {
+            case WeaponState.RAISING:
+                if (!this.isAnimationRunning('raise')) {
+                    this.changeState(WeaponState.IDLE);
+                }
+                break;
+            case WeaponState.LOWERING:
+                if (!this.isAnimationRunning('lower')) {
+                    this.changeState(WeaponState.INACTIVE);
+                }
+                break;
         }
     }
 
-    protected isRaising(): boolean {
-        const action = this.getAnimationAction('raise');
-        return !!action && action.isRunning();
-    }
-
-    protected isLowering(): boolean {
-        const action = this.getAnimationAction('lower');
-        return !!action && action.isRunning();
+    protected changeState(newState: string) {
+        super.changeState(newState);
+        if (newState === WeaponState.INACTIVE) {
+            this.visible = false;
+            this.dispatchEvent(new WeaponDisableEvent(this));
+        }
     }
 
     protected updateAcceleration(direction: Vector3) {
@@ -163,6 +170,12 @@ export abstract class Weapon extends Md5Model {
         acceleration.time = performance.now();
         acceleration.direction.set(x, y, z);
     }
+}
+
+export class WeaponState extends Md5ModelState {
+    static readonly RAISING = 'raising';
+    static readonly IDLE = 'idle';
+    static readonly LOWERING = 'lowering';
 }
 
 class Acceleration {

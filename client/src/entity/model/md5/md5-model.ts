@@ -1,4 +1,4 @@
-import {AnimationAction, Audio, Event, Material, SkeletonHelper, SkinnedMesh} from 'three';
+import {AnimationAction, Audio, Material, SkeletonHelper, SkinnedMesh} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -12,6 +12,8 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
 
     protected animationMixer?: CustomAnimationMixer;
+    protected previousState?: string;
+    protected currentState: string = Md5ModelState.INACTIVE;
 
     private readonly sounds = new Map<string, Audio<AudioNode>[]>();
     private initialized = false;
@@ -93,7 +95,6 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     protected doInit() {
         if (this.animations) {
             this.animationMixer = new CustomAnimationMixer(this);
-            this.animationMixer.addEventListener('finished', e => this.onAnimationFinished(e));
         }
         if (this._wireframeHelper) {
             this._wireframeHelper.init();
@@ -132,14 +133,15 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return sounds;
     }
 
+    protected isAnimationRunning(animationName: string): boolean {
+        const action = this.getAnimationAction(animationName);
+        return !!action && action.isRunning();
+    }
+
     protected getAnimationAction(actionName: string): AnimationAction | undefined {
         if (this.animationMixer) {
             return this.animationMixer.getAnimationAction(actionName);
         }
-    }
-
-    protected onAnimationFinished(_e: Event) {
-        // Do nothing by default
     }
 
     protected findMaterialByName(name: string): Material | undefined {
@@ -154,8 +156,17 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
         return undefined;
     }
+
+    protected changeState(newState: string) {
+        this.previousState = this.currentState;
+        this.currentState = newState;
+    }
 }
 
 export interface Md5ModelParameters extends ModelParameters {
     sounds?: Map<string, Audio<AudioNode>[]>;
+}
+
+export class Md5ModelState {
+    static readonly INACTIVE = 'inactive';
 }

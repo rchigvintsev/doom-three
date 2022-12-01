@@ -2,7 +2,7 @@ import {AnimationAction, Object3D} from 'three';
 
 import {randomInt} from 'mathjs';
 
-import {Weapon} from './weapon';
+import {Weapon, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Md5ModelParameters} from '../md5-model';
 
@@ -27,6 +27,7 @@ export class Fists extends Weapon {
         if (!this.enabled) {
             this.enabled = true;
             this.animateCrossFade('raise', 'idle', 0.40);
+            this.changeState(FistsState.RAISING);
             this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
@@ -36,6 +37,7 @@ export class Fists extends Weapon {
         if (this.enabled) {
             this.enabled = false;
             this.animateCrossFade('idle', 'lower', 0.25);
+            this.changeState(FistsState.LOWERING);
             // Weapon visibility will be changed on "lower" animation finish
         }
     }
@@ -47,6 +49,7 @@ export class Fists extends Weapon {
             const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
 
             this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
+            this.changeState(FistsState.PUNCHING);
 
             this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.lastPunchingHand = nextPunchingHand;
@@ -67,12 +70,16 @@ export class Fists extends Weapon {
         this.playWooshSound();
     }
 
-    private canAttack() {
-        return this.enabled && !this.isRaising() && !this.isLowering() && !this.isAttacking();
+    protected updateState() {
+        super.updateState();
+        if (this.currentState === FistsState.PUNCHING
+            && (!this.lastPunchAnimationAction || !this.lastPunchAnimationAction.isRunning())) {
+            this.changeState(FistsState.IDLE);
+        }
     }
 
-    private isAttacking(): boolean {
-        return !!(this.lastPunchAnimationAction && this.lastPunchAnimationAction.isRunning());
+    private canAttack() {
+        return this.currentState === FistsState.IDLE;
     }
 
     private playRaiseSound() {
@@ -86,6 +93,10 @@ export class Fists extends Weapon {
     private playWooshSound() {
         this.playRandomSound('woosh', 0.1);
     }
+}
+
+export class FistsState extends WeaponState {
+    static readonly PUNCHING = 'punching';
 }
 
 enum Hand {
