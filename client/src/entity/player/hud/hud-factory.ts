@@ -1,7 +1,7 @@
 import {Object3D, Sprite, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../../entity-factory';
-import {AmmoCounter, Hud} from './hud';
+import {AmmoIndicator, Hud} from './hud';
 import {MaterialFactory} from '../../../material/material-factory';
 import {GameAssets} from '../../../game-assets';
 import {SpriteTextFactory} from '../../text/sprite-text-factory';
@@ -16,13 +16,13 @@ export class HudFactory implements EntityFactory<Hud> {
 
     create(hudDef: any): Hud {
         const crosshair = this.createCrosshair(hudDef);
-        const ammoCounter = this.createAmmoCounter(hudDef);
+        const ammoIndicator = this.createAmmoIndicator(hudDef);
         const weaponIndicator = this.createWeaponIndicator(hudDef);
         const hud = new Hud({
             config: this.parameters.config,
             player: this.parameters.player,
             crosshair,
-            ammoCounter,
+            ammoIndicator,
             weaponIndicator
         });
         hud.init();
@@ -40,9 +40,9 @@ export class HudFactory implements EntityFactory<Hud> {
         return crosshair;
     }
 
-    private createAmmoCounter(hudDef: any): AmmoCounter {
+    private createAmmoIndicator(hudDef: any): AmmoIndicator {
         const background: Sprite[] = [];
-        for (const spriteDef of hudDef.ammoCounter.background) {
+        for (const spriteDef of hudDef.ammoIndicator.background) {
             const spriteMaterials = this.parameters.materialFactory.create(spriteDef.material);
             const sprite = new Sprite(<SpriteMaterial>spriteMaterials[0]);
             this.setScale(spriteDef, sprite);
@@ -51,23 +51,23 @@ export class HudFactory implements EntityFactory<Hud> {
         }
 
         const ammoText: SpriteText[] = [];
-        for (const textDef of hudDef.ammoCounter.ammoText) {
+        for (const textDef of hudDef.ammoIndicator.ammoText) {
             const spriteText = this.parameters.spriteTextFactory.create(textDef);
             spriteText.scale.multiplyScalar(SCALE_FACTOR);
             ammoText.push(spriteText);
         }
 
         const ammoReserveText: SpriteText[] = [];
-        for (const textDef of hudDef.ammoCounter.ammoReserveText) {
+        for (const textDef of hudDef.ammoIndicator.ammoReserveText) {
             const spriteText = this.parameters.spriteTextFactory.create(textDef);
             spriteText.scale.multiplyScalar(SCALE_FACTOR);
             ammoReserveText.push(spriteText);
         }
 
-        const counter = new AmmoCounter(background, ammoText, ammoReserveText);
-        counter.setAmmo(0);
-        counter.setAmmoReserve(0);
-        return counter;
+        const indicator = new AmmoIndicator(background, ammoText, ammoReserveText);
+        indicator.setAmmo(0);
+        indicator.setAmmoReserve(0);
+        return indicator;
     }
 
     private createWeaponIndicator(hudDef: any): Sprite[] {

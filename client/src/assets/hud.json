@@ -21,7 +21,7 @@
       "scale": [32, 32]
     }
   ],
-  "ammoCounter": {
+  "ammoIndicator": {
     "background": [
       {
         "name": "ScanLineLA",

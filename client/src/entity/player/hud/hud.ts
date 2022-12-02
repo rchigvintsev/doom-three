@@ -17,7 +17,7 @@ export class Hud implements Entity {
         for (const child of this.parameters.crosshair) {
             this.scene.add(child);
         }
-        for (const child of this.parameters.ammoCounter) {
+        for (const child of this.parameters.ammoIndicator) {
             this.scene.add(child);
         }
         for (const child of this.parameters.weaponIndicator) {
@@ -32,11 +32,11 @@ export class Hud implements Entity {
     update(deltaTime: number) {
         const currentWeapon = this.parameters.player.getCurrentWeapon();
         if (isFirearm(currentWeapon)) {
-            this.parameters.ammoCounter.setAmmo(currentWeapon.getAmmo());
-            this.parameters.ammoCounter.setAmmoReserve(currentWeapon.getAmmoReserve());
-            this.parameters.ammoCounter.visible = true;
+            this.parameters.ammoIndicator.setAmmo(currentWeapon.getAmmo());
+            this.parameters.ammoIndicator.setAmmoReserve(currentWeapon.getAmmoReserve());
+            this.parameters.ammoIndicator.visible = true;
         } else {
-            this.parameters.ammoCounter.visible = false;
+            this.parameters.ammoIndicator.visible = false;
         }
 
         for (const child of this.parameters.crosshair) {
@@ -45,7 +45,7 @@ export class Hud implements Entity {
                 material.update(deltaTime);
             }
         }
-        this.parameters.ammoCounter.update(deltaTime);
+        this.parameters.ammoIndicator.update(deltaTime);
         for (const child of this.parameters.weaponIndicator) {
             const material = (<any>child).material;
             if (isUpdatableMaterial(material)) {
@@ -70,11 +70,11 @@ export interface HudParameters {
     config: GameConfig;
     player: Player;
     crosshair: Object3D[];
-    ammoCounter: AmmoCounter;
+    ammoIndicator: AmmoIndicator;
     weaponIndicator: Object3D[];
 }
 
-export class AmmoCounter implements Iterable<Object3D> {
+export class AmmoIndicator implements Iterable<Object3D> {
     private _visible = true;
 
     constructor(private readonly background: Sprite[],

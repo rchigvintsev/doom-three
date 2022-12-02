@@ -168,7 +168,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
                 hudMaterials.push(child.material);
             }
         }
-        for (const child of assets.hudDef.ammoCounter.background) {
+        for (const child of assets.hudDef.ammoIndicator.background) {
             if (child.material) {
                 hudMaterials.push(child.material);
             }
