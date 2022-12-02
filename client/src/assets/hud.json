@@ -71,21 +71,51 @@
     ],
     "ammoText": [
       {
-        "name": "ammovalue2",
+        "name": "ammovalue2Black",
         "scale": [53, 21],
         "position": {
-          "right": 192,
-          "bottom": 54
+          "right": 194,
+          "bottom": 53
         },
         "font": "micro",
         "fontSize": 24,
         "fontStyle": "back-italic",
-        "textScale": [0.53, 0.53],
+        "textScale": [0.53, 0.63],
+        "textAlign": "center",
+        "textColor": "0x000000",
+        "textOpacity": 0.5
+      },
+      {
+        "name": "ammovalue2",
+        "scale": [53, 21],
+        "position": {
+          "right": 192,
+          "bottom": 57
+        },
+        "font": "micro",
+        "fontSize": 24,
+        "fontStyle": "back-italic",
+        "textScale": [0.53, 0.63],
         "textAlign": "center",
         "textColor": "0x9ab3b3"
       }
     ],
     "ammoReserveText": [
+      {
+        "name": "ammovalue3Black",
+        "scale": [53, 15],
+        "position": {
+          "right": 88,
+          "bottom": 50
+        },
+        "font": "micro",
+        "fontSize": 12,
+        "fontStyle": "back-italic",
+        "textScale": [0.60, 0.80],
+        "textAlign": "center",
+        "textColor": "0x000000",
+        "textOpacity": 0.5
+      },
       {
         "name": "ammovalue3",
         "scale": [53, 15],

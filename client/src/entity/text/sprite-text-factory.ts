@@ -9,7 +9,7 @@ import {parseTextAlign, TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
 import {SpriteTextScaler} from './sprite-text-scaler';
 
-const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.3;
+const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
 export class SpriteTextFactory implements EntityFactory<SpriteText> {
     private readonly fontChars = new Map<string, Map<string, SpriteChar>>();
@@ -31,7 +31,8 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
             fontChars: fontChars,
             textAlign: this.getTextAlign(textDef),
             textColor: textDef.textColor,
-            textScaler: new SpriteTextScaler(this.getFontDef(textDef), textDef)
+            textScaler: new SpriteTextScaler(this.getFontDef(textDef), textDef),
+            textOpacity: textDef.textOpacity
         });
         this.setTextScale(textDef, text);
         this.setTextPosition(textDef, text);

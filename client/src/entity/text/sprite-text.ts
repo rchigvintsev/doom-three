@@ -96,11 +96,19 @@ export class SpriteText extends Sprite implements Entity {
             spriteChar = cachedChars.shift();
         } else {
             spriteChar = fontChar.clone(this.parameters.fontStyle !== FontStyle.NORMAL);
+            this.setCharOpacity(spriteChar);
             this.parameters.textScaler.scale(spriteChar);
             this.add(spriteChar);
             console.debug(`Sprite character "${char}" is created (font "${this.parameters.fontName}")`);
         }
         return spriteChar;
+    }
+
+    private setCharOpacity(char: SpriteChar) {
+        if (this.parameters.textOpacity != undefined) {
+            char.material.transparent = true;
+            char.material.opacity = this.parameters.textOpacity;
+        }
     }
 
     private alignText() {
@@ -122,5 +130,6 @@ export interface SpriteTextParameters {
     fontChars: Map<string, SpriteChar>;
     textAlign: TextAlign;
     textColor?: number;
+    textOpacity?: number;
     textScaler: SpriteTextScaler;
 }
