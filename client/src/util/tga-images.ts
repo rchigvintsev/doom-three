@@ -309,7 +309,7 @@ export class TgaImages {
         return buffer[offset] | buffer[offset + 1] << 8;
     }
     /*
-     * Based on the code of Image_program.cpp file from DOOM 3 GitHub repository
+     * Based on the code from Image_program.cpp file that can be found in DOOM 3 GitHub repository
      * (https://github.com/id-Software/DOOM-3).
      */
 

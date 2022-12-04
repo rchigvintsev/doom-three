@@ -2,8 +2,9 @@ import {SpriteMaterial, SpriteMaterialParameters, Texture} from 'three';
 import {UpdatableMaterial, updateOpacity} from './updatable-material';
 import {EvalFunction} from 'mathjs';
 import {UpdatableTexture} from '../texture/updatable-texture';
+import {MaterialStyle, StylableMaterial} from './stylable-material';
 
-export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial {
+export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial, StylableMaterial {
     evalScope: any;
     opacityExpression?: EvalFunction;
 
@@ -25,6 +26,10 @@ export class UpdatableSpriteMaterial extends SpriteMaterial implements Updatable
             this.updateMaps(deltaTime);
             updateOpacity(this);
         }
+    }
+
+    applyStyle(style: MaterialStyle) {
+        this.color.copy(style.color);
     }
 
     private updateMaps(deltaTime: number) {

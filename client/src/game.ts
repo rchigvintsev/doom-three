@@ -13,7 +13,7 @@ import {PhysicsSystem} from './physics/physics-system';
 import {PointerUnlockEvent} from './event/pointer-lock-events';
 import {GameSystem, GameSystemType} from './game-system';
 import {TweenAnimationSystem} from './animation/tween-animation-system';
-import {Hud} from './entity/player/hud/hud';
+import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
 
 export class Game {

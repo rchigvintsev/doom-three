@@ -1,4 +1,4 @@
-import {Color, Sprite, SpriteMaterial} from 'three';
+import {Color, Object3D} from 'three';
 
 import {Entity} from '../entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
@@ -6,8 +6,9 @@ import {TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
 import {FontStyle} from './font-style';
 import {SpriteTextScaler} from './sprite-text-scaler';
+import {isStylableMaterial, MaterialStyle} from '../../material/stylable-material';
 
-export class SpriteText extends Sprite implements Entity {
+export class SpriteText extends Object3D implements Entity {
     private readonly textChars: SpriteChar[] = [];
     private readonly charCache = new Map<string, SpriteChar[]>();
     private readonly textColor = new Color(0xffffff);
@@ -15,7 +16,7 @@ export class SpriteText extends Sprite implements Entity {
     private _text?: string;
 
     constructor(private readonly parameters: SpriteTextParameters) {
-        super(new SpriteMaterial({color: 0xff0000, transparent: true, opacity: 0}));
+        super();
         if (this.parameters.textColor != undefined) {
             this.textColor.setHex(this.parameters.textColor);
         }
@@ -80,6 +81,20 @@ export class SpriteText extends Sprite implements Entity {
         }
     }
 
+    applyStyle(styleName: string) {
+        if (this.parameters.textStyles) {
+            const style = this.parameters.textStyles.get(styleName);
+            if (style) {
+                for (const char of this.textChars) {
+                    if (isStylableMaterial(char.material)) {
+                        char.material.applyStyle(style);
+                    }
+                }
+                this.textColor.copy(style.color);
+            }
+        }
+    }
+
     private getSpriteChar(char: string): SpriteChar | undefined {
         const fontChar = this.parameters.fontChars.get(char);
         if (!fontChar) {
@@ -130,6 +145,7 @@ export interface SpriteTextParameters {
     fontChars: Map<string, SpriteChar>;
     textAlign: TextAlign;
     textColor?: number;
+    textStyles?: Map<string, MaterialStyle>;
     textOpacity?: number;
     textScaler: SpriteTextScaler;
 }

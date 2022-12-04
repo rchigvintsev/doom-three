@@ -45,6 +45,10 @@
     "values": [1, 0.82]
   },
   {
+    "name": "pdinouthold",
+    "values": [0.75, 0.5, 0.45]
+  },
+  {
     "name": "subtleflick",
     "values": [1, 0.92]
   },

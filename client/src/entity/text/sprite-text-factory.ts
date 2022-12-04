@@ -1,4 +1,4 @@
-import {Object3D, SpriteMaterial} from 'three';
+import {Color, Object3D, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {SpriteText} from './sprite-text';
@@ -8,6 +8,7 @@ import {FontStyle, parseFontStyle} from './font-style';
 import {parseTextAlign, TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
 import {SpriteTextScaler} from './sprite-text-scaler';
+import {MaterialStyle} from '../../material/stylable-material';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
@@ -31,9 +32,11 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
             fontChars: fontChars,
             textAlign: this.getTextAlign(textDef),
             textColor: textDef.textColor,
-            textScaler: new SpriteTextScaler(this.getFontDef(textDef), textDef),
-            textOpacity: textDef.textOpacity
+            textStyles: this.getTextStyles(textDef),
+            textOpacity: textDef.textOpacity,
+            textScaler: new SpriteTextScaler(this.getFontDef(textDef), textDef)
         });
+        text.name = textDef.name;
         this.setTextScale(textDef, text);
         this.setTextPosition(textDef, text);
         return text;
@@ -75,6 +78,18 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
 
     private getTextAlign(textDef: any): TextAlign {
         return parseTextAlign(textDef.textAlign);
+    }
+
+    private getTextStyles(textDef: any): Map<string, MaterialStyle> | undefined {
+        if (textDef.styles) {
+            const styles = new Map<string, MaterialStyle>();
+            for (const styleName of Object.keys(textDef.styles)) {
+                const styleDef = textDef.styles[styleName];
+                styles.set(styleName, new MaterialStyle(styleName, new Color().setHex(styleDef.color)));
+            }
+            return styles;
+        }
+        return undefined;
     }
 
     private setTextScale(textDef: any, sprite: Object3D) {

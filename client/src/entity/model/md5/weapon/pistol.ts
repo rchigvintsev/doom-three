@@ -73,10 +73,12 @@ export class Pistol extends Weapon implements Firearm {
     attack() {
         if (this.canAttack()) {
             if (this.ammoClip === 0) {
-                this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
-                this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
-                this.changeState(PistolState.RELOADING);
-                this.playReloadSound();
+                if (this.canReload()) {
+                    this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
+                    this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+                    this.changeState(PistolState.RELOADING);
+                    this.playReloadSound();
+                }
             } else {
                 this.showFireFlash();
                 this.animateCrossFade('idle', 'fire1', 0.1);
@@ -96,12 +98,16 @@ export class Pistol extends Weapon implements Firearm {
         }
     }
 
-    getAmmo(): number {
+    getAmmoClip(): number {
         return this.ammoClip;
     }
 
     getAmmoReserve(): number {
         return this.ammoReserve;
+    }
+
+    isLowAmmo(): boolean {
+        return this.ammoClip < 5;
     }
 
     reload(): void {

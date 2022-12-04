@@ -17,7 +17,7 @@ export function isUpdatableMaterial(material: any): material is UpdatableMateria
 
 export function updateOpacity(material: UpdatableMaterial) {
     if (material.opacityExpression) {
-        material.evalScope.time = performance.now() * 2;
+        material.evalScope.time = performance.now();
         material.opacity = material.opacityExpression.evaluate(material.evalScope);
     }
 }

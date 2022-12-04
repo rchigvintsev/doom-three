@@ -6,7 +6,7 @@ import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
 import {Player} from '../player/player';
-import {Hud} from '../player/hud/hud';
+import {Hud} from '../hud/hud';
 
 export class MapFactory implements EntityFactory<GameMap> {
     constructor(private readonly parameters: MapFactoryParameters) {

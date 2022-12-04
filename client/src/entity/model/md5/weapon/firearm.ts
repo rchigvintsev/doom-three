@@ -1,11 +1,13 @@
 export interface Firearm {
-    getAmmo(): number;
+    getAmmoClip(): number;
 
     getAmmoReserve(): number;
+
+    isLowAmmo(): boolean;
 
     reload(): void;
 }
 
 export function isFirearm(weapon: any): weapon is Firearm {
-    return weapon && !!weapon.getAmmo && !!weapon.getAmmoReserve && !!weapon.reload;
+    return weapon && !!weapon.getAmmoClip && !!weapon.getAmmoReserve && !!weapon.reload;
 }

@@ -2,22 +2,18 @@
   "crosshair": [
     {
       "name": "crosshaircenter",
-      "material": "guis/assets/common/crosshaircenter",
       "scale": [32, 32]
     },
     {
       "name": "crosshaircenter2",
-      "material": "guis/assets/common/crosshaircenter2",
       "scale": [32, 32]
     },
     {
       "name": "crosshairLight",
-      "material": "guis/assets/common/crosshairlight",
       "scale": [32, 32]
     },
     {
       "name": "crosshairFrame",
-      "material": "guis/assets/common/crosshairframe",
       "scale": [32, 32]
     }
   ],
@@ -25,7 +21,6 @@
     "background": [
       {
         "name": "ScanLineLA",
-        "material": "guis/assets/hud/mp/lborder1a1",
         "scale": [256, 64],
         "position": {
           "right": 255,
@@ -34,25 +29,33 @@
       },
       {
         "name": "BorderLA",
-        "material": "guis/assets/hud/mp/lborder1a1",
         "scale": [256, 64],
         "position": {
           "right": 256,
           "bottom": 64
-        }
+        },
+        "visibleOnStyle": ["default"]
       },
       {
-        "name": "Lines2A",
-        "material": "guis/assets/hud/mp/llines2a1",
+        "name": "BorderLA_1",
         "scale": [256, 64],
         "position": {
           "right": 256,
           "bottom": 64
-        }
+        },
+        "visibleOnStyle": ["low_ammo"]
+      },
+      {
+        "name": "BorderLA_2",
+        "scale": [256, 64],
+        "position": {
+          "right": 256,
+          "bottom": 64
+        },
+        "visibleOnStyle": ["empty_clip", "empty_ammo"]
       },
       {
         "name": "BgLA",
-        "material": "guis/assets/hud/mp/lbg1a1",
         "scale": [256, 64],
         "position": {
           "right": 256,
@@ -61,15 +64,44 @@
       },
       {
         "name": "Lines1A",
-        "material": "guis/assets/hud/mp/llines1a1",
         "scale": [256, 64],
         "position": {
           "right": 256,
           "bottom": 64
+        },
+        "styles": {
+          "default": {
+            "color": "0x4dcdb3"
+          },
+          "empty_ammo": {
+            "color": "0xff0000"
+          }
+        }
+      },
+      {
+        "name": "Lines2A",
+        "scale": [256, 64],
+        "position": {
+          "right": 256,
+          "bottom": 64
+        },
+        "styles": {
+          "default": {
+            "color": "0x4dcdb3"
+          },
+          "low_ammo": {
+            "color": "0xff8133"
+          },
+          "empty_clip": {
+            "color": "0xff0000"
+          },
+          "empty_ammo": {
+            "color": "0xff0000"
+          }
         }
       }
     ],
-    "ammoText": [
+    "ammoClipText": [
       {
         "name": "ammovalue2Black",
         "scale": [53, 21],
@@ -91,6 +123,20 @@
         "position": {
           "right": 192,
           "bottom": 57
+        },
+        "styles": {
+          "default": {
+            "color": "0x9ab3b3"
+          },
+          "low_ammo": {
+            "color": "0xff9900"
+          },
+          "empty_clip": {
+            "color": "0xff0000"
+          },
+          "empty_ammo": {
+            "color": "0xff0000"
+          }
         },
         "font": "micro",
         "fontSize": 24,
@@ -123,6 +169,14 @@
           "right": 86,
           "bottom": 52
         },
+        "styles": {
+          "default": {
+            "color": "0x4d6c66"
+          },
+          "empty_ammo": {
+            "color": "0xff0000"
+          }
+        },
         "font": "micro",
         "fontSize": 12,
         "fontStyle": "back-italic",
@@ -135,7 +189,6 @@
   "weaponIndicator": [
     {
       "name": "BorderLABottom",
-      "material": "guis/assets/hud/mp/lborder1b",
       "scale": [241, 64],
       "position": {
         "right": 241,

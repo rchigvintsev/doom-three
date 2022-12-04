@@ -19,8 +19,8 @@ import {ParticleFactory} from './entity/particle/particle-factory';
 import {ParticleSystem} from './particles/particle-system';
 import {DebrisSystem} from './debris/debris-system';
 import {DebrisFactory} from './entity/model/lwo/debris-factory';
-import {HudFactory} from './entity/player/hud/hud-factory';
-import {Hud} from './entity/player/hud/hud';
+import {HudFactory} from './entity/hud/hud-factory';
+import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
 import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 
@@ -134,16 +134,23 @@ export class MapLoader {
 
         const evalScope: any = {};
         tables.forEach((table, name) => {
+            /*
+             * Based on the code from DeclTable.cpp file that can be found in DOOM 3 GitHub repository
+             * (https://github.com/id-Software/DOOM-3).
+             */
             evalScope[name] = (deltaTime: number) => {
-                const val = deltaTime % table.values.length;
+                deltaTime *= table.values.length;
+                let index = Math.floor(deltaTime);
+                const frac = deltaTime - index;
+                index %= table.values.length;
                 if (!table.snap) {
-                    const floor = Math.floor(val);
-                    const ceil = Math.min(Math.ceil(val), table.values.length - 1);
-                    const floorVal = table.values[floor];
-                    const ceilVal = table.values[ceil];
-                    return floorVal + (val - floor) * 100 * ((ceilVal - floorVal) / 100);
+                    const val = table.values[index] * (1.0 - frac);
+                    if (index < table.values.length - 1) {
+                        return val + table.values[index + 1] * frac;
+                    }
+                    return val + table.values[0] * frac;
                 }
-                return table.values[Math.floor(val)];
+                return table.values[index];
             };
         });
         return evalScope;

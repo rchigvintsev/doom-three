@@ -4,7 +4,7 @@ import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
 import {PhysicsSystem} from '../../physics/physics-system';
 import {Player} from '../player/player';
-import {Hud} from '../player/hud/hud';
+import {Hud} from '../hud/hud';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 

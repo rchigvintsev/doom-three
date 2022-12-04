@@ -1,0 +1,181 @@
+import {Object3D, OrthographicCamera, Scene, WebGLRenderer} from 'three';
+
+import {Entity} from '../entity';
+import {GameConfig} from '../../game-config';
+import {isUpdatableMaterial} from '../../material/updatable-material';
+import {SpriteText} from '../text/sprite-text';
+import {Player} from '../player/player';
+import {isFirearm} from '../model/md5/weapon/firearm';
+import {StylableSprite} from '../../sprite/stylable-sprite';
+import {Weapon} from '../model/md5/weapon/weapon';
+
+export class Hud implements Entity {
+    private readonly scene = new Scene();
+    private readonly camera: OrthographicCamera;
+
+    constructor(private readonly parameters: HudParameters) {
+        this.camera = this.createCamera(this.parameters.config);
+
+        for (const child of this.parameters.crosshair) {
+            this.scene.add(child);
+        }
+        for (const child of this.parameters.ammoIndicator) {
+            this.scene.add(child);
+        }
+        for (const child of this.parameters.weaponIndicator) {
+            this.scene.add(child);
+        }
+    }
+
+    init() {
+        // Do nothing
+    }
+
+    update(deltaTime: number) {
+        for (const child of this.parameters.crosshair) {
+            const material = (<any>child).material;
+            if (isUpdatableMaterial(material)) {
+                material.update(deltaTime);
+            }
+        }
+        this.parameters.ammoIndicator.update(deltaTime, this.parameters.player.getCurrentWeapon());
+        for (const child of this.parameters.weaponIndicator) {
+            const material = (<any>child).material;
+            if (isUpdatableMaterial(material)) {
+                material.update(deltaTime);
+            }
+        }
+    }
+
+    render(renderer: WebGLRenderer) {
+        renderer.clearDepth();
+        renderer.render(this.scene, this.camera);
+    }
+
+    private createCamera(_config: GameConfig): OrthographicCamera {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        return new OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -500, 1000);
+    }
+}
+
+export interface HudParameters {
+    config: GameConfig;
+    player: Player;
+    crosshair: StylableSprite[];
+    ammoIndicator: AmmoIndicator;
+    weaponIndicator: StylableSprite[];
+}
+
+export class AmmoIndicator implements Iterable<Object3D> {
+    private _visible = true;
+    private _style = AmmoIndicatorStyle.DEFAULT;
+
+    constructor(private readonly background: StylableSprite[],
+                private readonly ammoClipText: SpriteText[],
+                private readonly ammoReserveText: SpriteText[]) {
+        this.visible = false;
+    }
+
+    *[Symbol.iterator](): IterableIterator<Object3D> {
+        for (let i = 0; i < this.background.length; i++) {
+            yield this.background[i];
+        }
+        for (let i = 0; i < this.ammoClipText.length; i++) {
+            yield this.ammoClipText[i];
+        }
+        for (let i = 0; i < this.ammoReserveText.length; i++) {
+            yield this.ammoReserveText[i];
+        }
+    }
+
+    get visible(): boolean {
+        return this._visible;
+    }
+
+    set visible(visible: boolean) {
+        if (this._visible !== visible) {
+            this._visible = visible;
+            for (const backgroundElement of this.background) {
+                if (backgroundElement.visibleOnStyle) {
+                    backgroundElement.visible = visible && backgroundElement.visibleOnStyle.includes(this._style);
+                } else {
+                    backgroundElement.visible = visible;
+                }
+            }
+            for (const textElement of this.ammoClipText) {
+                textElement.visible = visible;
+            }
+            for (const textElement of this.ammoReserveText) {
+                textElement.visible = visible;
+            }
+        }
+    }
+
+    update(deltaTime: number, weapon?: Weapon) {
+        if (isFirearm(weapon)) {
+            this.setAmmo(weapon.getAmmoClip());
+            this.setAmmoReserve(weapon.getAmmoReserve());
+
+            let style = AmmoIndicatorStyle.DEFAULT;
+            if (weapon.getAmmoClip() === 0) {
+                style = weapon.getAmmoReserve() === 0 ? AmmoIndicatorStyle.EMPTY_AMMO : AmmoIndicatorStyle.EMPTY_CLIP;
+            } else if (weapon.isLowAmmo()) {
+                style = AmmoIndicatorStyle.LOW_AMMO;
+            }
+            this.setStyle(style);
+
+            this.visible = true;
+        } else {
+            this.visible = false;
+        }
+
+        if (this._visible) {
+            for (const backgroundElement of this.background) {
+                if (isUpdatableMaterial(backgroundElement.material)) {
+                    backgroundElement.material.update(deltaTime);
+                }
+            }
+            for (const textElement of this.ammoClipText) {
+                textElement.update(deltaTime);
+            }
+            for (const textElement of this.ammoReserveText) {
+                textElement.update(deltaTime);
+            }
+        }
+    }
+
+    setAmmo(value: number) {
+        for (const textElement of this.ammoClipText) {
+            textElement.text = value.toString();
+        }
+    }
+
+    setAmmoReserve(value: number) {
+        for (const textElement of this.ammoReserveText) {
+            textElement.text = value.toString();
+        }
+    }
+
+    private setStyle(style: AmmoIndicatorStyle) {
+        if (this._style !== style) {
+            this._style = style;
+            for (const backgroundElement of this.background) {
+                backgroundElement.applyStyle(style);
+                if (backgroundElement.visibleOnStyle && this._visible) {
+                    backgroundElement.visible = backgroundElement.visibleOnStyle.includes(style);
+                }
+            }
+            for (const textElement of this.ammoClipText) {
+                textElement.applyStyle(style);
+            }
+            for (const textElement of this.ammoReserveText) {
+                textElement.applyStyle(style);
+            }
+        }
+    }
+}
+
+enum AmmoIndicatorStyle {
+    DEFAULT = 'default', LOW_AMMO = 'low_ammo', EMPTY_CLIP = 'empty_clip', EMPTY_AMMO = 'empty_ammo'
+}

@@ -3455,13 +3455,13 @@
     "normalMap": "models/mapobjects/healthgui/healthgui_local"
   },
   {
-    "name": "guis/assets/common/crosshaircenter",
+    "name": "crosshaircenter",
     "type": "sprite",
     "diffuseMap": "guis/assets/common/crosshaircenter",
     "color": "0xb3ffce"
   },
   {
-    "name": "guis/assets/common/crosshaircenter2",
+    "name": "crosshaircenter2",
     "type": "sprite",
     "diffuseMap": "guis/assets/common/crosshaircenter2",
     "color": "0x73b3a6",
@@ -3469,7 +3469,7 @@
     "opacity": 0.5
   },
   {
-    "name": "guis/assets/common/crosshairlight",
+    "name": "crosshairLight",
     "type": "sprite",
     "diffuseMap": "guis/assets/common/crosshairlight",
     "color": "0x73b3a6",
@@ -3477,7 +3477,7 @@
     "opacity": 0.2
   },
   {
-    "name": "guis/assets/common/crosshairframe",
+    "name": "crosshairFrame",
     "type": "sprite",
     "diffuseMap": "guis/assets/common/crosshairframe",
     "color": "0x73b3a6",
@@ -3485,7 +3485,7 @@
     "opacity": 0.1
   },
   {
-    "name": "guis/assets/hud/mp/lborder1a1",
+    "name": "ScanLineLA",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/lborder1a1",
@@ -3496,7 +3496,7 @@
     "opacity": 0.3
   },
   {
-    "name": "guis/assets/hud/mp/lborder1b",
+    "name": "BorderLABottom",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/lborder1b",
@@ -3507,7 +3507,7 @@
     "opacity": "pdflick2(time * .0025) / 3"
   },
   {
-    "name": "guis/assets/hud/mp/lborder1a1",
+    "name": "BorderLA",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/lborder1a1",
@@ -3515,10 +3515,32 @@
     },
     "color": "0x337366",
     "transparent": true,
-    "opacity": "pdflick2(time * .0025) / 3"
+    "opacity": "pdflick2(time * .0025) / 2"
   },
   {
-    "name": "guis/assets/hud/mp/lbg1a1",
+    "name": "BorderLA_1",
+    "type": "sprite",
+    "diffuseMap": {
+      "name": "guis/assets/hud/mp/lborder1a1",
+      "repeat": [-1, 1]
+    },
+    "color": "0x9a5a00",
+    "transparent": true,
+    "opacity": "pdinouthold(time * .001) / 1.2"
+  },
+  {
+    "name": "BorderLA_2",
+    "type": "sprite",
+    "diffuseMap": {
+      "name": "guis/assets/hud/mp/lborder1a1",
+      "repeat": [-1, 1]
+    },
+    "color": "0xcd2600",
+    "transparent": true,
+    "opacity": "pdfullfade(time * 0.002) / 1.2"
+  },
+  {
+    "name": "BgLA",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/lbg1a1",
@@ -3529,7 +3551,7 @@
     "opacity": "subtleflick(time * .0025) / 4"
   },
   {
-    "name": "guis/assets/hud/mp/llines1a1",
+    "name": "Lines1A",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/llines1a1",
@@ -3540,7 +3562,7 @@
     "opacity": 0.2
   },
   {
-    "name": "guis/assets/hud/mp/llines2a1",
+    "name": "Lines2A",
     "type": "sprite",
     "diffuseMap": {
       "name": "guis/assets/hud/mp/llines2a1",

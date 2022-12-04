@@ -166,16 +166,22 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
         for (const child of assets.hudDef.crosshair) {
             if (child.material) {
                 hudMaterials.push(child.material);
+            } else {
+                hudMaterials.push(child.name);
             }
         }
         for (const child of assets.hudDef.ammoIndicator.background) {
             if (child.material) {
                 hudMaterials.push(child.material);
+            } else {
+                hudMaterials.push(child.name);
             }
         }
         for (const child of assets.hudDef.weaponIndicator) {
             if (child.material) {
                 hudMaterials.push(child.material);
+            } else {
+                hudMaterials.push(child.name);
             }
         }
         this.collectTextureSources(context, assets, hudMaterials);
