@@ -66,7 +66,7 @@ export class Pistol extends Weapon implements Firearm {
             this.enabled = false;
             this.animateCrossFade('idle', 'put_away', 0.25);
             this.changeState(PistolState.LOWERING);
-            // Weapon visibility will be changed on "lower" animation finish
+            // Weapon visibility will be changed on "put_away" animation finish
         }
     }
 
@@ -139,7 +139,6 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     protected updateState() {
-        super.updateState();
         switch (this.currentState) {
             case PistolState.LOWERING:
                 if (!this.isAnimationRunning('put_away')) {
@@ -156,6 +155,8 @@ export class Pistol extends Weapon implements Firearm {
                     this.changeState(PistolState.IDLE);
                 }
                 break;
+            default:
+                super.updateState();
         }
     }
 
