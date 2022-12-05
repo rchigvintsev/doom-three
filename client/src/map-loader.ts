@@ -1,5 +1,4 @@
 import {Game} from './game';
-import {GameConfig} from './game-config';
 import {GameAssets} from './game-assets';
 import {GameSystemType} from './game-system';
 import {GameMap} from './entity/map/game-map';
@@ -35,7 +34,7 @@ export class MapLoader {
             const config = this.game.config;
             const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
 
-            const evalScope = this.getExpressionEvaluationScope(config, assets.tableDefs);
+            const evalScope = this.getExpressionEvaluationScope(assets.tableDefs);
             const materialFactory = new MaterialFactory({assets, evalScope});
             const collisionModelFactory = new CollisionModelFactory({config, physicsSystem});
             const soundFactory = new SoundFactory({config, assets, audioListener: this.game.audioListener});
@@ -127,11 +126,7 @@ export class MapLoader {
         return map;
     }
 
-    private getExpressionEvaluationScope(config: GameConfig, tables: Map<string, any>): any {
-        if (config.renderOnlyWireframe) {
-            return undefined;
-        }
-
+    private getExpressionEvaluationScope(tables: Map<string, any>): any {
         const evalScope: any = {};
         tables.forEach((table, name) => {
             /*
