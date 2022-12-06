@@ -6,8 +6,8 @@ import {isUpdatableMaterial} from '../../material/updatable-material';
 import {SpriteText} from '../text/sprite-text';
 import {Player} from '../player/player';
 import {isFirearm} from '../model/md5/weapon/firearm';
-import {StylableSprite} from '../../sprite/stylable-sprite';
 import {Weapon} from '../model/md5/weapon/weapon';
+import {HudElement} from './hud-element';
 
 export class Hud implements Entity {
     private readonly scene = new Scene();
@@ -16,14 +16,14 @@ export class Hud implements Entity {
     constructor(private readonly parameters: HudParameters) {
         this.camera = this.createCamera(this.parameters.config);
 
-        for (const child of this.parameters.crosshair) {
-            this.scene.add(child);
+        for (const element of this.parameters.crosshair) {
+            this.scene.add(element);
         }
-        for (const child of this.parameters.ammoIndicator) {
-            this.scene.add(child);
+        for (const element of this.parameters.ammoIndicator) {
+            this.scene.add(element);
         }
-        for (const child of this.parameters.weaponIndicator) {
-            this.scene.add(child);
+        for (const element of this.parameters.weaponIndicator) {
+            this.scene.add(element);
         }
     }
 
@@ -32,8 +32,8 @@ export class Hud implements Entity {
     }
 
     update(deltaTime: number) {
-        for (const child of this.parameters.crosshair) {
-            const material = (<any>child).material;
+        for (const element of this.parameters.crosshair) {
+            const material = (<any>element).material;
             if (isUpdatableMaterial(material)) {
                 material.update(deltaTime);
             }
@@ -52,6 +52,24 @@ export class Hud implements Entity {
         renderer.render(this.scene, this.camera);
     }
 
+    onWindowResize() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        this.camera.left = width / -2;
+        this.camera.right = width / 2;
+        this.camera.top = height / 2;
+        this.camera.bottom = height / -2;
+        this.camera.updateProjectionMatrix();
+
+        for (const element of this.parameters.crosshair) {
+            element.updatePosition();
+        }
+        this.parameters.ammoIndicator.updatePosition();
+        for (const element of this.parameters.weaponIndicator) {
+            element.updatePosition();
+        }
+    }
+
     private createCamera(_config: GameConfig): OrthographicCamera {
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -62,16 +80,16 @@ export class Hud implements Entity {
 export interface HudParameters {
     config: GameConfig;
     player: Player;
-    crosshair: StylableSprite[];
+    crosshair: HudElement[];
     ammoIndicator: AmmoIndicator;
-    weaponIndicator: StylableSprite[];
+    weaponIndicator: HudElement[];
 }
 
 export class AmmoIndicator implements Iterable<Object3D> {
     private _visible = true;
-    private _style = AmmoIndicatorStyle.DEFAULT;
+    private style = AmmoIndicatorStyle.DEFAULT;
 
-    constructor(private readonly background: StylableSprite[],
+    constructor(private readonly background: HudElement[],
                 private readonly ammoClipText: SpriteText[],
                 private readonly ammoReserveText: SpriteText[]) {
         this.visible = false;
@@ -98,7 +116,7 @@ export class AmmoIndicator implements Iterable<Object3D> {
             this._visible = visible;
             for (const backgroundElement of this.background) {
                 if (backgroundElement.visibleOnStyle) {
-                    backgroundElement.visible = visible && backgroundElement.visibleOnStyle.includes(this._style);
+                    backgroundElement.visible = visible && backgroundElement.visibleOnStyle.includes(this.style);
                 } else {
                     backgroundElement.visible = visible;
                 }
@@ -145,6 +163,18 @@ export class AmmoIndicator implements Iterable<Object3D> {
         }
     }
 
+    updatePosition() {
+        for (const backgroundElement of this.background) {
+            backgroundElement.updatePosition();
+        }
+        for (const textElement of this.ammoClipText) {
+            textElement.updatePosition();
+        }
+        for (const textElement of this.ammoReserveText) {
+            textElement.updatePosition();
+        }
+    }
+
     setAmmo(value: number) {
         for (const textElement of this.ammoClipText) {
             textElement.text = value.toString();
@@ -158,8 +188,8 @@ export class AmmoIndicator implements Iterable<Object3D> {
     }
 
     private setStyle(style: AmmoIndicatorStyle) {
-        if (this._style !== style) {
-            this._style = style;
+        if (this.style !== style) {
+            this.style = style;
             for (const backgroundElement of this.background) {
                 backgroundElement.applyStyle(style);
                 if (backgroundElement.visibleOnStyle && this._visible) {

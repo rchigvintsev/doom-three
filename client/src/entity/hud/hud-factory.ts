@@ -1,4 +1,4 @@
-import {Color, Sprite, SpriteMaterial} from 'three';
+import {Color, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {AmmoIndicator, Hud} from './hud';
@@ -8,7 +8,8 @@ import {SpriteTextFactory} from '../text/sprite-text-factory';
 import {SpriteText} from '../text/sprite-text';
 import {Player} from '../player/player';
 import {MaterialStyle} from '../../material/stylable-material';
-import {StylableSprite} from '../../sprite/stylable-sprite';
+import {HudElement} from './hud-element';
+import {ScreenPosition} from '../../util/screen-position';
 
 const SCALE_FACTOR = 2;
 
@@ -31,18 +32,18 @@ export class HudFactory implements EntityFactory<Hud> {
         return hud;
     }
 
-    private createCrosshair(hudDef: any): StylableSprite[] {
+    private createCrosshair(hudDef: any): HudElement[] {
         const crosshair = [];
-        for (const spriteDef of hudDef.crosshair) {
-            crosshair.push(this.createSprite(spriteDef));
+        for (const hudElementDef of hudDef.crosshair) {
+            crosshair.push(this.createHudElement(hudElementDef));
         }
         return crosshair;
     }
 
     private createAmmoIndicator(hudDef: any): AmmoIndicator {
-        const background: StylableSprite[] = [];
-        for (const spriteDef of hudDef.ammoIndicator.background) {
-            background.push(this.createSprite(spriteDef));
+        const background: HudElement[] = [];
+        for (const hudElementDef of hudDef.ammoIndicator.background) {
+            background.push(this.createHudElement(hudElementDef));
         }
 
         const ammoClipText: SpriteText[] = [];
@@ -61,23 +62,28 @@ export class HudFactory implements EntityFactory<Hud> {
         return indicator;
     }
 
-    private createWeaponIndicator(hudDef: any): StylableSprite[] {
+    private createWeaponIndicator(hudDef: any): HudElement[] {
         const weaponIndicator = [];
-        for (const spriteDef of hudDef.weaponIndicator) {
-            weaponIndicator.push(this.createSprite(spriteDef));
+        for (const hudElementDef of hudDef.weaponIndicator) {
+            weaponIndicator.push(this.createHudElement(hudElementDef));
         }
         return weaponIndicator;
     }
 
-    private createSprite(spriteDef: any): StylableSprite {
-        const spriteMaterials = this.parameters.materialFactory.create(spriteDef.material || spriteDef.name);
+    private createHudElement(hudElementDef: any): HudElement {
+        const spriteMaterials = this.parameters.materialFactory.create(hudElementDef.material || hudElementDef.name);
         const material = <SpriteMaterial>spriteMaterials[0];
-        const sprite = new StylableSprite(material, this.getStyles(spriteDef), spriteDef.visibleOnStyle);
-        sprite.name = spriteDef.name;
-        this.setScale(spriteDef, sprite);
-        this.setVisibility(spriteDef, sprite);
-        this.setPosition(spriteDef, sprite);
-        return sprite;
+        const hudElement = new HudElement({
+            material,
+            screenPosition: this.getHudElementScreenPosition(hudElementDef),
+            styles: this.getHudElementStyles(hudElementDef),
+            visibleOnStyle: hudElementDef.visibleOnStyle
+        });
+        hudElement.name = hudElementDef.name;
+        this.setHudElementScale(hudElementDef, hudElement);
+        this.setHudElementVisibility(hudElementDef, hudElement);
+        hudElement.updatePosition();
+        return hudElement;
     }
 
     private createSpriteText(textDef: any) {
@@ -86,11 +92,19 @@ export class HudFactory implements EntityFactory<Hud> {
         return spriteText;
     }
 
-    private getStyles(spriteDef: any): Map<string, MaterialStyle> | undefined {
-        if (spriteDef.styles) {
+    private getHudElementScreenPosition(hudElementDef: any): ScreenPosition {
+        const position = hudElementDef.position;
+        if (position) {
+            return new ScreenPosition(position.left, position.right, position.top, position.bottom);
+        }
+        return new ScreenPosition();
+    }
+
+    private getHudElementStyles(hudElementDef: any): Map<string, MaterialStyle> | undefined {
+        if (hudElementDef.styles) {
             const styles = new Map<string, MaterialStyle>();
-            for (const styleName of Object.keys(spriteDef.styles)) {
-                const styleDef = spriteDef.styles[styleName];
+            for (const styleName of Object.keys(hudElementDef.styles)) {
+                const styleDef = hudElementDef.styles[styleName];
                 styles.set(styleName, new MaterialStyle(styleName, new Color().setHex(styleDef.color)));
             }
             return styles;
@@ -98,28 +112,15 @@ export class HudFactory implements EntityFactory<Hud> {
         return undefined;
     }
 
-    private setScale(spriteDef: any, sprite: Sprite) {
-        if (spriteDef.scale) {
-            sprite.scale.set(spriteDef.scale[0] * SCALE_FACTOR, spriteDef.scale[1] * SCALE_FACTOR, 1);
+    private setHudElementScale(hudElementDef: any, hudElement: HudElement) {
+        if (hudElementDef.scale) {
+            hudElement.scale.set(hudElementDef.scale[0] * SCALE_FACTOR, hudElementDef.scale[1] * SCALE_FACTOR, 1);
         }
     }
 
-    private setVisibility(spriteDef: any, sprite: Sprite) {
-        if (spriteDef.visibleOnStyle) {
-            sprite.visible = spriteDef.visibleOnStyle.includes('default');
-        }
-    }
-
-    private setPosition(spriteDef: any, sprite: Sprite) {
-        if (spriteDef.position) {
-            let x = 0, y = 0;
-            if (spriteDef.position.right) {
-                x = window.innerWidth / 2 - spriteDef.position.right;
-            }
-            if (spriteDef.position.bottom) {
-                y = (window.innerHeight / 2 - spriteDef.position.bottom) * -1;
-            }
-            sprite.position.set(x, y, 0);
+    private setHudElementVisibility(hudElementDef: any, hudElement: HudElement) {
+        if (hudElementDef.visibleOnStyle) {
+            hudElement.visible = hudElementDef.visibleOnStyle.includes('default');
         }
     }
 }

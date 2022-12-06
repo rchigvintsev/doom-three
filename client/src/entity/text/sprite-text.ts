@@ -7,6 +7,7 @@ import {SpriteChar} from './sprite-char';
 import {FontStyle} from './font-style';
 import {SpriteTextScaler} from './sprite-text-scaler';
 import {isStylableMaterial, MaterialStyle} from '../../material/stylable-material';
+import {ScreenPosition} from '../../util/screen-position';
 
 export class SpriteText extends Object3D implements Entity {
     private readonly textChars: SpriteChar[] = [];
@@ -81,6 +82,18 @@ export class SpriteText extends Object3D implements Entity {
         }
     }
 
+    updatePosition() {
+        const screenPosition = this.parameters.screenPosition;
+        let x = 0, y = 0;
+        if (screenPosition.right) {
+            x = window.innerWidth / 2 - screenPosition.right;
+        }
+        if (screenPosition.bottom) {
+            y = (window.innerHeight / 2 - screenPosition.bottom) * -1;
+        }
+        this.position.set(x, y, 0);
+    }
+
     applyStyle(styleName: string) {
         if (this.parameters.textStyles) {
             const style = this.parameters.textStyles.get(styleName);
@@ -140,6 +153,7 @@ export class SpriteText extends Object3D implements Entity {
 }
 
 export interface SpriteTextParameters {
+    screenPosition: ScreenPosition;
     fontName: string,
     fontStyle: FontStyle,
     fontChars: Map<string, SpriteChar>;

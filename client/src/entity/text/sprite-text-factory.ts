@@ -9,6 +9,7 @@ import {parseTextAlign, TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
 import {SpriteTextScaler} from './sprite-text-scaler';
 import {MaterialStyle} from '../../material/stylable-material';
+import {ScreenPosition} from '../../util/screen-position';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
@@ -27,6 +28,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
         }
 
         const text = new SpriteText({
+            screenPosition: this.getScreenPosition(textDef),
             fontName: textDef.font,
             fontStyle: this.getFontStyle(textDef),
             fontChars: fontChars,
@@ -38,7 +40,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
         });
         text.name = textDef.name;
         this.setTextScale(textDef, text);
-        this.setTextPosition(textDef, text);
+        text.updatePosition();
         return text;
     }
 
@@ -98,17 +100,12 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
         }
     }
 
-    private setTextPosition(textDef: any, sprite: Object3D) {
-        if (textDef.position) {
-            let x = 0, y = 0;
-            if (textDef.position.right) {
-                x = window.innerWidth / 2 - textDef.position.right;
-            }
-            if (textDef.position.bottom) {
-                y = (window.innerHeight / 2 - textDef.position.bottom) * -1;
-            }
-            sprite.position.set(x, y, 0);
+    private getScreenPosition(textDef: any): ScreenPosition {
+        const position = textDef.position;
+        if (position) {
+            return new ScreenPosition(position.left, position.right, position.top, position.bottom);
         }
+        return new ScreenPosition();
     }
 }
 

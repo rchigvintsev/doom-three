@@ -207,6 +207,10 @@ export class Game {
         this._camera.aspect = width / height;
         this._camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+
+        if (this.hud) {
+            this.hud.onWindowResize();
+        }
     }
 
     private onProgress(e: ProgressEvent) {
