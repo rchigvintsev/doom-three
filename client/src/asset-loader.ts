@@ -40,6 +40,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             this.loadHudDef(assets),
             this.loadWeaponDefs(assets),
             this.loadDebrisDefs(assets),
+            this.loadDecalDefs(assets),
             this.loadFontDefs(assets)
         ]).then(() => {
             const context = new LoadingContext(assets);
@@ -132,6 +133,13 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
         });
     }
 
+    private loadDecalDefs(assets: GameAssets): Promise<Map<string, any>> {
+        return this.loadJson('assets/decals.json').then((decalDefs: any[]) => {
+            decalDefs.forEach(decalDef => assets.decalDefs.set(decalDef.name, decalDef));
+            return assets.decalDefs;
+        });
+    }
+
     private loadFontDefs(assets: GameAssets) : Promise<Map<string, any>> {
         return this.loadJson('assets/fonts.json').then((fontDefs: any[]) => {
             fontDefs.forEach(fontDef => assets.fontDefs.set(`${fontDef.name}__${fontDef.size}`, fontDef));
@@ -198,6 +206,14 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
                         console.error(`Definition of particle "${weaponDef.muzzleSmoke}" is not found`);
                     } else {
                         materials.push(particleDef.material);
+                    }
+                }
+                if (weaponDef.detonationMark) {
+                    const decalDef = assets.decalDefs.get(weaponDef.detonationMark);
+                    if (!decalDef) {
+                        console.error(`Definition of decal "${weaponDef.detonationMark}" is not found`);
+                    } else {
+                        materials.push(decalDef.material);
                     }
                 }
                 this.collectTextureSources(context, assets, materials);

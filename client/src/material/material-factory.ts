@@ -101,6 +101,7 @@ export class MaterialFactory {
 
         this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
+        this.setPolygonOffset(material, materialDef);
 
         if (materialDef.alphaTest) {
             material.alphaTest = materialDef.alphaTest;
@@ -167,6 +168,7 @@ export class MaterialFactory {
         this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
         this.setBlending(material, materialDef);
+        this.setDepthWrite(material, materialDef);
 
         return material;
     }
@@ -199,6 +201,7 @@ export class MaterialFactory {
 
         this.setColor(material, materialDef);
         this.setTransparency(material, materialDef);
+        this.setPolygonOffset(material, materialDef);
 
         if (materialDef.alphaTest) {
             material.alphaTest = materialDef.alphaTest;
@@ -292,6 +295,15 @@ export class MaterialFactory {
                 } else {
                     material.opacity = materialDef.opacity;
                 }
+            }
+        }
+    }
+
+    private setPolygonOffset(material: Material, materialDef: any) {
+        if (materialDef.polygonOffset) {
+            material.polygonOffset = true;
+            if (materialDef.polygonOffsetFactor != undefined) {
+                material.polygonOffsetFactor = materialDef.polygonOffsetFactor;
             }
         }
     }

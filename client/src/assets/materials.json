@@ -108,6 +108,7 @@
       "scroll": ["table4(pistolFlash2ScrollX)", "0"]
     },
     "transparent": true,
+    "depthWrite": false,
     "side": "double"
   },
   {
@@ -3430,7 +3431,8 @@
     "diffuseMap": "textures/particles/smokepuff",
     "blending": "custom",
     "blendSrc": "gl_zero",
-    "blendDst": "gl_one_minus_src_color"
+    "blendDst": "gl_one_minus_src_color",
+    "depthWrite": false
   },
   {
     "name": "models/weapons/shell1/mshell",
@@ -3571,5 +3573,17 @@
     "color": "0x4dcdb3",
     "transparent": true,
     "opacity": 0.2
+  },
+  {
+    "name": "textures/decals/bulleth02",
+    "type": "basic",
+    "diffuseMap": "textures/decals/bulleth02",
+    "transparent": true,
+    "depthWrite": false,
+    "blending": "custom",
+    "blendSrc": "gl_zero",
+    "blendDst": "gl_one_minus_src_color",
+    "polygonOffset": true,
+    "polygonOffsetFactor": -1
   }
 ]

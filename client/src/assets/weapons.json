@@ -71,6 +71,7 @@
       "empty": "player_pistol_empty"
     },
     "muzzleSmoke": "muzzlesmoke",
-    "shell": "debris_brass"
+    "shell": "debris_brass",
+    "detonationMark": "bulleth02"
   }
 ]
