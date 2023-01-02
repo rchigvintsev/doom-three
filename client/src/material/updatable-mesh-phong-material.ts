@@ -3,6 +3,8 @@ import {MeshPhongMaterial, MeshPhongMaterialParameters} from 'three';
 import {UpdatableMaterial} from './updatable-material';
 
 export class UpdatableMeshPhongMaterial extends MeshPhongMaterial implements UpdatableMaterial {
+    readonly updatableMaterial = true;
+
     constructor(parameters?: UpdatableMeshPhongMaterialParameters) {
         super(parameters);
     }

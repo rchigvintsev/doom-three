@@ -7,6 +7,8 @@ import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
+    readonly tangibleEntity = true;
+
     constructor(geometry: BufferGeometry,
                 materials: Material | Material[],
                 private readonly collisionModel: CollisionModel) {

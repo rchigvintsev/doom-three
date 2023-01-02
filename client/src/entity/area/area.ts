@@ -6,6 +6,8 @@ import {Weapon} from '../model/md5/weapon/weapon';
 import {TangibleEntity} from '../tangible-entity';
 
 export class Area extends Group implements TangibleEntity {
+    readonly tangibleEntity = true;
+
     constructor(private readonly surfaces: Surface[], private readonly lights: Light[]) {
         super();
         for (const surface of surfaces) {

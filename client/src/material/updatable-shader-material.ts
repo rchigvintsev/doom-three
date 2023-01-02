@@ -5,6 +5,8 @@ import {UpdatableMaterial} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 
 export class UpdatableShaderMaterial extends ShaderMaterial implements UpdatableMaterial {
+    readonly updatableMaterial = true;
+
     constructor(parameters?: UpdatableShaderMaterialParameters) {
         super(parameters);
     }

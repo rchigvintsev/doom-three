@@ -7,6 +7,8 @@ import {UpdatableMaterial, updateOpacity} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 
 export class UpdatableMeshBasicMaterial extends MeshBasicMaterial implements UpdatableMaterial {
+    readonly updatableMaterial = true;
+
     evalScope: any;
     opacityExpression?: EvalFunction;
 

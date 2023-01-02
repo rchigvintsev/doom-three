@@ -5,6 +5,9 @@ import {UpdatableTexture} from '../texture/updatable-texture';
 import {MaterialStyle, StylableMaterial} from './stylable-material';
 
 export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial, StylableMaterial {
+    readonly stylableMaterial = true;
+    readonly updatableMaterial = true;
+
     evalScope: any;
     opacityExpression?: EvalFunction;
 

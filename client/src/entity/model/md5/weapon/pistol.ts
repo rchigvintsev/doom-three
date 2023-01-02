@@ -21,6 +21,8 @@ const FIRE_FLASH_DISTANCE = 120;
 const MAX_AMMO_RESERVE = 348;
 
 export class Pistol extends Weapon implements Firearm {
+    readonly firearm = true;
+
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
 
     private shellTarget!: Object3D;

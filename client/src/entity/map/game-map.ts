@@ -9,6 +9,8 @@ import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 
 export class GameMap extends Group implements TangibleEntity {
+    readonly tangibleEntity = true;
+
     private readonly raycaster = new Raycaster();
     private readonly mouseCoords = new Vector2();
     private readonly forceVector = new Vector3();

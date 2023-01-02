@@ -20,5 +20,5 @@ export interface TangibleEntity extends Entity {
 }
 
 export function isTangibleEntity(entity: any): entity is TangibleEntity {
-    return entity && !!entity.registerCollisionModels;
+    return entity && entity.tangibleEntity;
 }

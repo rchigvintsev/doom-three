@@ -11,6 +11,8 @@ import {PhysicsSystem} from '../../../physics/physics-system';
 import {Weapon} from '../md5/weapon/weapon';
 
 export class Debris extends LwoModel implements TangibleEntity {
+    readonly tangibleEntity = true;
+
     onShow?: (debris: Debris) => void;
     onHide?: (debris: Debris) => void;
 

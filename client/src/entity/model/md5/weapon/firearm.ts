@@ -9,5 +9,5 @@ export interface Firearm {
 }
 
 export function isFirearm(weapon: any): weapon is Firearm {
-    return weapon && !!weapon.getAmmoClip && !!weapon.getAmmoReserve && !!weapon.reload;
+    return weapon && weapon.firearm;
 }

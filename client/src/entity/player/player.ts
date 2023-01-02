@@ -20,6 +20,8 @@ const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
 
 export class Player extends Object3D implements TangibleEntity {
+    readonly tangibleEntity = true;
+
     private readonly previousMovementDirection = new Vector3();
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
     private readonly jumpSound?: Audio<AudioNode>;

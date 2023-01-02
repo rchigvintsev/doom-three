@@ -5,7 +5,7 @@ export interface StylableMaterial {
 }
 
 export function isStylableMaterial(material: any): material is StylableMaterial {
-    return material && !!material.applyStyle;
+    return material && material.stylableMaterial;
 }
 
 export class MaterialStyle {
