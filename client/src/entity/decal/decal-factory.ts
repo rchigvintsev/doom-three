@@ -31,7 +31,7 @@ export class DecalFactory implements EntityFactory<Decal> {
         positionAttr.needsUpdate = true;
 
         const material = this.parameters.materialFactory.create(parentDecalDef.material)[0];
-        return new Decal({geometry, material, time: parentDecalDef.time});
+        return new Decal({geometry, material, time: parentDecalDef.time, fadeOut: parentDecalDef.fadeOut});
     }
 }
 

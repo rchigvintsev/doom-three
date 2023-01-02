@@ -3,6 +3,7 @@
     "name": "bulleth02",
     "material": "textures/decals/bulleth02",
     "size": 10,
-    "time": 10000
+    "time": 10000,
+    "fadeOut": 0.1
   }
 ]
