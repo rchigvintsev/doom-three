@@ -30,6 +30,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
         if (surfaceDef.position) {
             surface.position.fromArray(surfaceDef.position).multiplyScalar(config.worldScale);
         }
+        surface.init();
 
         return surface;
     }
