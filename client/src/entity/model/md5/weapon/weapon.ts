@@ -1,4 +1,4 @@
-import {Euler, Object3D, Vector3} from 'three';
+import {Euler, Intersection, Mesh, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Player} from '../../../player/player';
@@ -68,9 +68,10 @@ export abstract class Weapon extends Md5Model {
     /**
      * Called when this weapon hit some target during the attack.
      *
-     * @param target target object that was hit during the attack
+     * @param target target mesh that was hit during the attack
+     * @param intersection intersection of ray cast from this weapon with target mesh
      */
-    abstract onHit(target: Object3D): void;
+    abstract onHit(target: Mesh, intersection: Intersection): void;
 
     /**
      * Called when this weapon misses during the attack.

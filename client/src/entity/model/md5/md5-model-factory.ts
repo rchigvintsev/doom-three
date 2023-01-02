@@ -22,6 +22,7 @@ import {ParticleSystem} from '../../../particles/particle-system';
 import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
 import {DebrisSystem} from '../../../debris/debris-system';
 import {GameAssets} from '../../../game-assets';
+import {DecalSystem} from '../../../decal/decal-system';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(parameters: Md5ModelFactoryParameters) {
@@ -144,8 +145,10 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             sounds,
             particleSystem: this.particleSystem,
             debrisSystem: this.debrisSystem,
+            decalSystem: this.decalSystem,
             muzzleSmokeParticleName: modelDef.muzzleSmoke,
-            shellDebrisName: modelDef.shell
+            shellDebrisName: modelDef.shell,
+            detonationMarkDecalName: modelDef.detonationMark
         });
     }
 
@@ -185,10 +188,15 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     private get debrisSystem(): DebrisSystem {
         return (<Md5ModelFactoryParameters>this.parameters).debrisSystem;
     }
+
+    private get decalSystem(): DecalSystem {
+        return (<Md5ModelFactoryParameters>this.parameters).decalSystem;
+    }
 }
 
 export interface Md5ModelFactoryParameters extends ModelFactoryParameters {
     soundFactory: SoundFactory;
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
+    decalSystem: DecalSystem;
 }

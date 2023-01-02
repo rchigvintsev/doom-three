@@ -1,4 +1,4 @@
-import {Scene, Vector3} from 'three';
+import {Intersection, Scene, Vector3} from 'three';
 
 import {Entity} from './entity';
 import {Weapon} from './model/md5/weapon/weapon';
@@ -12,11 +12,11 @@ export interface TangibleEntity extends Entity {
     /**
      * Called when someone attacks this entity with the given weapon.
      *
-     * @param hitPoint hit point
+     * @param intersection intersection of ray cast from weapon with this entity
      * @param forceVector force vector
      * @param weapon weapon
      */
-    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
+    onAttack(intersection: Intersection, forceVector: Vector3, weapon: Weapon): void;
 }
 
 export function isTangibleEntity(entity: any): entity is TangibleEntity {

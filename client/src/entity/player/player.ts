@@ -1,4 +1,4 @@
-import {Audio, Euler, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Audio, Euler, Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 import {degToRad} from 'three/src/math/MathUtils';
 
 import {Tween} from '@tweenjs/tween.js';
@@ -103,7 +103,7 @@ export class Player extends Object3D implements TangibleEntity {
         }
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing for now
     }
 

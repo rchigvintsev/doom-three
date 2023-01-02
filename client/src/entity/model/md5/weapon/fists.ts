@@ -1,4 +1,4 @@
-import {AnimationAction, Object3D} from 'three';
+import {AnimationAction, Mesh} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -62,7 +62,7 @@ export class Fists extends Weapon {
         }
     }
 
-    onHit(_target: Object3D) {
+    onHit(_target: Mesh) {
         this.playImpactSound();
     }
 

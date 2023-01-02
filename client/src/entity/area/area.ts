@@ -1,4 +1,4 @@
-import {Group, Light, Scene, Vector3} from 'three';
+import {Group, Intersection, Light, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
 import {PhysicsSystem} from '../../physics/physics-system';
@@ -34,7 +34,7 @@ export class Area extends Group implements TangibleEntity {
         }
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 }

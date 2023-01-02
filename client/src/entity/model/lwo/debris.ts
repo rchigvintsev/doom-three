@@ -1,4 +1,4 @@
-import {Audio, Scene, Vector3} from 'three';
+import {Audio, Intersection, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -41,7 +41,7 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 

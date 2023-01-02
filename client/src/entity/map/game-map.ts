@@ -1,4 +1,4 @@
-import {Group, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
+import {Group, Intersection, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
@@ -57,12 +57,12 @@ export class GameMap extends Group implements TangibleEntity {
         this.player.update(deltaTime);
     }
 
-    onAttack(_hitPoint: Vector3, _forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
     private _onAttack(e: AttackEvent) {
-        let hits = 0;
+        let missed = true;
 
         this.raycaster.far = e.distance;
         this.raycaster.setFromCamera(this.mouseCoords, this.player.camera);
@@ -77,12 +77,13 @@ export class GameMap extends Group implements TangibleEntity {
                 target = target.parent;
             }
             if (isTangibleEntity(target)) {
-                target.onAttack(intersection.point, this.forceVector, e.weapon);
-                hits++;
+                target.onAttack(intersection, this.forceVector, e.weapon);
+                missed = false;
+                break;
             }
         }
 
-        if (hits === 0) {
+        if (missed) {
             e.weapon.onMiss();
         }
     }

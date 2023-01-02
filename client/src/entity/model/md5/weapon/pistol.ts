@@ -1,4 +1,4 @@
-import {BufferGeometry, MathUtils, Matrix4, Object3D, PointLight, Quaternion, Vector3} from 'three';
+import {BufferGeometry, Intersection, MathUtils, Matrix4, Mesh, Object3D, PointLight, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -12,6 +12,7 @@ import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
 import {DebrisSystem} from '../../../../debris/debris-system';
 import {Firearm} from './firearm';
+import {DecalSystem} from '../../../../decal/decal-system';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -93,7 +94,7 @@ export class Pistol extends Weapon implements Firearm {
                 this.lastFireTime = performance.now();
                 this.showMuzzleSmoke();
                 this.ejectShell();
-                this.dispatchEvent(new AttackEvent(this, 0, 0));
+                this.dispatchEvent(new AttackEvent(this, 1000, 0));
             }
         }
     }
@@ -120,8 +121,14 @@ export class Pistol extends Weapon implements Firearm {
         }
     }
 
-    onHit(_target: Object3D) {
-        // Do nothing
+    onHit(target: Mesh, intersection: Intersection) {
+        const pistolParams = <PistolParameters>this.parameters;
+        pistolParams.decalSystem.createDecal({
+            name: pistolParams.detonationMarkDecalName,
+            target,
+            position: intersection.point,
+            normal: intersection.face?.normal
+        }).show();
     }
 
     onMiss() {
@@ -397,8 +404,10 @@ export class Pistol extends Weapon implements Firearm {
 export interface PistolParameters extends Md5ModelParameters {
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
+    decalSystem: DecalSystem;
     muzzleSmokeParticleName: string;
     shellDebrisName: string;
+    detonationMarkDecalName: string;
 }
 
 export class PistolState extends WeaponState {

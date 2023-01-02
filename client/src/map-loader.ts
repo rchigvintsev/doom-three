@@ -22,6 +22,8 @@ import {HudFactory} from './entity/hud/hud-factory';
 import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
 import {SpriteTextFactory} from './entity/text/sprite-text-factory';
+import {DecalFactory} from './entity/decal/decal-factory';
+import {DecalSystem} from './decal/decal-system';
 
 export class MapLoader {
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
@@ -40,15 +42,17 @@ export class MapLoader {
             const soundFactory = new SoundFactory({config, assets, audioListener: this.game.audioListener});
             const particleFactory = new ParticleFactory({config, assets, materialFactory});
             const debrisFactory = new DebrisFactory({
-                config: config,
+                config,
                 assets,
                 materialFactory,
                 soundFactory,
                 collisionModelFactory
             });
+            const decalFactory = new DecalFactory({config, assets, materialFactory});
 
             this.initParticleSystem(particleFactory);
             this.initDebrisSystem(debrisFactory);
+            this.initDecalSystem(decalFactory);
 
             const weapons = this.createWeapons(assets, materialFactory, soundFactory);
             const player = this.createPlayer(assets, weapons, soundFactory, collisionModelFactory);
@@ -67,6 +71,10 @@ export class MapLoader {
         this.game.systems.set(GameSystemType.DEBRIS, new DebrisSystem(this.game.scene, debrisFactory, physicsSystem));
     }
 
+    private initDecalSystem(decalFactory: DecalFactory) {
+        this.game.systems.set(GameSystemType.DECAL, new DecalSystem(this.game.config, this.game.scene, decalFactory));
+    }
+
     private createWeapons(assets: GameAssets, materialFactory: MaterialFactory, soundFactory: SoundFactory):
         Map<string, Weapon> {
         const modelFactory = new Md5ModelFactory({
@@ -75,7 +83,8 @@ export class MapLoader {
             materialFactory,
             soundFactory,
             particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
-            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS)
+            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
+            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL)
         });
         const weapons = new Map<string, Weapon>();
         assets.weaponDefs.forEach((weaponDef, weaponName) =>

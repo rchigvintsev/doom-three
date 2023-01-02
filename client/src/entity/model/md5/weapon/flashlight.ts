@@ -1,4 +1,4 @@
-import {AnimationAction, BufferGeometry, Object3D, SpotLight, Texture, Vector3} from 'three';
+import {AnimationAction, BufferGeometry, Mesh, SpotLight, Texture, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -92,7 +92,7 @@ export class Flashlight extends Weapon {
         }
     }
 
-    onHit(_target: Object3D): void {
+    onHit(_target: Mesh): void {
         this.playImpactSound();
     }
 

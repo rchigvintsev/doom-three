@@ -3584,6 +3584,6 @@
     "blendSrc": "gl_zero",
     "blendDst": "gl_one_minus_src_color",
     "polygonOffset": true,
-    "polygonOffsetFactor": -1
+    "polygonOffsetFactor": -2
   }
 ]
