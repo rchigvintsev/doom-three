@@ -16,15 +16,11 @@ export class Debris extends LwoModel implements TangibleEntity {
     onShow?: (debris: Debris) => void;
     onHide?: (debris: Debris) => void;
 
-    private readonly bounceSound: Audio<AudioNode>;
+    private bounceSound?: Audio<AudioNode>;
 
     constructor(parameters: DebrisParameters) {
         super(parameters);
         this.visible = false;
-
-        const bounceSounds = this.getRequiredSounds(parameters, 'bounce');
-        this.bounceSound = bounceSounds[randomInt(0, bounceSounds.length)];
-        this.add(this.bounceSound);
 
         if (parameters.collisionModel) {
             parameters.collisionModel.bodies[0].addEventListener('collide', (e: any) => this.onCollide(e));
@@ -78,15 +74,26 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
+    private initBounceSound() {
+        const bounceSounds = this.getRequiredSounds(<DebrisParameters>this.parameters, 'bounce');
+        this.bounceSound = bounceSounds[randomInt(0, bounceSounds.length)];
+        if (!this.bounceSound.parent) {
+            this.add(this.bounceSound);
+        }
+    }
+
     private playBounceSound(delay?: number) {
-        if (!this.bounceSound.isPlaying) {
-            this.bounceSound.play(delay);
-        } else {
-            this.bounceSound.stop().play(delay);
+        if (this.bounceSound) {
+            if (!this.bounceSound.isPlaying) {
+                this.bounceSound.play(delay);
+            } else {
+                this.bounceSound.stop().play(delay);
+            }
         }
     }
 
     private doShow() {
+        this.initBounceSound();
         this.visible = true;
         this.hide((<DebrisParameters>this.parameters).time);
         if (this.onShow) {
