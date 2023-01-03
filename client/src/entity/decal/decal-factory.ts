@@ -1,4 +1,4 @@
-import {Euler, Mesh, Vector3} from 'three';
+import {Euler, Mesh, MeshBasicMaterial, Vector3} from 'three';
 import {DecalGeometry} from 'three/examples/jsm/geometries/DecalGeometry';
 
 import {Decal} from './decal';
@@ -31,7 +31,11 @@ export class DecalFactory implements EntityFactory<Decal> {
         positionAttr.needsUpdate = true;
 
         const material = this.parameters.materialFactory.create(parentDecalDef.material)[0];
-        return new Decal({geometry, material, time: parentDecalDef.time, fadeOut: parentDecalDef.fadeOut});
+        const decal = new Decal({geometry, material, time: parentDecalDef.time, fadeOut: parentDecalDef.fadeOut});
+        if (this.parameters.config.showWireframe) {
+            decal.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
+        }
+        return decal;
     }
 }
 
