@@ -25,7 +25,7 @@ export class DebrisSystem implements GameSystem {
             };
             this.scene.add(debrisModel);
             this.setDebrisModel(debrisName, debrisModel);
-            console.debug(`Debris model with name "${debrisName}" is created`);
+            console.debug(`Debris model "${debrisName}" is created`);
         }
         return debrisModel;
     }

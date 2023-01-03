@@ -5,15 +5,18 @@ import {EvalFunction} from 'mathjs';
 
 import {UpdatableMaterial, updateOpacity} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
+import {MaterialKind} from './material-kind';
 
 export class UpdatableMeshBasicMaterial extends MeshBasicMaterial implements UpdatableMaterial {
     readonly updatableMaterial = true;
+    readonly kind: MaterialKind;
+    readonly evalScope: any;
 
-    evalScope: any;
     opacityExpression?: EvalFunction;
 
     constructor(parameters?: UpdatableMeshBasicMaterialParameters) {
         super(parameters);
+        this.kind = parameters?.kind || MaterialKind.METAL;
         if (parameters && parameters.evalScope) {
             this.evalScope = {...parameters.evalScope, ...{time: 0}};
         } else {
@@ -50,5 +53,6 @@ export class UpdatableMeshBasicMaterial extends MeshBasicMaterial implements Upd
 }
 
 export interface UpdatableMeshBasicMaterialParameters extends MeshBasicMaterialParameters {
+    kind: MaterialKind;
     evalScope?: any;
 }

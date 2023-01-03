@@ -63,7 +63,7 @@ export class Fists extends Weapon {
     }
 
     onHit(_target: Mesh) {
-        this.playImpactSound();
+        this.playSound('impact');
     }
 
     onMiss() {
@@ -83,15 +83,11 @@ export class Fists extends Weapon {
     }
 
     private playRaiseSound() {
-        this.playFirstSound('raise', 0.1);
-    }
-
-    private playImpactSound() {
-        this.playRandomSound('impact');
+        this.playSound('raise', 0.1);
     }
 
     private playWooshSound() {
-        this.playRandomSound('woosh', 0.1);
+        this.playSound('woosh', 0.1);
     }
 }
 

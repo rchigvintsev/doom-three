@@ -43,7 +43,8 @@
     "sounds": {
       "raise": "fist_raise",
       "woosh": "fist_whoosh",
-      "impact": "monster_zombie_fat_wrench"
+      "impact_metal": "monster_zombie_fat_wrench",
+      "impact_cardboard": "flashlight_impact"
     }
   },
   {
@@ -68,7 +69,9 @@
       "raise": "player_pistol_raise_01",
       "fire": "player_pistol_fire",
       "reload": "player_pistol_reload",
-      "empty": "player_pistol_empty"
+      "empty": "player_pistol_empty",
+      "impact_metal": "bullet_impact_metal",
+      "impact_cardboard": "bullet_impact_cardboard"
     },
     "muzzleSmoke": "muzzlesmoke",
     "shell": "debris_brass",

@@ -29,6 +29,7 @@ import {UpdatableMeshBasicMaterial} from './updatable-mesh-basic-material';
 import {UpdatableMaterial} from './updatable-material';
 import {UpdatableSpriteMaterial} from './updatable-sprite-material';
 import {UpdatableMeshPhongMaterial} from './updatable-mesh-phong-material';
+import {parseMaterialKind} from './material-kind';
 
 export class MaterialFactory {
     constructor(private readonly parameters: MaterialFactoryParameters) {
@@ -67,7 +68,10 @@ export class MaterialFactory {
     }
 
     private createBasicMaterial(materialDef: any): MeshBasicMaterial {
-        const material = new UpdatableMeshBasicMaterial({evalScope: this.parameters.evalScope});
+        const material = new UpdatableMeshBasicMaterial({
+            kind: parseMaterialKind(materialDef.kind),
+            evalScope: this.parameters.evalScope
+        });
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
@@ -143,6 +147,7 @@ export class MaterialFactory {
             uniforms,
             vertexShader: shader.vertexShader,
             fragmentShader: shader.fragmentShader,
+            kind: parseMaterialKind(materialDef.kind),
             evalScope: this.parameters.evalScope
         });
         material.name = materialDef.name;
@@ -153,7 +158,10 @@ export class MaterialFactory {
     }
 
     private createSpriteMaterial(materialDef: any): SpriteMaterial {
-        const material = new UpdatableSpriteMaterial({evalScope: this.parameters.evalScope});
+        const material = new UpdatableSpriteMaterial({
+            kind: parseMaterialKind(materialDef.kind),
+            evalScope: this.parameters.evalScope
+        });
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {
@@ -174,7 +182,10 @@ export class MaterialFactory {
     }
 
     private createPhongMaterial(materialDef: any): MeshPhongMaterial {
-        const material = new UpdatableMeshPhongMaterial({evalScope: this.parameters.evalScope});
+        const material = new UpdatableMeshPhongMaterial({
+            kind: parseMaterialKind(materialDef.kind),
+            evalScope: this.parameters.evalScope
+        });
         material.name = materialDef.name;
 
         if (materialDef.diffuseMap) {

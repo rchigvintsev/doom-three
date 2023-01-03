@@ -1,12 +1,13 @@
-import {AnimationAction, Audio, Material, SkeletonHelper, SkinnedMesh} from 'three';
-
-import {randomInt} from 'mathjs';
+import {AnimationAction, Audio, Material, Mesh, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {GameConfig} from '../../../game-config';
 import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
 import {ModelParameters} from '../model-parameters';
+import {SoundSystem} from '../../../sound/sound-system';
+import {MaterialKind} from '../../../material/material-kind';
+import {isUpdatableMaterial} from '../../../material/updatable-material';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -15,16 +16,11 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     protected previousState?: string;
     protected currentState: string = Md5ModelState.INACTIVE;
 
-    private readonly sounds = new Map<string, Audio<AudioNode>[]>();
     private initialized = false;
     private _wireframeHelper?: Md5ModelWireframeHelper;
 
     constructor(protected readonly parameters: Md5ModelParameters) {
         super(parameters.geometry, parameters.materials);
-        this.parameters = parameters;
-        if (parameters.sounds) {
-            parameters.sounds.forEach((value, key) => this.sounds.set(key, value));
-        }
     }
 
     init() {
@@ -101,36 +97,38 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    protected playFirstSound(soundName: string, delay?: number) {
-        const sounds = this.getRequiredSounds(soundName);
-        if (sounds && sounds.length > 0) {
-            const sound = sounds[0];
-            if (!sound.isPlaying) {
-                sound.play(delay);
-            } else {
-                sound.stop().play(delay);
-            }
+    protected playImpactSound(soundPosition: Vector3, target: Mesh) {
+        const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
+        let materialKind = MaterialKind.METAL;
+        if (isUpdatableMaterial(targetMaterial)) {
+            materialKind = targetMaterial.kind;
         }
+
+        let soundAlias;
+        if (materialKind === MaterialKind.METAL) {
+            soundAlias = 'impact_metal';
+        } else if (materialKind === MaterialKind.CARDBOARD) {
+            soundAlias = 'impact_cardboard';
+        } else {
+            throw new Error('Unsupported material type: ' + materialKind);
+        }
+
+        const sound = this.getRequiredSound(soundAlias);
+        sound.position.copy(soundPosition);
+        target.add(sound);
+        sound.play();
     }
 
-    protected playRandomSound(soundName: string, delay?: number) {
-        const sounds = this.getRequiredSounds(soundName);
-        if (sounds) {
-            const sound = sounds[randomInt(0, sounds.length)];
-            if (!sound.isPlaying) {
-                sound.play(delay);
-            } else {
-                sound.stop().play(delay);
-            }
-        }
+    protected playSound(soundName: string, delay?: number) {
+        this.getRequiredSound(soundName).play(delay);
     }
 
-    protected getRequiredSounds(soundName: string): Audio<AudioNode>[] {
-        const sounds = this.sounds.get(soundName);
-        if (!sounds) {
-            throw new Error(`Sounds "${soundName}" are not found in MD5 model "${this.name}"`);
+    protected getRequiredSound(soundAlias: string): Audio<AudioNode> {
+        const soundName = this.parameters.sounds.get(soundAlias);
+        if (!soundName) {
+            throw new Error(`Sound "${soundAlias}" is not found for MD5 model "${this.name}"`);
         }
-        return sounds;
+        return this.parameters.soundSystem.createSound(soundName);
     }
 
     protected isAnimationRunning(animationName: string): boolean {
@@ -164,7 +162,8 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
 }
 
 export interface Md5ModelParameters extends ModelParameters {
-    sounds?: Map<string, Audio<AudioNode>[]>;
+    sounds: Map<string, string>;
+    soundSystem: SoundSystem;
 }
 
 export class Md5ModelState {

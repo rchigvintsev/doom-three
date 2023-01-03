@@ -3,12 +3,15 @@ import {ShaderMaterialParameters} from 'three/src/materials/ShaderMaterial';
 
 import {UpdatableMaterial} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
+import {MaterialKind} from './material-kind';
 
 export class UpdatableShaderMaterial extends ShaderMaterial implements UpdatableMaterial {
     readonly updatableMaterial = true;
+    readonly kind: MaterialKind;
 
     constructor(parameters?: UpdatableShaderMaterialParameters) {
         super(parameters);
+        this.kind = parameters?.kind || MaterialKind.METAL;
     }
 
     setParameters(params: Map<string, any>) {
@@ -44,5 +47,6 @@ export class UpdatableShaderMaterial extends ShaderMaterial implements Updatable
 }
 
 export interface UpdatableShaderMaterialParameters extends ShaderMaterialParameters {
+    kind: MaterialKind;
     evalScope?: any;
 }

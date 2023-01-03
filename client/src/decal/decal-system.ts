@@ -40,7 +40,7 @@ export class DecalSystem implements GameSystem {
                 orientation: this.decalHelper.rotation
             });
             decal.onHide = d => this.scene.remove(d);
-            console.debug(`Decal with name "${decalDef.name}" is created`);
+            console.debug(`Decal "${decalDef.name}" is created`);
 
             decalDef.target.add(decal);
 

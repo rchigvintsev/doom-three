@@ -23,7 +23,7 @@ export class ParticleSystem implements GameSystem {
             particleGroup.onHide = () => this.setAvailableParticleGroup(particleName, particleGroup!);
             this.setParticleGroup(particleName, particleGroup);
 
-            console.debug(`Group of particles with name "${particleName}" is created`);
+            console.debug(`Group of particles "${particleName}" is created`);
         }
         return particleGroup;
     }

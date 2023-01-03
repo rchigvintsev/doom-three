@@ -131,6 +131,7 @@ export class Pistol extends Weapon implements Firearm {
             position: intersection.point,
             normal: intersection.face?.normal
         }).show();
+        this.playImpactSound(intersection.point, target);
     }
 
     onMiss() {
@@ -346,15 +347,15 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     private playRaiseSound() {
-        this.playFirstSound('raise', 0.1);
+        this.playSound('raise', 0.1);
     }
 
     private playFireSound() {
-        this.playFirstSound('fire');
+        this.playSound('fire');
     }
 
     private playReloadSound() {
-        this.playFirstSound('reload');
+        this.playSound('reload');
     }
 
     private updateAmmoCountersOnReload() {

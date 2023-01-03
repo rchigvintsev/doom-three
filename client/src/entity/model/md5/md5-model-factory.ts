@@ -1,20 +1,9 @@
-import {
-    AnimationClip,
-    Audio,
-    Bone,
-    BufferGeometry,
-    Material,
-    MathUtils,
-    Skeleton,
-    SkeletonHelper,
-    SkinnedMesh
-} from 'three';
+import {AnimationClip, Bone, BufferGeometry, MathUtils, Skeleton, SkeletonHelper, SkinnedMesh} from 'three';
 
 import {Fists} from './weapon/fists';
 import {Md5MeshGeometry} from '../../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
-import {SoundFactory} from '../../sound/sound-factory';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
@@ -23,6 +12,7 @@ import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-fa
 import {DebrisSystem} from '../../../debris/debris-system';
 import {GameAssets} from '../../../game-assets';
 import {DecalSystem} from '../../../decal/decal-system';
+import {SoundSystem} from '../../../sound/sound-system';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(parameters: Md5ModelFactoryParameters) {
@@ -33,9 +23,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         const modelMesh = this.getRequiredModelMesh(modelDef);
         const animations = this.getAnimations(modelDef);
         this.bindPose(modelMesh, animations[0]);
-        const materials = this.createMaterials(modelDef);
-        const sounds = this.createSounds(modelDef);
-        const model = this.createModel(modelDef, modelMesh.geometry, materials, animations, sounds);
+        const model = this.createModel(modelDef, modelMesh.geometry, animations);
         if (this.parameters.config.showWireframe && !this.parameters.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
@@ -65,11 +53,11 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return skeleton;
     }
 
-    private createSounds(modelDef: any): Map<string, Audio<AudioNode>[]> {
-        const sounds = new Map<string, Audio<AudioNode>[]>();
+    private getSounds(modelDef: any): Map<string, string> {
+        const sounds = new Map<string, string>();
         if (modelDef.sounds) {
             for (const soundName of Object.keys(modelDef.sounds)) {
-                sounds.set(soundName, this.soundFactory.create(modelDef.sounds[soundName]));
+                sounds.set(soundName, modelDef.sounds[soundName]);
             }
         }
         return sounds;
@@ -101,20 +89,24 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return new Skeleton(bones);
     }
 
-    private createModel(modelDef: any,
-                        geometry: BufferGeometry,
-                        materials: Material[],
-                        animations: Md5Animation[],
-                        sounds: Map<string, Audio<AudioNode>[]>): Md5Model {
+    private createModel(modelDef: any, geometry: BufferGeometry, animations: Md5Animation[]): Md5Model {
         let model;
         if (modelDef.name === 'fists') {
-            model = new Fists({config: this.parameters.config, geometry, materials, sounds});
+            model = this.createFists(modelDef, geometry);
         } else if (modelDef.name === 'flashlight') {
-            model = this.createFlashlight(geometry, materials, sounds);
+            model = this.createFlashlight(modelDef, geometry);
         } else if (modelDef.name === 'pistol') {
-            model = this.createPistol(modelDef, geometry, materials, sounds);
+            model = this.createPistol(modelDef, geometry);
         } else {
-            model = new Md5Model({config: this.parameters.config, geometry, materials, sounds});
+            const materials = this.createMaterials(modelDef);
+            const sounds = this.getSounds(modelDef);
+            model = new Md5Model({
+                config: this.parameters.config,
+                geometry,
+                materials,
+                sounds,
+                soundSystem: this.soundSystem
+            });
         }
         model.name = modelDef.name;
 
@@ -134,10 +126,32 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return model;
     }
 
-    private createPistol(modelDef: any,
-                         geometry: BufferGeometry,
-                         materials: Material[],
-                         sounds: Map<string, Audio<AudioNode>[]>) {
+    private createFists(modelDef: any, geometry: BufferGeometry) {
+        const materials = this.createMaterials(modelDef);
+        const sounds = this.getSounds(modelDef);
+        return new Fists({config: this.parameters.config, geometry, materials, sounds, soundSystem: this.soundSystem});
+    }
+
+    private createFlashlight(modelDef: any, geometry: BufferGeometry) {
+        const materials = this.createMaterials(modelDef);
+        const sounds = this.getSounds(modelDef);
+        let flashlightMap = undefined;
+        if (!this.parameters.config.renderOnlyWireframe) {
+            flashlightMap = this.parameters.materialFactory.getTexture('lights/flashlight5');
+        }
+        return new Flashlight({
+            config: this.parameters.config,
+            geometry,
+            materials,
+            sounds,
+            lightMap: flashlightMap,
+            soundSystem: this.soundSystem
+        });
+    }
+
+    private createPistol(modelDef: any, geometry: BufferGeometry) {
+        const materials = this.createMaterials(modelDef);
+        const sounds = this.getSounds(modelDef);
         return new Pistol({
             config: this.parameters.config,
             geometry,
@@ -146,18 +160,11 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             particleSystem: this.particleSystem,
             debrisSystem: this.debrisSystem,
             decalSystem: this.decalSystem,
+            soundSystem: this.soundSystem,
             muzzleSmokeParticleName: modelDef.muzzleSmoke,
             shellDebrisName: modelDef.shell,
             detonationMarkDecalName: modelDef.detonationMark
         });
-    }
-
-    private createFlashlight(geometry: BufferGeometry, materials: Material[], sounds: Map<string, Audio<AudioNode>[]>) {
-        let flashlightMap = undefined;
-        if (!this.parameters.config.renderOnlyWireframe) {
-            flashlightMap = this.parameters.materialFactory.getTexture('lights/flashlight5');
-        }
-        return new Flashlight({config: this.parameters.config, geometry, materials, sounds, lightMap: flashlightMap});
     }
 
     private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {
@@ -177,10 +184,6 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return (<Md5ModelFactoryParameters>this.parameters).assets;
     }
 
-    private get soundFactory(): SoundFactory {
-        return (<Md5ModelFactoryParameters>this.parameters).soundFactory;
-    }
-
     private get particleSystem(): ParticleSystem {
         return (<Md5ModelFactoryParameters>this.parameters).particleSystem;
     }
@@ -192,11 +195,15 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     private get decalSystem(): DecalSystem {
         return (<Md5ModelFactoryParameters>this.parameters).decalSystem;
     }
+
+    private get soundSystem(): SoundSystem {
+        return (<Md5ModelFactoryParameters>this.parameters).soundSystem;
+    }
 }
 
 export interface Md5ModelFactoryParameters extends ModelFactoryParameters {
-    soundFactory: SoundFactory;
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
+    soundSystem: SoundSystem;
 }

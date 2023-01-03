@@ -1,4 +1,4 @@
-import {AnimationAction, BufferGeometry, Mesh, SpotLight, Texture, Vector3} from 'three';
+import {AnimationAction, BufferGeometry, Intersection, Mesh, SpotLight, Texture, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -92,8 +92,8 @@ export class Flashlight extends Weapon {
         }
     }
 
-    onHit(_target: Mesh): void {
-        this.playImpactSound();
+    onHit(target: Mesh, intersection: Intersection) {
+        this.playImpactSound(intersection.point, target);
     }
 
     onMiss(): void {
@@ -190,15 +190,11 @@ export class Flashlight extends Weapon {
     }
 
     private playRaiseSound() {
-        this.playFirstSound('raise', 0.1);
-    }
-
-    private playImpactSound() {
-        this.playRandomSound('impact');
+        this.playSound('raise', 0.1);
     }
 
     private playWooshSound() {
-        this.playRandomSound('woosh', 0.1);
+        this.playSound('woosh', 0.1);
     }
 }
 

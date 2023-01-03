@@ -1013,6 +1013,7 @@
   },
   {
     "name": "textures/object/a_sopbox2_d01",
+    "kind": "cardboard",
     "diffuseMap": "textures/object/a_sopbox2_d01",
     "specularMap": "textures/object/a_sopbox2_s01",
     "normalMap": {

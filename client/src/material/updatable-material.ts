@@ -1,6 +1,8 @@
 import {EvalFunction} from 'mathjs';
+import {MaterialKind} from './material-kind';
 
 export interface UpdatableMaterial {
+    kind: MaterialKind;
     evalScope?: any;
     transparent: boolean;
     opacity: number;

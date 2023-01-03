@@ -107,6 +107,37 @@
     ]
   },
   {
+    "name": "flashlight_impact",
+    "type": "positional",
+    "sources": [
+      "sound/weapons/flashlight/impact_01.wav",
+      "sound/weapons/flashlight/impact_02.wav",
+      "sound/weapons/flashlight/impact_03.wav",
+      "sound/weapons/flashlight/impact_04.wav",
+      "sound/weapons/flashlight/impact_05.wav"
+    ]
+  },
+  {
+    "name": "bullet_impact_metal",
+    "type": "positional",
+    "volume": 0.6,
+    "sources": [
+      "sound/weapons/impacts/bullet_metal/metalimpact_02.wav",
+      "sound/weapons/impacts/bullet_metal/metalimpact_04.wav",
+      "sound/weapons/impacts/bullet_metal/metalimpact_05.wav"
+    ]
+  },
+  {
+    "name": "bullet_impact_cardboard",
+    "type": "positional",
+    "sources": [
+      "sound/xian/foley_sessions/boxes/boxpunch_01.ogg",
+      "sound/xian/foley_sessions/boxes/boxpunch_06.ogg",
+      "sound/xian/foley_sessions/boxes/boxpunch_10.ogg",
+      "sound/xian/foley_sessions/boxes/boxpunch_11.ogg"
+    ]
+  },
+  {
     "name": "monster_zombie_fat_wrench",
     "type": "plain",
     "sources": [
