@@ -37,7 +37,7 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
     }
 
     onAttack(intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
-        this.collisionModel.onAttack(this.worldToLocal(intersection.point), forceVector, weapon);
+        this.collisionModel.onAttack(intersection.point, forceVector, weapon);
         weapon.onHit(this, intersection);
     }
 

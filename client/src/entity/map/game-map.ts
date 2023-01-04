@@ -69,8 +69,7 @@ export class GameMap extends Group implements TangibleEntity {
         this.raycaster.far = e.distance;
         this.raycaster.setFromCamera(this.mouseCoords, this.player.camera);
 
-        this.player.camera.getWorldDirection(this.forceVector);
-        this.forceVector.negate().multiplyScalar(e.force);
+        this.forceVector.unproject(this.player.camera).multiplyScalar(e.force).negate();
 
         const intersections = this.raycaster.intersectObjects(this.areas);
         for (const intersection of intersections) {

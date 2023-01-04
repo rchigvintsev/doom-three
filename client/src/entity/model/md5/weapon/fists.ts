@@ -6,7 +6,7 @@ import {Weapon, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Md5ModelParameters} from '../md5-model';
 
-const PUNCH_FORCE = 50;
+const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
 
 export class Fists extends Weapon {

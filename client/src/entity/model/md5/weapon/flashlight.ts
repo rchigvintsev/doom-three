@@ -8,7 +8,7 @@ import {Player} from '../../../player/player';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {Md5ModelParameters} from '../md5-model';
 
-const PUNCH_FORCE = 50;
+const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
 
 const LIGHT_INTENSITY = 2.0;

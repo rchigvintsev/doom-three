@@ -11,9 +11,6 @@ export class CollisionModel {
     private position = new Vector3();
     private quaternion = new Quaternion();
 
-    private readonly hitPoint = new Vec3();
-    private readonly forceVector = new Vec3();
-
     constructor(readonly bodies: CollisionModelBody[]) {
     }
 
@@ -81,23 +78,28 @@ export class CollisionModel {
 
     onAttack(hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
         if (this.hasMass()) {
-            this.applyForce(forceVector, hitPoint);
+            this.applyImpulse(forceVector, hitPoint);
         }
     }
 
-    applyForce(forceVector: Vector3, relativePoint?: Vector3) {
-        const body = this.getFirstBody();
-        if (body) {
-            body.wakeUp();
-            this.forceVector.set(forceVector.x, forceVector.y, forceVector.z);
-            if (relativePoint) {
-                this.hitPoint.set(relativePoint.x, relativePoint.y, relativePoint.z);
-                body.applyForce(this.forceVector, this.hitPoint);
-            } else {
-                body.applyForce(this.forceVector);
+    applyImpulse = (() => {
+        const cannonImpulse = new Vec3();
+        const cannonRelativePoint = new Vec3();
+
+        return (impulse: Vector3, relativePoint?: Vector3) => {
+            const body = this.getFirstBody();
+            if (body) {
+                body.wakeUp();
+                cannonImpulse.set(impulse.x, impulse.y, impulse.z);
+                if (relativePoint) {
+                    cannonRelativePoint.set(relativePoint.x, relativePoint.y, relativePoint.z);
+                    body.applyImpulse(cannonImpulse, cannonRelativePoint);
+                } else {
+                    body.applyImpulse(cannonImpulse);
+                }
             }
-        }
-    }
+        };
+    })();
 
     private getFirstBody(): CollisionModelBody | undefined {
         return this.bodies.length > 0 ? this.bodies[0] : undefined;

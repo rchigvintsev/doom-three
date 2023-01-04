@@ -19,6 +19,8 @@ const FIRE_FLASH_DURATION_MILLIS = 120;
 const FIRE_FLASH_COLOR = 0xffcc66;
 const FIRE_FLASH_DISTANCE = 120;
 const MAX_AMMO_RESERVE = 348;
+const BULLET_FORCE = 5;
+const ATTACK_DISTANCE = 1000;
 
 export class Pistol extends Weapon implements Firearm {
     readonly firearm = true;
@@ -96,7 +98,7 @@ export class Pistol extends Weapon implements Firearm {
                 this.lastFireTime = performance.now();
                 this.showMuzzleSmoke();
                 this.ejectShell();
-                this.dispatchEvent(new AttackEvent(this, 1000, 0));
+                this.dispatchEvent(new AttackEvent(this, ATTACK_DISTANCE, BULLET_FORCE));
             }
         }
     }
@@ -123,16 +125,19 @@ export class Pistol extends Weapon implements Firearm {
         }
     }
 
-    onHit(target: Mesh, intersection: Intersection) {
-        const pistolParams = <PistolParameters>this.parameters;
-        pistolParams.decalSystem.createDecal({
-            name: pistolParams.detonationMarkDecalName,
-            target,
-            position: intersection.point,
-            normal: intersection.face?.normal
-        }).show();
-        this.playImpactSound(intersection.point, target);
-    }
+    onHit = (() => {
+        const decalPosition = new Vector3();
+        return (target: Mesh, intersection: Intersection) => {
+            const pistolParams = <PistolParameters>this.parameters;
+            pistolParams.decalSystem.createDecal({
+                name: pistolParams.detonationMarkDecalName,
+                target,
+                position: target.worldToLocal(decalPosition.copy(intersection.point)),
+                normal: intersection.face?.normal
+            }).show();
+            this.playImpactSound(intersection.point, target);
+        };
+    })();
 
     onMiss() {
         // Do nothing
@@ -326,9 +331,9 @@ export class Pistol extends Weapon implements Firearm {
                 .multiply(xAngleAdjustment));
             debris.quaternion.copy(shellQuaternion);
 
-            collisionModel.applyForce(forceVector
+            collisionModel.applyImpulse(forceVector
                 .subVectors(shellTargetPosition.setFromMatrixPosition(this.shellTarget.matrixWorld), shellPosition)
-                .multiplyScalar(5.0));
+                .multiplyScalar(0.1));
 
             debris.show(100);
         };
