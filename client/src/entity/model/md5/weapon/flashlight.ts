@@ -43,6 +43,7 @@ export class Flashlight extends Weapon {
             this.light.angle = LIGHT_ANGLE;
             this.light.decay = LIGHT_DECAY;
             (<any>this.light).map = parameters.lightMap;
+            this.light.shadow.camera.near = 0.01;
 
             this.add(this.light);
             this.add(this.light.target);
