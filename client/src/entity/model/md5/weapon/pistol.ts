@@ -375,7 +375,7 @@ export class Pistol extends Weapon implements Firearm {
 
             collisionModel.applyImpulse(forceVector
                 .subVectors(shellTargetPosition.setFromMatrixPosition(this.shellTarget.matrixWorld), shellPosition)
-                .multiplyScalar(0.1));
+                .multiplyScalar(0.08));
 
             debris.show(100);
         };
