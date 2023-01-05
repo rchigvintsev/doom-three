@@ -200,12 +200,15 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             context.modelsToLoad.add(weaponDef.model);
             if (!this.config.renderOnlyWireframe) {
                 const materials = [...weaponDef.materials];
-                if (weaponDef.muzzleSmoke) {
-                    const particleDef = assets.particleDefs.get(weaponDef.muzzleSmoke);
-                    if (!particleDef) {
-                        console.error(`Definition of particle "${weaponDef.muzzleSmoke}" is not found`);
-                    } else {
-                        materials.push(particleDef.material);
+                const particleNames = [weaponDef.muzzleSmoke, weaponDef.detonationSmoke, weaponDef.detonationSpark];
+                for (const particleName of particleNames) {
+                    if (particleName) {
+                        const particleDef = assets.particleDefs.get(particleName);
+                        if (!particleDef) {
+                            console.error(`Definition of particle "${particleName}" is not found`);
+                        } else {
+                            materials.push(particleDef.material);
+                        }
                     }
                 }
                 if (weaponDef.detonationMark) {

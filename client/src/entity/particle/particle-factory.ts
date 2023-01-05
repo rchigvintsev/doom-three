@@ -28,10 +28,13 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
             particleMaterial.color.setHex(particleDef.color);
 
             const worldScale = this.parameters.config.worldScale;
-            const gravity = new Vector2(
-                particleDef.gravity[0] * GRAVITY_FACTOR * worldScale,
-                -particleDef.gravity[1] * GRAVITY_FACTOR * worldScale
-            );
+            const gravity = new Vector2();
+            if (particleDef.gravity) {
+                gravity.set(
+                    particleDef.gravity[0] * GRAVITY_FACTOR * worldScale,
+                    -particleDef.gravity[1] * GRAVITY_FACTOR * worldScale
+                );
+            }
 
             particles.push(new Particle({
                 material: particleMaterial,

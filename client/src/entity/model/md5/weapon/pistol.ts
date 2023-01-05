@@ -13,6 +13,8 @@ import {Particle} from '../../../particle/particle';
 import {DebrisSystem} from '../../../../debris/debris-system';
 import {Firearm} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
+import {isUpdatableMaterial} from '../../../../material/updatable-material';
+import {MaterialKind} from '../../../../material/material-kind';
 
 const AMMO_CLIP_SIZE = 12;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -136,6 +138,11 @@ export class Pistol extends Weapon implements Firearm {
                 normal: intersection.face?.normal
             }).show();
             this.playImpactSound(intersection.point, target);
+            this.showDetonationSmoke(intersection);
+            const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
+            if (isUpdatableMaterial(targetMaterial) && targetMaterial.kind === MaterialKind.METAL) {
+                this.showDetonationSpark(intersection);
+            }
         };
     })();
 
@@ -214,6 +221,14 @@ export class Pistol extends Weapon implements Firearm {
 
     private get muzzleSmokeParticleName(): string {
         return (<PistolParameters>this.parameters).muzzleSmokeParticleName;
+    }
+
+    private get detonationSmokeParticleName(): string {
+        return (<PistolParameters>this.parameters).detonationSmokeParticleName;
+    }
+
+    private get detonationSparkParticleName(): string {
+        return (<PistolParameters>this.parameters).detonationSparkParticleName;
     }
 
     private get shellDebrisName(): string {
@@ -306,6 +321,33 @@ export class Pistol extends Weapon implements Firearm {
             smokeParticles.show();
         }
     }
+
+    private showDetonationSmoke(intersection: Intersection) {
+        this.showDetonationParticle(this.detonationSmokeParticleName, intersection);
+    }
+
+    private showDetonationSpark(intersection: Intersection) {
+        this.showDetonationParticle(this.detonationSparkParticleName, intersection);
+    }
+
+    private showDetonationParticle = (() => {
+        const particleOffset = new Vector3();
+        return (particleName: string, intersection: Intersection) => {
+            if (!this.config.renderOnlyWireframe) {
+                const particles = this.particleSystem.createParticles(particleName);
+                particles.onShowParticle = particle => {
+                    particle.position.copy(intersection.point);
+                    if (intersection.face) {
+                        particle.position.add(particleOffset
+                            .copy(intersection.face.normal)
+                            .negate()
+                            .multiplyScalar(2 * this.config.worldScale));
+                    }
+                };
+                particles.show();
+            }
+        };
+    })();
 
     private ejectShell = (() => {
         const shellPosition = new Vector3();
@@ -414,6 +456,8 @@ export interface PistolParameters extends Md5ModelParameters {
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
     muzzleSmokeParticleName: string;
+    detonationSmokeParticleName: string;
+    detonationSparkParticleName: string;
     shellDebrisName: string;
     detonationMarkDecalName: string;
 }

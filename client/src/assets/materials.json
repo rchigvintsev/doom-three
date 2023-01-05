@@ -3436,6 +3436,21 @@
     "depthWrite": false
   },
   {
+    "name": "barrelPoof",
+    "type": "sprite",
+    "diffuseMap": "textures/particles/barrelpoof",
+    "depthWrite": false,
+    "depthTest": false
+  },
+  {
+    "name": "boomBoom3",
+    "type": "sprite",
+    "diffuseMap": "textures/particles/boomboom3",
+    "blending": "additive",
+    "depthWrite": false,
+    "depthTest": false
+  },
+  {
     "name": "models/weapons/shell1/mshell",
     "diffuseMap": "models/weapons/shell1/mshell",
     "normalMap": "models/weapons/shell1/mshell_local",

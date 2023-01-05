@@ -162,6 +162,8 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             decalSystem: this.decalSystem,
             soundSystem: this.soundSystem,
             muzzleSmokeParticleName: modelDef.muzzleSmoke,
+            detonationSmokeParticleName: modelDef.detonationSmoke,
+            detonationSparkParticleName: modelDef.detonationSpark,
             shellDebrisName: modelDef.shell,
             detonationMarkDecalName: modelDef.detonationMark
         });

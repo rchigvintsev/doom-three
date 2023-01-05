@@ -75,6 +75,8 @@
     },
     "muzzleSmoke": "muzzlesmoke",
     "shell": "debris_brass",
-    "detonationMark": "bulleth02"
+    "detonationMark": "bulleth02",
+    "detonationSmoke": "bulletsmoke",
+    "detonationSpark": "bulletspark"
   }
 ]

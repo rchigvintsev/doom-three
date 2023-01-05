@@ -13,5 +13,33 @@
     "interval": 50,
     "color": "0x333333",
     "gravity": [0, -10]
+  },
+  {
+    "name": "bulletsmoke",
+    "count": 3,
+    "material": "barrelPoof",
+    "time": 1100,
+    "scale": {
+      "from": 2,
+      "to": 5
+    },
+    "fadeIn": 0.1,
+    "fadeOut": 0.7,
+    "interval": 100,
+    "color": "0x312924"
+  },
+  {
+    "name": "bulletspark",
+    "count": 2,
+    "material": "boomBoom3",
+    "time": 150,
+    "scale": {
+      "from": 0,
+      "to": 6.5
+    },
+    "fadeIn": 0,
+    "fadeOut": 0.6,
+    "interval": 50,
+    "color": "0xdfe973"
   }
 ]
