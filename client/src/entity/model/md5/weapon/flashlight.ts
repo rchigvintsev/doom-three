@@ -1,6 +1,4 @@
-import {AnimationAction, BufferGeometry, Intersection, Mesh, SpotLight, Texture, Vector3} from 'three';
-
-import {randomInt} from 'mathjs';
+import {BufferGeometry, Intersection, Mesh, SpotLight, Texture, Vector3} from 'three';
 
 import {Weapon, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
@@ -18,7 +16,6 @@ const LIGHT_DECAY = 0;
 
 export class Flashlight extends Weapon {
     private readonly attackDistance!: number;
-    private readonly punchAnimationActionNames = ['swing1', 'swing2'];
 
     private readonly bone5Position = new Vector3();
     private readonly bone6Position = new Vector3();
@@ -28,8 +25,6 @@ export class Flashlight extends Weapon {
     private readonly lightPosition?: Vector3;
     private readonly lightTargetPosition?: Vector3;
     private readonly shadowCameraUp ?: Vector3;
-
-    private lastPunchAnimationAction?: AnimationAction;
 
     constructor(parameters: FlashlightParameters) {
         super(parameters);
@@ -66,9 +61,8 @@ export class Flashlight extends Weapon {
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.animateCrossFade('raise', 'idle', 0.40);
+            this.startAnimationFlow('enable');
             this.changeState(FlashlightState.RAISING);
-            this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
     }
@@ -76,7 +70,7 @@ export class Flashlight extends Weapon {
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.animateCrossFade('idle', 'lower', 0.25);
+            this.startAnimationFlow('disable');
             this.changeState(FlashlightState.LOWERING);
             // Weapon visibility will be changed on "lower" animation finish
         }
@@ -84,11 +78,8 @@ export class Flashlight extends Weapon {
 
     attack(): void {
         if (this.canAttack()) {
-            const nextPunchActionIndex = randomInt(0, this.punchAnimationActionNames.length);
-            const nextPunchActionName = this.punchAnimationActionNames[nextPunchActionIndex];
-            this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
+            this.startAnimationFlow('attack');
             this.changeState(FlashlightState.PUNCHING);
-            this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
     }
@@ -97,14 +88,18 @@ export class Flashlight extends Weapon {
         this.playImpactSound(intersection.point, target);
     }
 
-    onMiss(): void {
+    onMiss() {
         this.playWooshSound();
+    }
+
+    protected doInit() {
+        super.doInit();
+        this.initAnimationFlows();
     }
 
     protected updateState() {
         super.updateState();
-        if (this.currentState === FlashlightState.PUNCHING
-            && (!this.lastPunchAnimationAction || !this.lastPunchAnimationAction.isRunning())) {
+        if (this.currentState === FlashlightState.PUNCHING && !this.isAnyAnimationRunning('swing1', 'swing2')) {
             this.changeState(FlashlightState.IDLE);
         }
     }
@@ -163,6 +158,18 @@ export class Flashlight extends Weapon {
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
     })();
+
+    private initAnimationFlows() {
+        this.addAnimationFlow('enable', this.animate('raise')
+            .onStart(() => this.playRaiseSound())
+            .thenCrossFadeTo('idle')
+            .withDuration(0.4).flow);
+        this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('lower').withDuration(0.25).flow);
+        this.addAnimationFlow('attack', this.animateAny('swing1', 'swing2')
+            .thenCrossFadeTo('idle')
+            .withFadeOutDuration(0.625)
+            .withFadeInDuration(1.875).flow);
+    }
 
     private updateLight() {
         if (this.visible && !this.config.renderOnlyWireframe) {

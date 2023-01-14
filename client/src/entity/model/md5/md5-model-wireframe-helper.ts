@@ -1,9 +1,12 @@
 import {BufferGeometry, MeshBasicMaterial, SkinnedMesh} from 'three';
-import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
+
+import {FluentAnimationMixer} from '../../../animation/fluent-animation-mixer';
+import {AnimationFlow} from '../../../animation/flow/animation-flow';
 
 export class Md5ModelWireframeHelper extends SkinnedMesh {
-    private animationMixer?: CustomAnimationMixer;
+    private animationMixer!: FluentAnimationMixer;
     private initialized = false;
+    private readonly animationFlows = new Map<string, AnimationFlow>();
 
     constructor(geometry: BufferGeometry) {
         super(geometry, new MeshBasicMaterial({wireframe: true}));
@@ -11,37 +14,20 @@ export class Md5ModelWireframeHelper extends SkinnedMesh {
 
     init() {
         if (!this.initialized) {
-            if (this.animations) {
-                this.animationMixer = new CustomAnimationMixer(this);
-            }
+            this.animationMixer = new FluentAnimationMixer(this);
             this.initialized = true;
         }
     }
 
+    addAnimation(name: string, flow: AnimationFlow) {
+        this.animationFlows.set(name, flow.clone(this.animationMixer));
+    }
+
+    playAnimation(name: string) {
+        this.animationFlows.get(name)?.start();
+    }
+
     update(deltaTime: number) {
-        if (this.animationMixer) {
-            this.animationMixer.update(deltaTime);
-        }
-    }
-
-    animateCrossFade(startActionName: string, endActionName: string, duration = 1) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFade(startActionName, endActionName, duration);
-        }
-    }
-
-    animateCrossFadeAsync(startActionName: string,
-                          endActionName: string,
-                          fadeOutDuration: number,
-                          fadeInDuration: number) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFadeAsync(startActionName, endActionName, fadeOutDuration, fadeInDuration);
-        }
-    }
-
-    animateCrossFadeDelayed(startActionName: string, endActionName: string, delay: number, duration?: number) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFadeDelayed(startActionName, endActionName, delay, duration);
-        }
+        this.animationMixer.update(deltaTime);
     }
 }

@@ -1,13 +1,15 @@
-export interface Firearm {
-    getAmmoClip(): number;
+import {Weapon} from './weapon';
 
-    getAmmoReserve(): number;
+export abstract class Firearm extends Weapon {
+    abstract getAmmoClip(): number;
 
-    isLowAmmo(): boolean;
+    abstract getAmmoReserve(): number;
 
-    reload(): void;
+    abstract isLowAmmo(): boolean;
+
+    abstract reload(): void;
 }
 
 export function isFirearm(weapon: any): weapon is Firearm {
-    return weapon && weapon.firearm;
+    return weapon instanceof Firearm;
 }

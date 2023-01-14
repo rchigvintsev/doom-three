@@ -1,6 +1,4 @@
-import {AnimationAction, Mesh} from 'three';
-
-import {randomInt} from 'mathjs';
+import {Mesh} from 'three';
 
 import {Weapon, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
@@ -11,24 +9,17 @@ const ATTACK_DISTANCE = 30;
 
 export class Fists extends Weapon {
     private readonly attackDistance: number;
-    private readonly punchAnimationActionNames = new Map<Hand, string[]>();
-
-    private lastPunchingHand = Hand.LEFT;
-    private lastPunchAnimationAction?: AnimationAction;
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
         this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
-        this.punchAnimationActionNames.set(Hand.LEFT, ['berserk_punch1', 'berserk_punch3']);
-        this.punchAnimationActionNames.set(Hand.RIGHT, ['berserk_punch2', 'berserk_punch4']);
     }
 
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.animateCrossFade('raise', 'idle', 0.40);
+            this.startAnimationFlow('enable');
             this.changeState(FistsState.RAISING);
-            this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
     }
@@ -36,7 +27,7 @@ export class Fists extends Weapon {
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.animateCrossFade('idle', 'lower', 0.25);
+            this.startAnimationFlow('disable');
             this.changeState(FistsState.LOWERING);
             // Weapon visibility will be changed on "lower" animation finish
         }
@@ -44,20 +35,8 @@ export class Fists extends Weapon {
 
     attack() {
         if (this.canAttack()) {
-            const nextPunchingHand = (this.lastPunchingHand + 1) % 2;
-            const punchActionNames = this.punchAnimationActionNames.get(nextPunchingHand)!;
-            const nextPunchActionName = punchActionNames[randomInt(0, punchActionNames.length)];
-
-            this.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
+            this.startAnimationFlow('attack');
             this.changeState(FistsState.PUNCHING);
-
-            this.lastPunchAnimationAction = this.getAnimationAction(nextPunchActionName);
-            this.lastPunchingHand = nextPunchingHand;
-
-            if (this.wireframeHelper) {
-                this.wireframeHelper.animateCrossFadeAsync(nextPunchActionName, 'idle', 0.625, 1.875);
-            }
-
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, PUNCH_FORCE));
         }
     }
@@ -70,12 +49,28 @@ export class Fists extends Weapon {
         this.playWooshSound();
     }
 
+    protected doInit() {
+        super.doInit();
+        this.initAnimationFlows();
+    }
+
     protected updateState() {
         super.updateState();
         if (this.currentState === FistsState.PUNCHING
-            && (!this.lastPunchAnimationAction || !this.lastPunchAnimationAction.isRunning())) {
+            && !this.isAnyAnimationRunning('berserk_punch1', 'berserk_punch2', 'berserk_punch3', 'berserk_punch4')) {
             this.changeState(FistsState.IDLE);
         }
+    }
+
+    private initAnimationFlows() {
+        this.addAnimationFlow('enable', this.animate('raise')
+            .onStart(() => this.playRaiseSound())
+            .thenCrossFadeTo('idle')
+            .withDuration(0.4).flow);
+        this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('lower').withDuration(0.25).flow);
+        this.addAnimationFlow('attack', this.animateAny('berserk_punch2', 'berserk_punch4')
+            .alternateWith(this.animateAny('berserk_punch1', 'berserk_punch3'))
+            .thenCrossFadeTo('idle').withFadeOutDuration(0.625).withFadeInDuration(1.875).flow);
     }
 
     private canAttack() {
@@ -93,8 +88,4 @@ export class Fists extends Weapon {
 
 export class FistsState extends WeaponState {
     static readonly PUNCHING = 'punching';
-}
-
-enum Hand {
-    LEFT, RIGHT
 }

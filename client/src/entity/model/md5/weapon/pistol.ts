@@ -3,7 +3,7 @@ import {BufferGeometry, Intersection, MathUtils, Matrix4, Mesh, Object3D, PointL
 import {randomInt} from 'mathjs';
 
 import {Md5ModelParameters} from '../md5-model';
-import {Weapon, WeaponState} from './weapon';
+import {WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
@@ -24,9 +24,7 @@ const MAX_AMMO_RESERVE = 348;
 const BULLET_FORCE = 5;
 const ATTACK_DISTANCE = 1000;
 
-export class Pistol extends Weapon implements Firearm {
-    readonly firearm = true;
-
+export class Pistol extends Firearm {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
 
     private shellTarget!: Object3D;
@@ -61,9 +59,8 @@ export class Pistol extends Weapon implements Firearm {
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.animateCrossFadeDelayed('raise', 'idle', 0.50);
+            this.startAnimationFlow('enable');
             this.changeState(PistolState.RAISING);
-            this.playRaiseSound();
             // Weapon visibility will be changed on next rendering step
         }
     }
@@ -71,7 +68,7 @@ export class Pistol extends Weapon implements Firearm {
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.animateCrossFade('idle', 'put_away', 0.25);
+            this.startAnimationFlow('disable');
             this.changeState(PistolState.LOWERING);
             // Weapon visibility will be changed on "put_away" animation finish
         }
@@ -80,23 +77,12 @@ export class Pistol extends Weapon implements Firearm {
     attack() {
         if (this.canAttack()) {
             if (this.ammoClip === 0) {
-                if (this.canReload()) {
-                    this.animateCrossFade('idle_empty', 'reload_empty', 0.5);
-                    this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
-                    this.changeState(PistolState.RELOADING);
-                    this.playReloadSound();
-                }
+                this.reload();
             } else {
                 this.showFireFlash();
-                this.animateCrossFade('idle', 'fire1', 0.1);
-                if (this.ammoClip > 1) {
-                    this.animateCrossFadeDelayed('fire1', 'idle', 0.3);
-                } else {
-                    this.animateCrossFadeDelayed('fire1', 'idle_empty', 0.2);
-                }
+                this.startAnimationFlow('attack');
                 this.ammoClip--;
                 this.changeState(PistolState.SHOOTING);
-                this.playFireSound();
                 this.lastFireTime = performance.now();
                 this.showMuzzleSmoke();
                 this.ejectShell();
@@ -118,12 +104,9 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     reload(): void {
-        if (this.canReload() && this.ammoClip < AMMO_CLIP_SIZE) {
-            const idleAnimationName = this.ammoClip === 0 ? 'idle_empty' : 'idle';
-            this.animateCrossFade(idleAnimationName, 'reload_empty', 0.5);
-            this.animateCrossFadeDelayed('reload_empty', 'idle', 1.85);
+        if (this.canReload()) {
+            this.startAnimationFlow('reload');
             this.changeState(PistolState.RELOADING);
-            this.playReloadSound();
         }
     }
 
@@ -152,6 +135,7 @@ export class Pistol extends Weapon implements Firearm {
 
     protected doInit() {
         super.doInit();
+        this.initAnimationFlows();
 
         this.shellTarget = new Object3D();
         this.shellTarget.position.copy(new Vector3()
@@ -163,17 +147,17 @@ export class Pistol extends Weapon implements Firearm {
     protected updateState() {
         switch (this.currentState) {
             case PistolState.LOWERING:
-                if (!this.isAnimationRunning('put_away')) {
+                if (!this.isAnyAnimationRunning('put_away')) {
                     this.changeState(PistolState.INACTIVE);
                 }
                 break;
             case PistolState.SHOOTING:
-                if (!this.isAnimationRunning('fire1')) {
+                if (!this.isAnyAnimationRunning('fire1')) {
                     this.changeState(PistolState.IDLE);
                 }
                 break;
             case PistolState.RELOADING:
-                if (!this.isAnimationRunning('reload_empty')) {
+                if (!this.isAnyAnimationRunning('reload_empty')) {
                     this.changeState(PistolState.IDLE);
                 }
                 break;
@@ -237,6 +221,21 @@ export class Pistol extends Weapon implements Firearm {
 
     private setMuzzleSmokeParticlePosition(particle: Particle) {
         return particle.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+    }
+
+    private initAnimationFlows() {
+        this.addAnimationFlow('enable', this.animate('raise')
+            .onStart(() => this.playRaiseSound())
+            .thenCrossFadeTo('idle').withDelay(0.5).flow);
+        this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('put_away').withDuration(0.25).flow);
+        this.addAnimationFlow('attack', this.animate('idle')
+            .thenCrossFadeTo('fire1').withDuration(0.1).onStart(() => this.playFireSound())
+            .thenIf(() => this.ammoClip > 1, this.animate('fire1').thenCrossFadeTo('idle').withDelay(0.3))
+            .else(this.animate('fire1').thenCrossFadeTo('idle_empty').withDelay(0.2)).flow);
+        this.addAnimationFlow('reload', this.animateIf(() => this.ammoClip === 0, 'idle_empty')
+            .else(this.animate('idle'))
+            .thenCrossFadeTo('reload_empty').withDuration(0.5).onStart(() => this.playReloadSound())
+            .thenCrossFadeTo('idle').withDelay(1.85).flow);
     }
 
     private initFireFlash() {
@@ -386,7 +385,7 @@ export class Pistol extends Weapon implements Firearm {
     }
 
     private canReload() {
-        return this.ammoReserve > 0 && this.isIdle();
+        return this.ammoClip < AMMO_CLIP_SIZE && this.ammoReserve > 0 && this.isIdle();
     }
 
     private isIdle() {
@@ -458,8 +457,8 @@ export interface PistolParameters extends Md5ModelParameters {
     muzzleSmokeParticleName: string;
     detonationSmokeParticleName: string;
     detonationSparkParticleName: string;
-    shellDebrisName: string;
     detonationMarkDecalName: string;
+    shellDebrisName: string;
 }
 
 export class PistolState extends WeaponState {

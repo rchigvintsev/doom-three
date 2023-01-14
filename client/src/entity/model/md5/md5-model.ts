@@ -1,23 +1,28 @@
-import {AnimationAction, Audio, Material, Mesh, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
+import {Audio, Material, Mesh, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {GameConfig} from '../../../game-config';
-import {CustomAnimationMixer} from '../../../animation/custom-animation-mixer';
+import {FluentAnimationMixer} from '../../../animation/fluent-animation-mixer';
 import {ModelParameters} from '../model-parameters';
 import {SoundSystem} from '../../../sound/sound-system';
 import {MaterialKind} from '../../../material/material-kind';
 import {isUpdatableMaterial} from '../../../material/updatable-material';
+import {AnyAnimationFlowStep} from '../../../animation/flow/any-animation-flow-step';
+import {AnimationFlow} from '../../../animation/flow/animation-flow';
+import {ConditionalAnimationFlowStep} from '../../../animation/flow/conditional-animation-flow-step';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
 
-    protected animationMixer?: CustomAnimationMixer;
+    protected animationMixer!: FluentAnimationMixer;
     protected previousState?: string;
     protected currentState: string = Md5ModelState.INACTIVE;
 
     private initialized = false;
     private _wireframeHelper?: Md5ModelWireframeHelper;
+
+    private readonly animationFlows = new Map<string, AnimationFlow>();
 
     constructor(protected readonly parameters: Md5ModelParameters) {
         super(parameters.geometry, parameters.materials);
@@ -31,9 +36,7 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     }
 
     update(deltaTime: number) {
-        if (this.animationMixer) {
-            this.animationMixer.update(deltaTime);
-        }
+        this.animationMixer.update(deltaTime);
         if (this._wireframeHelper) {
             this._wireframeHelper.update(deltaTime);
         }
@@ -57,43 +60,36 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    animateCrossFade(startActionName: string, endActionName: string, duration = 1) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFade(startActionName, endActionName, duration);
-            if (this._wireframeHelper) {
-                this._wireframeHelper.animateCrossFade(startActionName, endActionName, duration);
-            }
-        }
+    protected animate(actionName: string): AnyAnimationFlowStep {
+        return this.animationMixer.animate(actionName);
     }
 
-    animateCrossFadeAsync(startActionName: string,
-                          endActionName: string,
-                          fadeOutDuration: number,
-                          fadeInDuration: number) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFadeAsync(startActionName, endActionName, fadeOutDuration, fadeInDuration);
-            if (this._wireframeHelper) {
-                this._wireframeHelper.animateCrossFadeAsync(startActionName, endActionName, fadeOutDuration,
-                    fadeInDuration);
-            }
-        }
+    protected animateAny(...actionNames: string[]): AnyAnimationFlowStep {
+        return this.animationMixer.animateAny(...actionNames);
     }
 
-    animateCrossFadeDelayed(startActionName: string, endActionName: string, delay: number, duration?: number) {
-        if (this.animationMixer) {
-            this.animationMixer.crossFadeDelayed(startActionName, endActionName, delay, duration);
-            if (this._wireframeHelper) {
-                this._wireframeHelper.animateCrossFadeDelayed(startActionName, endActionName, delay, duration);
-            }
-        }
+    protected animateIf(predicate: () => boolean, actionName: string): ConditionalAnimationFlowStep {
+        return this.animationMixer.animateIf(predicate, actionName);
     }
 
     protected doInit() {
-        if (this.animations) {
-            this.animationMixer = new CustomAnimationMixer(this);
-        }
+        this.animationMixer = new FluentAnimationMixer(this);
         if (this._wireframeHelper) {
             this._wireframeHelper.init();
+        }
+    }
+
+    protected addAnimationFlow(name: string, flow: AnimationFlow) {
+        this.animationFlows.set(name, flow);
+        if (this.wireframeHelper) {
+            this.wireframeHelper.addAnimation(name, flow);
+        }
+    }
+
+    protected startAnimationFlow(name: string) {
+        this.animationFlows.get(name)?.start();
+        if (this.wireframeHelper) {
+            this.wireframeHelper.playAnimation(name);
         }
     }
 
@@ -131,15 +127,14 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return this.parameters.soundSystem.createSound(soundName);
     }
 
-    protected isAnimationRunning(animationName: string): boolean {
-        const action = this.getAnimationAction(animationName);
-        return !!action && action.isRunning();
-    }
-
-    protected getAnimationAction(actionName: string): AnimationAction | undefined {
-        if (this.animationMixer) {
-            return this.animationMixer.getAnimationAction(actionName);
+    protected isAnyAnimationRunning(...animationNames: string[]): boolean {
+        const actions = this.animationMixer.findActions(...animationNames);
+        for (const action of actions) {
+            if (action.isRunning()) {
+                return true;
+            }
         }
+        return false;
     }
 
     protected findMaterialByName(name: string): Material | undefined {

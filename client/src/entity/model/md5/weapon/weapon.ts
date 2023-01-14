@@ -86,12 +86,12 @@ export abstract class Weapon extends Md5Model {
     protected updateState() {
         switch (this.currentState) {
             case WeaponState.RAISING:
-                if (!this.isAnimationRunning('raise')) {
+                if (!this.isAnyAnimationRunning('raise')) {
                     this.changeState(WeaponState.IDLE);
                 }
                 break;
             case WeaponState.LOWERING:
-                if (!this.isAnimationRunning('lower')) {
+                if (!this.isAnyAnimationRunning('lower')) {
                     this.changeState(WeaponState.INACTIVE);
                 }
                 break;
