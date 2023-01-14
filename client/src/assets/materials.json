@@ -52,9 +52,11 @@
       "addNormals": {
         "normalMap": "models/characters/player/arm2_local",
         "bumpMap": "models/characters/player/arm2_h",
-        "scale": 5
+        "scale": 3
       }
     },
+    "specular": "0x808080",
+    "shininess": 60,
     "side": "front"
   },
   {
@@ -66,7 +68,7 @@
       "addNormals": {
         "normalMap": "models/weapons/berserk/fist_local",
         "bumpMap": "models/weapons/berserk/fist_h",
-        "scale": 5
+        "scale": 3
       }
     },
     "side": "front"
@@ -110,6 +112,21 @@
     "transparent": true,
     "depthWrite": false,
     "side": "double"
+  },
+  {
+    "name": "models/weapons/shotgun/shotgun2",
+    "diffuseMap": "models/weapons/shotgun/shotgun2",
+    "specularMap": "models/weapons/shotgun/shotgun2_s",
+    "normalMap": {
+      "name": "models/weapons/shotgun/shotgun2_local+shotgun2_h",
+      "addNormals": {
+        "normalMap": "models/weapons/shotgun/shotgun2_local",
+        "bumpMap": "models/weapons/shotgun/shotgun2_h",
+        "scale": 5
+      }
+    },
+    "specular": "0xd4d4d4",
+    "side": "front"
   },
   {
     "name": "models/weapons/hands/hand",
@@ -3456,8 +3473,15 @@
     "normalMap": "models/weapons/shell1/mshell_local",
     "specularMap": "models/weapons/shell1/mshell_s",
     "shininess": 40,
+    "noShadows": true
+  },
+  {
+    "name": "models/weapons/shell1/sshell",
+    "diffuseMap": "models/weapons/shell1/sshell",
+    "normalMap": "models/weapons/shell1/sshell_local",
+    "specularMap": "models/weapons/shell1/sshell_s",
     "noShadows": true,
-    "renderBump": true
+    "side": "double"
   },
   {
     "name": "models/items/aircannister/aircannister",

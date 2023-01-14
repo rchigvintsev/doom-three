@@ -14,6 +14,7 @@ import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../model/md5/weapon/fists';
 import {Flashlight} from '../model/md5/weapon/flashlight';
 import {Pistol} from '../model/md5/weapon/pistol';
+import {Shotgun} from '../model/md5/weapon/shotgun';
 import {isFirearm} from '../model/md5/weapon/firearm';
 
 const BOBBING_SPEED = 0.1;
@@ -146,6 +147,10 @@ export class Player extends Object3D implements TangibleEntity {
         return <Pistol>this.weapons.get('pistol');
     }
 
+    get shotgun(): Shotgun | undefined {
+        return <Shotgun>this.weapons.get('shotgun');
+    }
+
     enableFists() {
         this.enableWeapon('fists');
     }
@@ -156,6 +161,10 @@ export class Player extends Object3D implements TangibleEntity {
 
     enablePistol() {
         this.enableWeapon('pistol');
+    }
+
+    enableShotgun() {
+        this.enableWeapon('shotgun');
     }
 
     reloadWeapon() {

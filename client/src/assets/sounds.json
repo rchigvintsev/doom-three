@@ -47,6 +47,57 @@
     ]
   },
   {
+    "name": "player_shotgun_raise",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/shotgun_use_01.wav"
+    ]
+  },
+  {
+    "name": "player_shotgun_fire",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/wetfire.wav",
+      "sound/weapons/shotgun/wetfire3.wav",
+      "sound/weapons/shotgun/wetfire5.wav"
+    ]
+  },
+  {
+    "name": "player_shotgun_pump",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/shotgun_cock_01.wav"
+    ]
+  },
+  {
+    "name": "player_shotgun_reload_start",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/reload/sgreload_start_01.wav",
+      "sound/weapons/shotgun/reload/sgreload_start_02.wav",
+      "sound/weapons/shotgun/reload/sgreload_start_03.wav"
+    ]
+  },
+  {
+    "name": "player_shotgun_reload",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/reload/sgreload_addshell_01.wav",
+      "sound/weapons/shotgun/reload/sgreload_addshell_02.wav",
+      "sound/weapons/shotgun/reload/sgreload_addshell_03.wav",
+      "sound/weapons/shotgun/reload/sgreload_addshell_04.wav"
+    ]
+  },
+  {
+    "name": "player_shotgun_empty",
+    "type": "plain",
+    "sources": [
+      "sound/weapons/shotgun/dryfire_01.wav",
+      "sound/weapons/shotgun/dryfire_02.wav",
+      "sound/weapons/shotgun/dryfire_03.wav"
+    ]
+  },
+  {
     "name": "player_pistol_raise_01",
     "type": "plain",
     "sources": [

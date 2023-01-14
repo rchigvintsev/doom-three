@@ -78,5 +78,39 @@
     "detonationMark": "bulleth02",
     "detonationSmoke": "bulletsmoke",
     "detonationSpark": "bulletspark"
+  },
+  {
+    "name": "shotgun",
+    "model": "models/md5/weapons/shotgun_view/viewshotgun.md5mesh",
+    "materials": [
+      "models/weapons/hands/hand",
+      "models/characters/player/arm2",
+      "models/weapons/shell1/sshell",
+      "models/weapons/shotgun/shotgun2"
+    ],
+    "animations": [
+      "models/md5/weapons/shotgun_view/idle.md5anim",
+      "models/md5/weapons/shotgun_view/empty.md5anim",
+      "models/md5/weapons/shotgun_view/raise.md5anim",
+      "models/md5/weapons/shotgun_view/lower.md5anim",
+      "models/md5/weapons/shotgun_view/fire1.md5anim",
+      "models/md5/weapons/shotgun_view/fire2.md5anim",
+      "models/md5/weapons/shotgun_view/fire3.md5anim",
+      "models/md5/weapons/shotgun_view/reload_start.md5anim",
+      "models/md5/weapons/shotgun_view/reload_loop.md5anim",
+      "models/md5/weapons/shotgun_view/reload_loop2.md5anim",
+      "models/md5/weapons/shotgun_view/reload_loop3.md5anim",
+      "models/md5/weapons/shotgun_view/reload_end.md5anim"
+    ],
+    "sounds": {
+      "raise": "player_shotgun_raise",
+      "fire": "player_shotgun_fire",
+      "pump": "player_shotgun_pump",
+      "reload_start": "player_shotgun_reload_start",
+      "reload_loop": "player_shotgun_reload",
+      "empty": "player_shotgun_empty",
+      "impact_metal": "bullet_impact_metal",
+      "impact_cardboard": "bullet_impact_cardboard"
+    }
   }
 ]

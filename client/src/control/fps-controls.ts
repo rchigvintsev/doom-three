@@ -81,6 +81,8 @@ export class FpsControls {
             this.player.enableFists();
         } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_TWO)) {
             this.player.enablePistol();
+        } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_THREE)) {
+            this.player.enableShotgun();
         } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_R)) {
             this.player.reloadWeapon();
         }

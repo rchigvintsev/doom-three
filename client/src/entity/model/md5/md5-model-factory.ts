@@ -7,6 +7,7 @@ import {Md5Model} from './md5-model';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
+import {Shotgun} from './weapon/shotgun';
 import {ParticleSystem} from '../../../particles/particle-system';
 import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
 import {DebrisSystem} from '../../../debris/debris-system';
@@ -97,6 +98,8 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             model = this.createFlashlight(modelDef, geometry);
         } else if (modelDef.name === 'pistol') {
             model = this.createPistol(modelDef, geometry);
+        } else if (modelDef.name === 'shotgun') {
+            model = this.createShotgun(modelDef, geometry);
         } else {
             const materials = this.createMaterials(modelDef);
             const sounds = this.getSounds(modelDef);
@@ -153,6 +156,26 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         const materials = this.createMaterials(modelDef);
         const sounds = this.getSounds(modelDef);
         return new Pistol({
+            config: this.parameters.config,
+            geometry,
+            materials,
+            sounds,
+            particleSystem: this.particleSystem,
+            debrisSystem: this.debrisSystem,
+            decalSystem: this.decalSystem,
+            soundSystem: this.soundSystem,
+            muzzleSmokeParticleName: modelDef.muzzleSmoke,
+            detonationSmokeParticleName: modelDef.detonationSmoke,
+            detonationSparkParticleName: modelDef.detonationSpark,
+            shellDebrisName: modelDef.shell,
+            detonationMarkDecalName: modelDef.detonationMark
+        });
+    }
+
+    private createShotgun(modelDef: any, geometry: BufferGeometry) {
+        const materials = this.createMaterials(modelDef);
+        const sounds = this.getSounds(modelDef);
+        return new Shotgun({
             config: this.parameters.config,
             geometry,
             materials,
