@@ -196,6 +196,14 @@ export class MaterialFactory {
             this.setTextureWrapping(material.map, materialDef.clamp);
         }
 
+        if (materialDef.bumpMap) {
+            const mapName = typeof materialDef.bumpMap === 'string'
+                ? materialDef.bumpMap
+                : materialDef.bumpMap.name;
+            material.bumpMap = this.getTexture(mapName);
+            this.setTextureWrapping(material.bumpMap, materialDef.clamp);
+        }
+
         if (materialDef.normalMap) {
             const mapName = typeof materialDef.normalMap === 'string'
                 ? materialDef.normalMap

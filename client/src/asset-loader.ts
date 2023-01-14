@@ -250,7 +250,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
         materials.forEach(materialName => {
             const materialDef = assets.materialDefs.get(materialName);
             if (materialDef) {
-                for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'alphaMap']) {
+                for (const mapName of ['diffuseMap', 'specularMap', 'normalMap', 'bumpMap', 'alphaMap']) {
                     if (materialDef[mapName]) {
                         const source = new TextureSource(materialDef[mapName], this.tgaLoader, this.binaryFileLoader);
                         context.texturesToLoad.set(source.name, source);
