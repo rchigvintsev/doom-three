@@ -77,7 +77,9 @@
     "shell": "debris_brass",
     "detonationMark": "bulleth02",
     "detonationSmoke": "bulletsmoke",
-    "detonationSpark": "bulletspark"
+    "detonationSpark": "bulletspark",
+    "recoilAngle": 1,
+    "recoilTime": 125
   },
   {
     "name": "shotgun",
@@ -111,6 +113,8 @@
       "empty": "player_shotgun_empty",
       "impact_metal": "bullet_impact_metal",
       "impact_cardboard": "bullet_impact_cardboard"
-    }
+    },
+    "recoilAngle": 5,
+    "recoilTime": 250
   }
 ]

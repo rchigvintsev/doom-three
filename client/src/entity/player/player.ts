@@ -1,7 +1,4 @@
-import {Audio, Euler, Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
-import {degToRad} from 'three/src/math/MathUtils';
-
-import {Tween} from '@tweenjs/tween.js';
+import {Audio, Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 
 import {random, randomInt} from 'mathjs';
 
@@ -27,7 +24,6 @@ export class Player extends Object3D implements TangibleEntity {
     private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
     private readonly jumpSound?: Audio<AudioNode>;
     private readonly landSounds: Audio<AudioNode>[];
-    private readonly recoilTween: Tween<Euler>;
 
     private readonly _pitchObject: Object3D;
     private readonly _movementDirection = new Vector3();
@@ -68,10 +64,6 @@ export class Player extends Object3D implements TangibleEntity {
             this.jumpSound = jumpSounds[0];
         }
         this.landSounds = sounds.get('landings') || [];
-
-        this.recoilTween = new Tween(this.camera.rotation)
-            .to({x: degToRad(0.5)}, 50)
-            .chain(new Tween(this.camera.rotation).to({x: 0}, 75));
     }
 
     init() {
@@ -281,9 +273,9 @@ export class Player extends Object3D implements TangibleEntity {
 
     private onWeaponAttack(e: AttackEvent) {
         this.dispatchEvent(e);
-        if (this._currentWeapon instanceof Pistol) {
+        if (isFirearm(this._currentWeapon)) {
             // Emulate recoil on fire
-            this.recoilTween.start();
+            this._currentWeapon.recoilTween.onUpdate(rotation => this.camera.rotation.x = rotation.x).start();
         }
     }
 }

@@ -2,7 +2,6 @@ import {BufferGeometry, Intersection, MathUtils, Matrix4, Mesh, Object3D, PointL
 
 import {randomInt} from 'mathjs';
 
-import {Md5ModelParameters} from '../md5-model';
 import {WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
@@ -11,7 +10,7 @@ import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
 import {DebrisSystem} from '../../../../debris/debris-system';
-import {Firearm} from './firearm';
+import {Firearm, FirearmParameters} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
 import {isUpdatableMaterial} from '../../../../material/updatable-material';
 import {MaterialKind} from '../../../../material/material-kind';
@@ -450,7 +449,7 @@ export class Pistol extends Firearm {
     })();
 }
 
-export interface PistolParameters extends Md5ModelParameters {
+export interface PistolParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;

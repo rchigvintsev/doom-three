@@ -168,7 +168,9 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             detonationSmokeParticleName: modelDef.detonationSmoke,
             detonationSparkParticleName: modelDef.detonationSpark,
             shellDebrisName: modelDef.shell,
-            detonationMarkDecalName: modelDef.detonationMark
+            detonationMarkDecalName: modelDef.detonationMark,
+            recoilAngle: modelDef.recoilAngle,
+            recoilTime: modelDef.recoilTime
         });
     }
 
@@ -188,7 +190,9 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             detonationSmokeParticleName: modelDef.detonationSmoke,
             detonationSparkParticleName: modelDef.detonationSpark,
             shellDebrisName: modelDef.shell,
-            detonationMarkDecalName: modelDef.detonationMark
+            detonationMarkDecalName: modelDef.detonationMark,
+            recoilAngle: modelDef.recoilAngle,
+            recoilTime: modelDef.recoilTime
         });
     }
 

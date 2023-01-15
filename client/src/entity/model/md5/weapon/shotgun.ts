@@ -1,14 +1,13 @@
 import {BufferGeometry, Intersection, Object3D, PointLight, Vector3} from 'three';
-
-import {Md5ModelParameters} from '../md5-model';
 import {WeaponState} from './weapon';
 import {Player} from '../../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
 import {DebrisSystem} from '../../../../debris/debris-system';
-import {Firearm} from './firearm';
+import {Firearm, FirearmParameters} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
+import {AttackEvent} from '../../../../event/weapon-events';
 
 const AMMO_CLIP_SIZE = 8;
 const FIRE_FLASH_DURATION_MILLIS = 120;
@@ -28,7 +27,7 @@ export class Shotgun extends Firearm {
 
     // -1 means infinite
     private ammoReserve = MAX_AMMO_RESERVE;
-    private ammoClip = 2;
+    private ammoClip = AMMO_CLIP_SIZE;
     private lastFireTime = 0;
 
     constructor(parameters: ShotgunParameters) {
@@ -36,7 +35,7 @@ export class Shotgun extends Firearm {
         if (!this.config.renderOnlyWireframe) {
             this.initFireFlash();
         }
-        this.applyTubeDeformToFireFlash(this.geometry, );
+        this.applyTubeDeformToFireFlash(this.geometry);
     }
 
     update(deltaTime: number, player?: Player) {
@@ -80,6 +79,7 @@ export class Shotgun extends Firearm {
                 this.lastFireTime = performance.now();
                 this.showMuzzleSmoke();
                 this.ejectShell();
+                this.dispatchEvent(new AttackEvent(this, 0, 0));
             }
         }
     }
@@ -316,7 +316,7 @@ export class Shotgun extends Firearm {
     }
 }
 
-export interface ShotgunParameters extends Md5ModelParameters {
+export interface ShotgunParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
