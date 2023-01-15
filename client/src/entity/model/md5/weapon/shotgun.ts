@@ -93,7 +93,7 @@ export class Shotgun extends Firearm {
     }
 
     isLowAmmo(): boolean {
-        return this.ammoClip < 5;
+        return this.ammoClip < 3;
     }
 
     reload(): void {
