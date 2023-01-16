@@ -241,5 +241,15 @@
       "sound/weapons/casings/small_conc_02.wav",
       "sound/weapons/casings/small_single_conc_03.wav"
     ]
+  },
+  {
+    "name": "casings_shotgun",
+    "type": "positional",
+    "volume": 0.6,
+    "sources": [
+      "sound/weapons/casings/shotgun_shell_01.wav",
+      "sound/weapons/casings/shotgun_shell_02.wav",
+      "sound/weapons/casings/shotgun_shell_03.wav"
+    ]
   }
 ]

@@ -52,14 +52,18 @@ export abstract class Weapon extends Md5Model {
     enable() {
         if (!this.enabled) {
             this.enabled = true;
-            this.visible = true;
+            this.startAnimationFlow('enable');
+            this.changeState(WeaponState.RAISING);
+            // Weapon visibility will be changed on next rendering step
         }
     }
 
     disable() {
         if (this.enabled) {
             this.enabled = false;
-            this.visible = false;
+            this.startAnimationFlow('disable');
+            this.changeState(WeaponState.LOWERING);
+            // Weapon visibility will be changed on "put_away" animation finish
         }
     }
 

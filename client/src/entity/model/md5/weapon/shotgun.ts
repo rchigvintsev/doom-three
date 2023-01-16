@@ -1,16 +1,16 @@
-import {BufferGeometry, Intersection, Object3D, PointLight, Vector3} from 'three';
+import {BufferGeometry, Intersection, PointLight, Quaternion, Vector3} from 'three';
 import {WeaponState} from './weapon';
 import {Player} from '../../../player/player';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
-import {DebrisSystem} from '../../../../debris/debris-system';
 import {Firearm, FirearmParameters} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
 import {AttackEvent} from '../../../../event/weapon-events';
 
 const AMMO_CLIP_SIZE = 8;
 const FIRE_FLASH_DURATION_MILLIS = 120;
+const SHELL_EJECTION_TIMEOUT_MILLIS = 650;
 // const FIRE_FLASH_COLOR = 0xffcc66;
 // const FIRE_FLASH_DISTANCE = 120;
 const MAX_AMMO_RESERVE = 312;
@@ -20,8 +20,6 @@ const MAX_AMMO_RESERVE = 312;
 export class Shotgun extends Firearm {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
 
-    private shellTarget!: Object3D;
-
     private fireFlashMaterialParams?: Map<string, any>;
     private fireFlashLight?: PointLight;
 
@@ -29,6 +27,7 @@ export class Shotgun extends Firearm {
     private ammoReserve = MAX_AMMO_RESERVE;
     private ammoClip = AMMO_CLIP_SIZE;
     private lastFireTime = 0;
+    private shellEjected = true;
 
     constructor(parameters: ShotgunParameters) {
         super(parameters);
@@ -42,28 +41,15 @@ export class Shotgun extends Firearm {
         super.update(deltaTime, player);
         const now = performance.now();
         const fireDelta = now - this.lastFireTime;
+
+        if (!this.shellEjected && fireDelta > SHELL_EJECTION_TIMEOUT_MILLIS) {
+            this.ejectShell();
+        }
+
         if (fireDelta > FIRE_FLASH_DURATION_MILLIS) {
             this.hideFireFlash();
         } else {
             this.updateFireFlash(fireDelta);
-        }
-    }
-
-    enable() {
-        if (!this.enabled) {
-            this.enabled = true;
-            this.startAnimationFlow('enable');
-            this.changeState(ShotgunState.RAISING);
-            // Weapon visibility will be changed on next rendering step
-        }
-    }
-
-    disable() {
-        if (this.enabled) {
-            this.enabled = false;
-            this.startAnimationFlow('disable');
-            this.changeState(ShotgunState.LOWERING);
-            // Weapon visibility will be changed on "put_away" animation finish
         }
     }
 
@@ -78,7 +64,7 @@ export class Shotgun extends Firearm {
                 this.changeState(ShotgunState.SHOOTING);
                 this.lastFireTime = performance.now();
                 this.showMuzzleSmoke();
-                this.ejectShell();
+                this.shellEjected = false;
                 this.dispatchEvent(new AttackEvent(this, 0, 0));
             }
         }
@@ -114,9 +100,6 @@ export class Shotgun extends Firearm {
     protected doInit() {
         super.doInit();
         this.initAnimationFlows();
-
-        this.shellTarget = new Object3D();
-        this.add(this.shellTarget);
     }
 
     protected updateState() {
@@ -158,6 +141,39 @@ export class Shotgun extends Firearm {
         return offset;
     }
 
+    protected get shellDebrisName(): string {
+        return (<ShotgunParameters>this.parameters).shellDebrisName;
+    }
+
+    protected get shellEjectionForceFactor(): number {
+        return 0.16;
+    }
+
+    protected computeShellPosition(position: Vector3): Vector3 {
+        return position.setFromMatrixPosition(this.skeleton.bones[42].matrixWorld);
+    }
+
+    protected computeShellQuaternion(quaternion: Quaternion) {
+        this.shellRotationMatrixEye.setFromMatrixPosition(this.skeleton.bones[42].matrixWorld);
+        this.shellRotationMatrixTarget.setFromMatrixPosition(this.skeleton.bones[43].matrixWorld);
+        this.shellRotationMatrix.lookAt(this.shellRotationMatrixEye, this.shellRotationMatrixTarget, this.up);
+        return quaternion.setFromRotationMatrix(this.shellRotationMatrix)
+            .multiply(Firearm.SHELL_ROTATION_X_ANGLE_ADJUSTMENT);
+    }
+
+    protected computeShellTargetPosition(position: Vector3) {
+        position.setFromMatrixPosition(this.skeleton.bones[42].matrixWorld);
+        this.worldToLocal(position);
+        position.x += 4;
+        position.y += 3.4;
+        position.z += 4;
+    }
+
+    protected ejectShell = () => {
+        super.ejectShell();
+        this.shellEjected = true;
+    };
+
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
             .onStart(() => this.playRaiseSound())
@@ -166,7 +182,7 @@ export class Shotgun extends Firearm {
         this.addAnimationFlow('attack', this.animate('idle')
             .thenCrossFadeToAny('fire1', 'fire2', 'fire3').withDuration(0.1).onStart(() => {
                 this.playFireSound();
-                this.playPumpSound(0.8);
+                this.playPumpSound(0.65);
             })
             .thenCrossFadeTo('idle').withDelay(1.2).flow);
         this.addAnimationFlow('reload', this.animate('idle')
@@ -190,10 +206,6 @@ export class Shotgun extends Firearm {
         return (<ShotgunParameters>this.parameters).particleSystem;
     }
 
-    private get debrisSystem(): DebrisSystem {
-        return (<ShotgunParameters>this.parameters).debrisSystem;
-    }
-
     private get muzzleSmokeParticleName(): string {
         return (<ShotgunParameters>this.parameters).muzzleSmokeParticleName;
     }
@@ -204,10 +216,6 @@ export class Shotgun extends Firearm {
 
     private get detonationSparkParticleName(): string {
         return (<ShotgunParameters>this.parameters).detonationSparkParticleName;
-    }
-
-    private get shellDebrisName(): string {
-        return (<ShotgunParameters>this.parameters).shellDebrisName;
     }
 
     private setMuzzleSmokeParticlePosition(_particle: Particle) {
@@ -260,10 +268,6 @@ export class Shotgun extends Firearm {
             }
         };
     })();
-
-    private ejectShell() {
-        // Do nothing
-    }
 
     private canAttack() {
         return this.isIdle();
@@ -318,7 +322,6 @@ export class Shotgun extends Firearm {
 
 export interface ShotgunParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
-    debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
     muzzleSmokeParticleName: string;
     detonationSmokeParticleName: string;

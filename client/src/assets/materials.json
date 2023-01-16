@@ -3481,6 +3481,7 @@
     "normalMap": "models/weapons/shell1/sshell_local",
     "specularMap": "models/weapons/shell1/sshell_s",
     "noShadows": true,
+    "shininess": 40,
     "side": "double"
   },
   {

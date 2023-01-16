@@ -15,24 +15,6 @@ export class Fists extends Weapon {
         this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
     }
 
-    enable() {
-        if (!this.enabled) {
-            this.enabled = true;
-            this.startAnimationFlow('enable');
-            this.changeState(FistsState.RAISING);
-            // Weapon visibility will be changed on next rendering step
-        }
-    }
-
-    disable() {
-        if (this.enabled) {
-            this.enabled = false;
-            this.startAnimationFlow('disable');
-            this.changeState(FistsState.LOWERING);
-            // Weapon visibility will be changed on "lower" animation finish
-        }
-    }
-
     attack() {
         if (this.canAttack()) {
             this.startAnimationFlow('attack');

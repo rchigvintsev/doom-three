@@ -29,5 +29,36 @@
         }
       ]
     }
+  },
+  {
+    "name": "debris_shotgunbrass",
+    "model": "models/weapons/shell1/sshell_bigger.lwo",
+    "materials": [
+      "models/weapons/shell1/sshell"
+    ],
+    "sounds": {
+      "bounce": "casings_shotgun"
+    },
+    "time": 3000,
+    "collisionModel": {
+      "bodies": [
+        {
+          "mass": 0.01,
+          "material": "models/weapons/shell",
+          "sleepSpeedLimit": 20,
+          "shapes": [
+            {
+              "type": "cylinder",
+              "name": "body",
+              "radiusTop": 0.7,
+              "radiusBottom": 0.7,
+              "height": 3.34,
+              "offset": [0, 0, 0]
+            }
+          ],
+          "collisionFilterGroup": 2
+        }
+      ]
+    }
   }
 ]

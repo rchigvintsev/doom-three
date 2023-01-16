@@ -58,24 +58,6 @@ export class Flashlight extends Weapon {
         this.updateLight();
     }
 
-    enable() {
-        if (!this.enabled) {
-            this.enabled = true;
-            this.startAnimationFlow('enable');
-            this.changeState(FlashlightState.RAISING);
-            // Weapon visibility will be changed on next rendering step
-        }
-    }
-
-    disable() {
-        if (this.enabled) {
-            this.enabled = false;
-            this.startAnimationFlow('disable');
-            this.changeState(FlashlightState.LOWERING);
-            // Weapon visibility will be changed on "lower" animation finish
-        }
-    }
-
     attack(): void {
         if (this.canAttack()) {
             this.startAnimationFlow('attack');

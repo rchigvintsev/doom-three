@@ -1,4 +1,4 @@
-import {BufferGeometry, Intersection, MathUtils, Matrix4, Mesh, Object3D, PointLight, Quaternion, Vector3} from 'three';
+import {BufferGeometry, Intersection, Mesh, PointLight, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -9,7 +9,6 @@ import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-ba
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {ParticleSystem} from '../../../../particles/particle-system';
 import {Particle} from '../../../particle/particle';
-import {DebrisSystem} from '../../../../debris/debris-system';
 import {Firearm, FirearmParameters} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
 import {isUpdatableMaterial} from '../../../../material/updatable-material';
@@ -25,8 +24,6 @@ const ATTACK_DISTANCE = 1000;
 
 export class Pistol extends Firearm {
     private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
-
-    private shellTarget!: Object3D;
 
     private fireFlashMaterialParams?: Map<string, any>;
     private fireFlashLight?: PointLight;
@@ -52,24 +49,6 @@ export class Pistol extends Firearm {
             this.hideFireFlash();
         } else {
             this.updateFireFlash(fireDelta);
-        }
-    }
-
-    enable() {
-        if (!this.enabled) {
-            this.enabled = true;
-            this.startAnimationFlow('enable');
-            this.changeState(PistolState.RAISING);
-            // Weapon visibility will be changed on next rendering step
-        }
-    }
-
-    disable() {
-        if (this.enabled) {
-            this.enabled = false;
-            this.startAnimationFlow('disable');
-            this.changeState(PistolState.LOWERING);
-            // Weapon visibility will be changed on "put_away" animation finish
         }
     }
 
@@ -135,12 +114,6 @@ export class Pistol extends Firearm {
     protected doInit() {
         super.doInit();
         this.initAnimationFlows();
-
-        this.shellTarget = new Object3D();
-        this.shellTarget.position.copy(new Vector3()
-            .setFromMatrixPosition(this.skeleton.bones[24].matrixWorld)
-            .add(new Vector3(0, 3.4, 3.4)));
-        this.add(this.shellTarget);
     }
 
     protected updateState() {
@@ -194,12 +167,34 @@ export class Pistol extends Firearm {
         return offset;
     }
 
-    private get particleSystem(): ParticleSystem {
-        return (<PistolParameters>this.parameters).particleSystem;
+    protected get shellDebrisName(): string {
+        return (<PistolParameters>this.parameters).shellDebrisName;
     }
 
-    private get debrisSystem(): DebrisSystem {
-        return (<PistolParameters>this.parameters).debrisSystem;
+    protected get shellEjectionForceFactor(): number {
+        return 0.08;
+    }
+
+    protected computeShellPosition(position: Vector3) {
+        position.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld);
+    }
+
+    protected computeShellTargetPosition(position: Vector3) {
+        position.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
+        this.worldToLocal(position);
+        position.y += 3.4;
+        position.z += 3.4;
+    }
+
+    protected computeShellQuaternion(quaternion: Quaternion) {
+        this.shellRotationMatrixEye.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
+        this.shellRotationMatrixTarget.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+        this.shellRotationMatrix.lookAt(this.shellRotationMatrixEye, this.shellRotationMatrixTarget, this.up);
+        quaternion.setFromRotationMatrix(this.shellRotationMatrix).multiply(Firearm.SHELL_ROTATION_X_ANGLE_ADJUSTMENT);
+    }
+
+    private get particleSystem(): ParticleSystem {
+        return (<PistolParameters>this.parameters).particleSystem;
     }
 
     private get muzzleSmokeParticleName(): string {
@@ -212,10 +207,6 @@ export class Pistol extends Firearm {
 
     private get detonationSparkParticleName(): string {
         return (<PistolParameters>this.parameters).detonationSparkParticleName;
-    }
-
-    private get shellDebrisName(): string {
-        return (<PistolParameters>this.parameters).shellDebrisName;
     }
 
     private setMuzzleSmokeParticlePosition(particle: Particle) {
@@ -347,38 +338,6 @@ export class Pistol extends Firearm {
         };
     })();
 
-    private ejectShell = (() => {
-        const shellPosition = new Vector3();
-        const eye = new Vector3();
-        const target = new Vector3();
-        const shellRotationMatrix = new Matrix4();
-        const shellQuaternion = new Quaternion();
-        const xAngleAdjustment = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), MathUtils.degToRad(-90));
-        const shellTargetPosition = new Vector3();
-        const forceVector = new Vector3();
-
-        return () => {
-            const debris = this.debrisSystem.createDebris(this.shellDebrisName);
-            const collisionModel = debris.collisionModel!;
-
-            collisionModel.setPosition(shellPosition.setFromMatrixPosition(this.skeleton.bones[28].matrixWorld));
-            debris.position.copy(shellPosition);
-
-            eye.setFromMatrixPosition(this.skeleton.bones[24].matrixWorld);
-            target.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
-            collisionModel.setQuaternion(shellQuaternion
-                .setFromRotationMatrix(shellRotationMatrix.lookAt(eye, target, this.up))
-                .multiply(xAngleAdjustment));
-            debris.quaternion.copy(shellQuaternion);
-
-            collisionModel.applyImpulse(forceVector
-                .subVectors(shellTargetPosition.setFromMatrixPosition(this.shellTarget.matrixWorld), shellPosition)
-                .multiplyScalar(0.08));
-
-            debris.show(100);
-        };
-    })();
-
     private canAttack() {
         return this.isIdle();
     }
@@ -451,7 +410,6 @@ export class Pistol extends Firearm {
 
 export interface PistolParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
-    debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
     muzzleSmokeParticleName: string;
     detonationSmokeParticleName: string;

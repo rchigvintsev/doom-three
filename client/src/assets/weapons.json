@@ -114,6 +114,7 @@
       "impact_metal": "bullet_impact_metal",
       "impact_cardboard": "bullet_impact_cardboard"
     },
+    "shell": "debris_shotgunbrass",
     "recoilAngle": 5,
     "recoilTime": 250
   }
