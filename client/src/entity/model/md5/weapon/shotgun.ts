@@ -1,92 +1,42 @@
-import {BufferGeometry, Intersection, PointLight, Quaternion, Vector3} from 'three';
-import {WeaponState} from './weapon';
-import {Player} from '../../../player/player';
-import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
-import {ParticleSystem} from '../../../../particles/particle-system';
-import {Particle} from '../../../particle/particle';
-import {Firearm, FirearmParameters} from './firearm';
-import {DecalSystem} from '../../../../decal/decal-system';
-import {AttackEvent} from '../../../../event/weapon-events';
+import {BufferGeometry, Quaternion, Vector3} from 'three';
 
-const AMMO_CLIP_SIZE = 8;
-const FIRE_FLASH_DURATION_MILLIS = 120;
+import {Player} from '../../../player/player';
+import {ParticleSystem} from '../../../../particles/particle-system';
+import {Firearm, FirearmParameters, FirearmState} from './firearm';
+import {DecalSystem} from '../../../../decal/decal-system';
+import {BufferGeometries} from '../../../../util/buffer-geometries';
+
 const SHELL_EJECTION_TIMEOUT_MILLIS = 650;
-// const FIRE_FLASH_COLOR = 0xffcc66;
-// const FIRE_FLASH_DISTANCE = 120;
-const MAX_AMMO_RESERVE = 312;
-// const BULLET_FORCE = 5;
-// const ATTACK_DISTANCE = 1000;
 
 export class Shotgun extends Firearm {
-    private readonly fireFlashMaterials: UpdatableMeshBasicMaterial[] = [];
-
-    private fireFlashMaterialParams?: Map<string, any>;
-    private fireFlashLight?: PointLight;
-
-    // -1 means infinite
-    private ammoReserve = MAX_AMMO_RESERVE;
-    private ammoClip = AMMO_CLIP_SIZE;
-    private lastFireTime = 0;
     private shellEjected = true;
 
     constructor(parameters: ShotgunParameters) {
         super(parameters);
-        if (!this.config.renderOnlyWireframe) {
-            this.initFireFlash();
-        }
         this.applyTubeDeformToFireFlash(this.geometry);
     }
 
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime, player);
-        const now = performance.now();
-        const fireDelta = now - this.lastFireTime;
+        if (this.lastFireTime > 0) {
+            const now = performance.now();
+            const fireDelta = now - this.lastFireTime;
 
-        if (!this.shellEjected && fireDelta > SHELL_EJECTION_TIMEOUT_MILLIS) {
-            this.ejectShell();
-        }
-
-        if (fireDelta > FIRE_FLASH_DURATION_MILLIS) {
-            this.hideFireFlash();
-        } else {
-            this.updateFireFlash(fireDelta);
-        }
-    }
-
-    attack() {
-        if (this.canAttack()) {
-            if (this.ammoClip === 0) {
-                this.reload();
-            } else {
-                this.showFireFlash();
-                this.startAnimationFlow('attack');
-                this.ammoClip--;
-                this.changeState(ShotgunState.SHOOTING);
-                this.lastFireTime = performance.now();
-                this.showMuzzleSmoke();
-                this.shellEjected = false;
-                this.dispatchEvent(new AttackEvent(this, 0, 0));
+            if (!this.shellEjected && fireDelta > SHELL_EJECTION_TIMEOUT_MILLIS) {
+                this.ejectShell();
             }
         }
     }
 
-    getAmmoClip(): number {
-        return this.ammoClip;
-    }
-
-    getAmmoReserve(): number {
-        return this.ammoReserve;
+    attack() {
+        super.attack();
+        if (this.canAttack()) {
+            this.shellEjected = false;
+        }
     }
 
     isLowAmmo(): boolean {
         return this.ammoClip < 3;
-    }
-
-    reload(): void {
-        if (this.canReload()) {
-            this.startAnimationFlow('reload');
-            this.changeState(ShotgunState.RELOADING);
-        }
     }
 
     onHit() {
@@ -104,14 +54,14 @@ export class Shotgun extends Firearm {
 
     protected updateState() {
         switch (this.currentState) {
-            case ShotgunState.SHOOTING:
+            case FirearmState.SHOOTING:
                 if (!this.isAnyAnimationRunning('fire1', 'fire2', 'fire3')) {
-                    this.changeState(ShotgunState.IDLE);
+                    this.changeState(FirearmState.IDLE);
                 }
                 break;
-            case ShotgunState.RELOADING:
+            case FirearmState.RELOADING:
                 if (!this.isAnyAnimationRunning('reload_start', 'reload_loop', 'reload_loop2', 'reload_loop3', 'reload_end')) {
-                    this.changeState(ShotgunState.IDLE);
+                    this.changeState(FirearmState.IDLE);
                 }
                 break;
             default:
@@ -141,10 +91,6 @@ export class Shotgun extends Firearm {
         return offset;
     }
 
-    protected get shellDebrisName(): string {
-        return (<ShotgunParameters>this.parameters).shellDebrisName;
-    }
-
     protected get shellEjectionForceFactor(): number {
         return 0.16;
     }
@@ -169,10 +115,67 @@ export class Shotgun extends Firearm {
         position.z += 4;
     }
 
-    protected ejectShell = () => {
+    protected ejectShell() {
         super.ejectShell();
         this.shellEjected = true;
-    };
+    }
+
+    protected get fireFlashMaterialNames(): string[] {
+        return [
+            'models/weapons/shotgun/shotgun_mflashb',
+            'models/weapons/shotgun/shotgun_mflash2',
+            'models/weapons/shotgun/shotgun_mflash'
+        ];
+    }
+
+    protected initFireFlashMaterialParameters(parameters: Map<string, any>) {
+        const flash1Rotate = Math.random();
+        const flash1Scroll = flash1Rotate < 0.5 ? 0 : 1 / 32;
+        const flash3Rotate = Math.random();
+        const flash3Scroll = flash3Rotate < 0.5 ? 0 : 1 / 32;
+
+        parameters.set('shotgunFlash1Rotate', flash1Rotate);
+        parameters.set('shotgunFlash3Rotate', flash3Rotate);
+        parameters.set('shotgunFlash1ScrollX', flash1Scroll);
+        parameters.set('shotgunFlash2ScrollX', 0);
+        parameters.set('shotgunFlash3ScrollX', flash3Scroll);
+    }
+
+    protected updateFireFlashMaterialParameters(parameters: Map<string, any>, deltaTime: number) {
+        // Animation of flash 1 consists of 32 frames
+        let flash1Scroll = Math.trunc(deltaTime / (this.fireFlashDurationMillis / 32));
+        // Animation of flash 2 consists of 8 frames
+        const flash2Scroll = Math.trunc(deltaTime / (this.fireFlashDurationMillis / 8));
+        // Animation of flash 3 consists of 32 frames
+        let flash3Scroll = Math.trunc(deltaTime / (this.fireFlashDurationMillis / 32));
+
+        const flash1Rotate = parameters.get('shotgunFlashRotate');
+        if (flash1Rotate >= 0.5) {
+            flash1Scroll++;
+        }
+        const flash3Rotate = parameters.get('shotgunFlashRotate');
+        if (flash3Rotate >= 0.5) {
+            flash3Scroll++;
+        }
+
+        parameters.set('shotgunFlash1ScrollX', flash1Scroll / 32);
+        parameters.set('shotgunFlash2ScrollX', flash2Scroll / 8);
+        parameters.set('shotgunFlash3ScrollX', flash3Scroll / 32);
+    }
+
+    protected updateAmmoCountersOnReload() {
+        if (this.ammoReserve === -1) { // Infinite reserve
+            this.ammoClip = Math.min(this.ammoClip + 2, this.ammoClipSize);
+        } else {
+            if (this.ammoReserve === 1 || this.ammoClip === this.ammoClipSize - 1) {
+                this.ammoReserve = this.ammoReserve - 1;
+                this.ammoClip = this.ammoClip + 1;
+            } else {
+                this.ammoReserve = this.ammoReserve - 2;
+                this.ammoClip = this.ammoClip + 2;
+            }
+        }
+    }
 
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
@@ -188,7 +191,7 @@ export class Shotgun extends Firearm {
         this.addAnimationFlow('reload', this.animate('idle')
             .thenCrossFadeTo('reload_start').withDuration(0.42).onStart(() => this.playReloadStartSound())
             .thenCrossFadeToAny('reload_loop', 'reload_loop2', 'reload_loop3').repeat(() => {
-                const requiredAmmo = Math.min(AMMO_CLIP_SIZE - this.ammoClip, this.ammoReserve);
+                const requiredAmmo = Math.min(this.ammoClipSize - this.ammoClip, this.ammoReserve);
                 let repetitions = Math.floor(requiredAmmo / 2);
                 if (requiredAmmo % 2 !== 0) {
                     repetitions++;
@@ -200,85 +203,6 @@ export class Shotgun extends Firearm {
             })
             .thenCrossFadeTo('reload_end').withDelay(0.4).onStart(() => this.playPumpSound(0.5))
             .thenCrossFadeTo('idle').withDelay(0.8).flow);
-    }
-
-    private get particleSystem(): ParticleSystem {
-        return (<ShotgunParameters>this.parameters).particleSystem;
-    }
-
-    private get muzzleSmokeParticleName(): string {
-        return (<ShotgunParameters>this.parameters).muzzleSmokeParticleName;
-    }
-
-    private get detonationSmokeParticleName(): string {
-        return (<ShotgunParameters>this.parameters).detonationSmokeParticleName;
-    }
-
-    private get detonationSparkParticleName(): string {
-        return (<ShotgunParameters>this.parameters).detonationSparkParticleName;
-    }
-
-    private setMuzzleSmokeParticlePosition(_particle: Particle) {
-        // Do nothing
-    }
-
-    private initFireFlash() {
-        // Do nothing
-    }
-
-    private showFireFlash() {
-        // Do nothing
-    }
-
-    private updateFireFlash(_deltaTime: number) {
-        // Do nothing
-    }
-
-    private hideFireFlash() {
-        // Do nothing
-    }
-
-    private showMuzzleSmoke() {
-        // Do nothing
-    }
-
-    private showDetonationSmoke(intersection: Intersection) {
-        this.showDetonationParticle(this.detonationSmokeParticleName, intersection);
-    }
-
-    private showDetonationSpark(intersection: Intersection) {
-        this.showDetonationParticle(this.detonationSparkParticleName, intersection);
-    }
-
-    private showDetonationParticle = (() => {
-        const particleOffset = new Vector3();
-        return (particleName: string, intersection: Intersection) => {
-            if (!this.config.renderOnlyWireframe) {
-                const particles = this.particleSystem.createParticles(particleName);
-                particles.onShowParticle = particle => {
-                    particle.position.copy(intersection.point);
-                    if (intersection.face) {
-                        particle.position.add(particleOffset
-                            .copy(intersection.face.normal)
-                            .negate()
-                            .multiplyScalar(2 * this.config.worldScale));
-                    }
-                };
-                particles.show();
-            }
-        };
-    })();
-
-    private canAttack() {
-        return this.isIdle();
-    }
-
-    private canReload() {
-        return this.ammoClip < AMMO_CLIP_SIZE && this.ammoReserve > 0 && this.isIdle();
-    }
-
-    private isIdle() {
-        return this.currentState === ShotgunState.IDLE;
     }
 
     private playRaiseSound() {
@@ -301,36 +225,45 @@ export class Shotgun extends Firearm {
         this.playSound('reload_loop', delay);
     }
 
-    private updateAmmoCountersOnReload() {
-        if (this.ammoReserve === -1) { // Infinite reserve
-            this.ammoClip = Math.min(this.ammoClip + 2, AMMO_CLIP_SIZE);
-        } else {
-            if (this.ammoReserve === 1 || this.ammoClip === AMMO_CLIP_SIZE - 1) {
-                this.ammoReserve--;
-                this.ammoClip++;
-            } else {
-                this.ammoReserve -= 2;
-                this.ammoClip += 2;
-            }
-        }
-    }
+    private applyTubeDeformToFireFlash = (() => {
+        /*
+         *  Shotgun flash faces
+         *  ===================
+         *
+         *     Player's view direction
+         *               |
+         *         5700  V
+         *    5703 |\  --------- 5701
+         *         | \ \       |
+         *         |  \ \      |
+         *         |   \ \     |
+         *     Top |    \ \    | Bottom
+         *         |     \ \   |
+         *         |      \ \  |
+         *         |       \ \ |
+         *    5705 |________\ \| 5702
+         *                  5704
+         */
 
-    private applyTubeDeformToFireFlash(_geometry: BufferGeometry, _offset?: Vector3) {
-        // Do nothing
-    }
+        const view = new Vector3();
+        const face1 = new Vector3(5700, 5702, 5701);
+        const face2 = new Vector3(5705, 5703, 5704);
+        return (geometry: BufferGeometry, offset?: Vector3) => {
+            view.set(-15, 0, 0);
+            if (offset) {
+                view.y -= offset.x / this.config.worldScale;
+                view.z -= offset.y / this.config.worldScale;
+            }
+            BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
+        };
+    })();
 }
 
 export interface ShotgunParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
     decalSystem: DecalSystem;
-    muzzleSmokeParticleName: string;
-    detonationSmokeParticleName: string;
-    detonationSparkParticleName: string;
-    detonationMarkDecalName: string;
-    shellDebrisName: string;
-}
-
-export class ShotgunState extends WeaponState {
-    static readonly SHOOTING = 'shooting';
-    static readonly RELOADING = 'reloading';
+    muzzleSmoke: string;
+    detonationSmoke: string;
+    detonationSpark: string;
+    detonationMark: string;
 }

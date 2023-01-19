@@ -132,12 +132,12 @@ export class AmmoIndicator implements Iterable<Object3D> {
 
     update(deltaTime: number, weapon?: Weapon) {
         if (isFirearm(weapon)) {
-            this.setAmmo(weapon.getAmmoClip());
-            this.setAmmoReserve(weapon.getAmmoReserve());
+            this.setAmmo(weapon.ammoClip);
+            this.setAmmoReserve(weapon.ammoReserve);
 
             let style = AmmoIndicatorStyle.DEFAULT;
-            if (weapon.getAmmoClip() === 0) {
-                style = weapon.getAmmoReserve() === 0 ? AmmoIndicatorStyle.EMPTY_AMMO : AmmoIndicatorStyle.EMPTY_CLIP;
+            if (weapon.ammoClip === 0) {
+                style = weapon.ammoReserve === 0 ? AmmoIndicatorStyle.EMPTY_AMMO : AmmoIndicatorStyle.EMPTY_CLIP;
             } else if (weapon.isLowAmmo()) {
                 style = AmmoIndicatorStyle.LOW_AMMO;
             }

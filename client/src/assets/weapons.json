@@ -79,7 +79,13 @@
     "detonationSmoke": "bulletsmoke",
     "detonationSpark": "bulletspark",
     "recoilAngle": 1,
-    "recoilTime": 125
+    "recoilTime": 125,
+    "fireFlashDistance": 120,
+    "fireFlashColor": "0xffcc66",
+    "ammoClipSize": 12,
+    "maxAmmoReserve": 348,
+    "attackDistance": 1000,
+    "attackForce": 5
   },
   {
     "name": "shotgun",
@@ -88,7 +94,10 @@
       "models/weapons/hands/hand",
       "models/characters/player/arm2",
       "models/weapons/shell1/sshell",
-      "models/weapons/shotgun/shotgun2"
+      "models/weapons/shotgun/shotgun2",
+      "models/weapons/shotgun/shotgun_mflashb",
+      "models/weapons/shotgun/shotgun_mflash2",
+      "models/weapons/shotgun/shotgun_mflash"
     ],
     "animations": [
       "models/md5/weapons/shotgun_view/idle.md5anim",
@@ -116,6 +125,12 @@
     },
     "shell": "debris_shotgunbrass",
     "recoilAngle": 5,
-    "recoilTime": 250
+    "recoilTime": 250,
+    "fireFlashDistance": 120,
+    "fireFlashColor": "0xffcc66",
+    "ammoClipSize": 8,
+    "maxAmmoReserve": 312,
+    "attackDistance": 0,
+    "attackForce": 0
   }
 ]

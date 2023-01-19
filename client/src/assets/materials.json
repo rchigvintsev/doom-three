@@ -114,6 +114,42 @@
     "side": "double"
   },
   {
+    "name": "models/weapons/shotgun/shotgun_mflashb",
+    "type": "basic",
+    "diffuseMap": {
+      "name": "textures/particles/rocketlauncher_mflash_strip",
+      "repeat": [0.031, 1],
+      "scroll": ["table32(shotgunFlash1ScrollX)", "0"],
+      "rotate": "rotate90(shotgunFlash1Rotate)"
+    },
+    "transparent": true,
+    "depthWrite": false
+  },
+  {
+    "name": "models/weapons/shotgun/shotgun_mflash2",
+    "type": "basic",
+    "diffuseMap": {
+      "name": "textures/particles/shotgun_mflash2_strip",
+      "repeat": [0.125, 1],
+      "scroll": ["table8(shotgunFlash2ScrollX)", "0"]
+    },
+    "transparent": true,
+    "depthWrite": false,
+    "side": "double"
+  },
+  {
+    "name": "models/weapons/shotgun/shotgun_mflash",
+    "type": "basic",
+    "diffuseMap": {
+      "name": "textures/particles/shotgun_mflash_strip",
+      "repeat": [0.031, 1],
+      "scroll": ["table32(shotgunFlash3ScrollX)", "0"],
+      "rotate": "rotate90(shotgunFlash3Rotate)"
+    },
+    "transparent": true,
+    "depthWrite": false
+  },
+  {
     "name": "models/weapons/shotgun/shotgun2",
     "diffuseMap": "models/weapons/shotgun/shotgun2",
     "specularMap": "models/weapons/shotgun/shotgun2_s",

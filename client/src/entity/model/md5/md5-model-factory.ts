@@ -6,8 +6,8 @@ import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {Pistol} from './weapon/pistol';
-import {Shotgun} from './weapon/shotgun';
+import {Pistol, PistolParameters} from './weapon/pistol';
+import {Shotgun, ShotgunParameters} from './weapon/shotgun';
 import {ParticleSystem} from '../../../particles/particle-system';
 import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
 import {DebrisSystem} from '../../../debris/debris-system';
@@ -153,47 +153,29 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private createPistol(modelDef: any, geometry: BufferGeometry) {
-        const materials = this.createMaterials(modelDef);
-        const sounds = this.getSounds(modelDef);
-        return new Pistol({
-            config: this.parameters.config,
-            geometry,
-            materials,
-            sounds,
-            particleSystem: this.particleSystem,
-            debrisSystem: this.debrisSystem,
-            decalSystem: this.decalSystem,
-            soundSystem: this.soundSystem,
-            muzzleSmokeParticleName: modelDef.muzzleSmoke,
-            detonationSmokeParticleName: modelDef.detonationSmoke,
-            detonationSparkParticleName: modelDef.detonationSpark,
-            shellDebrisName: modelDef.shell,
-            detonationMarkDecalName: modelDef.detonationMark,
-            recoilAngle: modelDef.recoilAngle,
-            recoilTime: modelDef.recoilTime
-        });
+        const pistolParams = {...modelDef} as PistolParameters;
+        pistolParams.config = this.parameters.config;
+        pistolParams.geometry = geometry;
+        pistolParams.materials = this.createMaterials(modelDef);
+        pistolParams.sounds = this.getSounds(modelDef);
+        pistolParams.particleSystem = this.particleSystem;
+        pistolParams.debrisSystem = this.debrisSystem;
+        pistolParams.decalSystem = this.decalSystem;
+        pistolParams.soundSystem = this.soundSystem;
+        return new Pistol(pistolParams);
     }
 
     private createShotgun(modelDef: any, geometry: BufferGeometry) {
-        const materials = this.createMaterials(modelDef);
-        const sounds = this.getSounds(modelDef);
-        return new Shotgun({
-            config: this.parameters.config,
-            geometry,
-            materials,
-            sounds,
-            particleSystem: this.particleSystem,
-            debrisSystem: this.debrisSystem,
-            decalSystem: this.decalSystem,
-            soundSystem: this.soundSystem,
-            muzzleSmokeParticleName: modelDef.muzzleSmoke,
-            detonationSmokeParticleName: modelDef.detonationSmoke,
-            detonationSparkParticleName: modelDef.detonationSpark,
-            shellDebrisName: modelDef.shell,
-            detonationMarkDecalName: modelDef.detonationMark,
-            recoilAngle: modelDef.recoilAngle,
-            recoilTime: modelDef.recoilTime
-        });
+        const shotgunParams = {...modelDef} as ShotgunParameters;
+        shotgunParams.config = this.parameters.config;
+        shotgunParams.geometry = geometry;
+        shotgunParams.materials = this.createMaterials(modelDef);
+        shotgunParams.sounds = this.getSounds(modelDef);
+        shotgunParams.particleSystem = this.particleSystem;
+        shotgunParams.debrisSystem = this.debrisSystem;
+        shotgunParams.decalSystem = this.decalSystem;
+        shotgunParams.soundSystem = this.soundSystem;
+        return new Shotgun(shotgunParams);
     }
 
     private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {
