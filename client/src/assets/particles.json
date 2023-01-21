@@ -53,8 +53,8 @@
     },
     "fadeIn": 0.1,
     "fadeOut": 0.9,
-    "interval": 75,
-    "color": "0x808080",
+    "interval": 100,
+    "color": "0x1a1716",
     "gravity": [10, -10, 10]
   }
 ]

@@ -1,4 +1,4 @@
-import {Sprite, Vector3} from 'three';
+import {CustomBlending, Sprite, Vector3} from 'three';
 import {SpriteMaterial} from 'three/src/materials/Materials';
 
 import {Tween} from '@tweenjs/tween.js';
@@ -12,7 +12,7 @@ export class Particle extends Sprite implements Entity {
     onHide?: (particle: Particle) => void;
 
     private readonly gravity = new Vector3();
-    private readonly fadeInTween: Tween<{l: number}>;
+    private readonly fadeInTween: Tween<any>;
 
     private showedAt = 0;
 
@@ -21,30 +21,43 @@ export class Particle extends Sprite implements Entity {
         this.visible = false;
 
         const fadeOutTime = this.parameters.time * this.parameters.fadeOut;
-
-        const hsl = {h: 0, s: 0, l: 0};
-        this.material.color.getHSL(hsl);
-
-        const fadeOutTween = new Tween({l: hsl.l})
-            .to({l: 0}, fadeOutTime)
-            .delay(this.parameters.time - fadeOutTime)
-            .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l))
-            .onComplete(() => {
-                this.visible = false;
-                if (this.onHide) {
-                    this.onHide(this);
-                }
-            });
-
+        const hideParticle = () => {
+            this.visible = false;
+            if (this.onHide) {
+                this.onHide(this);
+            }
+        };
         const scaleTo = parameters.scaleTo;
         const scaleTween = new Tween(this.scale)
-            .to({x: scaleTo, y: scaleTo, z: scaleTo}, this.parameters.time)
-            .onStart(() => fadeOutTween.start());
+            .to({x: scaleTo, y: scaleTo, z: scaleTo}, this.parameters.time);
 
-        this.fadeInTween = new Tween({l: 0})
-            .to({l: hsl.l}, this.parameters.time * this.parameters.fadeIn)
-            .onStart(() => scaleTween.start())
-            .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l));
+        if (this.material.blending === CustomBlending) {
+            // Change color lightness to show/hide particle smoothly
+            const hsl = {h: 0, s: 0, l: 0};
+            this.material.color.getHSL(hsl);
+
+            const fadeOutTween = new Tween({l: hsl.l})
+                .to({l: 0}, fadeOutTime)
+                .delay(this.parameters.time - fadeOutTime)
+                .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l))
+                .onComplete(hideParticle);
+            scaleTween.onStart(() => fadeOutTween.start());
+            this.fadeInTween = new Tween({l: 0})
+                .to({l: hsl.l}, this.parameters.time * this.parameters.fadeIn)
+                .onStart(() => scaleTween.start())
+                .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l));
+        } else {
+            // Change color opacity to show/hide particle smoothly
+            const fadeOutTween = new Tween({opacity: 1})
+                .to({opacity: 0}, fadeOutTime)
+                .delay(this.parameters.time - fadeOutTime)
+                .onUpdate(o => this.material.opacity = o.opacity)
+                .onComplete(hideParticle);
+            scaleTween.onStart(() => fadeOutTween.start());
+            this.fadeInTween = new Tween(this.material)
+                .to({opacity: 1}, this.parameters.time * this.parameters.fadeIn)
+                .onStart(() => scaleTween.start());
+        }
     }
 
     init() {
