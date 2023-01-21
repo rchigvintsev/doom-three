@@ -9,6 +9,7 @@ import {DebrisSystem} from '../../../../debris/debris-system';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
+import {ParticleSystem} from '../../../../particles/particle-system';
 
 const SHELL_POSITION = new Vector3();
 const SHELL_QUATERNION = new Quaternion();
@@ -106,6 +107,10 @@ export abstract class Firearm extends Weapon {
         return (<FirearmParameters>this.parameters).ammoClipSize;
     }
 
+    protected computeMuzzleSmokeParticlePosition(_position: Vector3) {
+        // Do nothing by default
+    }
+
     protected get shellDebrisName(): string | undefined {
         return (<FirearmParameters>this.parameters).shell;
     }
@@ -164,8 +169,16 @@ export abstract class Firearm extends Weapon {
         // Do nothing by default
     }
 
-    protected showMuzzleSmoke() {
+    protected computeFireFlashPosition(_position: Vector3) {
         // Do nothing by default
+    }
+
+    protected showMuzzleSmoke() {
+        if (!this.config.renderOnlyWireframe) {
+            const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
+            smokeParticles.onShowParticle = particle => this.computeMuzzleSmokeParticlePosition(particle.position);
+            smokeParticles.show();
+        }
     }
 
     protected updateAmmoCountersOnReload() {
@@ -229,8 +242,7 @@ export abstract class Firearm extends Weapon {
             for (const material of this.fireFlashMaterials) {
                 material.setParameters(this.fireFlashMaterialParams!);
             }
-            this.fireFlashLight!.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
-            this.worldToLocal(this.fireFlashLight!.position);
+            this.computeFireFlashPosition(this.fireFlashLight!.position);
         }
     }
 
@@ -243,8 +255,16 @@ export abstract class Firearm extends Weapon {
         }
     }
 
+    protected get particleSystem(): ParticleSystem {
+        return (<FirearmParameters>this.parameters).particleSystem;
+    }
+
     private get debrisSystem(): DebrisSystem {
         return (<FirearmParameters>this.parameters).debrisSystem;
+    }
+
+    private get muzzleSmokeParticleName(): string {
+        return (<FirearmParameters>this.parameters).muzzleSmoke;
     }
 
     private get fireFlashDistance(): number {
@@ -291,7 +311,9 @@ export function isFirearm(weapon: any): weapon is Firearm {
 }
 
 export interface FirearmParameters extends Md5ModelParameters {
+    particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
+    muzzleSmoke: string;
     shell: string;
     recoilAngle: number;
     recoilTime: number;

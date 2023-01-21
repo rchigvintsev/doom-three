@@ -3492,6 +3492,15 @@
     "name": "barrelPoof",
     "type": "sprite",
     "diffuseMap": "textures/particles/barrelpoof",
+    "blending": "custom",
+    "blendSrc": "gl_zero",
+    "blendDst": "gl_one_minus_src_color",
+    "depthWrite": false
+  },
+  {
+    "name": "bulletSmoke",
+    "type": "sprite",
+    "diffuseMap": "textures/particles/barrelpoof",
     "depthWrite": false,
     "depthTest": false
   },

@@ -21,6 +21,7 @@ export class PlayerFactory implements EntityFactory<Player> {
             collisionModel,
             this.parameters.config
         );
+        player.init();
         player.enableFists();
         return player;
     }

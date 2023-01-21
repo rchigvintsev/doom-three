@@ -91,6 +91,10 @@ export class Shotgun extends Firearm {
         return offset;
     }
 
+    protected computeMuzzleSmokeParticlePosition(position: Vector3) {
+        return position.setFromMatrixPosition(this.skeleton.bones[40].matrixWorld);
+    }
+
     protected get shellEjectionForceFactor(): number {
         return 0.16;
     }
@@ -163,16 +167,23 @@ export class Shotgun extends Firearm {
         parameters.set('shotgunFlash3ScrollX', flash3Scroll / 32);
     }
 
+    protected computeFireFlashPosition(position: Vector3) {
+        position.setFromMatrixPosition(this.skeleton.bones[40].matrixWorld);
+        this.worldToLocal(position);
+    }
+
     protected updateAmmoCountersOnReload() {
-        if (this.ammoReserve === -1) { // Infinite reserve
-            this.ammoClip = Math.min(this.ammoClip + 2, this.ammoClipSize);
-        } else {
-            if (this.ammoReserve === 1 || this.ammoClip === this.ammoClipSize - 1) {
-                this.ammoReserve = this.ammoReserve - 1;
-                this.ammoClip = this.ammoClip + 1;
+        if (this.ammoClip < this.ammoClipSize) {
+            if (this.ammoReserve === -1) { // Infinite reserve
+                this.ammoClip = Math.min(this.ammoClip + 2, this.ammoClipSize);
             } else {
-                this.ammoReserve = this.ammoReserve - 2;
-                this.ammoClip = this.ammoClip + 2;
+                if (this.ammoReserve === 1 || this.ammoClip === this.ammoClipSize - 1) {
+                    this.ammoReserve = this.ammoReserve - 1;
+                    this.ammoClip = this.ammoClip + 1;
+                } else {
+                    this.ammoReserve = this.ammoReserve - 2;
+                    this.ammoClip = this.ammoClip + 2;
+                }
             }
         }
     }
@@ -262,7 +273,6 @@ export class Shotgun extends Firearm {
 export interface ShotgunParameters extends FirearmParameters {
     particleSystem: ParticleSystem;
     decalSystem: DecalSystem;
-    muzzleSmoke: string;
     detonationSmoke: string;
     detonationSpark: string;
     detonationMark: string;

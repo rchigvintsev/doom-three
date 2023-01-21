@@ -1,16 +1,18 @@
-import {Sprite, Vector2} from 'three';
+import {Sprite, Vector3} from 'three';
 import {SpriteMaterial} from 'three/src/materials/Materials';
 
 import {Tween} from '@tweenjs/tween.js';
 
 import {Entity} from '../entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
+import {Player} from '../player/player';
 
 export class Particle extends Sprite implements Entity {
     onShow?: (particle: Particle) => void;
     onHide?: (particle: Particle) => void;
 
-    private readonly fadeInTween: Tween<SpriteMaterial>;
+    private readonly gravity = new Vector3();
+    private readonly fadeInTween: Tween<{l: number}>;
 
     private showedAt = 0;
 
@@ -19,10 +21,14 @@ export class Particle extends Sprite implements Entity {
         this.visible = false;
 
         const fadeOutTime = this.parameters.time * this.parameters.fadeOut;
-        const fadeOutTween = new Tween({opacity: 1})
-            .to({opacity: 0}, fadeOutTime)
+
+        const hsl = {h: 0, s: 0, l: 0};
+        this.material.color.getHSL(hsl);
+
+        const fadeOutTween = new Tween({l: hsl.l})
+            .to({l: 0}, fadeOutTime)
             .delay(this.parameters.time - fadeOutTime)
-            .onUpdate(o => this.material.opacity = o.opacity)
+            .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l))
             .onComplete(() => {
                 this.visible = false;
                 if (this.onHide) {
@@ -35,9 +41,10 @@ export class Particle extends Sprite implements Entity {
             .to({x: scaleTo, y: scaleTo, z: scaleTo}, this.parameters.time)
             .onStart(() => fadeOutTween.start());
 
-        this.fadeInTween = new Tween(this.material)
-            .to({opacity: 1}, this.parameters.time * this.parameters.fadeIn)
-            .onStart(() => scaleTween.start());
+        this.fadeInTween = new Tween({l: 0})
+            .to({l: hsl.l}, this.parameters.time * this.parameters.fadeIn)
+            .onStart(() => scaleTween.start())
+            .onUpdate(o => this.material.color.setHSL(hsl.h, hsl.s, o.l));
     }
 
     init() {
@@ -49,8 +56,7 @@ export class Particle extends Sprite implements Entity {
             const now = performance.now();
             const fadeInTime = this.parameters.time * this.parameters.fadeIn;
             if (now - this.showedAt > fadeInTime) {
-                this.position.x += this.parameters.gravity.x;
-                this.position.y += this.parameters.gravity.y;
+                this.position.add(this.gravity);
             }
 
             if (isUpdatableMaterial(this.material)) {
@@ -60,15 +66,19 @@ export class Particle extends Sprite implements Entity {
     }
 
     show() {
-        this.material.opacity = 0;
-        this.scale.setScalar(this.parameters.scaleFrom);
-        this.visible = true;
-        this.showedAt = performance.now();
-        this.fadeInTween.start();
+        Player.promise.then(player => {
+            this.gravity.setScalar(1).applyEuler(player.rotation).multiply(this.parameters.gravity);
 
-        if (this.onShow) {
-            this.onShow(this);
-        }
+            this.material.opacity = 0;
+            this.scale.setScalar(this.parameters.scaleFrom);
+            this.visible = true;
+            this.showedAt = performance.now();
+            this.fadeInTween.start();
+
+            if (this.onShow) {
+                this.onShow(this);
+            }
+        });
     }
 
     get interval(): number {
@@ -84,5 +94,5 @@ export interface ParticleParameters {
     time: number;
     scaleFrom: number;
     scaleTo: number;
-    gravity: Vector2;
+    gravity: Vector3;
 }

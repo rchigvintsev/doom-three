@@ -11,13 +11,13 @@
     "fadeIn": 0.2,
     "fadeOut": 0.5,
     "interval": 50,
-    "color": "0x333333",
-    "gravity": [0, -10]
+    "color": "0x4d4d4d",
+    "gravity": [0, -10, 0]
   },
   {
     "name": "bulletsmoke",
     "count": 3,
-    "material": "barrelPoof",
+    "material": "bulletSmoke",
     "time": 1100,
     "scale": {
       "from": 2,
@@ -41,5 +41,20 @@
     "fadeOut": 0.6,
     "interval": 50,
     "color": "0xdfe973"
+  },
+  {
+    "name": "shotgunmuzzlesmoke",
+    "count": 5,
+    "material": "barrelPoof",
+    "time": 1000,
+    "scale": {
+      "from": 10,
+      "to": 13
+    },
+    "fadeIn": 0.1,
+    "fadeOut": 0.9,
+    "interval": 75,
+    "color": "0x808080",
+    "gravity": [10, -10, 10]
   }
 ]

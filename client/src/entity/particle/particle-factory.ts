@@ -1,4 +1,4 @@
-import {SpriteMaterial, Vector2} from 'three';
+import {SpriteMaterial, Vector3} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {Particle} from './particle';
@@ -28,11 +28,12 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
             particleMaterial.color.setHex(particleDef.color);
 
             const worldScale = this.parameters.config.worldScale;
-            const gravity = new Vector2();
+            const gravity = new Vector3();
             if (particleDef.gravity) {
                 gravity.set(
                     particleDef.gravity[0] * GRAVITY_FACTOR * worldScale,
-                    -particleDef.gravity[1] * GRAVITY_FACTOR * worldScale
+                    -particleDef.gravity[1] * GRAVITY_FACTOR * worldScale,
+                    particleDef.gravity[2] * GRAVITY_FACTOR * worldScale,
                 );
             }
 

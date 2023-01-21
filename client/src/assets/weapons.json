@@ -123,6 +123,7 @@
       "impact_metal": "bullet_impact_metal",
       "impact_cardboard": "bullet_impact_cardboard"
     },
+    "muzzleSmoke": "shotgunmuzzlesmoke",
     "shell": "debris_shotgunbrass",
     "recoilAngle": 5,
     "recoilTime": 250,

@@ -1,8 +1,6 @@
 import {BufferGeometry, Intersection, Mesh, Quaternion, Vector3} from 'three';
 
 import {BufferGeometries} from '../../../../util/buffer-geometries';
-import {ParticleSystem} from '../../../../particles/particle-system';
-import {Particle} from '../../../particle/particle';
 import {Firearm, FirearmParameters, FirearmState} from './firearm';
 import {DecalSystem} from '../../../../decal/decal-system';
 import {isUpdatableMaterial} from '../../../../material/updatable-material';
@@ -90,6 +88,10 @@ export class Pistol extends Firearm {
         return offset;
     }
 
+    protected computeMuzzleSmokeParticlePosition(position: Vector3) {
+        return position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+    }
+
     protected get shellEjectionForceFactor(): number {
         return 0.08;
     }
@@ -140,23 +142,22 @@ export class Pistol extends Firearm {
         parameters.set('pistolFlash2ScrollX', flash2FrameNumber / 4);
     }
 
-    protected showMuzzleSmoke() {
-        if (!this.config.renderOnlyWireframe) {
-            const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
-            smokeParticles.onShowParticle = particle => this.setMuzzleSmokeParticlePosition(particle);
-            smokeParticles.show();
-        }
+    protected computeFireFlashPosition(position: Vector3) {
+        position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
+        this.worldToLocal(position);
     }
 
     protected updateAmmoCountersOnReload() {
-        if (this.ammoReserve === -1) { // Infinite reserve
-            this.ammoClip = this.ammoClipSize;
-        } else if (this.ammoReserve < this.ammoClipSize) {
-            this.ammoClip = this.ammoReserve;
-            this.ammoReserve = 0;
-        } else {
-            this.ammoReserve -= this.ammoClipSize - this.ammoClip;
-            this.ammoClip = this.ammoClipSize;
+        if (this.ammoClip < this.ammoClipSize) {
+            if (this.ammoReserve === -1) { // Infinite reserve
+                this.ammoClip = this.ammoClipSize;
+            } else if (this.ammoReserve < this.ammoClipSize) {
+                this.ammoClip = this.ammoReserve;
+                this.ammoReserve = 0;
+            } else {
+                this.ammoReserve -= this.ammoClipSize - this.ammoClip;
+                this.ammoClip = this.ammoClipSize;
+            }
         }
     }
 
@@ -175,24 +176,12 @@ export class Pistol extends Firearm {
             .thenCrossFadeTo('idle').withDelay(1.85).flow);
     }
 
-    private get particleSystem(): ParticleSystem {
-        return (<PistolParameters>this.parameters).particleSystem;
-    }
-
-    private get muzzleSmokeParticleName(): string {
-        return (<PistolParameters>this.parameters).muzzleSmoke;
-    }
-
     private get detonationSmokeParticleName(): string {
         return (<PistolParameters>this.parameters).detonationSmoke;
     }
 
     private get detonationSparkParticleName(): string {
         return (<PistolParameters>this.parameters).detonationSpark;
-    }
-
-    private setMuzzleSmokeParticlePosition(particle: Particle) {
-        return particle.position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
     }
 
     private showDetonationSmoke(intersection: Intersection) {
@@ -269,9 +258,7 @@ export class Pistol extends Firearm {
 }
 
 export interface PistolParameters extends FirearmParameters {
-    particleSystem: ParticleSystem;
     decalSystem: DecalSystem;
-    muzzleSmoke: string;
     detonationSmoke: string;
     detonationSpark: string;
     detonationMark: string;
