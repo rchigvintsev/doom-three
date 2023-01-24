@@ -125,13 +125,16 @@
     },
     "muzzleSmoke": "shotgunmuzzlesmoke",
     "shell": "debris_shotgunbrass",
+    "detonationMark": "bulleth02",
+    "detonationSmoke": "bulletsmoke",
+    "detonationSpark": "bulletspark",
     "recoilAngle": 5,
     "recoilTime": 250,
     "fireFlashDistance": 120,
     "fireFlashColor": "0xffcc66",
     "ammoClipSize": 8,
     "maxAmmoReserve": 312,
-    "attackDistance": 0,
-    "attackForce": 0
+    "attackDistance": 1000,
+    "attackForce": 3
   }
 ]

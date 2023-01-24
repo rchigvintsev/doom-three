@@ -1,42 +1,16 @@
-import {BufferGeometry, Intersection, Mesh, Quaternion, Vector3} from 'three';
+import {BufferGeometry, Quaternion, Vector3} from 'three';
 
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {Firearm, FirearmParameters, FirearmState} from './firearm';
-import {DecalSystem} from '../../../../decal/decal-system';
-import {isUpdatableMaterial} from '../../../../material/updatable-material';
-import {MaterialKind} from '../../../../material/material-kind';
 
 export class Pistol extends Firearm {
-    constructor(parameters: PistolParameters) {
+    constructor(parameters: FirearmParameters) {
         super(parameters);
         this.applyTubeDeformToFireFlash(this.geometry);
     }
 
     isLowAmmo(): boolean {
         return this.ammoClip < 5;
-    }
-
-    onHit = (() => {
-        const decalPosition = new Vector3();
-        return (target: Mesh, intersection: Intersection) => {
-            const pistolParams = <PistolParameters>this.parameters;
-            pistolParams.decalSystem.createDecal({
-                name: pistolParams.detonationMark,
-                target,
-                position: target.worldToLocal(decalPosition.copy(intersection.point)),
-                normal: intersection.face?.normal
-            }).show();
-            this.playImpactSound(intersection.point, target);
-            this.showDetonationSmoke(intersection);
-            const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
-            if (isUpdatableMaterial(targetMaterial) && targetMaterial.kind === MaterialKind.METAL) {
-                this.showDetonationSpark(intersection);
-            }
-        };
-    })();
-
-    onMiss() {
-        // Do nothing
     }
 
     protected doInit() {
@@ -176,41 +150,6 @@ export class Pistol extends Firearm {
             .thenCrossFadeTo('idle').withDelay(1.85).flow);
     }
 
-    private get detonationSmokeParticleName(): string {
-        return (<PistolParameters>this.parameters).detonationSmoke;
-    }
-
-    private get detonationSparkParticleName(): string {
-        return (<PistolParameters>this.parameters).detonationSpark;
-    }
-
-    private showDetonationSmoke(intersection: Intersection) {
-        this.showDetonationParticle(this.detonationSmokeParticleName, intersection);
-    }
-
-    private showDetonationSpark(intersection: Intersection) {
-        this.showDetonationParticle(this.detonationSparkParticleName, intersection);
-    }
-
-    private showDetonationParticle = (() => {
-        const particleOffset = new Vector3();
-        return (particleName: string, intersection: Intersection) => {
-            if (!this.config.renderOnlyWireframe) {
-                const particles = this.particleSystem.createParticles(particleName);
-                particles.onShowParticle = particle => {
-                    particle.position.copy(intersection.point);
-                    if (intersection.face) {
-                        particle.position.add(particleOffset
-                            .copy(intersection.face.normal)
-                            .negate()
-                            .multiplyScalar(2 * this.config.worldScale));
-                    }
-                };
-                particles.show();
-            }
-        };
-    })();
-
     private playRaiseSound() {
         this.playSound('raise', 0.1);
     }
@@ -255,11 +194,4 @@ export class Pistol extends Firearm {
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
     })();
-}
-
-export interface PistolParameters extends FirearmParameters {
-    decalSystem: DecalSystem;
-    detonationSmoke: string;
-    detonationSpark: string;
-    detonationMark: string;
 }

@@ -3498,16 +3498,14 @@
     "name": "bulletSmoke",
     "type": "sprite",
     "diffuseMap": "textures/particles/barrelpoof",
-    "depthWrite": false,
-    "depthTest": false
+    "depthWrite": false
   },
   {
     "name": "boomBoom3",
     "type": "sprite",
     "diffuseMap": "textures/particles/boomboom3",
     "blending": "additive",
-    "depthWrite": false,
-    "depthTest": false
+    "depthWrite": false
   },
   {
     "name": "models/weapons/shell1/mshell",

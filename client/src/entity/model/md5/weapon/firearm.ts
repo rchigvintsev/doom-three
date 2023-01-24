@@ -1,4 +1,16 @@
-import {Euler, MathUtils, Matrix4, Object3D, PointLight, Quaternion, Vector3} from 'three';
+import {
+    Euler,
+    Intersection,
+    MathUtils,
+    Matrix3,
+    Matrix4,
+    Mesh,
+    Object3D,
+    PointLight,
+    Quaternion,
+    Vector2,
+    Vector3
+} from 'three';
 import {degToRad} from 'three/src/math/MathUtils';
 
 import {Tween} from '@tweenjs/tween.js';
@@ -6,10 +18,13 @@ import {Tween} from '@tweenjs/tween.js';
 import {Weapon, WeaponState} from './weapon';
 import {Md5ModelParameters} from '../md5-model';
 import {DebrisSystem} from '../../../../debris/debris-system';
+import {DecalSystem} from '../../../../decal/decal-system';
+import {ParticleSystem} from '../../../../particles/particle-system';
+import {isUpdatableMaterial} from '../../../../material/updatable-material';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
+import {MaterialKind} from '../../../../material/material-kind';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
-import {ParticleSystem} from '../../../../particles/particle-system';
 
 const SHELL_POSITION = new Vector3();
 const SHELL_QUATERNION = new Quaternion();
@@ -74,7 +89,7 @@ export abstract class Firearm extends Weapon {
             this.lastFireTime = performance.now();
             this.showMuzzleSmoke();
             this.ejectShell();
-            this.dispatchEvent(new AttackEvent(this, this.attackDistance, this.attackForce));
+            this.dispatchEvent(new AttackEvent(this, this.attackDistance, this.attackForce, this.attackCoords));
         } else if (this._ammoClip === 0) {
             this.reload();
         }
@@ -85,6 +100,29 @@ export abstract class Firearm extends Weapon {
             this.startAnimationFlow('reload');
             this.changeState(FirearmState.RELOADING);
         }
+    }
+
+    onHit = (() => {
+        const decalPosition = new Vector3();
+        return (target: Mesh, intersection: Intersection) => {
+            const shotgunParams = <FirearmParameters>this.parameters;
+            shotgunParams.decalSystem.createDecal({
+                name: shotgunParams.detonationMark,
+                target,
+                position: target.worldToLocal(decalPosition.copy(intersection.point)),
+                normal: intersection.face?.normal
+            }).show();
+            this.playImpactSound(intersection.point, target);
+            this.showDetonationSmoke(intersection);
+            const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
+            if (isUpdatableMaterial(targetMaterial) && targetMaterial.kind === MaterialKind.METAL) {
+                this.showDetonationSpark(intersection);
+            }
+        };
+    })();
+
+    onMiss() {
+        // Do nothing by default
     }
 
     get ammoClip(): number {
@@ -159,6 +197,10 @@ export abstract class Firearm extends Weapon {
 
     protected get fireFlashDurationMillis(): number {
         return FIRE_FLASH_DURATION_MILLIS;
+    }
+
+    protected get attackCoords(): Vector2[] {
+        return [];
     }
 
     protected initFireFlashMaterialParameters(_parameters: Map<string, any>) {
@@ -255,7 +297,37 @@ export abstract class Firearm extends Weapon {
         }
     }
 
-    protected get particleSystem(): ParticleSystem {
+    private showDetonationSmoke(intersection: Intersection) {
+        this.showDetonationParticle(this.detonationSmokeParticleName, intersection);
+    }
+
+    private showDetonationSpark(intersection: Intersection) {
+        this.showDetonationParticle(this.detonationSparkParticleName, intersection);
+    }
+
+    private showDetonationParticle = (() => {
+        const normalMatrix = new Matrix3();
+        const positionOffset = new Vector3();
+        return (particleName: string, intersection: Intersection) => {
+            if (!this.config.renderOnlyWireframe) {
+                if (intersection.face) {
+                    normalMatrix.getNormalMatrix(intersection.object.matrixWorld);
+                    positionOffset.copy(intersection.face.normal)
+                        .applyMatrix3(normalMatrix)
+                        .normalize()
+                        .multiplyScalar(2 * this.parameters.config.worldScale);
+                } else {
+                    positionOffset.setScalar(0);
+                }
+
+                const particles = this.particleSystem.createParticles(particleName);
+                particles.onShowParticle = particle => particle.position.copy(intersection.point).sub(positionOffset);
+                particles.show();
+            }
+        };
+    })();
+
+    private get particleSystem(): ParticleSystem {
         return (<FirearmParameters>this.parameters).particleSystem;
     }
 
@@ -265,6 +337,14 @@ export abstract class Firearm extends Weapon {
 
     private get muzzleSmokeParticleName(): string {
         return (<FirearmParameters>this.parameters).muzzleSmoke;
+    }
+
+    private get detonationSmokeParticleName(): string {
+        return (<FirearmParameters>this.parameters).detonationSmoke;
+    }
+
+    private get detonationSparkParticleName(): string {
+        return (<FirearmParameters>this.parameters).detonationSpark;
     }
 
     private get fireFlashDistance(): number {
@@ -313,8 +393,12 @@ export function isFirearm(weapon: any): weapon is Firearm {
 export interface FirearmParameters extends Md5ModelParameters {
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
+    decalSystem: DecalSystem;
     muzzleSmoke: string;
     shell: string;
+    detonationMark: string;
+    detonationSmoke: string;
+    detonationSpark: string;
     recoilAngle: number;
     recoilTime: number;
     fireFlashDistance: number;

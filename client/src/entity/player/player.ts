@@ -17,12 +17,10 @@ import {isFirearm} from '../model/md5/weapon/firearm';
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
 
-let playerResolve: (player: Player) => void = () => {
-    throw new Error('Resolve function of player promise is not initialized');
-};
+let playerResolve: (player: Player) => void = () => undefined;
 
 export class Player extends Object3D implements TangibleEntity {
-    static promise: Promise<Player> = new Promise<Player>((resolve) => playerResolve = resolve);
+    static readonly INSTANCE: Promise<Player> = new Promise<Player>((resolve) => playerResolve = resolve);
 
     readonly tangibleEntity = true;
 

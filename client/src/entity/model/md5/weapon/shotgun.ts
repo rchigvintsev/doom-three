@@ -1,17 +1,16 @@
-import {BufferGeometry, Quaternion, Vector3} from 'three';
+import {BufferGeometry, Quaternion, Vector2, Vector3} from 'three';
 
 import {Player} from '../../../player/player';
-import {ParticleSystem} from '../../../../particles/particle-system';
 import {Firearm, FirearmParameters, FirearmState} from './firearm';
-import {DecalSystem} from '../../../../decal/decal-system';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 
 const SHELL_EJECTION_TIMEOUT_MILLIS = 650;
+const BUCKSHOT_DISTRIBUTION_FACTOR = 0.5;
 
 export class Shotgun extends Firearm {
     private shellEjected = true;
 
-    constructor(parameters: ShotgunParameters) {
+    constructor(parameters: FirearmParameters) {
         super(parameters);
         this.applyTubeDeformToFireFlash(this.geometry);
     }
@@ -37,14 +36,6 @@ export class Shotgun extends Firearm {
 
     isLowAmmo(): boolean {
         return this.ammoClip < 3;
-    }
-
-    onHit() {
-        // Do nothing
-    }
-
-    onMiss() {
-        // Do nothing
     }
 
     protected doInit() {
@@ -188,6 +179,16 @@ export class Shotgun extends Firearm {
         }
     }
 
+    protected get attackCoords(): Vector2[] {
+        const coords = [];
+        for (let i = 0; i < 13; i++) {
+            const x = Math.random() * BUCKSHOT_DISTRIBUTION_FACTOR - BUCKSHOT_DISTRIBUTION_FACTOR / 2.0;
+            const y = Math.random() * BUCKSHOT_DISTRIBUTION_FACTOR - BUCKSHOT_DISTRIBUTION_FACTOR / 2.0;
+            coords.push(new Vector2(x, y));
+        }
+        return coords;
+    }
+
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
             .onStart(() => this.playRaiseSound())
@@ -268,12 +269,4 @@ export class Shotgun extends Firearm {
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
     })();
-}
-
-export interface ShotgunParameters extends FirearmParameters {
-    particleSystem: ParticleSystem;
-    decalSystem: DecalSystem;
-    detonationSmoke: string;
-    detonationSpark: string;
-    detonationMark: string;
 }

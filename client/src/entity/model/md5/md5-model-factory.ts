@@ -6,14 +6,15 @@ import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {Pistol, PistolParameters} from './weapon/pistol';
-import {Shotgun, ShotgunParameters} from './weapon/shotgun';
+import {Pistol} from './weapon/pistol';
+import {Shotgun} from './weapon/shotgun';
 import {ParticleSystem} from '../../../particles/particle-system';
 import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
 import {DebrisSystem} from '../../../debris/debris-system';
 import {GameAssets} from '../../../game-assets';
 import {DecalSystem} from '../../../decal/decal-system';
 import {SoundSystem} from '../../../sound/sound-system';
+import {FirearmParameters} from './weapon/firearm';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(parameters: Md5ModelFactoryParameters) {
@@ -153,7 +154,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private createPistol(modelDef: any, geometry: BufferGeometry) {
-        const pistolParams = {...modelDef} as PistolParameters;
+        const pistolParams = {...modelDef} as FirearmParameters;
         pistolParams.config = this.parameters.config;
         pistolParams.geometry = geometry;
         pistolParams.materials = this.createMaterials(modelDef);
@@ -166,7 +167,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private createShotgun(modelDef: any, geometry: BufferGeometry) {
-        const shotgunParams = {...modelDef} as ShotgunParameters;
+        const shotgunParams = {...modelDef} as FirearmParameters;
         shotgunParams.config = this.parameters.config;
         shotgunParams.geometry = geometry;
         shotgunParams.materials = this.createMaterials(modelDef);

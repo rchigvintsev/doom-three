@@ -8,11 +8,12 @@ import {Hud} from '../hud/hud';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 
+const SCREEN_CENTER_COORDS = new Vector2();
+
 export class GameMap extends Group implements TangibleEntity {
     readonly tangibleEntity = true;
 
     private readonly raycaster = new Raycaster();
-    private readonly mouseCoords = new Vector2();
     private readonly forceVector = new Vector3();
 
     constructor(readonly player: Player,
@@ -65,22 +66,27 @@ export class GameMap extends Group implements TangibleEntity {
 
     private _onAttack(e: AttackEvent) {
         let missed = true;
-
         this.raycaster.far = e.distance;
-        this.raycaster.setFromCamera(this.mouseCoords, this.player.camera);
 
-        this.forceVector.unproject(this.player.camera).normalize().multiplyScalar(e.force).negate();
+        let coords = e.coords;
+        if (coords.length === 0) {
+            coords = [SCREEN_CENTER_COORDS];
+        }
 
-        const intersections = this.raycaster.intersectObjects(this.areas);
-        for (const intersection of intersections) {
-            let target: any = intersection.object;
-            while (!isTangibleEntity(target) && target.parent) {
-                target = target.parent;
-            }
-            if (isTangibleEntity(target)) {
-                target.onAttack(intersection, this.forceVector, e.weapon);
-                missed = false;
-                break;
+        for (const c of coords) {
+            this.raycaster.setFromCamera(c, this.player.camera);
+            this.forceVector.unproject(this.player.camera).normalize().multiplyScalar(e.force).negate();
+            const intersections = this.raycaster.intersectObjects(this.areas);
+            for (const intersection of intersections) {
+                let target: any = intersection.object;
+                while (!isTangibleEntity(target) && target.parent) {
+                    target = target.parent;
+                }
+                if (isTangibleEntity(target)) {
+                    target.onAttack(intersection, this.forceVector, e.weapon);
+                    missed = false;
+                    break;
+                }
             }
         }
 

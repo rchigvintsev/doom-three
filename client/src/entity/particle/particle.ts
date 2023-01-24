@@ -79,7 +79,7 @@ export class Particle extends Sprite implements Entity {
     }
 
     show() {
-        Player.promise.then(player => {
+        Player.INSTANCE.then(player => {
             this.gravity.setScalar(1).applyEuler(player.rotation).multiply(this.parameters.gravity);
 
             this.material.opacity = 0;
