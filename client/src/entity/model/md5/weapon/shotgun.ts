@@ -9,6 +9,9 @@ const BUCKSHOT_DISTRIBUTION_FACTOR = 0.5;
 
 export class Shotgun extends Firearm {
     private shellEjected = true;
+    private ammoCountersUpdated = true;
+    private ammoCountersUpdateTimeoutMillis = 0;
+    private lastReloadTime = 0;
 
     constructor(parameters: FirearmParameters) {
         super(parameters);
@@ -17,19 +20,35 @@ export class Shotgun extends Firearm {
 
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime, player);
-        if (this.lastFireTime > 0) {
-            const now = performance.now();
-            const fireDelta = now - this.lastFireTime;
 
-            if (!this.shellEjected && fireDelta > SHELL_EJECTION_TIMEOUT_MILLIS) {
+        if (this.lastFireTime > 0 && !this.shellEjected) {
+            const now = performance.now();
+            if (now - this.lastFireTime > SHELL_EJECTION_TIMEOUT_MILLIS) {
                 this.ejectShell();
+            }
+        }
+
+        if (this.lastReloadTime > 0 && !this.ammoCountersUpdated) {
+            if (!this.isReloading()) {
+                this.ammoCountersUpdated = true;
+            } else {
+                const now = performance.now();
+                if (now - this.lastReloadTime > this.ammoCountersUpdateTimeoutMillis) {
+                    this.updateAmmoCountersOnReload();
+                    this.ammoCountersUpdated = true;
+                }
             }
         }
     }
 
     attack() {
+        const canAttack = this.canAttack();
+        if (canAttack && this.isReloading()) {
+            this.stopAllAnimations('reload_start', 'reload_loop', 'reload_loop2', 'reload_loop3', 'reload_end');
+            this.stopAllSounds('reload_start', 'reload_loop', 'pump');
+        }
         super.attack();
-        if (this.canAttack()) {
+        if (canAttack) {
             this.shellEjected = false;
         }
     }
@@ -51,7 +70,13 @@ export class Shotgun extends Firearm {
                 }
                 break;
             case FirearmState.RELOADING:
-                if (!this.isAnyAnimationRunning('reload_start', 'reload_loop', 'reload_loop2', 'reload_loop3', 'reload_end')) {
+                if (!this.isAnyAnimationRunning(
+                    'reload_start',
+                    'reload_loop',
+                    'reload_loop2',
+                    'reload_loop3',
+                    'reload_end'
+                )) {
                     this.changeState(FirearmState.IDLE);
                 }
                 break;
@@ -111,8 +136,10 @@ export class Shotgun extends Firearm {
     }
 
     protected ejectShell() {
-        super.ejectShell();
-        this.shellEjected = true;
+        if (!this.shellEjected) {
+            super.ejectShell();
+            this.shellEjected = true;
+        }
     }
 
     protected get fireFlashMaterialNames(): string[] {
@@ -189,6 +216,10 @@ export class Shotgun extends Firearm {
         return coords;
     }
 
+    protected canAttack(): boolean {
+        return this.ammoClip > 0 && (this.isIdle() || this.isReloading());
+    }
+
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
             .onStart(() => this.playRaiseSound())
@@ -211,10 +242,20 @@ export class Shotgun extends Firearm {
                 return repetitions;
             }).withDelay(0.19).withDuration(0.22).onLoop(() => {
                 this.playReloadLoopSound();
-                this.updateAmmoCountersOnReload();
+                this.updateAmmoCountersOnReloadLoop(0.3);
             })
             .thenCrossFadeTo('reload_end').withDelay(0.4).onStart(() => this.playPumpSound(0.5))
             .thenCrossFadeTo('idle').withDelay(0.8).flow);
+    }
+
+    private updateAmmoCountersOnReloadLoop(delay = 0) {
+        if (delay === 0) {
+            this.updateAmmoCountersOnReload();
+        } else {
+            this.lastReloadTime = performance.now();
+            this.ammoCountersUpdateTimeoutMillis = delay * 1000;
+            this.ammoCountersUpdated = false;
+        }
     }
 
     private playRaiseSound() {

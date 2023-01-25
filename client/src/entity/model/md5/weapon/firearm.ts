@@ -242,6 +242,14 @@ export abstract class Firearm extends Weapon {
         }
     }
 
+    protected isIdle() {
+        return this.currentState === FirearmState.IDLE;
+    }
+
+    protected isReloading() {
+        return this.currentState === FirearmState.RELOADING;
+    }
+
     private initFireFlash() {
         if (!this.config.renderOnlyWireframe) {
             for (const materialName of this.fireFlashMaterialNames) {
@@ -379,10 +387,6 @@ export abstract class Firearm extends Weapon {
                     updateCallback(object, elapsed);
                 }
             }));
-    }
-
-    private isIdle() {
-        return this.currentState === WeaponState.IDLE;
     }
 }
 

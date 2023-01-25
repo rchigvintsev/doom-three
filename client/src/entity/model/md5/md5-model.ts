@@ -93,6 +93,23 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
+    protected isAnyAnimationRunning(...animationNames: string[]): boolean {
+        const actions = this.animationMixer.findActions(...animationNames);
+        for (const action of actions) {
+            if (action.isRunning()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected stopAllAnimations(...animationNames: string[]) {
+        const actions = this.animationMixer.findActions(...animationNames);
+        for (const action of actions) {
+            action.stop().reset();
+        }
+    }
+
     protected playImpactSound(soundPosition: Vector3, target: Mesh) {
         const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
         let materialKind = MaterialKind.METAL;
@@ -109,32 +126,22 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
             throw new Error('Unsupported material type: ' + materialKind);
         }
 
-        const sound = this.getRequiredSound(soundAlias);
+        const sound = this.findSound(soundAlias);
         sound.position.copy(soundPosition);
         target.add(sound);
         sound.play();
     }
 
     protected playSound(soundName: string, delay?: number) {
-        this.getRequiredSound(soundName).play(delay);
+        this.findSound(soundName).play(delay);
     }
 
-    protected getRequiredSound(soundAlias: string): Audio<AudioNode> {
-        const soundName = this.parameters.sounds.get(soundAlias);
-        if (!soundName) {
-            throw new Error(`Sound "${soundAlias}" is not found for MD5 model "${this.name}"`);
-        }
-        return this.parameters.soundSystem.createSound(soundName);
-    }
-
-    protected isAnyAnimationRunning(...animationNames: string[]): boolean {
-        const actions = this.animationMixer.findActions(...animationNames);
-        for (const action of actions) {
-            if (action.isRunning()) {
-                return true;
+    protected stopAllSounds(...soundNames: string[]) {
+        for (const sound of this.findSounds(...soundNames)) {
+            if (sound.isPlaying) {
+                sound.stop();
             }
         }
-        return false;
     }
 
     protected findMaterialByName(name: string): Material | undefined {
@@ -153,6 +160,23 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     protected changeState(newState: string) {
         this.previousState = this.currentState;
         this.currentState = newState;
+    }
+
+    private findSound(soundAlias: string): Audio<AudioNode> {
+        return this.parameters.soundSystem.createSound(this.soundNameForAlias(soundAlias));
+    }
+
+    private findSounds(...soundAliases: string[]): Audio<AudioNode>[] {
+        const soundNames = soundAliases.map(alias => this.soundNameForAlias(alias));
+        return this.parameters.soundSystem.findSounds(...soundNames);
+    }
+
+    private soundNameForAlias(soundAlias: string): string {
+        const soundName = this.parameters.sounds.get(soundAlias);
+        if (!soundName) {
+            throw new Error(`Sound "${soundAlias}" is not found for MD5 model "${this.name}"`);
+        }
+        return soundName;
     }
 }
 
