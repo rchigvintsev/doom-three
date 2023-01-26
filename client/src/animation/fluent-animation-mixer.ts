@@ -6,6 +6,8 @@ import {AnimationFlow} from './flow/animation-flow';
 import {AnyAnimationFlowStep} from './flow/any-animation-flow-step';
 import {AnimationUpdateHandler} from './animation-update-handler';
 import {ConditionalAnimationFlowStep} from './flow/conditional-animation-flow-step';
+import {AnimationFlowStep} from './flow/animation-flow-step';
+import {CrossFadeAnyAnimationFlowStep} from './flow/cross-fade-any-animation-flow-step';
 
 export class FluentAnimationMixer extends AnimationMixer {
     private readonly animationActions = new Map<string, AnimationAction>();
@@ -38,6 +40,10 @@ export class FluentAnimationMixer extends AnimationMixer {
 
     animateIf(predicate: () => boolean, thenActionName: string): ConditionalAnimationFlowStep {
         return new AnimationFlow(this).conditionalStep(predicate, this.animate(thenActionName));
+    }
+
+    animateCrossFade(fromStep: AnimationFlowStep, toActionName: string): CrossFadeAnyAnimationFlowStep {
+        return new AnimationFlow(this).crossFadeStep(fromStep, toActionName);
     }
 
     findActions(...actionNames: string[]): AnimationAction[] {

@@ -6,6 +6,7 @@ import {AnimationFlowStep} from './animation-flow-step';
 import {AlternateAnimationFlowStep} from './alternate-animation-flow-step';
 import {Random} from '../../util/random';
 import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-step';
+import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 
 export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
     private _action?: AnimationAction;
@@ -52,10 +53,15 @@ export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     thenCrossFadeTo(actionName: string): CrossFadeAnyAnimationFlowStep {
-        return this.flow.crossFadeStep(actionName);
+        return this.flow.crossFadeStep(undefined, actionName);
     }
 
     thenCrossFadeToAny(...actionNames: string[]): CrossFadeAnyAnimationFlowStep {
-        return this.flow.crossFadeAnyStep(...actionNames);
+        return this.flow.crossFadeAnyStep(undefined, ...actionNames);
+    }
+
+    thenIf(predicate: () => boolean,
+           thenStep: AnimationFlowStep | ((previousStep: AnimationFlowStep) => AnimationFlowStep)): ConditionalAnimationFlowStep {
+        return this.flow.conditionalStep(predicate, thenStep);
     }
 }

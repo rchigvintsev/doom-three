@@ -21,7 +21,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
     private loopCount = -1;
 
     constructor(flow: AnimationFlow,
-                private readonly previousStep: AnimationFlowStep,
+                private readonly fromStep: AnimationFlowStep,
                 private readonly toActions: AnimationAction[],
                 private readonly random = new Random()) {
         super(flow);
@@ -47,7 +47,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
         }
 
         if (this.started && this.delay != undefined) {
-            const fromAction = this.previousStep.action;
+            const fromAction = this.fromStep.action;
             const fromClip = fromAction.getClip();
 
             let delay = Math.min(this.delay, fromClip.duration);
@@ -100,7 +100,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
         }
 
         if (this.delay == undefined) {
-            const fromAction = this.previousStep.action;
+            const fromAction = this.fromStep.action;
             this.toAction!.play();
 
             let duration = this.duration;
@@ -122,7 +122,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
     }
 
     clone(flow: AnimationFlow): CrossFadeAnyAnimationFlowStep {
-        const clone = flow.crossFadeAnyStep(...this.toActions.map(action => action.getClip().name));
+        const clone = flow.crossFadeAnyStep(undefined, ...this.toActions.map(action => action.getClip().name));
         if (this.delay != undefined) {
             clone.withDelay(this.delay);
         }
@@ -185,11 +185,11 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
     }
 
     thenCrossFadeTo(actionName: string): CrossFadeAnyAnimationFlowStep {
-        return this.flow.crossFadeStep(actionName);
+        return this.flow.crossFadeStep(undefined, actionName);
     }
 
     thenCrossFadeToAny(...actionNames: string[]): CrossFadeAnyAnimationFlowStep {
-        return this.flow.crossFadeAnyStep(...actionNames);
+        return this.flow.crossFadeAnyStep(undefined, ...actionNames);
     }
 
     thenIf(predicate: () => boolean, thenStep: AnimationFlowStep): ConditionalAnimationFlowStep {

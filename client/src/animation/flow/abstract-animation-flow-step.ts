@@ -4,6 +4,8 @@ import {AnimationFlow} from './animation-flow';
 import {AnimationFlowStep} from './animation-flow-step';
 
 export abstract class AbstractAnimationFlowStep implements AnimationFlowStep {
+    readonly animationFlowStep = true;
+
     constructor(readonly flow: AnimationFlow) {
     }
 

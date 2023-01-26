@@ -11,6 +11,8 @@ import {isUpdatableMaterial} from '../../../material/updatable-material';
 import {AnyAnimationFlowStep} from '../../../animation/flow/any-animation-flow-step';
 import {AnimationFlow} from '../../../animation/flow/animation-flow';
 import {ConditionalAnimationFlowStep} from '../../../animation/flow/conditional-animation-flow-step';
+import {AnimationFlowStep} from '../../../animation/flow/animation-flow-step';
+import {CrossFadeAnyAnimationFlowStep} from '../../../animation/flow/cross-fade-any-animation-flow-step';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -72,6 +74,10 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return this.animationMixer.animateIf(predicate, actionName);
     }
 
+    protected animateCrossFade(previousStep: AnimationFlowStep, actionName: string): CrossFadeAnyAnimationFlowStep {
+        return this.animationMixer.animateCrossFade(previousStep, actionName);
+    }
+
     protected doInit() {
         this.animationMixer = new FluentAnimationMixer(this);
         if (this._wireframeHelper) {
@@ -126,14 +132,21 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
             throw new Error('Unsupported material type: ' + materialKind);
         }
 
-        const sound = this.findSound(soundAlias);
+        const sound = this.createSound(soundAlias);
         sound.position.copy(soundPosition);
         target.add(sound);
         sound.play();
     }
 
     protected playSound(soundName: string, delay?: number) {
-        this.findSound(soundName).play(delay);
+        this.createSound(soundName).play(delay);
+    }
+
+    protected playSoundOnce(soundName: string, delay?: number) {
+        const sound = this.findSound(soundName);
+        if (!sound.isPlaying) {
+            sound.play(delay);
+        }
     }
 
     protected stopAllSounds(...soundNames: string[]) {
@@ -162,8 +175,13 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         this.currentState = newState;
     }
 
-    private findSound(soundAlias: string): Audio<AudioNode> {
+    private createSound(soundAlias: string): Audio<AudioNode> {
         return this.parameters.soundSystem.createSound(this.soundNameForAlias(soundAlias));
+    }
+
+    private findSound(soundAlias: string): Audio<AudioNode> {
+        const sound = this.parameters.soundSystem.findSounds(this.soundNameForAlias(soundAlias))[0];
+        return sound || this.createSound(soundAlias);
     }
 
     private findSounds(...soundAliases: string[]): Audio<AudioNode>[] {

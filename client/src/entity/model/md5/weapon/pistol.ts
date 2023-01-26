@@ -147,9 +147,9 @@ export class Pistol extends Firearm {
     })();
 
     private initAnimationFlows() {
-        this.addAnimationFlow('enable', this.animate('raise')
-            .onStart(() => this.playRaiseSound())
-            .thenCrossFadeTo('idle').withDelay(0.5).flow);
+        this.addAnimationFlow('enable', this.animate('raise').onStart(() => this.playRaiseSound())
+            .thenIf(() => this.ammoClip === 0, raiseStep => this.animateCrossFade(raiseStep, 'idle_empty').withDelay(0.5))
+            .else(raiseStep => this.animateCrossFade(raiseStep, 'idle').withDelay(0.5)).flow);
         this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('put_away').withDuration(0.25).flow);
         this.addAnimationFlow('attack', this.animate('idle')
             .thenCrossFadeTo('fire1').withDuration(0.1).onStart(() => this.playFireSound())

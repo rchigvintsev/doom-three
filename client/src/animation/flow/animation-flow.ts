@@ -11,10 +11,18 @@ export class AnimationFlow {
     constructor(readonly mixer: FluentAnimationMixer) {
     }
 
+    get length(): number {
+        return this.steps.length;
+    }
+
     get lastStep(): AnimationFlowStep | undefined {
-        if (this.steps.length > 0) {
-            return this.steps[this.steps.length - 1];
+        if (this.length > 0) {
+            return this.stepAt(this.length - 1);
         }
+    }
+
+    stepAt(index: number): AnimationFlowStep | undefined {
+        return this.steps[index];
     }
 
     start() {
@@ -40,20 +48,23 @@ export class AnimationFlow {
         return alternateStep;
     }
 
-    crossFadeStep(toActionName: string): CrossFadeAnyAnimationFlowStep {
-        return this.crossFadeAnyStep(toActionName);
+    crossFadeStep(fromStep: AnimationFlowStep | undefined, toActionName: string): CrossFadeAnyAnimationFlowStep {
+        return this.crossFadeAnyStep(fromStep, toActionName);
     }
 
-    crossFadeAnyStep(...toActionNames: string[]): CrossFadeAnyAnimationFlowStep {
-        const prevStep = this.steps[this.steps.length - 1];
+    crossFadeAnyStep(fromStep: AnimationFlowStep | undefined, ...toActionNames: string[]): CrossFadeAnyAnimationFlowStep {
+        if (!fromStep) {
+            fromStep = this.steps[this.steps.length - 1];
+        }
         const toActions = this.mixer.findActions(...toActionNames);
-        const step = new CrossFadeAnyAnimationFlowStep(this, prevStep, toActions);
+        const step = new CrossFadeAnyAnimationFlowStep(this, fromStep, toActions);
         this.steps.push(step);
         this.mixer.addUpdateHandler(step);
         return step;
     }
 
-    conditionalStep(predicate: () => boolean, thenStep: AnimationFlowStep): ConditionalAnimationFlowStep {
+    conditionalStep(predicate: () => boolean,
+                    thenStep: AnimationFlowStep | ((previousStep: AnimationFlowStep) => AnimationFlowStep)): ConditionalAnimationFlowStep {
         const step = new ConditionalAnimationFlowStep(this, predicate, thenStep);
         this.steps.push(step);
         return step;

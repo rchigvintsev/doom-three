@@ -11,3 +11,7 @@ export interface AnimationFlowStep {
 
     clone(flow: AnimationFlow): AnimationFlowStep;
 }
+
+export function isAnimationFlowStep(o: any): o is AnimationFlowStep {
+    return o && o.animationFlowStep;
+}

@@ -46,6 +46,6 @@ export class AlternateAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     thenCrossFadeTo(actionName: string): CrossFadeAnyAnimationFlowStep {
-        return this.flow.crossFadeStep(actionName);
+        return this.flow.crossFadeStep(undefined, actionName);
     }
 }

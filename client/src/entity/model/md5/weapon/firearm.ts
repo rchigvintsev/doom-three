@@ -92,7 +92,11 @@ export abstract class Firearm extends Weapon {
             this.ejectShell();
             this.dispatchEvent(new AttackEvent(this, this.attackDistance, this.attackForce, this.attackCoords));
         } else if (this._ammoClip === 0) {
-            this.reload();
+            if (this.canReload()) {
+                this.reload();
+            } else if (this._ammoReserve === 0) {
+                this.playEmptySound();
+            }
         }
     }
 
@@ -273,6 +277,10 @@ export abstract class Firearm extends Weapon {
 
     protected isReloading() {
         return this.currentState === FirearmState.RELOADING;
+    }
+
+    private playEmptySound() {
+        this.playSoundOnce('empty');
     }
 
     private initFireFlash() {
