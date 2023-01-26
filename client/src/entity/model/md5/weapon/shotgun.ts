@@ -85,28 +85,6 @@ export class Shotgun extends Firearm {
         }
     }
 
-    protected updateAcceleration(direction: Vector3) {
-        super.updateAcceleration(direction);
-        const offset = this.acceleration.offset;
-        if (offset.x !== 0 || offset.y !== 0) {
-            this.applyTubeDeformToFireFlash(this.geometry, offset);
-            if (this.wireframeHelper) {
-                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
-            }
-        }
-    }
-
-    protected drop(time: number, rotationX: number): Vector3 | undefined {
-        const offset = super.drop(time, rotationX);
-        if (offset) {
-            this.applyTubeDeformToFireFlash(this.geometry, offset);
-            if (this.wireframeHelper) {
-                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
-            }
-        }
-        return offset;
-    }
-
     protected computeMuzzleSmokeParticlePosition(position: Vector3) {
         return position.setFromMatrixPosition(this.skeleton.bones[40].matrixWorld);
     }
@@ -220,6 +198,39 @@ export class Shotgun extends Firearm {
         return this.ammoClip > 0 && (this.isIdle() || this.isReloading());
     }
 
+    protected applyTubeDeformToFireFlash = (() => {
+        /*
+         *  Shotgun flash faces
+         *  ===================
+         *
+         *     Player's view direction
+         *               |
+         *         5700  V
+         *    5703 |\  --------- 5701
+         *         | \ \       |
+         *         |  \ \      |
+         *         |   \ \     |
+         *     Top |    \ \    | Bottom
+         *         |     \ \   |
+         *         |      \ \  |
+         *         |       \ \ |
+         *    5705 |________\ \| 5702
+         *                  5704
+         */
+
+        const view = new Vector3();
+        const face1 = new Vector3(5700, 5702, 5701);
+        const face2 = new Vector3(5705, 5703, 5704);
+        return (geometry: BufferGeometry, offset?: Vector3) => {
+            view.set(-15, 0, 0);
+            if (offset) {
+                view.y -= offset.x / this.config.worldScale;
+                view.z -= offset.y / this.config.worldScale;
+            }
+            BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
+        };
+    })();
+
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
             .onStart(() => this.playRaiseSound())
@@ -277,37 +288,4 @@ export class Shotgun extends Firearm {
     private playReloadLoopSound(delay?: number) {
         this.playSound('reload_loop', delay);
     }
-
-    private applyTubeDeformToFireFlash = (() => {
-        /*
-         *  Shotgun flash faces
-         *  ===================
-         *
-         *     Player's view direction
-         *               |
-         *         5700  V
-         *    5703 |\  --------- 5701
-         *         | \ \       |
-         *         |  \ \      |
-         *         |   \ \     |
-         *     Top |    \ \    | Bottom
-         *         |     \ \   |
-         *         |      \ \  |
-         *         |       \ \ |
-         *    5705 |________\ \| 5702
-         *                  5704
-         */
-
-        const view = new Vector3();
-        const face1 = new Vector3(5700, 5702, 5701);
-        const face2 = new Vector3(5705, 5703, 5704);
-        return (geometry: BufferGeometry, offset?: Vector3) => {
-            view.set(-15, 0, 0);
-            if (offset) {
-                view.y -= offset.x / this.config.worldScale;
-                view.z -= offset.y / this.config.worldScale;
-            }
-            BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
-        };
-    })();
 }

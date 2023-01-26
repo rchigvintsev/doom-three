@@ -1,4 +1,5 @@
 import {
+    BufferGeometry,
     Euler,
     Intersection,
     MathUtils,
@@ -141,8 +142,32 @@ export abstract class Firearm extends Weapon {
         this._ammoReserve = value;
     }
 
+    protected abstract applyTubeDeformToFireFlash(geometry: BufferGeometry, offset: Vector3): void;
+
     protected get ammoClipSize(): number {
         return (<FirearmParameters>this.parameters).ammoClipSize;
+    }
+
+    protected updateAcceleration(direction: Vector3) {
+        super.updateAcceleration(direction);
+        const offset = this.acceleration.offset;
+        if (offset.x !== 0 || offset.y !== 0) {
+            this.applyTubeDeformToFireFlash(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
+            }
+        }
+    }
+
+    protected drop(time: number, rotationX: number): Vector3 | undefined {
+        const offset = super.drop(time, rotationX);
+        if (offset) {
+            this.applyTubeDeformToFireFlash(this.geometry, offset);
+            if (this.wireframeHelper) {
+                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
+            }
+        }
+        return offset;
     }
 
     protected computeMuzzleSmokeParticlePosition(_position: Vector3) {

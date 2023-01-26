@@ -40,28 +40,6 @@ export class Pistol extends Firearm {
         }
     }
 
-    protected updateAcceleration(direction: Vector3) {
-        super.updateAcceleration(direction);
-        const offset = this.acceleration.offset;
-        if (offset.x !== 0 || offset.y !== 0) {
-            this.applyTubeDeformToFireFlash(this.geometry, offset);
-            if (this.wireframeHelper) {
-                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
-            }
-        }
-    }
-
-    protected drop(time: number, rotationX: number): Vector3 | undefined {
-        const offset = super.drop(time, rotationX);
-        if (offset) {
-            this.applyTubeDeformToFireFlash(this.geometry, offset);
-            if (this.wireframeHelper) {
-                this.applyTubeDeformToFireFlash(this.wireframeHelper.geometry, offset);
-            }
-        }
-        return offset;
-    }
-
     protected computeMuzzleSmokeParticlePosition(position: Vector3) {
         return position.setFromMatrixPosition(this.skeleton.bones[25].matrixWorld);
     }
@@ -135,34 +113,7 @@ export class Pistol extends Firearm {
         }
     }
 
-    private initAnimationFlows() {
-        this.addAnimationFlow('enable', this.animate('raise')
-            .onStart(() => this.playRaiseSound())
-            .thenCrossFadeTo('idle').withDelay(0.5).flow);
-        this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('put_away').withDuration(0.25).flow);
-        this.addAnimationFlow('attack', this.animate('idle')
-            .thenCrossFadeTo('fire1').withDuration(0.1).onStart(() => this.playFireSound())
-            .thenIf(() => this.ammoClip > 1, this.animate('fire1').thenCrossFadeTo('idle').withDelay(0.3))
-            .else(this.animate('fire1').thenCrossFadeTo('idle_empty').withDelay(0.2)).flow);
-        this.addAnimationFlow('reload', this.animateIf(() => this.ammoClip === 0, 'idle_empty')
-            .else(this.animate('idle'))
-            .thenCrossFadeTo('reload_empty').withDuration(0.5).onStart(() => this.playReloadSound())
-            .thenCrossFadeTo('idle').withDelay(1.85).flow);
-    }
-
-    private playRaiseSound() {
-        this.playSound('raise', 0.1);
-    }
-
-    private playFireSound() {
-        this.playSound('fire');
-    }
-
-    private playReloadSound() {
-        this.playSound('reload');
-    }
-
-    private applyTubeDeformToFireFlash = (() => {
+    protected applyTubeDeformToFireFlash = (() => {
         /*
          *  Pistol flash faces
          *  ==================
@@ -194,4 +145,31 @@ export class Pistol extends Firearm {
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
     })();
+
+    private initAnimationFlows() {
+        this.addAnimationFlow('enable', this.animate('raise')
+            .onStart(() => this.playRaiseSound())
+            .thenCrossFadeTo('idle').withDelay(0.5).flow);
+        this.addAnimationFlow('disable', this.animate('idle').thenCrossFadeTo('put_away').withDuration(0.25).flow);
+        this.addAnimationFlow('attack', this.animate('idle')
+            .thenCrossFadeTo('fire1').withDuration(0.1).onStart(() => this.playFireSound())
+            .thenIf(() => this.ammoClip > 1, this.animate('fire1').thenCrossFadeTo('idle').withDelay(0.3))
+            .else(this.animate('fire1').thenCrossFadeTo('idle_empty').withDelay(0.2)).flow);
+        this.addAnimationFlow('reload', this.animateIf(() => this.ammoClip === 0, 'idle_empty')
+            .else(this.animate('idle'))
+            .thenCrossFadeTo('reload_empty').withDuration(0.5).onStart(() => this.playReloadSound())
+            .thenCrossFadeTo('idle').withDelay(1.85).flow);
+    }
+
+    private playRaiseSound() {
+        this.playSound('raise', 0.1);
+    }
+
+    private playFireSound() {
+        this.playSound('fire');
+    }
+
+    private playReloadSound() {
+        this.playSound('reload');
+    }
 }
