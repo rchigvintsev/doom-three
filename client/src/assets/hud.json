@@ -173,6 +173,9 @@
           "default": {
             "color": "0x4d6c66"
           },
+          "low_ammo": {
+            "color": "0x4d6c66"
+          },
           "empty_ammo": {
             "color": "0xff0000"
           }
