@@ -3495,12 +3495,6 @@
     "depthWrite": false
   },
   {
-    "name": "bulletSmoke",
-    "type": "sprite",
-    "diffuseMap": "textures/particles/barrelpoof",
-    "depthWrite": false
-  },
-  {
     "name": "boomBoom3",
     "type": "sprite",
     "diffuseMap": "textures/particles/boomboom3",
