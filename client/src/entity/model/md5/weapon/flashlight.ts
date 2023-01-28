@@ -109,28 +109,9 @@ export class Flashlight extends Weapon {
     }
 
     private applyTubeDeformToBeam = (() => {
-        /*
-         *  Flashlight beam faces
-         *  =====================
-         *
-         *     Player's view direction
-         *               |
-         *         2481  V
-         *    2480 |\  --------- 2483
-         *         | \ \       |
-         *         |  \ \      |
-         *         |   \ \     |
-         *  Bottom |    \ \    | Top
-         *         |     \ \   |
-         *         |      \ \  |
-         *         |       \ \ |
-         *    2478 |________\ \| 2482
-         *                  2479
-         */
-
         const view = new Vector3();
-        const face1 = new Vector3(2481, 2478, 2483);
-        const face2 = new Vector3(2479, 2480, 2482);
+        const face1 = new Vector3(2480, 2479, 2478);
+        const face2 = new Vector3(2482, 2483, 2481);
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(0, 0, -15);
             if (offset) {

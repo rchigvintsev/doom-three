@@ -114,28 +114,9 @@ export class Pistol extends Firearm {
     }
 
     protected applyTubeDeformToFireFlash = (() => {
-        /*
-         *  Pistol flash faces
-         *  ==================
-         *
-         *     Player's view direction
-         *               |
-         *         6066  V
-         *    6069 |\  --------- 6067
-         *         | \ \       |
-         *         |  \ \      |
-         *         |   \ \     |
-         *     Top |    \ \    | Bottom
-         *         |     \ \   |
-         *         |      \ \  |
-         *         |       \ \ |
-         *    6071 |________\ \| 6068
-         *                  6070
-         */
-
         const view = new Vector3();
-        const face1 = new Vector3(6066, 6068, 6067);
-        const face2 = new Vector3(6071, 6069, 6070);
+        const face1 = new Vector3(6071, 6069, 6070);
+        const face2 = new Vector3(6068, 6067, 6066);
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(-15, 0, 0);
             if (offset) {

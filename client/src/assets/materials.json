@@ -8,8 +8,8 @@
     "type": "basic",
     "alphaMap": "models/items/flashlight/flare",
     "transparent": true,
-    "side": "double",
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/items/flashlight/beam1",
@@ -26,22 +26,22 @@
       }
     ],
     "transparent": true,
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/items/flashlight/bulb",
     "type": "basic",
     "alphaMap": "models/items/flashlight/bulb",
     "transparent": true,
-    "side": "front",
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/items/flashlight/flashlight2",
     "diffuseMap": "models/items/flashlight/flashlight2",
     "specularMap": "models/items/flashlight/flashlight2_s",
-    "normalMap": "models/items/flashlight/flashlight2_local",
-    "side": "front"
+    "normalMap": "models/items/flashlight/flashlight2_local"
   },
   {
     "name": "models/characters/player/arm2",
@@ -56,8 +56,7 @@
       }
     },
     "specular": "0x808080",
-    "shininess": 60,
-    "side": "front"
+    "shininess": 60
   },
   {
     "name": "models/weapons/berserk/fist",
@@ -70,8 +69,7 @@
         "bumpMap": "models/weapons/berserk/fist_h",
         "scale": 3
       }
-    },
-    "side": "front"
+    }
   },
   {
     "name": "models/weapons/pistol/pistol",
@@ -86,8 +84,7 @@
       }
     },
     "specular": "0xbbbbbb",
-    "shininess": 20,
-    "side": "front"
+    "shininess": 20
   },
   {
     "name": "models/weapons/pistol/pistol_mflash",
@@ -99,7 +96,8 @@
       "rotate": "rotate90(pistolFlashRotate)"
     },
     "transparent": true,
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/weapons/pistol/pistol_mflash2",
@@ -123,7 +121,8 @@
       "rotate": "rotate90(shotgunFlash1Rotate)"
     },
     "transparent": true,
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/weapons/shotgun/shotgun_mflash2",
@@ -147,7 +146,8 @@
       "rotate": "rotate90(shotgunFlash3Rotate)"
     },
     "transparent": true,
-    "depthWrite": false
+    "depthWrite": false,
+    "side": "double"
   },
   {
     "name": "models/weapons/shotgun/shotgun2",
@@ -161,8 +161,7 @@
         "scale": 5
       }
     },
-    "specular": "0xd4d4d4",
-    "side": "front"
+    "specular": "0xd4d4d4"
   },
   {
     "name": "models/weapons/hands/hand",
@@ -175,8 +174,7 @@
         "bumpMap": "models/weapons/hands/hand_add",
         "scale": 3
       }
-    },
-    "side": "front"
+    }
   },
   {
     "name": "textures/base_wall/snpanel3",
@@ -3515,8 +3513,7 @@
     "normalMap": "models/weapons/shell1/sshell_local",
     "specularMap": "models/weapons/shell1/sshell_s",
     "noShadows": true,
-    "shininess": 40,
-    "side": "double"
+    "shininess": 40
   },
   {
     "name": "models/items/aircannister/aircannister",

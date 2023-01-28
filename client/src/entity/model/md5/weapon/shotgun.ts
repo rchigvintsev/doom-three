@@ -199,28 +199,9 @@ export class Shotgun extends Firearm {
     }
 
     protected applyTubeDeformToFireFlash = (() => {
-        /*
-         *  Shotgun flash faces
-         *  ===================
-         *
-         *     Player's view direction
-         *               |
-         *         5700  V
-         *    5703 |\  --------- 5701
-         *         | \ \       |
-         *         |  \ \      |
-         *         |   \ \     |
-         *     Top |    \ \    | Bottom
-         *         |     \ \   |
-         *         |      \ \  |
-         *         |       \ \ |
-         *    5705 |________\ \| 5702
-         *                  5704
-         */
-
         const view = new Vector3();
-        const face1 = new Vector3(5700, 5702, 5701);
-        const face2 = new Vector3(5705, 5703, 5704);
+        const face1 = new Vector3(5702, 5701, 5700);
+        const face2 = new Vector3(5704, 5705, 5703);
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(-15, 0, 0);
             if (offset) {

@@ -45,8 +45,8 @@ export class Md5MeshLoader extends Loader {
     private parseFaces(mesh: string, faces: Md5MeshFace[], materialIndex: number, totalVertexCount: number) {
         mesh.replace(/tri \d+ (\d+) (\d+) (\d+)/g, (_, i1, i2, i3) => {
             const a = parseInt(i1) + totalVertexCount;
-            const b = parseInt(i3) + totalVertexCount;
-            const c = parseInt(i2) + totalVertexCount;
+            const b = parseInt(i2) + totalVertexCount;
+            const c = parseInt(i3) + totalVertexCount;
             faces.push(new Md5MeshFace(a, b, c, materialIndex));
             return _;
         });
