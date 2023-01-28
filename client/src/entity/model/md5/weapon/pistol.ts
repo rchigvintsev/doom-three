@@ -138,7 +138,7 @@ export class Pistol extends Firearm {
             .else(this.animate('fire1').thenCrossFadeTo('idle_empty').withDelay(0.2)).flow);
         this.addAnimationFlow('reload', this.animateIf(() => this.ammoClip === 0, 'idle_empty')
             .else(this.animate('idle'))
-            .thenCrossFadeTo('reload_empty').withDuration(0.5).onStart(() => this.playReloadSound())
+            .thenCrossFadeTo('reload_empty').withDuration(0.15).onStart(() => this.playReloadSound())
             .thenCrossFadeTo('idle').withDelay(1.85).flow);
     }
 
