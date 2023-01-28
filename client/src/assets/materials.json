@@ -3658,5 +3658,20 @@
     "polygonOffset": true,
     "polygonOffsetFactor": -2,
     "side": "double"
+  },
+  {
+    "name": "models/monsters/zombie/fatty/fatty",
+    "diffuseMap": "models/monsters/zombie/fatty/fatty_d",
+    "normalMap": {
+      "name": "models/monsters/zombie/fatty/fatty_local+fatty_h",
+      "addNormals": {
+        "normalMap": "models/monsters/zombie/fatty/fatty_local",
+        "bumpMap": "models/monsters/zombie/fatty/fatty_h",
+        "scale": 7
+      }
+    },
+    "specularMap": "models/monsters/zombie/fatty/fatty_s",
+    "specular": "0x808080",
+    "shininess": 40
   }
 ]

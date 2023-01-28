@@ -5,7 +5,7 @@ import {GameMap} from './entity/map/game-map';
 import {AreaFactory} from './entity/area/area-factory';
 import {SurfaceFactory} from './entity/surface/surface-factory';
 import {MaterialFactory} from './material/material-factory';
-import {MapFactory} from './entity/map/map-factory';
+import {GameMapFactory} from './entity/map/game-map-factory';
 import {LightFactory} from './entity/light/light-factory';
 import {Md5ModelFactory} from './entity/model/md5/md5-model-factory';
 import {SoundFactory} from './entity/sound/sound-factory';
@@ -56,11 +56,21 @@ export class MapLoader {
             this.initDecalSystem(decalFactory);
             this.initSoundSystem(soundFactory);
 
-            const weapons = this.createWeapons(assets, materialFactory);
+            const md5ModelFactory = new Md5ModelFactory({
+                config: this.game.config,
+                assets,
+                materialFactory,
+                particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
+                debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
+                decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
+                soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
+            });
+
+            const weapons = this.createWeapons(assets, md5ModelFactory);
             const player = this.createPlayer(assets, weapons, soundFactory, collisionModelFactory);
             const hud = this.createHud(assets, player, materialFactory);
 
-            return this.createMap(assets, player, hud, materialFactory, collisionModelFactory);
+            return this.createMap(assets, player, hud, materialFactory, md5ModelFactory, collisionModelFactory);
         });
     }
 
@@ -81,20 +91,10 @@ export class MapLoader {
         this.game.systems.set(GameSystemType.SOUND, new SoundSystem(soundFactory));
     }
 
-    private createWeapons(assets: GameAssets, materialFactory: MaterialFactory):
-        Map<string, Weapon> {
-        const modelFactory = new Md5ModelFactory({
-            config: this.game.config,
-            assets,
-            materialFactory,
-            particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
-            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
-            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
-            soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
-        });
+    private createWeapons(assets: GameAssets, weaponFactory: Md5ModelFactory): Map<string, Weapon> {
         const weapons = new Map<string, Weapon>();
         assets.weaponDefs.forEach((weaponDef, weaponName) =>
-            weapons.set(weaponName, <Weapon>modelFactory.create(weaponDef)));
+            weapons.set(weaponName, <Weapon>weaponFactory.create(weaponDef)));
         return weapons;
     }
 
@@ -127,13 +127,14 @@ export class MapLoader {
                       player: Player,
                       hud: Hud,
                       materialFactory: MaterialFactory,
+                      monsterFactory: Md5ModelFactory,
                       collisionModelFactory: CollisionModelFactory): GameMap {
         const config = this.game.config;
 
         const surfaceFactory = new SurfaceFactory({config, materialFactory, collisionModelFactory});
         const lightFactory = new LightFactory({config});
         const areaFactory = new AreaFactory({config, surfaceFactory, lightFactory});
-        const mapFactory = new MapFactory({config, player, hud, areaFactory, lightFactory});
+        const mapFactory = new GameMapFactory({config, assets, player, hud, areaFactory, lightFactory, monsterFactory});
 
         const map = mapFactory.create(assets.mapDef);
         const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);

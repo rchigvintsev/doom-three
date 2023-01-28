@@ -1,0 +1,46 @@
+[
+  {
+    "name": "monster_zombie_fat",
+    "model": "models/md5/monsters/zfat/zfat.md5mesh",
+    "materials": [
+      "models/monsters/zombie/fatty/fatty"
+    ],
+    "animations": [
+      "models/md5/monsters/zfat/initial.md5anim",
+      "models/md5/monsters/zfat/idle1.md5anim",
+      "models/md5/monsters/zfat/sight3.md5anim",
+      "models/md5/monsters/zfat/walk1.md5anim",
+      "models/md5/monsters/zfat/walk2.md5anim",
+      "models/md5/monsters/zfat/walk3.md5anim",
+      "models/md5/monsters/zfat/walk3.md5anim",
+      "models/md5/monsters/zfat/attack_leftslap.md5anim",
+      "models/md5/monsters/zfat/attack2.md5anim",
+      "models/md5/monsters/zfat/attack3.md5anim",
+      "models/md5/monsters/zfat/bellypain.md5anim",
+      "models/md5/monsters/zfat/facepain.md5anim",
+      "models/md5/monsters/zfat/leftarmpain.md5anim",
+      "models/md5/monsters/zfat/rightarmpain.md5anim",
+      "models/md5/monsters/zfat/death1_pose.md5anim",
+      "models/md5/monsters/zfat/barrel_Idle.md5anim",
+      "models/md5/monsters/zfat/barrel_Throw.md5anim"
+    ],
+    "sounds": {
+      "sight1": "monster_zombie_fat_sight1",
+      "sight2": "monster_zombie_fat_sight2",
+      "sight3": "monster_zombie_fat_sight3",
+      "sight4": "monster_zombie_fat_sight4",
+      "sight5": "monster_zombie_fat_sight5",
+      "sight6": "monster_zombie_fat_sight6",
+      "sight7": "monster_zombie_fat_sight7",
+      "footstep": "monster_zombie_fat_footstep",
+      "chatter": "monster_zombie_fat_chatter",
+      "chatter_combat": "monster_zombie_fat_chatter_combat",
+      "pain": "monster_zombie_fat_pain",
+      "melee_attack_1": "monster_zombie_fat_attackmelee_1",
+      "melee_attack_2": "monster_zombie_fat_attackmelee_2",
+      "melee_attack_3": "monster_zombie_fat_attackmelee_3",
+      "thud": "monster_zombie_fat_thud",
+      "bounce": "ragdoll_impact"
+    }
+  }
+]

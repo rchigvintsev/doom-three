@@ -39,6 +39,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             this.loadPlayerDef(assets),
             this.loadHudDef(assets),
             this.loadWeaponDefs(assets),
+            this.loadMonsterDefs(assets),
             this.loadDebrisDefs(assets),
             this.loadDecalDefs(assets),
             this.loadFontDefs(assets)
@@ -49,6 +50,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             this.handlePlayerDef(context, assets);
             this.handleHudDef(context, assets);
             this.handleWeaponDefs(context, assets);
+            this.handleMonsterDefs(context, assets);
             this.handleDebrisDefs(context, assets);
             this.handleFontDefs(context, assets);
 
@@ -123,6 +125,13 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
         return this.loadJson('assets/weapons.json').then((weaponDefs: any[]) => {
             weaponDefs.forEach(weaponDef => assets.weaponDefs.set(weaponDef.name, weaponDef));
             return assets.weaponDefs;
+        });
+    }
+
+    private loadMonsterDefs(assets: GameAssets): Promise<Map<string, any>> {
+        return this.loadJson('assets/monsters.json').then((monsterDefs: any[]) => {
+            monsterDefs.forEach(monsterDef => assets.monsterDefs.set(monsterDef.name, monsterDef));
+            return assets.monsterDefs;
         });
     }
 
@@ -223,6 +232,16 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
             }
             this.collectAnimationSources(context, weaponDef);
             this.collectSoundSources(context, assets, weaponDef);
+        });
+    }
+
+    private handleMonsterDefs(context: LoadingContext, assets: GameAssets) {
+        assets.monsterDefs.forEach(monsterDef => {
+            context.modelsToLoad.add(monsterDef.model);
+            if (!this.config.renderOnlyWireframe) {
+                this.collectTextureSources(context, assets, monsterDef.materials);
+            }
+            this.collectAnimationSources(context, monsterDef);
         });
     }
 

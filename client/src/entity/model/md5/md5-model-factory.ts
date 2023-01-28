@@ -3,7 +3,7 @@ import {AnimationClip, Bone, BufferGeometry, MathUtils, Skeleton, SkeletonHelper
 import {Fists} from './weapon/fists';
 import {Md5MeshGeometry} from '../../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../../animation/md5-animation';
-import {Md5Model} from './md5-model';
+import {Md5Model, Md5ModelParameters} from './md5-model';
 import {Flashlight} from "./weapon/flashlight";
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {Pistol} from './weapon/pistol';
@@ -15,6 +15,7 @@ import {GameAssets} from '../../../game-assets';
 import {DecalSystem} from '../../../decal/decal-system';
 import {SoundSystem} from '../../../sound/sound-system';
 import {FirearmParameters} from './weapon/firearm';
+import {ZombieFat} from './monster/zombie-fat';
 
 export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(parameters: Md5ModelFactoryParameters) {
@@ -101,6 +102,8 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             model = this.createPistol(modelDef, geometry);
         } else if (modelDef.name === 'shotgun') {
             model = this.createShotgun(modelDef, geometry);
+        } else if (modelDef.type === 'monster_zombie_fat') {
+            model = this.createZombieFat(modelDef, geometry);
         } else {
             const materials = this.createMaterials(modelDef);
             const sounds = this.getSounds(modelDef);
@@ -130,13 +133,13 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return model;
     }
 
-    private createFists(modelDef: any, geometry: BufferGeometry) {
+    private createFists(modelDef: any, geometry: BufferGeometry): Fists {
         const materials = this.createMaterials(modelDef);
         const sounds = this.getSounds(modelDef);
         return new Fists({config: this.parameters.config, geometry, materials, sounds, soundSystem: this.soundSystem});
     }
 
-    private createFlashlight(modelDef: any, geometry: BufferGeometry) {
+    private createFlashlight(modelDef: any, geometry: BufferGeometry): Flashlight {
         const materials = this.createMaterials(modelDef);
         const sounds = this.getSounds(modelDef);
         let flashlightMap = undefined;
@@ -153,7 +156,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         });
     }
 
-    private createPistol(modelDef: any, geometry: BufferGeometry) {
+    private createPistol(modelDef: any, geometry: BufferGeometry): Pistol {
         const pistolParams = {...modelDef} as FirearmParameters;
         pistolParams.config = this.parameters.config;
         pistolParams.geometry = geometry;
@@ -166,7 +169,7 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return new Pistol(pistolParams);
     }
 
-    private createShotgun(modelDef: any, geometry: BufferGeometry) {
+    private createShotgun(modelDef: any, geometry: BufferGeometry): Shotgun {
         const shotgunParams = {...modelDef} as FirearmParameters;
         shotgunParams.config = this.parameters.config;
         shotgunParams.geometry = geometry;
@@ -177,6 +180,16 @@ export class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         shotgunParams.decalSystem = this.decalSystem;
         shotgunParams.soundSystem = this.soundSystem;
         return new Shotgun(shotgunParams);
+    }
+
+    private createZombieFat(modelDef: any, geometry: BufferGeometry): ZombieFat {
+        const zombieParams = {...modelDef} as Md5ModelParameters;
+        zombieParams.config = this.parameters.config;
+        zombieParams.geometry = geometry;
+        zombieParams.materials = this.createMaterials(modelDef);
+        zombieParams.sounds = this.getSounds(modelDef);
+        zombieParams.soundSystem = this.soundSystem;
+        return new ZombieFat(zombieParams);
     }
 
     private createWireframeHelper(model: Md5Model, animations: Md5Animation[]): Md5ModelWireframeHelper {

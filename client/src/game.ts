@@ -77,9 +77,9 @@ export class Game {
                 game.map = map;
                 game._scene.add(map);
 
-                game.hud = map.hud;
+                game.hud = map.parameters.hud;
 
-                game.controls.player = map.player;
+                game.controls.player = map.parameters.player;
                 game.controls.enabled = true;
 
                 console.debug('Game started');

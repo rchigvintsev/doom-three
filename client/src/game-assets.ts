@@ -13,6 +13,7 @@ export class GameAssets {
     readonly particleDefs = new Map<string, any>();
     readonly soundDefs = new Map<string, any>();
     readonly weaponDefs = new Map<string, any>();
+    readonly monsterDefs = new Map<string, any>();
     readonly decalDefs = new Map<string, any>();
     readonly debrisDefs = new Map<string, any>();
     readonly fontDefs = new Map<string, any>();
