@@ -4,6 +4,7 @@ import {AnyAnimationFlowStep} from './any-animation-flow-step';
 import {AlternateAnimationFlowStep} from './alternate-animation-flow-step';
 import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-step';
+import {AnimationFlowStepSupplier} from './animation-flow-step-supplier';
 
 export class AnimationFlow {
     private readonly steps: AnimationFlowStep[] = [];
@@ -64,7 +65,7 @@ export class AnimationFlow {
     }
 
     conditionalStep(predicate: () => boolean,
-                    thenStep: AnimationFlowStep | ((previousStep: AnimationFlowStep) => AnimationFlowStep)): ConditionalAnimationFlowStep {
+                    thenStep: AnimationFlowStep | AnimationFlowStepSupplier): ConditionalAnimationFlowStep {
         const step = new ConditionalAnimationFlowStep(this, predicate, thenStep);
         this.steps.push(step);
         return step;

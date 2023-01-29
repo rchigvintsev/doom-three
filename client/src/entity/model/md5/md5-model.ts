@@ -74,8 +74,10 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return this.animationMixer.animateIf(predicate, actionName);
     }
 
-    protected animateCrossFade(previousStep: AnimationFlowStep, actionName: string): CrossFadeAnyAnimationFlowStep {
-        return this.animationMixer.animateCrossFade(previousStep, actionName);
+    protected animateCrossFade(previousStep: AnimationFlowStep,
+                               actionName: string,
+                               animationMixer?: FluentAnimationMixer): CrossFadeAnyAnimationFlowStep {
+        return (animationMixer || this.animationMixer).animateCrossFade(previousStep, actionName);
     }
 
     protected doInit() {
