@@ -7,9 +7,9 @@ import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
 import {Player} from '../player/player';
 import {Hud} from '../hud/hud';
-import {Md5ModelFactory} from '../model/md5/md5-model-factory';
 import {Monster} from '../model/md5/monster/monster';
 import {GameAssets} from '../../game-assets';
+import {MonsterFactory} from '../model/md5/monster/monster-factory';
 
 export class GameMapFactory implements EntityFactory<GameMap> {
     constructor(private readonly parameters: MapFactoryParameters) {
@@ -66,5 +66,5 @@ export interface MapFactoryParameters extends EntityFactoryParameters {
     hud: Hud;
     areaFactory: AreaFactory;
     lightFactory: LightFactory;
-    monsterFactory: Md5ModelFactory;
+    monsterFactory: MonsterFactory;
 }

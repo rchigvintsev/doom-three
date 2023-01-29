@@ -7,7 +7,6 @@ import {SurfaceFactory} from './entity/surface/surface-factory';
 import {MaterialFactory} from './material/material-factory';
 import {GameMapFactory} from './entity/map/game-map-factory';
 import {LightFactory} from './entity/light/light-factory';
-import {Md5ModelFactory} from './entity/model/md5/md5-model-factory';
 import {SoundFactory} from './entity/sound/sound-factory';
 import {Weapon} from './entity/model/md5/weapon/weapon';
 import {CollisionModelFactory} from './physics/collision-model-factory';
@@ -25,6 +24,8 @@ import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 import {DecalFactory} from './entity/decal/decal-factory';
 import {DecalSystem} from './decal/decal-system';
 import {SoundSystem} from './sound/sound-system';
+import {WeaponFactory} from './entity/model/md5/weapon/weapon-factory';
+import {MonsterFactory} from './entity/model/md5/monster/monster-factory';
 
 export class MapLoader {
     constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
@@ -56,21 +57,11 @@ export class MapLoader {
             this.initDecalSystem(decalFactory);
             this.initSoundSystem(soundFactory);
 
-            const md5ModelFactory = new Md5ModelFactory({
-                config: this.game.config,
-                assets,
-                materialFactory,
-                particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
-                debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
-                decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
-                soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
-            });
-
-            const weapons = this.createWeapons(assets, md5ModelFactory);
+            const weapons = this.createWeapons(assets, materialFactory);
             const player = this.createPlayer(assets, weapons, soundFactory, collisionModelFactory);
             const hud = this.createHud(assets, player, materialFactory);
 
-            return this.createMap(assets, player, hud, materialFactory, md5ModelFactory, collisionModelFactory);
+            return this.createMap(assets, player, hud, materialFactory, collisionModelFactory);
         });
     }
 
@@ -91,7 +82,17 @@ export class MapLoader {
         this.game.systems.set(GameSystemType.SOUND, new SoundSystem(soundFactory));
     }
 
-    private createWeapons(assets: GameAssets, weaponFactory: Md5ModelFactory): Map<string, Weapon> {
+    private createWeapons(assets: GameAssets, materialFactory: MaterialFactory): Map<string, Weapon> {
+        const weaponFactory = new WeaponFactory({
+            config: this.game.config,
+            assets,
+            materialFactory,
+            particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
+            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
+            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
+            soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
+        });
+
         const weapons = new Map<string, Weapon>();
         assets.weaponDefs.forEach((weaponDef, weaponName) =>
             weapons.set(weaponName, <Weapon>weaponFactory.create(weaponDef)));
@@ -127,9 +128,18 @@ export class MapLoader {
                       player: Player,
                       hud: Hud,
                       materialFactory: MaterialFactory,
-                      monsterFactory: Md5ModelFactory,
                       collisionModelFactory: CollisionModelFactory): GameMap {
         const config = this.game.config;
+
+        const monsterFactory = new MonsterFactory({
+            config: this.game.config,
+            assets,
+            materialFactory,
+            particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
+            debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
+            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
+            soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
+        });
 
         const surfaceFactory = new SurfaceFactory({config, materialFactory, collisionModelFactory});
         const lightFactory = new LightFactory({config});
