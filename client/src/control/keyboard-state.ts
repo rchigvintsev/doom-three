@@ -20,6 +20,7 @@ export class KeyboardState {
     static readonly KEY_F = 'KeyF';
     static readonly KEY_G = 'KeyG';
     static readonly KEY_R = 'KeyR';
+    static readonly KEY_Z = 'KeyZ';
     static readonly KEY_SPACE = 'Space';
 
     private readonly pressedKeys = new Map<string, boolean>();

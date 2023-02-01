@@ -6,13 +6,12 @@
       "models/monsters/zombie/fatty/fatty"
     ],
     "animations": [
-      "models/md5/monsters/zfat/initial.md5anim",
       "models/md5/monsters/zfat/idle1.md5anim",
       "models/md5/monsters/zfat/sight3.md5anim",
       "models/md5/monsters/zfat/walk1.md5anim",
       "models/md5/monsters/zfat/walk2.md5anim",
       "models/md5/monsters/zfat/walk3.md5anim",
-      "models/md5/monsters/zfat/walk3.md5anim",
+      "models/md5/monsters/zfat/walk4.md5anim",
       "models/md5/monsters/zfat/attack_leftslap.md5anim",
       "models/md5/monsters/zfat/attack2.md5anim",
       "models/md5/monsters/zfat/attack3.md5anim",

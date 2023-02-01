@@ -5,6 +5,7 @@ import {AlternateAnimationFlowStep} from './alternate-animation-flow-step';
 import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-step';
 import {AnimationFlowStepSupplier} from './animation-flow-step-supplier';
+import {CurrentAnimationFlowStep} from './current-animation-flow-step';
 
 export class AnimationFlow {
     private readonly steps: AnimationFlowStep[] = [];
@@ -32,12 +33,18 @@ export class AnimationFlow {
         }
     }
 
-    singleStep(actionName: string): AnyAnimationFlowStep {
-        return this.anyStep(actionName);
+    singleStep(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
+        return this.anyStep([actionName], resetOnStart);
     }
 
-    anyStep(...actionNames: string[]): AnyAnimationFlowStep {
-        const step = new AnyAnimationFlowStep(this, this.mixer.findActions(...actionNames));
+    anyStep(actionNames: string[], resetOnStart = true): AnyAnimationFlowStep {
+        const step = new AnyAnimationFlowStep(this, this.mixer.findActions(...actionNames), resetOnStart);
+        this.steps.push(step);
+        return step;
+    }
+
+    currentStep(resetOnStart = true): CurrentAnimationFlowStep {
+        const step = new CurrentAnimationFlowStep(this, resetOnStart);
         this.steps.push(step);
         return step;
     }

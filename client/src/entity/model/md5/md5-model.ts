@@ -13,6 +13,7 @@ import {AnimationFlow} from '../../../animation/flow/animation-flow';
 import {ConditionalAnimationFlowStep} from '../../../animation/flow/conditional-animation-flow-step';
 import {AnimationFlowStep} from '../../../animation/flow/animation-flow-step';
 import {CrossFadeAnyAnimationFlowStep} from '../../../animation/flow/cross-fade-any-animation-flow-step';
+import {CurrentAnimationFlowStep} from '../../../animation/flow/current-animation-flow-step';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -62,12 +63,16 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    protected animate(actionName: string): AnyAnimationFlowStep {
-        return this.animationMixer.animate(actionName);
+    protected animate(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
+        return this.animationMixer.animate(actionName, resetOnStart);
     }
 
     protected animateAny(...actionNames: string[]): AnyAnimationFlowStep {
         return this.animationMixer.animateAny(...actionNames);
+    }
+
+    protected animateCurrent(resetOnStart = false): CurrentAnimationFlowStep {
+        return this.animationMixer.animateCurrent(resetOnStart);
     }
 
     protected animateIf(predicate: () => boolean, actionName: string): ConditionalAnimationFlowStep {

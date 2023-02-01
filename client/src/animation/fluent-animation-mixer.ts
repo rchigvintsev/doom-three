@@ -8,6 +8,7 @@ import {AnimationUpdateHandler} from './animation-update-handler';
 import {ConditionalAnimationFlowStep} from './flow/conditional-animation-flow-step';
 import {AnimationFlowStep} from './flow/animation-flow-step';
 import {CrossFadeAnyAnimationFlowStep} from './flow/cross-fade-any-animation-flow-step';
+import {CurrentAnimationFlowStep} from './flow/current-animation-flow-step';
 
 export class FluentAnimationMixer extends AnimationMixer {
     private readonly animationActions = new Map<string, AnimationAction>();
@@ -30,12 +31,16 @@ export class FluentAnimationMixer extends AnimationMixer {
         return this;
     }
 
-    animate(actionName: string): AnyAnimationFlowStep {
-        return new AnimationFlow(this).singleStep(actionName);
+    animate(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
+        return new AnimationFlow(this).singleStep(actionName, resetOnStart);
     }
 
     animateAny(...actionNames: string[]): AnyAnimationFlowStep {
-        return new AnimationFlow(this).anyStep(...actionNames);
+        return new AnimationFlow(this).anyStep(actionNames);
+    }
+
+    animateCurrent(resetOnStart = true): CurrentAnimationFlowStep {
+        return new AnimationFlow(this).currentStep(resetOnStart);
     }
 
     animateIf(predicate: () => boolean, thenActionName: string): ConditionalAnimationFlowStep {
@@ -60,6 +65,14 @@ export class FluentAnimationMixer extends AnimationMixer {
             throw new Error(`Animation action "${actionName}" is not found`);
         }
         return action;
+    }
+
+    getRunningAction(): AnimationAction | undefined {
+        for (const action of this.animationActions.values()) {
+            if (action.isRunning()) {
+                return action;
+            }
+        }
     }
 
     private initAnimationActions(root: Object3D) {

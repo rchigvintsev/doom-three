@@ -1,4 +1,4 @@
-import {AnimationAction} from 'three';
+import {AnimationAction, LoopRepeat} from 'three';
 
 import {AbstractAnimationFlowStep} from './abstract-animation-flow-step';
 import {AnimationFlow} from './animation-flow';
@@ -11,10 +11,12 @@ import {AnimationFlowStepSupplier} from './animation-flow-step-supplier';
 
 export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
     private _action?: AnimationAction;
+    private repetitionSupplier?: number | (() => number);
     private onStartCallback?: () => void;
 
     constructor(flow: AnimationFlow,
                 private readonly actions: AnimationAction[],
+                private readonly resetOnStart = true,
                 private readonly random = new Random()) {
         super(flow);
         if (actions.length === 1) {
@@ -30,9 +32,20 @@ export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     start() {
-        this.actions.forEach(action => action.stop().reset());
+        if (this.resetOnStart) {
+            this.actions.forEach(action => action.stop().reset());
+        }
         if (this.actions.length > 1) {
             this._action = this.actions[Math.floor(this.random.sfc32() * this.actions.length)];
+        }
+        if (this.repetitionSupplier) {
+            let repetitions;
+            if (typeof this.repetitionSupplier === 'number') {
+                repetitions = this.repetitionSupplier;
+            } else {
+                repetitions = this.repetitionSupplier();
+            }
+            this._action!.setLoop(LoopRepeat, repetitions);
         }
         this._action!.play();
         if (this.onStartCallback) {
@@ -41,7 +54,16 @@ export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     clone(flow: AnimationFlow): AnyAnimationFlowStep {
-        return flow.anyStep(...this.actions.map(action => action.getClip().name));
+        const clone = flow.anyStep(this.actions.map(action => action.getClip().name), this.resetOnStart);
+        if (this.repetitionSupplier != undefined) {
+            clone.repeat(this.repetitionSupplier);
+        }
+        return clone;
+    }
+
+    repeat(repetitionSupplier: number | (() => number)): this {
+        this.repetitionSupplier = repetitionSupplier;
+        return this;
     }
 
     onStart(callback: () => void): this {

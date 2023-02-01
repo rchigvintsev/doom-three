@@ -1,4 +1,4 @@
-import {AnimationAction, LoopOnce, LoopRepeat} from 'three';
+import {AnimationAction, LoopRepeat} from 'three';
 
 import {AbstractAnimationFlowStep} from './abstract-animation-flow-step';
 import {AnimationFlow} from './animation-flow';
@@ -13,7 +13,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
     private fadeOutDuration?: number;
     private fadeInDuration?: number;
     private warping = false;
-    private repetitionSupplier?: () => number;
+    private repetitionSupplier?: number | (() => number);
     private onStartCallback?: () => void;
     private onLoopCallback?: () => void;
     private started = false;
@@ -91,12 +91,13 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
         }
 
         if (this.repetitionSupplier) {
-            const repeat = this.repetitionSupplier();
-            if (repeat > 1) {
-                this.toAction!.setLoop(LoopRepeat, repeat);
+            let repetitions;
+            if (typeof this.repetitionSupplier === 'number') {
+                repetitions = this.repetitionSupplier;
             } else {
-                this.toAction!.setLoop(LoopOnce, 1);
+                repetitions = this.repetitionSupplier();
             }
+            this.toAction!.setLoop(LoopRepeat, repetitions);
         }
 
         if (this.delay == undefined) {
@@ -169,7 +170,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
         return this;
     }
 
-    repeat(repetitionSupplier: () => number): this {
+    repeat(repetitionSupplier: number | (() => number)): this {
         this.repetitionSupplier = repetitionSupplier;
         return this;
     }
