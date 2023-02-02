@@ -1,5 +1,7 @@
 import {Audio, Material, Mesh, SkeletonHelper, SkinnedMesh, Vector3} from 'three';
 
+import {randomInt} from 'mathjs';
+
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {GameConfig} from '../../../game-config';
@@ -123,7 +125,7 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    protected playImpactSound(soundPosition: Vector3, target: Mesh) {
+    protected playImpactSound(soundPosition: Vector3, target: Mesh): Audio<AudioNode> {
         const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
         let materialKind = MaterialKind.METAL;
         if (isUpdatableMaterial(targetMaterial)) {
@@ -143,17 +145,43 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         sound.position.copy(soundPosition);
         target.add(sound);
         sound.play();
+        return sound;
     }
 
-    protected playSound(soundName: string, delay?: number) {
-        this.createSound(soundName).play(delay);
+    protected playSound(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode>  {
+        const sound = this.createSound(soundName);
+        sound.onEnded = () => {
+            sound.isPlaying = false;
+            if (onEnded) {
+                onEnded();
+            }
+        };
+        sound.play(delay);
+        return sound;
     }
 
-    protected playSoundOnce(soundName: string, delay?: number) {
-        const sound = this.findSound(soundName);
-        if (!sound.isPlaying) {
-            sound.play(delay);
+    protected playSoundOnce(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
+        let sound: Audio<AudioNode>;
+        const sounds = this.findSounds(soundName);
+        if (sounds.length > 0) {
+            for (const sound of sounds) {
+                if (sound.isPlaying) {
+                    return sound;
+                }
+            }
+            sound = sounds[randomInt(0, sounds.length)];
+        } else {
+            sound = this.createSound(soundName);
         }
+
+        sound.onEnded = () => {
+            sound.isPlaying = false;
+            if (onEnded) {
+                onEnded();
+            }
+        };
+        sound.play(delay);
+        return sound;
     }
 
     protected stopAllSounds(...soundNames: string[]) {
@@ -182,18 +210,13 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         this.currentState = newState;
     }
 
-    private createSound(soundAlias: string): Audio<AudioNode> {
-        return this.parameters.soundSystem.createSound(this.soundNameForAlias(soundAlias));
-    }
-
-    private findSound(soundAlias: string): Audio<AudioNode> {
-        const sound = this.parameters.soundSystem.findSounds(this.soundNameForAlias(soundAlias))[0];
-        return sound || this.createSound(soundAlias);
-    }
-
     private findSounds(...soundAliases: string[]): Audio<AudioNode>[] {
         const soundNames = soundAliases.map(alias => this.soundNameForAlias(alias));
         return this.parameters.soundSystem.findSounds(...soundNames);
+    }
+
+    private createSound(soundAlias: string): Audio<AudioNode> {
+        return this.parameters.soundSystem.createSound(this.soundNameForAlias(soundAlias));
     }
 
     private soundNameForAlias(soundAlias: string): string {

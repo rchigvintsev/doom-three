@@ -242,6 +242,7 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
                 this.collectTextureSources(context, assets, monsterDef.materials);
             }
             this.collectAnimationSources(context, monsterDef);
+            this.collectSoundSources(context, assets, monsterDef);
         });
     }
 

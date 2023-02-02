@@ -35,10 +35,6 @@
       "chatter": "monster_zombie_fat_chatter",
       "chatter_combat": "monster_zombie_fat_chatter_combat",
       "pain": "monster_zombie_fat_pain",
-      "melee_attack_1": "monster_zombie_fat_attackmelee_1",
-      "melee_attack_2": "monster_zombie_fat_attackmelee_2",
-      "melee_attack_3": "monster_zombie_fat_attackmelee_3",
-      "thud": "monster_zombie_fat_thud",
       "bounce": "ragdoll_impact"
     }
   }

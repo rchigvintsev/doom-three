@@ -1,4 +1,4 @@
-import {Monster} from './monster';
+import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
@@ -15,6 +15,9 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+        if (this.isIdle()) {
+            this.playChatterSound();
+        }
     }
 
     public changeAnimation() {
@@ -44,6 +47,7 @@ export class ZombieFat extends Monster {
 
     private idle() {
         this.animate('idle1').start();
+        this.changeState(MonsterState.IDLE);
     }
 
     private startWalking() {
@@ -59,5 +63,11 @@ export class ZombieFat extends Monster {
             .thenCrossFadeToAny('walk1', 'walk2', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity).flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
+    }
+
+    private playChatterSound() {
+        if (!this.isPlayingSound()) {
+            this.playSound('chatter', Math.random() * 4 + 1);
+        }
     }
 }

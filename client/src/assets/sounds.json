@@ -251,5 +251,103 @@
       "sound/weapons/casings/shotgun_shell_02.wav",
       "sound/weapons/casings/shotgun_shell_03.wav"
     ]
+  },
+  {
+    "name": "monster_zombie_fat_sight1",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight1.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight2",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight2.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight3",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight3.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight4",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight4.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight5",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight5.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight6",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight6.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_sight7",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_sight7.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_footstep",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/step1.ogg",
+      "sound/ed/zombie2/step2.ogg",
+      "sound/ed/zombie2/step3.ogg",
+      "sound/ed/zombie2/step4.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_chatter",
+    "type": "positional",
+    "volume": 0.6,
+    "sources": [
+      "sound/ed/zombie2/zombie_idle1.ogg",
+      "sound/ed/zombie2/zombie_idle2.ogg",
+      "sound/ed/zombie2/zombie_idle3.ogg",
+      "sound/ed/zombie2/zombie_idle4.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_chatter_combat",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_attack1.ogg",
+      "sound/ed/zombie2/zombie_attack2.ogg",
+      "sound/ed/zombie2/zombie_attack3.ogg"
+    ]
+  },
+  {
+    "name": "monster_zombie_fat_pain",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_pain1.ogg",
+      "sound/ed/zombie2/zombie_pain2.ogg",
+      "sound/ed/zombie2/zombie_pain3.ogg"
+    ]
+  },
+  {
+    "name": "ragdoll_impact",
+    "type": "positional",
+    "sources": [
+      "sound/monsters/imp/1shot_thud_05.ogg",
+      "sound/monsters/imp/1shot_thud_06.ogg",
+      "sound/monsters/imp/1shot_thud_04.ogg",
+      "sound/monsters/imp/1shot_thud_03.ogg"
+    ]
   }
 ]

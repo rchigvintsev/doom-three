@@ -53,7 +53,7 @@ export class GameMapFactory implements EntityFactory<GameMap> {
                 if (!modelDef) {
                     throw new Error(`Unsupported monster type: ${monsterDef.type}`);
                 }
-                monsters.push(this.parameters.monsterFactory.create({...modelDef, ...monsterDef}));
+                monsters.push(<Monster>this.parameters.monsterFactory.create({...modelDef, ...monsterDef}));
             }
         }
         return monsters;
