@@ -1,19 +1,18 @@
 import {AnimationAction, LoopRepeat} from 'three';
 
-import {AbstractAnimationFlowStep} from './abstract-animation-flow-step';
 import {AnimationFlow} from './animation-flow';
 import {AnimationFlowStep} from './animation-flow-step';
 import {AnimationUpdateHandler} from '../animation-update-handler';
 import {Random} from '../../util/random';
 import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
+import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
 
-export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep implements AnimationUpdateHandler {
+export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep implements AnimationUpdateHandler {
     private delay?: number;
     private duration?: number;
     private fadeOutDuration?: number;
     private fadeInDuration?: number;
     private warping = false;
-    private repetitionSupplier?: number | (() => number);
     private onStartCallback?: () => void;
     private onLoopCallback?: () => void;
     private started = false;
@@ -89,16 +88,7 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
         if (this.toActions.length > 1) {
             this.toAction = this.toActions[Math.floor(this.random.sfc32() * this.toActions.length)];
         }
-
-        if (this.repetitionSupplier) {
-            let repetitions;
-            if (typeof this.repetitionSupplier === 'number') {
-                repetitions = this.repetitionSupplier;
-            } else {
-                repetitions = this.repetitionSupplier();
-            }
-            this.toAction!.setLoop(LoopRepeat, repetitions);
-        }
+        this.setLoop(this.toAction!);
 
         if (this.delay == undefined) {
             const fromAction = this.fromStep.action;
@@ -167,11 +157,6 @@ export class CrossFadeAnyAnimationFlowStep extends AbstractAnimationFlowStep imp
 
     withWarping(): this {
         this.warping = true;
-        return this;
-    }
-
-    repeat(repetitionSupplier: number | (() => number)): this {
-        this.repetitionSupplier = repetitionSupplier;
         return this;
     }
 

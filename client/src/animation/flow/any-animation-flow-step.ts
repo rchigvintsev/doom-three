@@ -1,6 +1,5 @@
-import {AnimationAction, LoopRepeat} from 'three';
+import {AnimationAction} from 'three';
 
-import {AbstractAnimationFlowStep} from './abstract-animation-flow-step';
 import {AnimationFlow} from './animation-flow';
 import {AnimationFlowStep} from './animation-flow-step';
 import {AlternateAnimationFlowStep} from './alternate-animation-flow-step';
@@ -8,10 +7,10 @@ import {Random} from '../../util/random';
 import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-step';
 import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 import {AnimationFlowStepSupplier} from './animation-flow-step-supplier';
+import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
 
-export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
+export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     private _action?: AnimationAction;
-    private repetitionSupplier?: number | (() => number);
     private onStartCallback?: () => void;
 
     constructor(flow: AnimationFlow,
@@ -38,15 +37,7 @@ export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
         if (this.actions.length > 1) {
             this._action = this.actions[Math.floor(this.random.sfc32() * this.actions.length)];
         }
-        if (this.repetitionSupplier) {
-            let repetitions;
-            if (typeof this.repetitionSupplier === 'number') {
-                repetitions = this.repetitionSupplier;
-            } else {
-                repetitions = this.repetitionSupplier();
-            }
-            this._action!.setLoop(LoopRepeat, repetitions);
-        }
+        this.setLoop(this.action!);
         this._action!.play();
         if (this.onStartCallback) {
             this.onStartCallback();
@@ -59,11 +50,6 @@ export class AnyAnimationFlowStep extends AbstractAnimationFlowStep {
             clone.repeat(this.repetitionSupplier);
         }
         return clone;
-    }
-
-    repeat(repetitionSupplier: number | (() => number)): this {
-        this.repetitionSupplier = repetitionSupplier;
-        return this;
     }
 
     onStart(callback: () => void): this {
