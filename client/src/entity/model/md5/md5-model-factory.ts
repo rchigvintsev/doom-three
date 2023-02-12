@@ -37,7 +37,15 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         if (modelDef.position) {
             model.position.fromArray(modelDef.position).multiplyScalar(this.parameters.config.worldScale);
         }
-        model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
+        if (modelDef.rotation) {
+            model.rotation.set(
+                MathUtils.degToRad(modelDef.rotation[0] - 90),
+                MathUtils.degToRad(modelDef.rotation[1]),
+                MathUtils.degToRad(modelDef.rotation[2] + 90)
+            );
+        } else {
+            model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
+        }
 
         if (this.parameters.config.showWireframe && !this.parameters.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);

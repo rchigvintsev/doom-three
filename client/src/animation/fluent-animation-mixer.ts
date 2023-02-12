@@ -31,16 +31,16 @@ export class FluentAnimationMixer extends AnimationMixer {
         return this;
     }
 
-    animate(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
-        return new AnimationFlow(this).singleStep(actionName, resetOnStart);
+    animate(actionName: string, stopBeforeStart = true): AnyAnimationFlowStep {
+        return new AnimationFlow(this).singleStep(actionName, stopBeforeStart);
     }
 
     animateAny(...actionNames: string[]): AnyAnimationFlowStep {
         return new AnimationFlow(this).anyStep(actionNames);
     }
 
-    animateCurrent(resetOnStart = true): CurrentAnimationFlowStep {
-        return new AnimationFlow(this).currentStep(resetOnStart);
+    animateCurrent(stopBeforeStart = true): CurrentAnimationFlowStep {
+        return new AnimationFlow(this).currentStep(stopBeforeStart);
     }
 
     animateIf(predicate: () => boolean, thenActionName: string): ConditionalAnimationFlowStep {

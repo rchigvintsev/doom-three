@@ -7,7 +7,7 @@ import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-ste
 export class CurrentAnimationFlowStep extends AbstractAnimationFlowStep {
     private _action?: AnimationAction;
 
-    constructor(flow: AnimationFlow, private readonly resetOnStart = true) {
+    constructor(flow: AnimationFlow, private readonly stopBeforeStart = true) {
         super(flow);
     }
 
@@ -25,14 +25,14 @@ export class CurrentAnimationFlowStep extends AbstractAnimationFlowStep {
             return;
         }
 
-        if (this.resetOnStart) {
-            this._action.stop().reset();
+        if (this.stopBeforeStart) {
+            this._action.stop();
         }
-        this._action!.play();
+        this._action.play();
     }
 
     clone(flow: AnimationFlow): CurrentAnimationFlowStep {
-        return flow.currentStep(this.resetOnStart);
+        return flow.currentStep(this.stopBeforeStart);
     }
 
     thenCrossFadeTo(actionName: string): CrossFadeAnyAnimationFlowStep {

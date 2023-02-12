@@ -1,16 +1,32 @@
-import {Audio} from 'three';
+import {Audio, Euler, MathUtils, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
+import {Game} from '../../../../game';
 
 export abstract class Monster extends Md5Model {
+    protected readonly direction = new Vector3();
+    protected readonly positionOffset = new Vector3();
+
     private playingSound?: Audio<AudioNode>;
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
     }
 
+    update(deltaTime: number) {
+        super.update(deltaTime);
+        this.updateDirection();
+        if (this.isIdle()) {
+            this.resetSkeletonPosition();
+        }
+    }
+
     protected isIdle(): boolean {
         return this.currentState === MonsterState.IDLE;
+    }
+
+    protected isWalking(): boolean {
+        return this.currentState === MonsterState.WALKING;
     }
 
     protected isPlayingSound(): boolean {
@@ -48,6 +64,20 @@ export abstract class Monster extends Md5Model {
         }
         this.playingSound = sound;
         return sound;
+    }
+
+    private updateDirection = (() => {
+        const directionRotation = new Euler();
+
+        return () => {
+            directionRotation.set(this.rotation.x, this.rotation.y, this.rotation.z - MathUtils.degToRad(90));
+            this.getWorldDirection(this.direction).applyEuler(directionRotation);
+        };
+    })();
+
+    private resetSkeletonPosition() {
+        this.skeleton.bones[0].position.x = 0;
+        this.skeleton.bones[0].position.z = 0;
     }
 }
 

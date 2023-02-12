@@ -15,7 +15,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
 
     constructor(flow: AnimationFlow,
                 private readonly actions: AnimationAction[],
-                private readonly resetOnStart = true,
+                private readonly stopBeforeStart = true,
                 private readonly random = new Random()) {
         super(flow);
         if (actions.length === 1) {
@@ -31,8 +31,8 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     }
 
     start() {
-        if (this.resetOnStart) {
-            this.actions.forEach(action => action.stop().reset());
+        if (this.stopBeforeStart) {
+            this.actions.forEach(action => action.stop());
         }
         if (this.actions.length > 1) {
             this._action = this.actions[Math.floor(this.random.sfc32() * this.actions.length)];
@@ -45,7 +45,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     }
 
     clone(flow: AnimationFlow): AnyAnimationFlowStep {
-        const clone = flow.anyStep(this.actions.map(action => action.getClip().name), this.resetOnStart);
+        const clone = flow.anyStep(this.actions.map(action => action.getClip().name), this.stopBeforeStart);
         if (this.repetitionSupplier != undefined) {
             clone.repeat(this.repetitionSupplier);
         }

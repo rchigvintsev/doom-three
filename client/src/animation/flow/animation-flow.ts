@@ -33,18 +33,18 @@ export class AnimationFlow {
         }
     }
 
-    singleStep(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
-        return this.anyStep([actionName], resetOnStart);
+    singleStep(actionName: string, stopBeforeStart = true): AnyAnimationFlowStep {
+        return this.anyStep([actionName], stopBeforeStart);
     }
 
-    anyStep(actionNames: string[], resetOnStart = true): AnyAnimationFlowStep {
-        const step = new AnyAnimationFlowStep(this, this.mixer.findActions(...actionNames), resetOnStart);
+    anyStep(actionNames: string[], stopBeforeStart = true): AnyAnimationFlowStep {
+        const step = new AnyAnimationFlowStep(this, this.mixer.findActions(...actionNames), stopBeforeStart);
         this.steps.push(step);
         return step;
     }
 
-    currentStep(resetOnStart = true): CurrentAnimationFlowStep {
-        const step = new CurrentAnimationFlowStep(this, resetOnStart);
+    currentStep(stopBeforeStart = true): CurrentAnimationFlowStep {
+        const step = new CurrentAnimationFlowStep(this, stopBeforeStart);
         this.steps.push(step);
         return step;
     }

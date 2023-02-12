@@ -1,7 +1,12 @@
+import {ArrowHelper, Vector3} from 'three';
+
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {Game} from '../../../../game';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
+
+const WALK1_SPEED = 27.4;
 
 export class ZombieFat extends Monster {
     static readonly INSTANCE: Promise<ZombieFat> = new Promise<ZombieFat>((resolve) => zombieResolve = resolve);
@@ -15,8 +20,14 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+
         if (this.isIdle()) {
             this.playChatterSound();
+        } else if (this.isWalking()) {
+            const directionFactor = deltaTime * WALK1_SPEED * this.config.worldScale;
+            this.positionOffset.x += this.direction.x * directionFactor;
+            this.positionOffset.y += this.direction.y * directionFactor;
+            this.positionOffset.z += this.direction.z * directionFactor;
         }
     }
 
@@ -52,15 +63,24 @@ export class ZombieFat extends Monster {
 
     private startWalking() {
         this.startAnimationFlow('start_walking');
+        this.positionOffset.setScalar(0);
+        this.changeState(MonsterState.WALKING);
     }
 
     private stopWalking() {
         this.startAnimationFlow('stop_walking');
+        this.position.add(this.positionOffset);
+        this.changeState(MonsterState.IDLE);
     }
 
     private initAnimationFlows() {
         this.addAnimationFlow('start_walking', this.animate('idle1')
-            .thenCrossFadeToAny('walk1', 'walk2', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity).flow);
+            .thenCrossFadeToAny('walk1').withDuration(0.3).repeat(Infinity).onLoop(() => {
+                if (this.isWalking()) {
+                    this.position.add(this.positionOffset);
+                    this.positionOffset.setScalar(0);
+                }
+            }).flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
     }

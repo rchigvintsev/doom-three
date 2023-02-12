@@ -13,11 +13,10 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     private fadeOutDuration?: number;
     private fadeInDuration?: number;
     private warping = false;
+    private _clampWhenFinished = false;
     private onStartCallback?: () => void;
-    private onLoopCallback?: () => void;
     private started = false;
     private toAction?: AnimationAction;
-    private loopCount = -1;
 
     constructor(flow: AnimationFlow,
                 private readonly fromStep: AnimationFlowStep,
@@ -37,14 +36,6 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     }
 
     handle(_deltaTime: number) {
-        if (this.onLoopCallback && this.isActionRepeating(this.toAction)) {
-            const actionLoopCount = this.getActionLoopCount(this.toAction!);
-            if (this.loopCount !== actionLoopCount) {
-                this.loopCount = actionLoopCount;
-                this.onLoopCallback();
-            }
-        }
-
         if (this.started && this.delay != undefined) {
             const fromAction = this.fromStep.action;
             const fromClip = fromAction.getClip();
@@ -72,9 +63,6 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
                 if (this.onStartCallback) {
                     this.onStartCallback();
                 }
-                if (this.onLoopCallback) {
-                    this.onLoopCallback();
-                }
 
                 this.started = false;
             }
@@ -82,13 +70,12 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     }
 
     start() {
-        this.loopCount = -1;
-        this.toActions.forEach(action => action.stop().reset());
-
+        this.toActions.forEach(action => action.stop());
         if (this.toActions.length > 1) {
             this.toAction = this.toActions[Math.floor(this.random.sfc32() * this.toActions.length)];
         }
         this.setLoop(this.toAction!);
+        this.toAction!.clampWhenFinished = this._clampWhenFinished;
 
         if (this.delay == undefined) {
             const fromAction = this.fromStep.action;
@@ -103,9 +90,6 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
 
             if (this.onStartCallback) {
                 this.onStartCallback();
-            }
-            if (this.onLoopCallback) {
-                this.onLoopCallback();
             }
         }
 
@@ -128,6 +112,9 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         }
         if (this.warping) {
             clone.withWarping();
+        }
+        if (this._clampWhenFinished) {
+            clone.clampWhenFinished();
         }
         if (this.repetitionSupplier) {
             clone.repeat(this.repetitionSupplier);
@@ -160,13 +147,13 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         return this;
     }
 
-    onStart(callback: () => void): this {
-        this.onStartCallback = callback;
+    clampWhenFinished(): this {
+        this._clampWhenFinished = true;
         return this;
     }
 
-    onLoop(callback: () => void): this {
-        this.onLoopCallback = callback;
+    onStart(callback: () => void): this {
+        this.onStartCallback = callback;
         return this;
     }
 

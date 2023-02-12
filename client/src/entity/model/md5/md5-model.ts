@@ -65,16 +65,16 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
-    protected animate(actionName: string, resetOnStart = true): AnyAnimationFlowStep {
-        return this.animationMixer.animate(actionName, resetOnStart);
+    protected animate(actionName: string, stopBeforeStart = true): AnyAnimationFlowStep {
+        return this.animationMixer.animate(actionName, stopBeforeStart);
     }
 
     protected animateAny(...actionNames: string[]): AnyAnimationFlowStep {
         return this.animationMixer.animateAny(...actionNames);
     }
 
-    protected animateCurrent(resetOnStart = false): CurrentAnimationFlowStep {
-        return this.animationMixer.animateCurrent(resetOnStart);
+    protected animateCurrent(stopBeforeStart = false): CurrentAnimationFlowStep {
+        return this.animationMixer.animateCurrent(stopBeforeStart);
     }
 
     protected animateIf(predicate: () => boolean, actionName: string): ConditionalAnimationFlowStep {
@@ -121,7 +121,7 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     protected stopAllAnimations(...animationNames: string[]) {
         const actions = this.animationMixer.findActions(...animationNames);
         for (const action of actions) {
-            action.stop().reset();
+            action.stop();
         }
     }
 
