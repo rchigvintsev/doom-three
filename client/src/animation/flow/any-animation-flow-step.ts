@@ -11,7 +11,7 @@ import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
 
 export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     private _action?: AnimationAction;
-    private onStartCallback?: () => void;
+    private onStartCallback?: (action: AnimationAction) => void;
 
     constructor(flow: AnimationFlow,
                 private readonly actions: AnimationAction[],
@@ -40,7 +40,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         this.setLoop(this.action!);
         this._action!.play();
         if (this.onStartCallback) {
-            this.onStartCallback();
+            this.onStartCallback(this._action!);
         }
     }
 
@@ -52,7 +52,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         return clone;
     }
 
-    onStart(callback: () => void): this {
+    onStart(callback: (action: AnimationAction) => void): this {
         this.onStartCallback = callback;
         return this;
     }
