@@ -2,13 +2,38 @@
  * Based on the answer found on StackOverflow (https://stackoverflow.com/a/47593316/2623021).
  */
 export class Random {
+    private static initialized = false;
+    private static seedString: string;
+
     private readonly seed: number[];
 
     constructor(seed?: number[]) {
         if (seed == undefined) {
-            seed = this.cyrb128();
+            Random.init();
+            seed = this.cyrb128(Random.seedString);
         }
         this.seed = seed;
+    }
+
+    static init(seedString?: string) {
+        if (!this.initialized) {
+            if (!seedString) {
+                seedString = this.randomString();
+            }
+            this.seedString = seedString;
+            this.initialized = true;
+        }
+    }
+
+    static randomString(length = 5): string {
+        let result = '';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let i = 0;
+        while (i < length) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+            i++;
+        }
+        return result;
     }
 
     sfc32(): number {
@@ -38,7 +63,7 @@ export class Random {
         return (t >>> 0) / 4294967296;
     }
 
-    private cyrb128(str = 'doom') {
+    private cyrb128(str: string) {
         let h1 = 1779033703, h2 = 3144134277, h3 = 1013904242, h4 = 2773480762;
         for (let i = 0, k; i < str.length; i++) {
             k = str.charCodeAt(i);
