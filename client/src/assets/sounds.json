@@ -304,6 +304,7 @@
   {
     "name": "monster_zombie_fat_footstep",
     "type": "positional",
+    "volume": 0.8,
     "sources": [
       "sound/ed/zombie2/step1.ogg",
       "sound/ed/zombie2/step2.ogg",

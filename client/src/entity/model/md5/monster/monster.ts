@@ -7,7 +7,7 @@ export abstract class Monster extends Md5Model {
     protected readonly direction = new Vector3();
     protected readonly positionOffset = new Vector3();
 
-    private playingSound?: Audio<AudioNode>;
+    private readonly playingSounds = new Map<string, Audio<AudioNode>>();
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
@@ -29,13 +29,13 @@ export abstract class Monster extends Md5Model {
         return this.currentState === MonsterState.WALKING;
     }
 
-    protected isPlayingSound(): boolean {
-        return !!this.playingSound;
+    protected isPlayingSound(soundName: string): boolean {
+        return !!this.playingSounds.get(soundName);
     }
 
     protected playSound(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
         const sound = super.playSound(soundName, delay, () => {
-            this.playingSound = undefined;
+            this.playingSounds.delete(soundName);
             if (onEnded) {
                 onEnded();
             }
@@ -43,18 +43,14 @@ export abstract class Monster extends Md5Model {
         if (!sound.parent) {
             this.add(sound);
         }
-        this.playingSound = sound;
+        this.playingSounds.set(soundName, sound);
         return sound;
     }
 
 
     protected playSoundOnce(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
-        if (this.playingSound) {
-            return this.playingSound;
-        }
-
         const sound = super.playSoundOnce(soundName, delay, () => {
-            this.playingSound = undefined;
+            this.playingSounds.delete(soundName);
             if (onEnded) {
                 onEnded();
             }
@@ -62,7 +58,7 @@ export abstract class Monster extends Md5Model {
         if (!sound.parent) {
             this.add(sound);
         }
-        this.playingSound = sound;
+        this.playingSounds.set(soundName, sound);
         return sound;
     }
 

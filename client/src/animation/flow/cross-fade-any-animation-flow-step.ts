@@ -8,6 +8,8 @@ import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
 
 export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep implements AnimationUpdateHandler {
+    private readonly onTimeCallbacks: OnTimeCallback[] = [];
+
     private delay?: number;
     private duration?: number;
     private fadeOutDuration?: number;
@@ -16,6 +18,7 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     private _clampWhenFinished = false;
     private onStartCallback?: (action: AnimationAction) => void;
     private started = false;
+    private playing = false;
     private toAction?: AnimationAction;
 
     constructor(flow: AnimationFlow,
@@ -35,36 +38,39 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         return this.toAction;
     }
 
-    handle(_deltaTime: number) {
-        if (this.started && this.delay != undefined) {
-            const fromAction = this.fromStep.action;
-            const fromClip = fromAction.getClip();
+    handle(deltaTime: number) {
+        if (this.started) {
+            if (this.playing) {
+                this.invokeOnTimeCallbacks(deltaTime);
+            } else if (this.delay != undefined) {
+                const fromAction = this.fromStep.action;
+                const fromClip = fromAction.getClip();
 
-            let delay = Math.min(this.delay, fromClip.duration);
-            let time = fromAction.time;
-            if (this.isActionRepeating(fromAction)) {
-                delay += (fromAction.repetitions - 1) * fromClip.duration;
-                const loopCount = this.getActionLoopCount(fromAction);
-                if (loopCount !== -1) {
-                    time += loopCount * fromClip.duration;
-                }
-            }
-
-            if (time >= delay) {
-                this.toAction!.play();
-
-                let duration = this.duration;
-                if (duration == undefined) {
-                    duration = fromClip.duration - fromAction.time;
+                let delay = Math.min(this.delay, fromClip.duration);
+                let time = fromAction.time;
+                if (this.isActionRepeating(fromAction)) {
+                    delay += (fromAction.repetitions - 1) * fromClip.duration;
+                    const loopCount = this.getActionLoopCount(fromAction);
+                    if (loopCount !== -1) {
+                        time += loopCount * fromClip.duration;
+                    }
                 }
 
-                this.crossFadeActions(fromAction, this.toAction!, duration);
+                if (time >= delay) {
+                    this.toAction!.play();
+                    this.playing = true;
 
-                if (this.onStartCallback) {
-                    this.onStartCallback(this.toAction!);
+                    let duration = this.duration;
+                    if (duration == undefined) {
+                        duration = fromClip.duration - fromAction.time;
+                    }
+
+                    this.crossFadeActions(fromAction, this.toAction!, duration);
+
+                    if (this.onStartCallback) {
+                        this.onStartCallback(this.toAction!);
+                    }
                 }
-
-                this.started = false;
             }
         }
     }
@@ -80,6 +86,7 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         if (this.delay == undefined) {
             const fromAction = this.fromStep.action;
             this.toAction!.play();
+            this.playing = true;
 
             let duration = this.duration;
             if (duration == undefined) {
@@ -157,6 +164,11 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         return this;
     }
 
+    onTime(times: number[], callback: (time: number) => void, predicate?: (action: string) => boolean): this {
+        this.onTimeCallbacks.push(new OnTimeCallback(times, callback, predicate));
+        return this;
+    }
+
     thenCrossFadeTo(actionName: string): CrossFadeAnyAnimationFlowStep {
         return this.flow.crossFadeStep(undefined, actionName);
     }
@@ -193,5 +205,37 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
         } else {
             fromAction.crossFadeTo(toAction, duration, this.warping);
         }
+    }
+
+    private invokeOnTimeCallbacks(deltaTime: number) {
+        if (!this.toAction!.isRunning()) {
+            return;
+        }
+
+        const actionTime = this.toAction!.time;
+        for (const callback of this.onTimeCallbacks) {
+            if (callback.predicate && !callback.predicate(this.toAction!.getClip().name)) {
+                continue;
+            }
+
+            if (callback.scheduled) {
+                callback.callback(actionTime);
+                callback.scheduled = false;
+            }
+
+            for (const time of callback.times) {
+                if (time >= actionTime && time <= actionTime + deltaTime) {
+                    callback.scheduled = true;
+                }
+            }
+        }
+    }
+}
+
+class OnTimeCallback {
+    scheduled = false;
+    constructor(readonly times: number[],
+                readonly callback: (time: number) => void,
+                readonly predicate?: (action: string) => boolean) {
     }
 }

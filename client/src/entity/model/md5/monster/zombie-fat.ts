@@ -14,8 +14,6 @@ const WALK4_SPEED = 25.8;
 export class ZombieFat extends Monster {
     static readonly INSTANCE: Promise<ZombieFat> = new Promise<ZombieFat>((resolve) => zombieResolve = resolve);
 
-    private changedAnimationAt = 0;
-    private walking = false;
     private lastWalkAnimationName?: string;
 
     constructor(parameters: Md5ModelParameters) {
@@ -33,24 +31,6 @@ export class ZombieFat extends Monster {
             this.positionOffset.y += this.direction.y * directionFactor;
             this.positionOffset.z += this.direction.z * directionFactor;
         }
-    }
-
-    public changeAnimation() {
-        if (this.changedAnimationAt > 0) {
-            const now = performance.now();
-            if (now - this.changedAnimationAt < 500) {
-                return;
-            }
-        }
-
-        if (this.walking) {
-            this.stopWalking();
-            this.walking = false;
-        } else {
-            this.startWalking();
-            this.walking = true;
-        }
-        this.changedAnimationAt = performance.now();
     }
 
     protected doInit() {
@@ -79,22 +59,29 @@ export class ZombieFat extends Monster {
 
     private initAnimationFlows() {
         this.addAnimationFlow('start_walking', this.animate('idle1')
-            .thenCrossFadeToAny('walk1', 'walk3', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity)
+            .thenCrossFadeToAny('walk1', 'walk2', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity)
             .onStart(action => this.lastWalkAnimationName = action.getClip().name)
             .onLoop(() => {
                 if (this.isWalking()) {
                     this.position.add(this.positionOffset);
                     this.positionOffset.setScalar(0);
                 }
-            }).flow);
+            })
+            .onTime([0.35, 1], () => this.playFootstepSound(), action => action === 'walk1' || action === 'walk4')
+            .onTime([0.4, 1.2], () => this.playFootstepSound(), action => action === 'walk2')
+            .onTime([0.35, 0.75], () => this.playFootstepSound(), action => action === 'walk3').flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
     }
 
     private playChatterSound() {
-        if (!this.isPlayingSound()) {
+        if (!this.isPlayingSound('chatter')) {
             this.playSound('chatter', Math.random() * 4 + 1);
         }
+    }
+
+    private playFootstepSound() {
+        this.playSoundOnce('footstep');
     }
 
     private get walkSpeed(): number {
