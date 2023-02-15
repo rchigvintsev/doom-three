@@ -9,6 +9,8 @@ export interface AnimationFlowStep {
 
     start(): void;
 
+    get started(): boolean;
+
     clone(flow: AnimationFlow): AnimationFlowStep;
 }
 

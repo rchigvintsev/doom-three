@@ -17,7 +17,6 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     private warping = false;
     private _clampWhenFinished = false;
     private onStartCallback?: (action: AnimationAction) => void;
-    private started = false;
     private playing = false;
     private toAction?: AnimationAction;
 
@@ -32,10 +31,10 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
     }
 
     get action(): AnimationAction {
-        if (!this.toAction) {
+        if (!this.started) {
             throw new Error('Animation flow step "cross fade any" is not started');
         }
-        return this.toAction;
+        return this.toAction!;
     }
 
     handle(deltaTime: number) {
@@ -98,6 +97,8 @@ export class CrossFadeAnyAnimationFlowStep extends RepeatableAnimationFlowStep i
             if (this.onStartCallback) {
                 this.onStartCallback(this.toAction!);
             }
+        } else {
+            this.playing = false;
         }
 
         this.started = true;

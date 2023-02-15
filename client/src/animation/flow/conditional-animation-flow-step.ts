@@ -21,6 +21,10 @@ export class ConditionalAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     get action(): AnimationAction {
+        if (!this.started) {
+            throw new Error('Animation flow step "conditional" is not started');
+        }
+
         if (this.predicate()) {
             return this.getThenStep().action;
         }
@@ -40,6 +44,7 @@ export class ConditionalAnimationFlowStep extends AbstractAnimationFlowStep {
                 elseStep.flow.start();
             }
         }
+        this.started = true;
     }
 
     clone(flow: AnimationFlow): AnimationFlowStep {

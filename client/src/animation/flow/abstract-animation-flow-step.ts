@@ -6,6 +6,8 @@ import {AnimationFlowStep} from './animation-flow-step';
 export abstract class AbstractAnimationFlowStep implements AnimationFlowStep {
     readonly animationFlowStep = true;
 
+    private _started = false;
+
     constructor(readonly flow: AnimationFlow) {
     }
 
@@ -14,6 +16,14 @@ export abstract class AbstractAnimationFlowStep implements AnimationFlowStep {
     }
 
     abstract start(): void;
+
+    get started(): boolean {
+        return this._started;
+    }
+
+    set started(started: boolean) {
+        this._started = started;
+    }
 
     abstract clone(flow: AnimationFlow): AnimationFlowStep;
 }

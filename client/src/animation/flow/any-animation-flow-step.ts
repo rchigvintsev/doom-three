@@ -24,10 +24,10 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     }
 
     get action(): AnimationAction {
-        if (!this._action) {
+        if (!this.started) {
             throw new Error('Animation flow step "any" is not started');
         }
-        return this._action;
+        return this._action!;
     }
 
     start() {
@@ -37,11 +37,12 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         if (this.actions.length > 1) {
             this._action = this.actions[Math.floor(this.random.sfc32() * this.actions.length)];
         }
-        this.setLoop(this.action!);
+        this.setLoop(this._action!);
         this._action!.play();
         if (this.onStartCallback) {
             this.onStartCallback(this._action!);
         }
+        this.started = true;
     }
 
     clone(flow: AnimationFlow): AnyAnimationFlowStep {

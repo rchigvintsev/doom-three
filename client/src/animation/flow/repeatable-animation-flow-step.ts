@@ -11,7 +11,7 @@ export abstract class RepeatableAnimationFlowStep extends AbstractAnimationFlowS
     constructor(flow: AnimationFlow) {
         super(flow);
         flow.mixer.addEventListener('loop', event => {
-            if (this.onLoopCallback && event.action === this.action) {
+            if (this.started && this.onLoopCallback && event.action === this.action) {
                 this.onLoopCallback();
             }
         });

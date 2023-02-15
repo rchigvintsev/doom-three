@@ -25,9 +25,14 @@ export class AlternateAnimationFlowStep extends AbstractAnimationFlowStep {
         } else {
             this.steps[this.index].flow.start();
         }
+
+        this.started = true;
     }
 
     get action(): AnimationAction {
+        if (!this.started) {
+            throw new Error('Animation flow step "alternate" is not started');
+        }
         return this.steps[this.index || 0].action;
     }
 

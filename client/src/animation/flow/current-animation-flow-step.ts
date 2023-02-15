@@ -12,10 +12,10 @@ export class CurrentAnimationFlowStep extends AbstractAnimationFlowStep {
     }
 
     get action(): AnimationAction {
-        if (!this._action) {
+        if (!this.started) {
             throw new Error('Animation flow step "current" is not started');
         }
-        return this._action;
+        return this._action!;
     }
 
     start() {
@@ -29,6 +29,7 @@ export class CurrentAnimationFlowStep extends AbstractAnimationFlowStep {
             this._action.stop();
         }
         this._action.play();
+        this.started = true;
     }
 
     clone(flow: AnimationFlow): CurrentAnimationFlowStep {
