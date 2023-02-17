@@ -29,6 +29,10 @@ export abstract class Monster extends Md5Model {
         return this.currentState === MonsterState.WALKING;
     }
 
+    protected isAttacking(): boolean {
+        return this.currentState === MonsterState.ATTACKING;
+    }
+
     protected isPlayingSound(soundName: string): boolean {
         return !!this.playingSounds.get(soundName);
     }
@@ -62,6 +66,15 @@ export abstract class Monster extends Md5Model {
         return sound;
     }
 
+    protected canAttack() {
+        return this.currentState === MonsterState.IDLE;
+    }
+
+    protected resetSkeletonPosition() {
+        this.skeleton.bones[0].position.x = 0;
+        this.skeleton.bones[0].position.z = 0;
+    }
+
     private updateDirection = (() => {
         const directionRotation = new Euler();
 
@@ -70,14 +83,10 @@ export abstract class Monster extends Md5Model {
             this.getWorldDirection(this.direction).applyEuler(directionRotation);
         };
     })();
-
-    private resetSkeletonPosition() {
-        this.skeleton.bones[0].position.x = 0;
-        this.skeleton.bones[0].position.z = 0;
-    }
 }
 
 export class MonsterState extends Md5ModelState {
     static readonly IDLE = 'idle';
     static readonly WALKING = 'walking';
+    static readonly ATTACKING = 'attacking';
 }

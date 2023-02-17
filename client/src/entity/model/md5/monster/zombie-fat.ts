@@ -10,6 +10,7 @@ const WALK1_SPEED = 27.4;
 const WALK2_SPEED = 29.12;
 const WALK3_SPEED = 57.74;
 const WALK4_SPEED = 25.8;
+const LEFT_SLAP_SPEED = 38.16;
 
 export class ZombieFat extends Monster {
     static readonly INSTANCE: Promise<ZombieFat> = new Promise<ZombieFat>((resolve) => zombieResolve = resolve);
@@ -22,14 +23,15 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
-
+        this.updateState();
         if (this.isIdle()) {
             this.playChatterSound();
         } else if (this.isWalking()) {
             const directionFactor = deltaTime * this.walkSpeed;
-            this.positionOffset.x += this.direction.x * directionFactor;
-            this.positionOffset.y += this.direction.y * directionFactor;
-            this.positionOffset.z += this.direction.z * directionFactor;
+            this.increasePositionOffset(directionFactor);
+        } else if (this.isAttacking()) {
+            const directionFactor = deltaTime * LEFT_SLAP_SPEED * this.config.worldScale;
+            this.increasePositionOffset(directionFactor);
         }
     }
 
@@ -38,6 +40,16 @@ export class ZombieFat extends Monster {
         this.initAnimationFlows();
         this.idle();
         zombieResolve(this);
+    }
+
+    protected updateState() {
+        if (this.currentState === MonsterState.ATTACKING && this.isAnyAnimationRunning('idle1')) {
+            // Switch state to idle as soon as idle animation is running to prevent monster drifting back after slap
+            this.resetSkeletonPosition();
+            this.position.add(this.positionOffset);
+            this.positionOffset.setScalar(0);
+            this.changeState(MonsterState.IDLE);
+        }
     }
 
     private idle() {
@@ -57,6 +69,15 @@ export class ZombieFat extends Monster {
         this.changeState(MonsterState.IDLE);
     }
 
+    private attack() {
+        if (this.canAttack()) {
+            this.animationMixer.getRunningAction()?.stop();
+            this.startAnimationFlow('attack');
+            this.positionOffset.setScalar(0);
+            this.changeState(MonsterState.ATTACKING);
+        }
+    }
+
     private initAnimationFlows() {
         this.addAnimationFlow('start_walking', this.animate('idle1')
             .thenCrossFadeToAny('walk1', 'walk2', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity)
@@ -72,6 +93,8 @@ export class ZombieFat extends Monster {
             .onTime([0.35, 0.75], () => this.playFootstepSound(), action => action === 'walk3').flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
+        this.addAnimationFlow('attack', this.animate('attack_leftslap')
+            .thenCrossFadeTo('idle1').withDelay(0.8).withDuration(0.25).flow);
     }
 
     private playChatterSound() {
@@ -96,5 +119,11 @@ export class ZombieFat extends Monster {
                 return WALK4_SPEED * this.config.worldScale;
         }
         return 0;
+    }
+
+    private increasePositionOffset(directionFactor: number) {
+        this.positionOffset.x += this.direction.x * directionFactor;
+        this.positionOffset.y += this.direction.y * directionFactor;
+        this.positionOffset.z += this.direction.z * directionFactor;
     }
 }

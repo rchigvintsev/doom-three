@@ -11,6 +11,7 @@ import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
 
 export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
     private _action?: AnimationAction;
+    private _clampWhenFinished = false;
     private onStartCallback?: (action: AnimationAction) => void;
 
     constructor(flow: AnimationFlow,
@@ -38,6 +39,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
             this._action = this.actions[Math.floor(this.random.sfc32() * this.actions.length)];
         }
         this.setLoop(this._action!);
+        this._action!.clampWhenFinished = this._clampWhenFinished;
         this._action!.play();
         if (this.onStartCallback) {
             this.onStartCallback(this._action!);
@@ -50,7 +52,15 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         if (this.repetitionSupplier != undefined) {
             clone.repeat(this.repetitionSupplier);
         }
+        if (this._clampWhenFinished) {
+            clone.clampWhenFinished();
+        }
         return clone;
+    }
+
+    clampWhenFinished(): this {
+        this._clampWhenFinished = true;
+        return this;
     }
 
     onStart(callback: (action: AnimationAction) => void): this {
