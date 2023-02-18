@@ -40,6 +40,7 @@ export class AnimationFlow {
     anyStep(actionNames: string[], stopBeforeStart = true): AnyAnimationFlowStep {
         const step = new AnyAnimationFlowStep(this, this.mixer.findActions(...actionNames), stopBeforeStart);
         this.steps.push(step);
+        this.mixer.addUpdateHandler(step);
         return step;
     }
 

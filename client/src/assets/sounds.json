@@ -333,6 +333,16 @@
     ]
   },
   {
+    "name": "monster_zombie_fat_whoosh",
+    "type": "positional",
+    "sources": [
+      "sound/xian/monsters/punch/whoosh_01.ogg",
+      "sound/xian/monsters/punch/whoosh_02.ogg",
+      "sound/xian/monsters/punch/whoosh_03.ogg",
+      "sound/xian/monsters/punch/whoosh_04.ogg"
+    ]
+  },
+  {
     "name": "monster_zombie_fat_pain",
     "type": "positional",
     "sources": [

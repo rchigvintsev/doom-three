@@ -34,6 +34,7 @@
       "footstep": "monster_zombie_fat_footstep",
       "chatter": "monster_zombie_fat_chatter",
       "chatter_combat": "monster_zombie_fat_chatter_combat",
+      "whoosh": "monster_zombie_fat_whoosh",
       "pain": "monster_zombie_fat_pain",
       "bounce": "ragdoll_impact"
     }

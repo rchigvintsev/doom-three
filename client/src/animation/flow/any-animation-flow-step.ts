@@ -8,14 +8,17 @@ import {CrossFadeAnyAnimationFlowStep} from './cross-fade-any-animation-flow-ste
 import {ConditionalAnimationFlowStep} from './conditional-animation-flow-step';
 import {AnimationFlowStepSupplier} from './animation-flow-step-supplier';
 import {RepeatableAnimationFlowStep} from './repeatable-animation-flow-step';
+import {AnimationUpdateHandler} from '../animation-update-handler';
 
-export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
-    private _action?: AnimationAction;
-    private _clampWhenFinished = false;
-    private onStartCallback?: (action: AnimationAction) => void;
+export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements AnimationUpdateHandler {
+    protected _clampWhenFinished = false;
+    protected onStartCallback?: (action: AnimationAction) => void;
+    protected _action?: AnimationAction;
+
+    private readonly onTimeCallbacks: OnTimeCallback[] = [];
 
     constructor(flow: AnimationFlow,
-                private readonly actions: AnimationAction[],
+                protected readonly actions: AnimationAction[],
                 private readonly stopBeforeStart = true,
                 private readonly random = new Random()) {
         super(flow);
@@ -31,6 +34,12 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         return this._action!;
     }
 
+    handle(deltaTime: number) {
+        if (this.started) {
+            this.invokeOnTimeCallbacks(deltaTime);
+        }
+    }
+
     start() {
         if (this.stopBeforeStart) {
             this.actions.forEach(action => action.stop());
@@ -40,10 +49,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         }
         this.setLoop(this._action!);
         this._action!.clampWhenFinished = this._clampWhenFinished;
-        this._action!.play();
-        if (this.onStartCallback) {
-            this.onStartCallback(this._action!);
-        }
+        this.doStart();
         this.started = true;
     }
 
@@ -68,6 +74,11 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
         return this;
     }
 
+    onTime(times: number[], callback: (time: number) => void, predicate?: (action: string) => boolean): this {
+        this.onTimeCallbacks.push(new OnTimeCallback(times, callback, predicate));
+        return this;
+    }
+
     alternateWith(step: AnimationFlowStep): AlternateAnimationFlowStep {
         return this.flow.alternateStep(step);
     }
@@ -82,5 +93,45 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep {
 
     thenIf(predicate: () => boolean, thenStep: AnimationFlowStep | AnimationFlowStepSupplier): ConditionalAnimationFlowStep {
         return this.flow.conditionalStep(predicate, thenStep);
+    }
+
+    protected doStart() {
+        this._action!.play();
+        if (this.onStartCallback) {
+            this.onStartCallback(this._action!);
+        }
+    }
+
+    protected invokeOnTimeCallbacks(deltaTime: number) {
+        if (!this._action!.isRunning()) {
+            return;
+        }
+
+        const actionTime = this._action!.time;
+        for (const callback of this.onTimeCallbacks) {
+            if (callback.predicate && !callback.predicate(this._action!.getClip().name)) {
+                continue;
+            }
+
+            if (callback.scheduled) {
+                callback.callback(actionTime);
+                callback.scheduled = false;
+            }
+
+            for (const time of callback.times) {
+                if (time >= actionTime && time <= actionTime + deltaTime) {
+                    callback.scheduled = true;
+                }
+            }
+        }
+    }
+}
+
+class OnTimeCallback {
+    scheduled = false;
+
+    constructor(readonly times: number[],
+                readonly callback: (time: number) => void,
+                readonly predicate?: (action: string) => boolean) {
     }
 }

@@ -71,8 +71,8 @@ export class ZombieFat extends Monster {
 
     private attack() {
         if (this.canAttack()) {
-            this.animationMixer.getRunningAction()?.stop();
-            this.startAnimationFlow('attack');
+            this.stopAllSounds('chatter');
+            this.startAnimationFlow('attack_left_slap');
             this.positionOffset.setScalar(0);
             this.changeState(MonsterState.ATTACKING);
         }
@@ -93,7 +93,12 @@ export class ZombieFat extends Monster {
             .onTime([0.35, 0.75], () => this.playFootstepSound(), action => action === 'walk3').flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
-        this.addAnimationFlow('attack', this.animate('attack_leftslap')
+        this.addAnimationFlow('attack_left_slap', this.animate('attack_leftslap')
+            .onStart(() => {
+                this.playCombatChatterSound();
+                this.playWhooshSound(0.5);
+            })
+            .onTime([0.2, 0.75], () => this.playFootstepSound())
             .thenCrossFadeTo('idle1').withDelay(0.8).withDuration(0.25).flow);
     }
 
@@ -101,6 +106,14 @@ export class ZombieFat extends Monster {
         if (!this.isPlayingSound('chatter')) {
             this.playSound('chatter', Math.random() * 4 + 1);
         }
+    }
+
+    private playCombatChatterSound() {
+        this.playSound('chatter_combat');
+    }
+
+    private playWhooshSound(delay?: number) {
+        this.playSound('whoosh', delay);
     }
 
     private playFootstepSound() {

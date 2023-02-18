@@ -17,7 +17,7 @@
     "position": [0, -6.5, 10],
     "sounds": {
       "raise": "fist_raise",
-      "woosh": "fist_whoosh",
+      "whoosh": "fist_whoosh",
       "impact": "fist_impact"
     }
   },
@@ -42,7 +42,7 @@
     "position": [-2, 16, 7],
     "sounds": {
       "raise": "fist_raise",
-      "woosh": "fist_whoosh",
+      "whoosh": "fist_whoosh",
       "impact_metal": "monster_zombie_fat_wrench",
       "impact_cardboard": "flashlight_impact"
     }

@@ -71,7 +71,7 @@ export class Flashlight extends Weapon {
     }
 
     onMiss() {
-        this.playWooshSound();
+        this.playWhooshSound();
     }
 
     protected doInit() {
@@ -164,8 +164,8 @@ export class Flashlight extends Weapon {
         this.playSound('raise', 0.1);
     }
 
-    private playWooshSound() {
-        this.playSound('woosh', 0.1);
+    private playWhooshSound() {
+        this.playSound('whoosh', 0.1);
     }
 }
 

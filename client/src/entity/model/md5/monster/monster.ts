@@ -37,6 +37,11 @@ export abstract class Monster extends Md5Model {
         return !!this.playingSounds.get(soundName);
     }
 
+    protected stopAllSounds(...soundNames: string[]) {
+        super.stopAllSounds(...soundNames);
+        soundNames.forEach(soundName => this.playingSounds.delete(soundName));
+    }
+
     protected playSound(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
         const sound = super.playSound(soundName, delay, () => {
             this.playingSounds.delete(soundName);
