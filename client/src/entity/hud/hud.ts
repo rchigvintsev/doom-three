@@ -38,7 +38,7 @@ export class Hud implements Entity {
                 material.update(deltaTime);
             }
         }
-        this.parameters.ammoIndicator.update(deltaTime, this.parameters.player.getCurrentWeapon());
+        this.parameters.ammoIndicator.update(deltaTime, this.parameters.player.currentWeapon);
         for (const child of this.parameters.weaponIndicator) {
             const material = (<any>child).material;
             if (isUpdatableMaterial(material)) {

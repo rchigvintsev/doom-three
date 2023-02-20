@@ -21,11 +21,17 @@
     ]
   },
   {
-    "name": "player_sounds_footsteps",
+    "name": "player_sounds_footsteps_left",
     "type": "plain",
     "sources": [
       "sound/ed/player/steps/step01.ogg",
-      "sound/ed/player/steps/step02.ogg",
+      "sound/ed/player/steps/step02.ogg"
+    ]
+  },
+  {
+    "name": "player_sounds_footsteps_right",
+    "type": "plain",
+    "sources": [
       "sound/ed/player/steps/step03.ogg",
       "sound/ed/player/steps/step10.ogg"
     ]

@@ -1,5 +1,7 @@
 import {ArrowHelper, Vector3} from 'three';
 
+import {randomInt} from 'mathjs';
+
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
 import {Game} from '../../../../game';
@@ -10,12 +12,19 @@ const WALK1_SPEED = 27.4;
 const WALK2_SPEED = 29.12;
 const WALK3_SPEED = 57.74;
 const WALK4_SPEED = 25.8;
+
 const LEFT_SLAP_SPEED = 38.16;
+const ATTACK2_SPEED = 39.14;
+const ATTACK3_SPEED = 38.98;
+
+const LEFT_ARM = 0;
 
 export class ZombieFat extends Monster {
     static readonly INSTANCE: Promise<ZombieFat> = new Promise<ZombieFat>((resolve) => zombieResolve = resolve);
 
-    private lastWalkAnimationName?: string;
+    private currentWalkAnimationName?: string;
+    private currentAttackAnimationName?: string;
+    private lastArm = LEFT_ARM;
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
@@ -27,11 +36,9 @@ export class ZombieFat extends Monster {
         if (this.isIdle()) {
             this.playChatterSound();
         } else if (this.isWalking()) {
-            const directionFactor = deltaTime * this.walkSpeed;
-            this.increasePositionOffset(directionFactor);
+            this.increasePositionOffset(deltaTime * this.walkSpeed);
         } else if (this.isAttacking()) {
-            const directionFactor = deltaTime * LEFT_SLAP_SPEED * this.config.worldScale;
-            this.increasePositionOffset(directionFactor);
+            this.increasePositionOffset(deltaTime * this.attackSpeed);
         }
     }
 
@@ -72,7 +79,15 @@ export class ZombieFat extends Monster {
     private attack() {
         if (this.canAttack()) {
             this.stopAllSounds('chatter');
-            this.startAnimationFlow('attack_left_slap');
+            const nextArm = (this.lastArm + 1) % 2;
+            let animationFlowName;
+            if (nextArm === LEFT_ARM) {
+                animationFlowName = randomInt(0, 2) === 0 ? 'melee_attack1' : 'melee_attack3';
+            } else {
+                animationFlowName = 'melee_attack2';
+            }
+            this.startAnimationFlow(animationFlowName);
+            this.lastArm = nextArm;
             this.positionOffset.setScalar(0);
             this.changeState(MonsterState.ATTACKING);
         }
@@ -81,7 +96,7 @@ export class ZombieFat extends Monster {
     private initAnimationFlows() {
         this.addAnimationFlow('start_walking', this.animate('idle1')
             .thenCrossFadeToAny('walk1', 'walk2', 'walk3', 'walk4').withDuration(0.3).repeat(Infinity)
-            .onStart(action => this.lastWalkAnimationName = action.getClip().name)
+            .onStart(action => this.currentWalkAnimationName = action.getClip().name)
             .onLoop(() => {
                 if (this.isWalking()) {
                     this.position.add(this.positionOffset);
@@ -93,19 +108,34 @@ export class ZombieFat extends Monster {
             .onTime([0.35, 0.75], () => this.playFootstepSound(), action => action === 'walk3').flow);
         this.addAnimationFlow('stop_walking', this.animateCurrent(false)
             .thenCrossFadeTo('idle1').withDuration(0.25).flow);
-        this.addAnimationFlow('attack_left_slap', this.animate('attack_leftslap')
-            .onStart(() => {
+        this.addAnimationFlow('melee_attack1', this.animate('attack_leftslap')
+            .onStart(action => {
+                this.currentAttackAnimationName = action.getClip().name;
                 this.playCombatChatterSound();
-                this.playWhooshSound(0.5);
             })
             .onTime([0.2, 0.75], () => this.playFootstepSound())
+            .onTime([0.4], () => this.playWhooshSound())
+            .thenCrossFadeTo('idle1').withDelay(0.8).withDuration(0.25).flow);
+        this.addAnimationFlow('melee_attack2', this.animate('attack2')
+            .onStart(action => {
+                this.currentAttackAnimationName = action.getClip().name;
+                this.playCombatChatterSound();
+            })
+            .onTime([0.15, 0.8], () => this.playFootstepSound())
+            .onTime([0.3], () => this.playWhooshSound())
+            .thenCrossFadeTo('idle1').withDelay(0.8).withDuration(0.25).flow);
+        this.addAnimationFlow('melee_attack3', this.animate('attack3')
+            .onStart(action => {
+                this.currentAttackAnimationName = action.getClip().name;
+                this.playCombatChatterSound();
+            })
+            .onTime([0.25, 0.8], () => this.playFootstepSound())
+            .onTime([0.3], () => this.playWhooshSound())
             .thenCrossFadeTo('idle1').withDelay(0.8).withDuration(0.25).flow);
     }
 
     private playChatterSound() {
-        if (!this.isPlayingSound('chatter')) {
-            this.playSound('chatter', Math.random() * 4 + 1);
-        }
+        this.playSingleSound('chatter', Math.random() * 4 + 1);
     }
 
     private playCombatChatterSound() {
@@ -117,11 +147,11 @@ export class ZombieFat extends Monster {
     }
 
     private playFootstepSound() {
-        this.playSoundOnce('footstep');
+        this.playSound('footstep');
     }
 
     private get walkSpeed(): number {
-        switch (this.lastWalkAnimationName) {
+        switch (this.currentWalkAnimationName) {
             case 'walk1':
                 return WALK1_SPEED * this.config.worldScale;
             case 'walk2':
@@ -130,6 +160,18 @@ export class ZombieFat extends Monster {
                 return WALK3_SPEED * this.config.worldScale;
             case 'walk4':
                 return WALK4_SPEED * this.config.worldScale;
+        }
+        return 0;
+    }
+
+    private get attackSpeed(): number {
+        switch (this.currentAttackAnimationName) {
+            case 'attack_leftslap':
+                return LEFT_SLAP_SPEED * this.config.worldScale;
+            case 'attack2':
+                return ATTACK2_SPEED * this.config.worldScale;
+            case 'attack3':
+                return ATTACK3_SPEED * this.config.worldScale;
         }
         return 0;
     }

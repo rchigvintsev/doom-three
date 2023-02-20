@@ -1,10 +1,9 @@
 import {BufferGeometry, Intersection, Mesh, SpotLight, Texture, Vector3} from 'three';
 
-import {Weapon, WeaponState} from './weapon';
+import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
-import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
@@ -169,7 +168,7 @@ export class Flashlight extends Weapon {
     }
 }
 
-export interface FlashlightParameters extends Md5ModelParameters {
+export interface FlashlightParameters extends WeaponParameters {
     lightMap?: Texture;
 }
 

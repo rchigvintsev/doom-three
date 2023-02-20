@@ -1,42 +1,43 @@
 import {Audio, AudioListener, PositionalAudio} from 'three';
+
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {GameAssets} from '../../game-assets';
+import {Sound} from './sound';
 
-export class SoundFactory implements EntityFactory<Audio<AudioNode>[]> {
+export class SoundFactory implements EntityFactory<Sound> {
     constructor(private readonly parameters: SoundFactoryParameters) {
     }
 
-    create(soundName: string): Audio<AudioNode>[] {
+    create(soundName: string): Sound {
         const soundDef = this.parameters.assets.soundDefs.get(soundName);
         if (!soundDef) {
             throw new Error(`Definition of sound "${soundName}" is not found`);
         }
 
-        const sounds: Audio<AudioNode>[] = [];
+        const audios: Audio<AudioNode>[] = [];
         for (const soundSrc of soundDef.sources) {
             const audioBuffer = this.parameters.assets.sounds.get(soundSrc);
             if (!audioBuffer) {
                 throw new Error(`Sound "${soundSrc}" is not found in game assets`);
             }
-            const sound = this.createSound(soundDef);
-            sound.setBuffer(audioBuffer);
-            sounds.push(sound);
+            const audio = this.createAudio(soundDef);
+            audio.setBuffer(audioBuffer);
+            audios.push(audio);
         }
-        return sounds;
+        const sound = new Sound(soundName, audios);
+        if (soundDef.volume != undefined) {
+            sound.volume = soundDef.volume;
+        }
+        sound.init();
+        return sound;
     }
 
-    private createSound(soundDef: any): Audio<AudioNode> {
+    private createAudio(soundDef: any): Audio<AudioNode> {
         const audioListener = this.parameters.audioListener;
-        let audio;
         if (soundDef.type === 'positional') {
-            audio = new PositionalAudio(audioListener);
-        } else {
-            audio = new Audio(audioListener);
+            return new PositionalAudio(audioListener);
         }
-        if (soundDef.volume != undefined) {
-            audio.setVolume(soundDef.volume);
-        }
-        return audio;
+        return new Audio(audioListener);
     }
 }
 

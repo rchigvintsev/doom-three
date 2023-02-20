@@ -3,6 +3,9 @@ import {Euler, Intersection, Mesh, Vector3} from 'three';
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Player} from '../../../player/player';
 import {WeaponDisableEvent} from '../../../../event/weapon-events';
+import {MaterialKind} from '../../../../material/material-kind';
+import {isUpdatableMaterial} from '../../../../material/updatable-material';
+import {SoundSystem} from '../../../../sound/sound-system';
 
 const BOBBING_MAGNITUDE_X = 0.40;
 const BOBBING_MAGNITUDE_Y = 0.40;
@@ -24,7 +27,7 @@ export abstract class Weapon extends Md5Model {
     private readonly v = new Vector3(0, 1, 0);
     private readonly e = new Euler();
 
-    constructor(parameters: Md5ModelParameters) {
+    constructor(parameters: WeaponParameters) {
         super(parameters);
         this.visible = false;
     }
@@ -175,6 +178,38 @@ export abstract class Weapon extends Md5Model {
         acceleration.time = performance.now();
         acceleration.direction.set(x, y, z);
     }
+
+    protected playImpactSound(soundPosition: Vector3, target: Mesh) {
+        const targetMaterial = Array.isArray(target.material) ? target.material[0] : target.material;
+        let materialKind = MaterialKind.METAL;
+        if (isUpdatableMaterial(targetMaterial)) {
+            materialKind = targetMaterial.kind;
+        }
+
+        let soundName;
+        if (materialKind === MaterialKind.METAL) {
+            soundName = 'impact_metal';
+        } else if (materialKind === MaterialKind.CARDBOARD) {
+            soundName = 'impact_cardboard';
+        } else {
+            throw new Error('Unsupported material type: ' + materialKind);
+        }
+
+        let sound = this.parameters.sounds.get(soundName);
+        if (sound) {
+            if (sound.isPlaying()) {
+                // Get possibly cached sound from sound system
+                sound = (<WeaponParameters>this.parameters).soundSystem.createSound(sound.name);
+            }
+            sound.position.copy(soundPosition);
+            target.add(sound);
+            sound.play();
+        }
+    }
+}
+
+export interface WeaponParameters extends Md5ModelParameters {
+    soundSystem: SoundSystem;
 }
 
 export class WeaponState extends Md5ModelState {

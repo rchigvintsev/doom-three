@@ -1,27 +1,19 @@
-import {Audio} from 'three';
-
-import {randomInt} from 'mathjs';
-
 import {GameSystem} from '../game-system';
 import {SoundFactory} from '../entity/sound/sound-factory';
+import {Sound} from '../entity/sound/sound';
 
 export class SoundSystem implements GameSystem {
-    private readonly sounds = new Map<string, Audio<AudioNode>[]>();
-    private readonly availableSounds = new Map<string, Audio<AudioNode>[]>();
+    private readonly sounds = new Map<string, Sound[]>();
 
     constructor(private readonly soundFactory: SoundFactory) {
     }
 
-    createSound(soundName: string): Audio<AudioNode> {
-        let sound = this.getAvailableSound(soundName);
+    createSound(soundName: string): Sound {
+        let sound = this.findStoppedSound(soundName);
         if (!sound) {
-            const sounds = this.createSounds(soundName);
-            this.setSounds(soundName, ...sounds);
-            console.debug(`Sounds "${soundName}" are created`);
-            sound = this.pickRandomSound(sounds);
-            if (sounds.length > 0) {
-                this.setAvailableSounds(soundName, ...sounds);
-            }
+            sound = this.soundFactory.create(soundName);
+            console.debug(`Sound "${soundName}" is created`);
+            this.sounds.get(soundName)!.push(sound);
         }
         return sound;
     }
@@ -30,57 +22,16 @@ export class SoundSystem implements GameSystem {
         // Do nothing
     }
 
-    findSounds(...soundNames: string[]): Audio<AudioNode>[] {
-        const result = [];
-        for (const soundName of soundNames) {
-            const sounds = this.sounds.get(soundName);
-            if (sounds) {
-                result.push(...sounds);
+    private findStoppedSound(soundName: string): Sound | undefined {
+        let sounds = this.sounds.get(soundName);
+        if (sounds == undefined) {
+            this.sounds.set(soundName, sounds = []);
+        }
+
+        for (const sound of sounds) {
+            if (!sound.isPlaying()) {
+                return sound;
             }
         }
-        return result;
-    }
-
-    private getAvailableSound(soundName: string): Audio<AudioNode> | undefined {
-        const sounds = this.availableSounds.get(soundName);
-        if (sounds != undefined && sounds.length > 0) {
-            return this.pickRandomSound(sounds);
-        }
-        return undefined;
-    }
-
-    private createSounds(soundName: string): Audio<AudioNode>[] {
-        const sounds = this.soundFactory.create(soundName);
-        for (const sound of sounds) {
-            sound.onEnded = () => {
-                sound.isPlaying = false;
-                if (sound.parent) {
-                    sound.parent.remove(sound);
-                }
-                this.setAvailableSounds(soundName, sound);
-            };
-        }
-        return sounds;
-    }
-
-    private setSounds(soundName: string, ...sounds: Audio<AudioNode>[]) {
-        let soundsByName = this.sounds.get(soundName);
-        if (soundsByName == undefined) {
-            this.sounds.set(soundName, soundsByName = []);
-        }
-        soundsByName.push(...sounds);
-    }
-
-    private setAvailableSounds(soundName: string, ...sounds: Audio<AudioNode>[]) {
-        let soundsByName = this.availableSounds.get(soundName);
-        if (soundsByName == undefined) {
-            this.availableSounds.set(soundName, soundsByName = []);
-        }
-        soundsByName.push(...sounds);
-    }
-
-    private pickRandomSound(sounds: Audio<AudioNode>[]): Audio<AudioNode> {
-        const idx = randomInt(0, sounds.length);
-        return sounds.splice(idx, 1)[0];
     }
 }

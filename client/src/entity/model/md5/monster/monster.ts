@@ -1,13 +1,12 @@
-import {Audio, Euler, MathUtils, Vector3} from 'three';
+import {Euler, MathUtils, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Game} from '../../../../game';
+import {Sound} from '../../../sound/sound';
 
 export abstract class Monster extends Md5Model {
     protected readonly direction = new Vector3();
     protected readonly positionOffset = new Vector3();
-
-    private readonly playingSounds = new Map<string, Audio<AudioNode>>();
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
@@ -33,41 +32,19 @@ export abstract class Monster extends Md5Model {
         return this.currentState === MonsterState.ATTACKING;
     }
 
-    protected isPlayingSound(soundName: string): boolean {
-        return !!this.playingSounds.get(soundName);
-    }
-
-    protected stopAllSounds(...soundNames: string[]) {
-        super.stopAllSounds(...soundNames);
-        soundNames.forEach(soundName => this.playingSounds.delete(soundName));
-    }
-
-    protected playSound(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
-        const sound = super.playSound(soundName, delay, () => {
-            this.playingSounds.delete(soundName);
-            if (onEnded) {
-                onEnded();
-            }
-        });
-        if (!sound.parent) {
+    protected playSound(soundName: string, delay?: number): Sound | undefined {
+        const sound = super.playSound(soundName, delay);
+        if (sound && !sound.parent) {
             this.add(sound);
         }
-        this.playingSounds.set(soundName, sound);
         return sound;
     }
 
-
-    protected playSoundOnce(soundName: string, delay?: number, onEnded?: () => void): Audio<AudioNode> {
-        const sound = super.playSoundOnce(soundName, delay, () => {
-            this.playingSounds.delete(soundName);
-            if (onEnded) {
-                onEnded();
-            }
-        });
-        if (!sound.parent) {
+    protected playSingleSound(soundName: string, delay?: number): Sound | undefined {
+        const sound = super.playSingleSound(soundName, delay);
+        if (sound && !sound.parent) {
             this.add(sound);
         }
-        this.playingSounds.set(soundName, sound);
         return sound;
     }
 

@@ -21,8 +21,7 @@ export class MonsterFactory extends Md5ModelFactory {
         zombieParams.config = this.parameters.config;
         zombieParams.geometry = geometry;
         zombieParams.materials = this.createMaterials(modelDef);
-        zombieParams.sounds = this.getSounds(modelDef);
-        zombieParams.soundSystem = this.soundSystem;
+        zombieParams.sounds = this.createSounds(modelDef);
         return new ZombieFat(zombieParams);
     }
 }

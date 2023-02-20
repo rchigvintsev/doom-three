@@ -16,8 +16,7 @@ import {degToRad} from 'three/src/math/MathUtils';
 
 import {Tween} from '@tweenjs/tween.js';
 
-import {Weapon, WeaponState} from './weapon';
-import {Md5ModelParameters} from '../md5-model';
+import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {DebrisSystem} from '../../../../debris/debris-system';
 import {DecalSystem} from '../../../../decal/decal-system';
 import {ParticleSystem} from '../../../../particles/particle-system';
@@ -280,7 +279,7 @@ export abstract class Firearm extends Weapon {
     }
 
     private playEmptySound() {
-        this.playSoundOnce('empty');
+        this.playSingleSound('empty');
     }
 
     private initFireFlash() {
@@ -427,7 +426,7 @@ export function isFirearm(weapon: any): weapon is Firearm {
     return weapon instanceof Firearm;
 }
 
-export interface FirearmParameters extends Md5ModelParameters {
+export interface FirearmParameters extends WeaponParameters {
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;

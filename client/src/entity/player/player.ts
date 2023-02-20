@@ -1,6 +1,6 @@
-import {Audio, Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 
-import {random, randomInt} from 'mathjs';
+import {random} from 'mathjs';
 
 import {TangibleEntity} from '../tangible-entity';
 import {Weapon} from '../model/md5/weapon/weapon';
@@ -13,9 +13,11 @@ import {Flashlight} from '../model/md5/weapon/flashlight';
 import {Pistol} from '../model/md5/weapon/pistol';
 import {Shotgun} from '../model/md5/weapon/shotgun';
 import {isFirearm} from '../model/md5/weapon/firearm';
+import {Sound} from '../sound/sound';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
+const LEFT_FOOT = 0;
 
 let playerResolve: (player: Player) => void = () => undefined;
 
@@ -25,16 +27,11 @@ export class Player extends Object3D implements TangibleEntity {
     readonly tangibleEntity = true;
 
     private readonly previousMovementDirection = new Vector3();
-    private readonly footstepSounds = new Map<Foot, Audio<AudioNode>[]>();
-    private readonly jumpSound?: Audio<AudioNode>;
-    private readonly landSounds: Audio<AudioNode>[];
 
     private readonly _pitchObject: Object3D;
     private readonly _movementDirection = new Vector3();
 
-    private lastFootstepSound?: Audio<AudioNode>;
-    private lastLandSound?: Audio<AudioNode>;
-    private lastFoot = Foot.LEFT;
+    private lastFoot = LEFT_FOOT;
     private tookOffAt = 0;
     private bobbingAngle = 0;
 
@@ -42,32 +39,17 @@ export class Player extends Object3D implements TangibleEntity {
     private _airborne = false;
     private _landedAt = 0;
 
-    constructor(readonly camera: PerspectiveCamera,
-                readonly weapons: Map<string, Weapon>,
-                sounds: Map<string, Audio<AudioNode>[]>,
-                private readonly collisionModel: PlayerCollisionModel,
-                private readonly config: GameConfig) {
+    constructor(private readonly parameters: PlayerParameters) {
         super();
 
         this._pitchObject = new Object3D();
-        this._pitchObject.add(this.camera);
+        this._pitchObject.add(parameters.camera);
         this.add(this._pitchObject);
 
         this.weapons.forEach(weapon => {
             this._pitchObject.add(weapon);
             weapon.addEventListener(AttackEvent.TYPE, e => this.onWeaponAttack(<AttackEvent><unknown>e));
         });
-
-        const footstepSounds = sounds.get('footsteps');
-        if (footstepSounds) {
-            this.footstepSounds.set(Foot.LEFT, [footstepSounds[0], footstepSounds[1]]);
-            this.footstepSounds.set(Foot.RIGHT, [footstepSounds[2], footstepSounds[3]]);
-        }
-        const jumpSounds = sounds.get('jumps');
-        if (jumpSounds) {
-            this.jumpSound = jumpSounds[0];
-        }
-        this.landSounds = sounds.get('landings') || [];
     }
 
     init() {
@@ -75,28 +57,28 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.collisionModel.register(physicsSystem, scene);
+        this.parameters.collisionModel.register(physicsSystem, scene);
     }
 
     unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.collisionModel.unregister(physicsSystem, scene);
+        this.parameters.collisionModel.unregister(physicsSystem, scene);
     }
 
     update(deltaTime: number) {
         if (this._currentWeapon) {
             this._currentWeapon.update(deltaTime, this);
         }
-        this.collisionModel.update(deltaTime);
-        if (!this.config.ghostMode) {
-            this.position.copy(this.collisionModel.headPosition);
+        this.parameters.collisionModel.update(deltaTime);
+        if (!this.parameters.config.ghostMode) {
+            this.position.copy(this.parameters.collisionModel.headPosition);
             if (this.airborne) {
                 const now = performance.now();
                 const delta = now - this.tookOffAt;
                 // We should give player a chance to get off the ground
-                if (delta > 100 && this.collisionModel.hasGroundContacts()) {
+                if (delta > 100 && this.parameters.collisionModel.hasGroundContacts()) {
                     this._airborne = false;
                     this._landedAt = now;
-                    this.playLandSound();
+                    this.playLandingSound();
                 }
             }
         }
@@ -107,27 +89,35 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     move(velocity: Vector3) {
-        if (this.config.ghostMode) {
+        if (this.parameters.config.ghostMode) {
             this.translateX(velocity.x);
             this.translateY(velocity.y);
             this.translateZ(velocity.z);
         } else {
-            this.collisionModel.move(velocity);
+            this.parameters.collisionModel.move(velocity);
             this.playFootstepSound();
             this.updateBobbing();
         }
     }
 
     jump(speed: number) {
-        if (!this.config.ghostMode) {
-            this.collisionModel.jump(speed);
+        if (!this.parameters.config.ghostMode) {
+            this.parameters.collisionModel.jump(speed);
             this.tookOffAt = performance.now();
             this._airborne = true;
             this.playJumpSound();
         }
     }
 
-    getCurrentWeapon(): Weapon | undefined {
+    get camera(): PerspectiveCamera {
+        return this.parameters.camera;
+    }
+
+    get weapons(): Map<string, Weapon> {
+        return this.parameters.weapons;
+    }
+
+    get currentWeapon(): Weapon | undefined {
         return this._currentWeapon;
     }
 
@@ -176,8 +166,8 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     set origin(origin: Vector3) {
-        this.collisionModel.origin = origin;
-        this.position.copy(this.collisionModel.headPosition);
+        this.parameters.collisionModel.origin = origin;
+        this.position.copy(this.parameters.collisionModel.headPosition);
     }
 
     get pitchObject(): Object3D {
@@ -210,30 +200,24 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     private playFootstepSound() {
-        if (this.isMovementDirectionChanged() || !this.lastFootstepSound || !this.lastFootstepSound.isPlaying) {
+        const footstepSound = this.parameters.sounds.get(this.getFootstepSoundName(this.lastFoot));
+        if (this.isMovementDirectionChanged() || !footstepSound?.isPlaying()) {
             const nextFoot = (this.lastFoot + 1) % 2;
-            const sounds = this.footstepSounds.get(nextFoot);
-            if (sounds) {
-                const sound = sounds[randomInt(0, sounds.length)];
-                sound.play(random(0.1, 0.2));
-                this.lastFootstepSound = sound;
-                this.lastFoot = nextFoot;
-            }
+            this.parameters.sounds.get(this.getFootstepSoundName(nextFoot))?.play(random(0.1, 0.2));
+            this.lastFoot = nextFoot;
         }
     }
 
     private playJumpSound() {
-        if (this.jumpSound && !this.jumpSound.isPlaying) {
-            this.jumpSound.play();
-        }
+        this.parameters.sounds.get('jumps')?.play();
     }
 
-    private playLandSound() {
-        if (!this.lastLandSound || !this.lastLandSound.isPlaying) {
-            const sound = this.landSounds[randomInt(0, this.landSounds.length)];
-            sound.play();
-            this.lastLandSound = sound;
-        }
+    private playLandingSound() {
+        this.parameters.sounds.get('landings')?.play();
+    }
+
+    private getFootstepSoundName(foot: number): string {
+        return foot === LEFT_FOOT ? `footsteps_left` : 'footsteps_right';
     }
 
     private isMovementDirectionChanged() {
@@ -284,6 +268,10 @@ export class Player extends Object3D implements TangibleEntity {
     }
 }
 
-enum Foot {
-    LEFT, RIGHT
+export interface PlayerParameters {
+    camera: PerspectiveCamera;
+    weapons: Map<string, Weapon>;
+    sounds: Map<string, Sound>;
+    collisionModel: PlayerCollisionModel;
+    config: GameConfig;
 }

@@ -1,6 +1,7 @@
 {
   "sounds": {
-    "footsteps": "player_sounds_footsteps",
+    "footsteps_left": "player_sounds_footsteps_left",
+    "footsteps_right": "player_sounds_footsteps_right",
     "jumps": "player_sounds_jump_small",
     "landings": "player_sounds_fastlanding"
   },

@@ -9,7 +9,8 @@ import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-fa
 import {DebrisSystem} from '../../../debris/debris-system';
 import {GameAssets} from '../../../game-assets';
 import {DecalSystem} from '../../../decal/decal-system';
-import {SoundSystem} from '../../../sound/sound-system';
+import {SoundFactory} from '../../sound/sound-factory';
+import {Sound} from '../../sound/sound';
 
 export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     constructor(parameters: Md5ModelFactoryParameters) {
@@ -60,24 +61,23 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             config: this.parameters.config,
             geometry,
             materials: this.createMaterials(modelDef),
-            sounds: this.getSounds(modelDef),
-            soundSystem: this.soundSystem
+            sounds: this.createSounds(modelDef)
         };
         return new Md5Model(modelParams);
     }
 
-    protected getSounds(modelDef: any): Map<string, string> {
-        const sounds = new Map<string, string>();
+    protected createSounds(modelDef: any): Map<string, Sound> {
+        const sounds = new Map<string, Sound>();
         if (modelDef.sounds) {
             for (const soundName of Object.keys(modelDef.sounds)) {
-                sounds.set(soundName, modelDef.sounds[soundName]);
+                sounds.set(soundName, this.soundFactory.create(modelDef.sounds[soundName]));
             }
         }
         return sounds;
     }
 
-    protected get soundSystem(): SoundSystem {
-        return (<Md5ModelFactoryParameters>this.parameters).soundSystem;
+    protected get soundFactory(): SoundFactory {
+        return (<Md5ModelFactoryParameters>this.parameters).soundFactory;
     }
 
     protected get particleSystem(): ParticleSystem {
@@ -159,8 +159,8 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 }
 
 export interface Md5ModelFactoryParameters extends ModelFactoryParameters {
+    soundFactory: SoundFactory;
     particleSystem: ParticleSystem;
     debrisSystem: DebrisSystem;
     decalSystem: DecalSystem;
-    soundSystem: SoundSystem;
 }

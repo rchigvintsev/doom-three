@@ -1,4 +1,4 @@
-import {Audio, Intersection, Scene, Vector3} from 'three';
+import {Intersection, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -9,6 +9,7 @@ import {ContactEquation} from 'equations/ContactEquation';
 import {CollisionModelBody} from '../../../physics/collision-model';
 import {PhysicsSystem} from '../../../physics/physics-system';
 import {Weapon} from '../md5/weapon/weapon';
+import {Sound} from '../../sound/sound';
 
 export class Debris extends LwoModel implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -16,7 +17,7 @@ export class Debris extends LwoModel implements TangibleEntity {
     onShow?: (debris: Debris) => void;
     onHide?: (debris: Debris) => void;
 
-    private bounceSound?: Audio<AudioNode>;
+    private audioIndex?: number;
 
     constructor(parameters: DebrisParameters) {
         super(parameters);
@@ -59,14 +60,6 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
-    private getRequiredSounds(parameters: DebrisParameters, soundName: string): Audio<AudioNode>[] {
-        const sounds = parameters.sounds?.get(soundName);
-        if (!sounds) {
-            throw new Error(`Sounds "${soundName}" are not found in debris model "${this.name}"`);
-        }
-        return sounds;
-    }
-
     private onCollide(event: {body: CollisionModelBody, target: CollisionModelBody, contact: ContactEquation}) {
         const relativeVelocity = event.contact.getImpactVelocityAlongNormal();
         if (Math.abs(relativeVelocity) > 1.0) {
@@ -74,26 +67,18 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
-    private initBounceSound() {
-        const bounceSounds = this.getRequiredSounds(<DebrisParameters>this.parameters, 'bounce');
-        this.bounceSound = bounceSounds[randomInt(0, bounceSounds.length)];
-        if (!this.bounceSound.parent) {
-            this.add(this.bounceSound);
-        }
-    }
-
     private playBounceSound(delay?: number) {
-        if (this.bounceSound) {
-            if (!this.bounceSound.isPlaying) {
-                this.bounceSound.play(delay);
-            } else {
-                this.bounceSound.stop().play(delay);
+        const sound = (<DebrisParameters>this.parameters).sounds.get('bounce');
+        if (sound) {
+            if (!sound.parent) {
+                this.add(sound);
             }
+            sound.play(delay, this.audioIndex);
         }
     }
 
     private doShow() {
-        this.initBounceSound();
+        this.audioIndex = randomInt(0, 10);
         this.visible = true;
         this.hide((<DebrisParameters>this.parameters).time);
         if (this.onShow) {
@@ -111,5 +96,5 @@ export class Debris extends LwoModel implements TangibleEntity {
 
 export interface DebrisParameters extends ModelParameters {
     time: number;
-    sounds?: Map<string, Audio<AudioNode>[]>;
+    sounds: Map<string, Sound>;
 }

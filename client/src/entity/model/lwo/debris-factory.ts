@@ -1,4 +1,4 @@
-import {Audio, BufferGeometry, Material} from 'three';
+import {BufferGeometry, Material} from 'three';
 
 import {LwoModelFactory} from './lwo-model-factory';
 import {CollisionModelFactory} from '../../../physics/collision-model-factory';
@@ -6,6 +6,7 @@ import {LwoModel} from './lwo-model';
 import {Debris} from './debris';
 import {ModelFactoryParameters} from '../abstract-model-factory';
 import {SoundFactory} from '../../sound/sound-factory';
+import {Sound} from '../../sound/sound';
 
 export class DebrisFactory extends LwoModelFactory {
     constructor(parameters: DebrisFactoryParameters) {
@@ -21,20 +22,18 @@ export class DebrisFactory extends LwoModelFactory {
     }
 
     protected createModel(modelDef: any, geometry: BufferGeometry, materials: Material[]): LwoModel {
-        const sounds = this.createSounds(modelDef);
-        const collisionModel = (<DebrisFactoryParameters>this.parameters).collisionModelFactory.create(modelDef);
         return new Debris({
             config: this.parameters.config,
             geometry,
             materials,
-            sounds,
-            collisionModel,
+            sounds: this.createSounds(modelDef),
+            collisionModel: this.createCollisionModel(modelDef),
             time: modelDef.time
         });
     }
 
-    private createSounds(modelDef: any): Map<string, Audio<AudioNode>[]> {
-        const sounds = new Map<string, Audio<AudioNode>[]>();
+    private createSounds(modelDef: any): Map<string, Sound> {
+        const sounds = new Map<string, Sound>();
         const soundFactory = (<DebrisFactoryParameters>this.parameters).soundFactory;
         if (modelDef.sounds) {
             for (const soundName of Object.keys(modelDef.sounds)) {
@@ -42,6 +41,10 @@ export class DebrisFactory extends LwoModelFactory {
             }
         }
         return sounds;
+    }
+
+    private createCollisionModel(modelDef: any) {
+        return (<DebrisFactoryParameters>this.parameters).collisionModelFactory.create(modelDef);
     }
 }
 

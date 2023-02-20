@@ -1,8 +1,7 @@
 import {Mesh} from 'three';
 
-import {Weapon, WeaponState} from './weapon';
+import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
-import {Md5ModelParameters} from '../md5-model';
 
 const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
@@ -10,7 +9,7 @@ const ATTACK_DISTANCE = 30;
 export class Fists extends Weapon {
     private readonly attackDistance: number;
 
-    constructor(parameters: Md5ModelParameters) {
+    constructor(parameters: WeaponParameters) {
         super(parameters);
         this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
     }
