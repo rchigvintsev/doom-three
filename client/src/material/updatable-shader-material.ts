@@ -4,13 +4,14 @@ import {ShaderMaterialParameters} from 'three/src/materials/ShaderMaterial';
 import {UpdatableMaterial} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {MaterialKind} from './material-kind';
+import {Objects} from '../util/objects';
 
 export class UpdatableShaderMaterial extends ShaderMaterial implements UpdatableMaterial {
     readonly updatableMaterial = true;
     readonly kind: MaterialKind;
 
     constructor(parameters?: UpdatableShaderMaterialParameters) {
-        super(parameters);
+        super(Objects.narrowToParent(parameters));
         this.kind = parameters?.kind || MaterialKind.METAL;
     }
 

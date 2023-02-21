@@ -4,6 +4,7 @@ import {EvalFunction} from 'mathjs';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {MaterialStyle, StylableMaterial} from './stylable-material';
 import {MaterialKind} from './material-kind';
+import {Objects} from '../util/objects';
 
 export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial, StylableMaterial {
     readonly kind: MaterialKind;
@@ -14,7 +15,7 @@ export class UpdatableSpriteMaterial extends SpriteMaterial implements Updatable
     opacityExpression?: EvalFunction;
 
     constructor(parameters?: UpdatableSpriteMaterialParameters) {
-        super(parameters);
+        super(Objects.narrowToParent(parameters));
         this.kind = parameters?.kind || MaterialKind.METAL;
         if (parameters && parameters.evalScope) {
             this.evalScope = {...parameters.evalScope, ...{time: 0}};
