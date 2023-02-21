@@ -93,14 +93,14 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     protected addAnimationFlow(name: string, flow: AnimationFlow) {
         this.animationFlows.set(name, flow);
         if (this.wireframeHelper) {
-            this.wireframeHelper.addAnimation(name, flow);
+            this.wireframeHelper.addAnimationFlow(name, flow);
         }
     }
 
     protected startAnimationFlow(name: string) {
         this.animationFlows.get(name)?.start();
         if (this.wireframeHelper) {
-            this.wireframeHelper.playAnimation(name);
+            this.wireframeHelper.startAnimationFlow(name);
         }
     }
 

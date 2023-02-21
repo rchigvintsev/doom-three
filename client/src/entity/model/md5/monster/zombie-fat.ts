@@ -62,6 +62,9 @@ export class ZombieFat extends Monster {
     private idle() {
         this.animate('idle1').start();
         this.changeState(MonsterState.IDLE);
+        if (this.wireframeHelper) {
+            this.wireframeHelper.animate('idle1').start();
+        }
     }
 
     private startWalking() {

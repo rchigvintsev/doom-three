@@ -55,6 +55,10 @@ export abstract class Monster extends Md5Model {
     protected resetSkeletonPosition() {
         this.skeleton.bones[0].position.x = 0;
         this.skeleton.bones[0].position.z = 0;
+        if (this.wireframeHelper) {
+            this.wireframeHelper.skeleton.bones[0].position.x = 0;
+            this.wireframeHelper.skeleton.bones[0].position.z = 0;
+        }
     }
 
     private updateDirection = (() => {
