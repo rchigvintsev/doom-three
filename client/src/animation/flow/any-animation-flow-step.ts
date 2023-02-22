@@ -12,6 +12,7 @@ import {AnimationUpdateHandler} from '../animation-update-handler';
 
 export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements AnimationUpdateHandler {
     protected _clampWhenFinished = false;
+    protected _startAtTime = 0;
     protected onStartCallback?: (action: AnimationAction) => void;
     protected _action?: AnimationAction;
 
@@ -49,6 +50,7 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements
         }
         this.setLoop(this._action!);
         this._action!.clampWhenFinished = this._clampWhenFinished;
+        this._action!.time = this._startAtTime;
         this.doStart();
         this.started = true;
     }
@@ -66,6 +68,11 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements
 
     clampWhenFinished(): this {
         this._clampWhenFinished = true;
+        return this;
+    }
+
+    startAtTime(time: number): this {
+        this._startAtTime = time;
         return this;
     }
 

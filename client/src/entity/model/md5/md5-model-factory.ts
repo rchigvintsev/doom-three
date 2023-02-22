@@ -19,10 +19,11 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 
     create(modelDef: any): Md5Model {
         const modelMesh = this.getRequiredModelMesh(modelDef);
+        const modelGeometry = modelMesh.geometry.clone();
         const animations = this.getAnimations(modelDef);
-        this.bindPose(modelMesh, animations[0]);
+        this.bindPose(<Md5MeshGeometry>modelGeometry, animations[0]);
 
-        const model = this.createModel(modelDef, modelMesh.geometry);
+        const model = this.createModel(modelDef, modelGeometry);
         model.name = modelDef.name;
 
         const skeleton = this.createSkeleton(animations[0]);
@@ -104,8 +105,8 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         return modelDef.animations.map((animationName: string) => this.assets.modelAnimations.get(animationName));
     }
 
-    private bindPose(mesh: SkinnedMesh, animation: Md5Animation) {
-        (<Md5MeshGeometry>mesh.geometry).bindPose(animation.getFrame(0, true));
+    private bindPose(geometry: Md5MeshGeometry, animation: Md5Animation) {
+        geometry.bindPose(animation.getFrame(0, true));
     }
 
     private bindSkeleton(model: SkinnedMesh, skeleton: Skeleton) {

@@ -60,10 +60,11 @@ export class ZombieFat extends Monster {
     }
 
     private idle() {
-        this.animate('idle1').start();
+        const startAtTime = Math.random() * 9.25;
+        this.animate('idle1').startAtTime(startAtTime).start();
         this.changeState(MonsterState.IDLE);
         if (this.wireframeHelper) {
-            this.wireframeHelper.animate('idle1').start();
+            this.wireframeHelper.animate('idle1').startAtTime(startAtTime).start();
         }
     }
 

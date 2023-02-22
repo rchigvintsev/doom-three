@@ -105,6 +105,14 @@ export class Md5MeshGeometry extends BufferGeometry {
         this.setFloat32Vector3Attribute('normal', normalAttrValues);
     }
 
+    clone(): BufferGeometry {
+        const clone = super.clone() as any;
+        clone.faces = this.faces.map(face => face.clone());
+        clone.vertices = this.vertices.map(vertex => vertex.clone());
+        clone.weights = this.weights.map(weight => weight.clone());
+        return clone;
+    }
+
     private findTwoHeaviestWeights(weightCount: number, weightIndex: number): { joint: number, bias: number }[] {
         const result: { joint: number, bias: number }[] = [];
 
@@ -158,6 +166,10 @@ export class Md5MeshGeometry extends BufferGeometry {
 export class Md5MeshFace {
     constructor(readonly a: number, readonly b: number, readonly c: number, readonly materialIndex: number) {
     }
+
+    clone(): Md5MeshFace {
+        return new Md5MeshFace(this.a, this.b, this.c, this.materialIndex);
+    }
 }
 
 export class Md5MeshVertex {
@@ -165,9 +177,19 @@ export class Md5MeshVertex {
 
     constructor(readonly uv: Vector2, readonly weightIndex: number, readonly weightCount: number) {
     }
+
+    clone(): Md5MeshVertex {
+        const clone = new Md5MeshVertex(this.uv.clone(), this.weightIndex, this.weightCount);
+        clone.position.copy(this.position);
+        return clone;
+    }
 }
 
 export class Md5MeshWeight {
     constructor(readonly joint: number, readonly bias: number, readonly position: Vector3) {
+    }
+
+    clone(): Md5MeshWeight {
+        return new Md5MeshWeight(this.joint, this.bias, this.position.clone());
     }
 }

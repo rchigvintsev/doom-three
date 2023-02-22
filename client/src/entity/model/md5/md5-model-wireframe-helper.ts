@@ -2,7 +2,7 @@ import {BufferGeometry, MeshBasicMaterial, SkinnedMesh} from 'three';
 
 import {FluentAnimationMixer} from '../../../animation/fluent-animation-mixer';
 import {AnimationFlow} from '../../../animation/flow/animation-flow';
-import {AnimationFlowStep} from '../../../animation/flow/animation-flow-step';
+import {AnyAnimationFlowStep} from '../../../animation/flow/any-animation-flow-step';
 
 export class Md5ModelWireframeHelper extends SkinnedMesh {
     private animationMixer!: FluentAnimationMixer;
@@ -28,7 +28,7 @@ export class Md5ModelWireframeHelper extends SkinnedMesh {
         this.animationFlows.get(name)?.start();
     }
 
-    animate(name: string): AnimationFlowStep {
+    animate(name: string): AnyAnimationFlowStep {
         return this.animationMixer.animate(name);
     }
 
