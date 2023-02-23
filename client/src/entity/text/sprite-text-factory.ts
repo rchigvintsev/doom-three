@@ -1,4 +1,4 @@
-import {Color, Object3D, SpriteMaterial} from 'three';
+import {BufferAttribute, Color, Object3D, SpriteMaterial} from 'three';
 
 import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
 import {SpriteText} from './sprite-text';
@@ -64,7 +64,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
     private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {
         if (this.getFontStyle(textDef) === FontStyle.BACK_ITALIC) {
             char.geometry = char.geometry.clone();
-            const uvAttr = char.geometry.getAttribute("uv");
+            const uvAttr = char.geometry.getAttribute("uv") as BufferAttribute;
             const uvs = <number[]>uvAttr.array;
             const shift = FONT_STYLE_ITALIC_SHIFT_FACTOR * (textDef.textScale[1] / textDef.textScale[0])
                 * (charDef.scale[1] / charDef.scale[0]);

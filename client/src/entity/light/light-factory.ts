@@ -23,10 +23,10 @@ export class LightFactory implements EntityFactory<Light> {
 
     private createLight(lightDef: any, lightDistance: number): PointLight | SpotLight {
         if (lightDef.type === 'point') {
-            return new PointLight(lightDef.color, lightDef.intensity, lightDistance);
+            return new PointLight(lightDef.color, lightDef.intensity, lightDistance, 1);
         }
         if (lightDef.type === 'spot') {
-            return new SpotLight(lightDef.color, lightDef.intensity, lightDistance, lightDef.angle);
+            return new SpotLight(lightDef.color, lightDef.intensity, lightDistance, lightDef.angle, 0, 1);
         }
         throw new Error(`Unsupported light type: "${lightDef.type}"`);
     }

@@ -11,7 +11,7 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
     constructor(protected readonly parameters: ModelParameters) {
         super(parameters.geometry, parameters.materials);
         const collisionModel = parameters.collisionModel;
-        if (collisionModel && collisionModel.hasMass) {
+        if (collisionModel && collisionModel.hasMass()) {
             collisionModel.onUpdate = (position, quaternion) =>
                 this.onCollisionModelUpdate(position, quaternion);
         }

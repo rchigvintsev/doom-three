@@ -1,4 +1,4 @@
-import {Euler, Mesh, MeshBasicMaterial, Vector3} from 'three';
+import {BufferAttribute, Euler, Mesh, MeshBasicMaterial, Vector3} from 'three';
 import {DecalGeometry} from 'three/examples/jsm/geometries/DecalGeometry';
 
 import {Decal} from './decal';
@@ -19,7 +19,7 @@ export class DecalFactory implements EntityFactory<Decal> {
         const size = new Vector3().setScalar(parentDecalDef.size * this.parameters.config.worldScale);
         const geometry = new DecalGeometry(decalDef.target, decalDef.position, decalDef.orientation, size);
         // Transform vertices from world space to local space of target mesh
-        const positionAttr = geometry.getAttribute('position');
+        const positionAttr = geometry.getAttribute('position') as BufferAttribute;
         const vertices = <number[]>positionAttr.array;
         for (let i = 0; i < vertices.length; i += 3) {
             const vertex = new Vector3(vertices[i], vertices[i + 1], vertices[i + 2]);

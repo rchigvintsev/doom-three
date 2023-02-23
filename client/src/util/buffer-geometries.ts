@@ -1,8 +1,8 @@
-import {BufferGeometry, Vector3} from 'three';
+import {BufferAttribute, BufferGeometry, Vector3} from 'three';
 
 export class BufferGeometries {
     static applyTubeDeform(geometry: BufferGeometry, view: Vector3, face1: Vector3, face2: Vector3) {
-        const positions = geometry.getAttribute('position');
+        const positions = geometry.getAttribute('position') as BufferAttribute;
 
         const v1 = new Vector3(positions.getX(face1.x), positions.getY(face1.x), positions.getZ(face1.x));
         const v2 = new Vector3(positions.getX(face1.y), positions.getY(face1.y), positions.getZ(face1.y));

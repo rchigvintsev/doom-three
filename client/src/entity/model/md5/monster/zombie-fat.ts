@@ -1,7 +1,10 @@
+import {ArrowHelper, Vector3} from 'three';
+
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {Game} from '../../../../game';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -19,6 +22,11 @@ const LEFT_ARM = 0;
 export class ZombieFat extends Monster {
     static readonly INSTANCE: Promise<ZombieFat> = new Promise<ZombieFat>((resolve) => zombieResolve = resolve);
 
+    deltaTime = 0;
+
+    private changedAnimationAt = 0;
+    private walking = false;
+
     private currentWalkAnimationName?: string;
     private currentAttackAnimationName?: string;
     private lastArm = LEFT_ARM;
@@ -29,6 +37,8 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+        this.deltaTime = 0;
+
         this.updateState();
         if (this.isIdle()) {
             this.playChatterSound();
@@ -39,10 +49,26 @@ export class ZombieFat extends Monster {
         }
     }
 
+    public changeAnimation() {
+        if (this.changedAnimationAt > 0) {
+            const now = performance.now();
+            if (now - this.changedAnimationAt < 500) {
+                return;
+            }
+        }
+
+        this.attack();
+        this.changedAnimationAt = performance.now();
+    }
+
     protected doInit() {
         super.doInit();
         this.initAnimationFlows();
         this.idle();
+
+        Game.__directionHelper = new ArrowHelper(new Vector3(0, 0, 0), this.position, 1);
+        Game.__scene.add(Game.__directionHelper);
+
         zombieResolve(this);
     }
 
