@@ -1,7 +1,6 @@
 import {Euler, MathUtils, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
-import {Game} from '../../../../game';
 import {Sound} from '../../../sound/sound';
 
 export abstract class Monster extends Md5Model {

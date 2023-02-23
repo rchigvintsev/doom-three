@@ -13,6 +13,11 @@ export interface UpdatableMaterial {
     update(deltaTime?: number): void;
 }
 
+export interface UpdatableMaterialExtraParameters {
+    kind: MaterialKind;
+    evalScope?: any;
+}
+
 export function isUpdatableMaterial(material: any): material is UpdatableMaterial {
     return material && material.updatableMaterial;
 }

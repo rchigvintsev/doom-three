@@ -1,10 +1,7 @@
-import {ArrowHelper, Vector3} from 'three';
-
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
-import {Game} from '../../../../game';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 

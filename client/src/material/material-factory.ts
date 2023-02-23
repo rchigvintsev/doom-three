@@ -68,7 +68,7 @@ export class MaterialFactory {
     }
 
     private createBasicMaterial(materialDef: any): MeshBasicMaterial {
-        const material = new UpdatableMeshBasicMaterial({
+        const material = new UpdatableMeshBasicMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
             evalScope: this.parameters.evalScope
         });
@@ -147,7 +147,8 @@ export class MaterialFactory {
         const material = new UpdatableShaderMaterial({
             uniforms,
             vertexShader: shader.vertexShader,
-            fragmentShader: shader.fragmentShader,
+            fragmentShader: shader.fragmentShader
+        }, {
             kind: parseMaterialKind(materialDef.kind),
             evalScope: this.parameters.evalScope
         });
@@ -160,7 +161,7 @@ export class MaterialFactory {
     }
 
     private createSpriteMaterial(materialDef: any): SpriteMaterial {
-        const material = new UpdatableSpriteMaterial({
+        const material = new UpdatableSpriteMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
             evalScope: this.parameters.evalScope
         });
@@ -185,7 +186,7 @@ export class MaterialFactory {
     }
 
     private createPhongMaterial(materialDef: any): MeshPhongMaterial {
-        const material = new UpdatableMeshPhongMaterial({
+        const material = new UpdatableMeshPhongMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
             evalScope: this.parameters.evalScope
         });

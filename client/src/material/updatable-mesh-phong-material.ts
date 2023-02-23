@@ -1,16 +1,15 @@
 import {MeshPhongMaterial, MeshPhongMaterialParameters} from 'three';
 
-import {UpdatableMaterial} from './updatable-material';
+import {UpdatableMaterial, UpdatableMaterialExtraParameters} from './updatable-material';
 import {MaterialKind} from './material-kind';
-import {Objects} from '../util/objects';
 
 export class UpdatableMeshPhongMaterial extends MeshPhongMaterial implements UpdatableMaterial {
     readonly updatableMaterial = true;
     readonly kind: MaterialKind;
 
-    constructor(parameters?: UpdatableMeshPhongMaterialParameters) {
-        super(Objects.narrowToParent(parameters));
-        this.kind = parameters?.kind || MaterialKind.METAL;
+    constructor(parameters?: MeshPhongMaterialParameters, extraParameters?: UpdatableMaterialExtraParameters) {
+        super(parameters);
+        this.kind = extraParameters?.kind || MaterialKind.METAL;
     }
 
     setParameters(_params: Map<string, any>) {
@@ -20,9 +19,4 @@ export class UpdatableMeshPhongMaterial extends MeshPhongMaterial implements Upd
     update(_deltaTime?: number) {
         // Do nothing for now
     }
-}
-
-export interface UpdatableMeshPhongMaterialParameters extends MeshPhongMaterialParameters {
-    kind: MaterialKind;
-    evalScope?: any;
 }

@@ -1,10 +1,11 @@
 import {SpriteMaterial, SpriteMaterialParameters, Texture} from 'three';
-import {UpdatableMaterial, updateOpacity} from './updatable-material';
+
 import {EvalFunction} from 'mathjs';
+
+import {UpdatableMaterial, UpdatableMaterialExtraParameters, updateOpacity} from './updatable-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
 import {MaterialStyle, StylableMaterial} from './stylable-material';
 import {MaterialKind} from './material-kind';
-import {Objects} from '../util/objects';
 
 export class UpdatableSpriteMaterial extends SpriteMaterial implements UpdatableMaterial, StylableMaterial {
     readonly kind: MaterialKind;
@@ -14,11 +15,11 @@ export class UpdatableSpriteMaterial extends SpriteMaterial implements Updatable
     evalScope: any;
     opacityExpression?: EvalFunction;
 
-    constructor(parameters?: UpdatableSpriteMaterialParameters) {
-        super(Objects.narrowToParent(parameters));
-        this.kind = parameters?.kind || MaterialKind.METAL;
-        if (parameters && parameters.evalScope) {
-            this.evalScope = {...parameters.evalScope, ...{time: 0}};
+    constructor(parameters?: SpriteMaterialParameters, extraParameters?: UpdatableMaterialExtraParameters) {
+        super(parameters);
+        this.kind = extraParameters?.kind || MaterialKind.METAL;
+        if (extraParameters && extraParameters.evalScope) {
+            this.evalScope = {...extraParameters.evalScope, ...{time: 0}};
         } else {
             this.evalScope = {time: 0};
         }
@@ -51,9 +52,4 @@ export class UpdatableSpriteMaterial extends SpriteMaterial implements Updatable
             callbackFn(this.alphaMap);
         }
     }
-}
-
-export interface UpdatableSpriteMaterialParameters extends SpriteMaterialParameters {
-    kind: MaterialKind;
-    evalScope?: any;
 }
