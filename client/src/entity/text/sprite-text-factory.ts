@@ -1,6 +1,6 @@
 import {BufferAttribute, Color, Object3D, SpriteMaterial} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {SpriteText} from './sprite-text';
 import {GameAssets} from '../../game-assets';
 import {MaterialFactory} from '../../material/material-factory';
@@ -13,7 +13,7 @@ import {ScreenPosition} from '../../util/screen-position';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
-export class SpriteTextFactory implements EntityFactory<SpriteText> {
+export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
     private readonly fontChars = new Map<string, Map<string, SpriteChar>>();
 
     constructor(private readonly parameters: SpriteTextFactoryParameters) {
@@ -109,7 +109,7 @@ export class SpriteTextFactory implements EntityFactory<SpriteText> {
     }
 }
 
-export interface SpriteTextFactoryParameters extends EntityFactoryParameters {
+export interface SpriteTextFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     materialFactory: MaterialFactory;
 }

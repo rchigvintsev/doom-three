@@ -1,14 +1,14 @@
 import {Object3D} from 'three';
 
-import {Entity} from './entity';
+import {GameEntity} from './game-entity';
 import {GameConfig} from '../game-config';
 import {GameAssets} from '../game-assets';
 
-export interface EntityFactory<T extends (Entity | Object3D | Object3D[])> {
+export interface GameEntityFactory<T extends (GameEntity | Object3D | Object3D[])> {
     create(entityDef: any): T;
 }
 
-export interface EntityFactoryParameters {
+export interface GameEntityFactoryParameters {
     config: GameConfig;
     assets?: GameAssets;
 }

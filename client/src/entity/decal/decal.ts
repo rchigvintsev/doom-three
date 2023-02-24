@@ -3,9 +3,9 @@ import {DecalGeometry} from 'three/examples/jsm/geometries/DecalGeometry';
 
 import {Tween} from '@tweenjs/tween.js';
 
-import {Entity} from '../entity';
+import {GameEntity} from '../game-entity';
 
-export class Decal extends Mesh implements Entity {
+export class Decal extends Mesh implements GameEntity {
     onShow?: (decal: Decal) => void;
     onHide?: (decal: Decal) => void;
 

@@ -1,12 +1,12 @@
 import {BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Vector2, Vector3} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {Surface} from './surface';
 import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {BufferAttributes} from '../../util/buffer-attributes';
 
-export class SurfaceFactory implements EntityFactory<Surface> {
+export class SurfaceFactory implements GameEntityFactory<Surface> {
     constructor(private readonly parameters: SurfaceFactoryParameters) {
     }
 
@@ -104,7 +104,7 @@ export class SurfaceFactory implements EntityFactory<Surface> {
     }
 }
 
-export interface SurfaceFactoryParameters extends EntityFactoryParameters {
+export interface SurfaceFactoryParameters extends GameEntityFactoryParameters {
     materialFactory: MaterialFactory;
     collisionModelFactory: CollisionModelFactory;
 }

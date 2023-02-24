@@ -3,11 +3,11 @@ import {SpriteMaterial} from 'three/src/materials/Materials';
 
 import {Tween} from '@tweenjs/tween.js';
 
-import {Entity} from '../entity';
+import {GameEntity} from '../game-entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {Player} from '../player/player';
 
-export class Particle extends Sprite implements Entity {
+export class Particle extends Sprite implements GameEntity {
     onShow?: (particle: Particle) => void;
     onHide?: (particle: Particle) => void;
 

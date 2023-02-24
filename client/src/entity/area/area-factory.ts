@@ -1,12 +1,12 @@
 import {Light} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {Area} from './area';
 import {SurfaceFactory} from '../surface/surface-factory';
 import {Surface} from '../surface/surface';
 import {LightFactory} from '../light/light-factory';
 
-export class AreaFactory implements EntityFactory<Area> {
+export class AreaFactory implements GameEntityFactory<Area> {
     constructor(private readonly parameters: AreaFactoryParameters) {
     }
 
@@ -25,7 +25,7 @@ export class AreaFactory implements EntityFactory<Area> {
     }
 }
 
-export interface AreaFactoryParameters extends EntityFactoryParameters {
+export interface AreaFactoryParameters extends GameEntityFactoryParameters {
     surfaceFactory: SurfaceFactory;
     lightFactory: LightFactory;
 }

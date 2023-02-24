@@ -7,11 +7,15 @@ import {Flashlight} from './flashlight';
 import {Pistol} from './pistol';
 import {FirearmParameters} from './firearm';
 import {Shotgun} from './shotgun';
-import {SoundSystem} from '../../../../sound/sound-system';
+import {CachingSoundFactory} from '../../../sound/caching-sound-factory';
+import {GameEntityFactory} from '../../../game-entity-factory';
+import {Sound} from '../../../sound/sound';
 
 export class WeaponFactory extends Md5ModelFactory {
-    constructor(parameters: WeaponFactoryParameters) {
+    private readonly cachingSoundFactory: GameEntityFactory<Sound>;
+    constructor(parameters: Md5ModelFactoryParameters) {
         super(parameters);
+        this.cachingSoundFactory = new CachingSoundFactory(parameters.soundFactory);
     }
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {
@@ -36,7 +40,7 @@ export class WeaponFactory extends Md5ModelFactory {
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
-            soundSystem: this.soundSystem
+            soundFactory: this.cachingSoundFactory
         };
         return new Fists(fistsParams);
     }
@@ -52,7 +56,7 @@ export class WeaponFactory extends Md5ModelFactory {
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
             lightMap: flashlightMap,
-            soundSystem: this.soundSystem
+            soundFactory: this.cachingSoundFactory
         };
         return new Flashlight(flashlightParams);
     }
@@ -63,10 +67,10 @@ export class WeaponFactory extends Md5ModelFactory {
         pistolParams.geometry = geometry;
         pistolParams.materials = this.createMaterials(modelDef);
         pistolParams.sounds = this.createSounds(modelDef);
+        pistolParams.soundFactory = this.cachingSoundFactory;
         pistolParams.particleSystem = this.particleSystem;
         pistolParams.debrisSystem = this.debrisSystem;
         pistolParams.decalSystem = this.decalSystem;
-        pistolParams.soundSystem = this.soundSystem;
         return new Pistol(pistolParams);
     }
 
@@ -76,18 +80,10 @@ export class WeaponFactory extends Md5ModelFactory {
         shotgunParams.geometry = geometry;
         shotgunParams.materials = this.createMaterials(modelDef);
         shotgunParams.sounds = this.createSounds(modelDef);
+        shotgunParams.soundFactory = this.cachingSoundFactory;
         shotgunParams.particleSystem = this.particleSystem;
         shotgunParams.debrisSystem = this.debrisSystem;
         shotgunParams.decalSystem = this.decalSystem;
-        shotgunParams.soundSystem = this.soundSystem;
         return new Shotgun(shotgunParams);
     }
-
-    private get soundSystem(): SoundSystem {
-        return (<WeaponFactoryParameters>this.parameters).soundSystem;
-    }
-}
-
-export interface WeaponFactoryParameters extends Md5ModelFactoryParameters {
-    soundSystem: SoundSystem;
 }

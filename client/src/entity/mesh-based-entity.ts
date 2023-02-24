@@ -1,8 +1,8 @@
 import {isUpdatableMaterial} from '../material/updatable-material';
-import {Entity} from './entity';
+import {GameEntity} from './game-entity';
 import {Material, Quaternion, Vector3} from 'three';
 
-export interface MeshBasedEntity extends Entity {
+export interface MeshBasedEntity extends GameEntity {
     get position(): Vector3;
 
     get quaternion(): Quaternion;

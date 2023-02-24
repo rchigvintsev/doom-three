@@ -1,6 +1,6 @@
 import {Light, Vector3} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {GameMap} from './game-map';
 import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
@@ -11,7 +11,7 @@ import {Monster} from '../model/md5/monster/monster';
 import {GameAssets} from '../../game-assets';
 import {MonsterFactory} from '../model/md5/monster/monster-factory';
 
-export class GameMapFactory implements EntityFactory<GameMap> {
+export class GameMapFactory implements GameEntityFactory<GameMap> {
     constructor(private readonly parameters: MapFactoryParameters) {
     }
 
@@ -60,7 +60,7 @@ export class GameMapFactory implements EntityFactory<GameMap> {
     }
 }
 
-export interface MapFactoryParameters extends EntityFactoryParameters {
+export interface MapFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     player: Player;
     hud: Hud;

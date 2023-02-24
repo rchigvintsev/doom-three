@@ -1,9 +1,9 @@
 import {Audio, Object3D} from 'three';
 
-import {Entity} from '../entity';
+import {GameEntity} from '../game-entity';
 import {randomInt} from 'mathjs';
 
-export class Sound extends Object3D implements Entity {
+export class Sound extends Object3D implements GameEntity {
     private playingAudioCounter = 0;
 
     constructor(name: string, private readonly audios: Audio<AudioNode>[]) {

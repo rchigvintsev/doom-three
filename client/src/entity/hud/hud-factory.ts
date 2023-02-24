@@ -1,6 +1,6 @@
 import {Color, SpriteMaterial} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {AmmoIndicator, Hud} from './hud';
 import {MaterialFactory} from '../../material/material-factory';
 import {GameAssets} from '../../game-assets';
@@ -13,7 +13,7 @@ import {ScreenPosition} from '../../util/screen-position';
 
 const SCALE_FACTOR = 2;
 
-export class HudFactory implements EntityFactory<Hud> {
+export class HudFactory implements GameEntityFactory<Hud> {
     constructor(private readonly parameters: HudFactoryParameters) {
     }
 
@@ -125,7 +125,7 @@ export class HudFactory implements EntityFactory<Hud> {
     }
 }
 
-export interface HudFactoryParameters extends EntityFactoryParameters {
+export interface HudFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     player: Player;
     materialFactory: MaterialFactory;

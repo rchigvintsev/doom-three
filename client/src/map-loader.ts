@@ -23,7 +23,6 @@ import {AssetLoader} from './asset-loader';
 import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 import {DecalFactory} from './entity/decal/decal-factory';
 import {DecalSystem} from './decal/decal-system';
-import {SoundSystem} from './sound/sound-system';
 import {WeaponFactory} from './entity/model/md5/weapon/weapon-factory';
 import {MonsterFactory} from './entity/model/md5/monster/monster-factory';
 
@@ -55,7 +54,6 @@ export class MapLoader {
             this.initParticleSystem(particleFactory);
             this.initDebrisSystem(debrisFactory);
             this.initDecalSystem(decalFactory);
-            this.initSoundSystem(soundFactory);
 
             const weapons = this.createWeapons(assets, materialFactory, soundFactory);
             const player = this.createPlayer(assets, weapons, soundFactory, collisionModelFactory);
@@ -78,10 +76,6 @@ export class MapLoader {
         this.game.systems.set(GameSystemType.DECAL, new DecalSystem(this.game.config, this.game.scene, decalFactory));
     }
 
-    private initSoundSystem(soundFactory: SoundFactory) {
-        this.game.systems.set(GameSystemType.SOUND, new SoundSystem(soundFactory));
-    }
-
     private createWeapons(assets: GameAssets,
                           materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
@@ -92,8 +86,7 @@ export class MapLoader {
             soundFactory,
             particleSystem: <ParticleSystem>this.game.systems.get(GameSystemType.PARTICLE),
             debrisSystem: <DebrisSystem>this.game.systems.get(GameSystemType.DEBRIS),
-            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL),
-            soundSystem: <SoundSystem>this.game.systems.get(GameSystemType.SOUND)
+            decalSystem: <DecalSystem>this.game.systems.get(GameSystemType.DECAL)
         });
 
         const weapons = new Map<string, Weapon>();

@@ -1,10 +1,10 @@
 import {Audio, AudioListener, PositionalAudio} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {GameAssets} from '../../game-assets';
 import {Sound} from './sound';
 
-export class SoundFactory implements EntityFactory<Sound> {
+export class SoundFactory implements GameEntityFactory<Sound> {
     constructor(private readonly parameters: SoundFactoryParameters) {
     }
 
@@ -41,7 +41,7 @@ export class SoundFactory implements EntityFactory<Sound> {
     }
 }
 
-export interface SoundFactoryParameters extends EntityFactoryParameters {
+export interface SoundFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     audioListener: AudioListener;
 }

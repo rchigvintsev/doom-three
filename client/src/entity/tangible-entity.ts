@@ -1,10 +1,10 @@
 import {Intersection, Scene, Vector3} from 'three';
 
-import {Entity} from './entity';
+import {GameEntity} from './game-entity';
 import {Weapon} from './model/md5/weapon/weapon';
 import {PhysicsSystem} from '../physics/physics-system';
 
-export interface TangibleEntity extends Entity {
+export interface TangibleEntity extends GameEntity {
     registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
 
     unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;

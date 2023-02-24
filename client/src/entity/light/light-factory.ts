@@ -1,9 +1,9 @@
 import {Light, Mesh, MeshBasicMaterial, PointLight, SphereGeometry, SpotLight} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 
-export class LightFactory implements EntityFactory<Light> {
-    constructor(private readonly parameters: EntityFactoryParameters) {
+export class LightFactory implements GameEntityFactory<Light> {
+    constructor(private readonly parameters: GameEntityFactoryParameters) {
     }
 
     create(lightDef: any): Light {

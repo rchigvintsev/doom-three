@@ -1,6 +1,6 @@
 import {SpriteMaterial, Vector3} from 'three';
 
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
 import {GameAssets} from '../../game-assets';
@@ -8,7 +8,7 @@ import {GameAssets} from '../../game-assets';
 const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
 
-export class ParticleFactory implements EntityFactory<Particle[]> {
+export class ParticleFactory implements GameEntityFactory<Particle[]> {
     constructor(private readonly parameters: ParticleFactoryParameters) {
     }
 
@@ -52,7 +52,7 @@ export class ParticleFactory implements EntityFactory<Particle[]> {
     }
 }
 
-export interface ParticleFactoryParameters extends EntityFactoryParameters {
+export interface ParticleFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     materialFactory: MaterialFactory;
 }

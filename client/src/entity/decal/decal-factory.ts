@@ -2,11 +2,11 @@ import {BufferAttribute, Euler, Mesh, MeshBasicMaterial, Vector3} from 'three';
 import {DecalGeometry} from 'three/examples/jsm/geometries/DecalGeometry';
 
 import {Decal} from './decal';
-import {EntityFactory, EntityFactoryParameters} from '../entity-factory';
+import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
 import {GameAssets} from '../../game-assets';
 import {MaterialFactory} from '../../material/material-factory';
 
-export class DecalFactory implements EntityFactory<Decal> {
+export class DecalFactory implements GameEntityFactory<Decal> {
     constructor(private readonly parameters: DecalFactoryParameters) {
     }
 
@@ -39,7 +39,7 @@ export class DecalFactory implements EntityFactory<Decal> {
     }
 }
 
-export interface DecalFactoryParameters extends EntityFactoryParameters {
+export interface DecalFactoryParameters extends GameEntityFactoryParameters {
     assets: GameAssets;
     materialFactory: MaterialFactory;
 }

@@ -1,6 +1,6 @@
 import {Color, Object3D} from 'three';
 
-import {Entity} from '../entity';
+import {GameEntity} from '../game-entity';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {TextAlign} from './text-align';
 import {SpriteChar} from './sprite-char';
@@ -9,7 +9,7 @@ import {SpriteTextScaler} from './sprite-text-scaler';
 import {isStylableMaterial, MaterialStyle} from '../../material/stylable-material';
 import {ScreenPosition} from '../../util/screen-position';
 
-export class SpriteText extends Object3D implements Entity {
+export class SpriteText extends Object3D implements GameEntity {
     private readonly textChars: SpriteChar[] = [];
     private readonly charCache = new Map<string, SpriteChar[]>();
     private readonly textColor = new Color(0xffffff);

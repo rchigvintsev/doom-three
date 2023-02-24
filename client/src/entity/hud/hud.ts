@@ -1,6 +1,6 @@
 import {Object3D, OrthographicCamera, Scene, WebGLRenderer} from 'three';
 
-import {Entity} from '../entity';
+import {GameEntity} from '../game-entity';
 import {GameConfig} from '../../game-config';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {SpriteText} from '../text/sprite-text';
@@ -9,7 +9,7 @@ import {isFirearm} from '../model/md5/weapon/firearm';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {HudElement} from './hud-element';
 
-export class Hud implements Entity {
+export class Hud implements GameEntity {
     private readonly scene = new Scene();
     private readonly camera: OrthographicCamera;
 
