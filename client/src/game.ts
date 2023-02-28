@@ -15,6 +15,7 @@ import {GameSystem, GameSystemType} from './game-system';
 import {TweenAnimationSystem} from './animation/tween-animation-system';
 import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
+import {createDiContainer} from './di.config';
 
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
@@ -58,17 +59,18 @@ export class Game {
         Game.showLockScreen(() => {
             const game = new Game();
             game.pointerLock.request();
-            game.animate();
+            game.start();
 
             const assetLoader = new AssetLoader(game.config);
             assetLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
+            assetLoader.load(mapName).then(assets => {
+                const diContainer = createDiContainer(game.config, assets);
 
-            const mapLoader = new MapLoader(game, assetLoader);
-            mapLoader.load(mapName).then(map => {
+                const map = new MapLoader(game, diContainer).load(mapName, assets);
                 console.debug(`Map "${mapName}" is loaded`);
 
                 game.map = map;
-                game._scene.add(map);
+                game.scene.add(map);
 
                 game.hud = map.parameters.hud;
 
@@ -78,6 +80,10 @@ export class Game {
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
+    }
+
+    start() {
+        this.animate();
     }
 
     animate() {

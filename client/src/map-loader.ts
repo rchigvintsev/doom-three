@@ -1,3 +1,5 @@
+import {Container} from 'inversify';
+
 import {Game} from './game';
 import {GameAssets} from './game-assets';
 import {GameSystemType} from './game-system';
@@ -19,37 +21,37 @@ import {DebrisSystem} from './debris/debris-system';
 import {DebrisFactory} from './entity/model/lwo/debris-factory';
 import {HudFactory} from './entity/hud/hud-factory';
 import {Hud} from './entity/hud/hud';
-import {AssetLoader} from './asset-loader';
 import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 import {DecalFactory} from './entity/decal/decal-factory';
 import {DecalSystem} from './decal/decal-system';
 import {WeaponFactory} from './entity/model/md5/weapon/weapon-factory';
 import {MonsterFactory} from './entity/model/md5/monster/monster-factory';
+import {GameConfig} from './game-config';
+import {TYPES} from './types';
 
 export class MapLoader {
-    constructor(private readonly game: Game, private readonly assetLoader: AssetLoader) {
+    constructor(private readonly game: Game, private readonly diContainer: Container) {
     }
 
-    load(mapName: string): Promise<GameMap> {
+    load(mapName: string, assets: GameAssets): GameMap {
         console.debug(`Loading of map "${mapName}"...`);
 
-        return this.assetLoader.load(mapName).then(assets => {
-            const config = this.game.config;
-            const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+        const config = this.diContainer.get<GameConfig>(TYPES.Config);
+        const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
 
-            const evalScope = this.getExpressionEvaluationScope(assets.tableDefs);
-            const materialFactory = new MaterialFactory({assets, evalScope});
-            const collisionModelFactory = new CollisionModelFactory({config, physicsSystem});
-            const soundFactory = new SoundFactory({config, assets, audioListener: this.game.audioListener});
-            const particleFactory = new ParticleFactory({config, assets, materialFactory});
-            const debrisFactory = new DebrisFactory({
-                config,
-                assets,
-                materialFactory,
-                soundFactory,
-                collisionModelFactory
-            });
-            const decalFactory = new DecalFactory({config, assets, materialFactory});
+        const evalScope = this.getExpressionEvaluationScope(assets.tableDefs);
+        const materialFactory = new MaterialFactory({assets, evalScope});
+        const collisionModelFactory = new CollisionModelFactory({config, physicsSystem});
+        const soundFactory = new SoundFactory({config, assets, audioListener: this.game.audioListener});
+        const particleFactory = new ParticleFactory({config, assets, materialFactory});
+        const debrisFactory = new DebrisFactory({
+            config,
+            assets,
+            materialFactory,
+            soundFactory,
+            collisionModelFactory
+        });
+        const decalFactory = new DecalFactory({config, assets, materialFactory});
 
             this.initParticleSystem(particleFactory);
             this.initDebrisSystem(debrisFactory);
@@ -73,14 +75,15 @@ export class MapLoader {
     }
 
     private initDecalSystem(decalFactory: DecalFactory) {
-        this.game.systems.set(GameSystemType.DECAL, new DecalSystem(this.game.config, this.game.scene, decalFactory));
+        const config = this.diContainer.get<GameConfig>(TYPES.Config);
+        this.game.systems.set(GameSystemType.DECAL, new DecalSystem(config, this.game.scene, decalFactory));
     }
 
     private createWeapons(assets: GameAssets,
                           materialFactory: MaterialFactory,
                           soundFactory: SoundFactory): Map<string, Weapon> {
         const weaponFactory = new WeaponFactory({
-            config: this.game.config,
+            config,
             assets,
             materialFactory,
             soundFactory,
@@ -99,8 +102,9 @@ export class MapLoader {
                          weapons: Map<string, Weapon>,
                          soundFactory: SoundFactory,
                          collisionModelFactory: CollisionModelFactory): Player {
+        const config = this.diContainer.get<GameConfig>(TYPES.Config);
         return new PlayerFactory({
-            config: this.game.config,
+            config,
             camera: this.game.camera,
             weapons,
             soundFactory,
@@ -109,14 +113,9 @@ export class MapLoader {
     }
 
     private createHud(assets: GameAssets, player: Player, materialFactory: MaterialFactory) {
-        const spriteTextFactory = new SpriteTextFactory({config: this.game.config, assets, materialFactory});
-        const hudFactory = new HudFactory({
-            config: this.game.config,
-            assets,
-            player,
-            materialFactory,
-            spriteTextFactory
-        });
+        const config = this.diContainer.get<GameConfig>(TYPES.Config);
+        const spriteTextFactory = new SpriteTextFactory({config, assets, materialFactory});
+        const hudFactory = new HudFactory({config, assets, player, materialFactory, spriteTextFactory});
         return hudFactory.create(assets.hudDef);
     }
 
@@ -129,7 +128,7 @@ export class MapLoader {
         const config = this.game.config;
 
         const monsterFactory = new MonsterFactory({
-            config: this.game.config,
+            config,
             assets,
             materialFactory,
             soundFactory,
