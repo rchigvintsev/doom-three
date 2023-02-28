@@ -1,4 +1,4 @@
-import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
+import {AudioListener, Camera, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
 import {GSSolver, SplitSolver} from 'cannon-es';
@@ -19,51 +19,44 @@ import {AssetLoader} from './asset-loader';
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
 
-    private _config!: GameConfig;
-    private _scene!: Scene;
-    private _camera!: PerspectiveCamera;
-    private _audioListener!: AudioListener;
+    private readonly clock = new Clock();
+    private readonly _config: GameConfig;
+    private readonly canvasContainer: HTMLElement;
+    private readonly _scene: Scene;
+    private readonly _camera: PerspectiveCamera;
+    private readonly _audioListener: AudioListener;
+    private readonly pointerLock: PointerLock;
+    private readonly controls: FpsControls;
+    private readonly renderer: WebGLRenderer;
+    private readonly stats: Stats;
 
-    private container!: HTMLElement;
-    private pointerLock!: PointerLock;
-    private controls!: FpsControls;
-    private renderer!: WebGLRenderer;
-    private stats!: Stats;
     private map?: GameMap;
     private hud?: Hud;
 
-    private initialized = false;
+    constructor() {
+        this._config = GameConfig.load();
 
-    private readonly clock = new Clock();
+        this.canvasContainer = this.getRequiredGameCanvasContainer();
 
-    init() {
-        if (!this.initialized) {
-            this._config = GameConfig.load();
+        this._scene = this.createScene();
+        this._camera = this.createCamera(this._config);
+        this._audioListener = this.createAudioListener(this._camera);
+        this.pointerLock = this.createPointerLock(this.canvasContainer);
+        this.controls = this.createControls(this._config, this.pointerLock);
+        this.renderer = this.createRenderer(this._config, this.canvasContainer);
+        this.stats = this.createStats(this._config, this.canvasContainer);
 
-            this.container = this.getRequiredGameCanvasContainer();
+        this.createAnimationSystem();
+        this.createPhysicsSystem();
 
-            this.initScene();
-            this.initCamera(this._config);
-            this.initAudioListener(this._camera);
-            this.initPointerLock(this.container);
-            this.initControls(this._config, this.pointerLock);
-            this.initRenderer(this._config, this.container);
-            this.initAnimationSystem();
-            this.initPhysicsSystem();
-            this.initStats(this._config, this.container);
-
-            // Disable context menu
-            window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
-            window.addEventListener('resize', () => this.onWindowResize());
-
-            this.initialized = true;
-        }
+        // Disable context menu
+        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
+        window.addEventListener('resize', () => this.onWindowResize());
     }
 
-    static load(mapName: string): Game {
-        const game = new Game();
+    static load(mapName: string) {
         Game.showLockScreen(() => {
-            game.init();
+            const game = new Game();
             game.pointerLock.request();
             game.animate();
 
@@ -85,7 +78,6 @@ export class Game {
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
-        return game;
     }
 
     animate() {
@@ -121,62 +113,69 @@ export class Game {
         return container;
     }
 
-    private initScene() {
-        this._scene = new Scene();
+    private createScene(): Scene {
+        return new Scene();
     }
 
-    private initCamera(config: GameConfig) {
+    private createCamera(config: GameConfig): PerspectiveCamera {
         const aspect = window.innerWidth / window.innerHeight;
-        this._camera = new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
+        return new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
     }
 
-    private initAudioListener(camera: PerspectiveCamera) {
-        this._audioListener = new AudioListener();
-        camera.add(this._audioListener);
+    private createAudioListener(camera: Camera): AudioListener {
+        const audioListener = new AudioListener();
+        camera.add(audioListener);
+        return audioListener;
     }
 
-    private initPointerLock(target: HTMLElement) {
-        this.pointerLock = new PointerLock(target);
-        this.pointerLock.init();
-        this.pointerLock.addEventListener(PointerUnlockEvent.TYPE,
-            () => Game.showLockScreen(() => this.pointerLock.request()));
+    private createPointerLock(target: HTMLElement): PointerLock {
+        const pointerLock = new PointerLock(target);
+        pointerLock.init();
+        pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => Game.showLockScreen(() => pointerLock.request()));
+        return pointerLock;
     }
 
-    private initControls(config: GameConfig, pointerLock: PointerLock) {
-        this.controls = new FpsControls(config, pointerLock);
-        this.controls.init();
+    private createControls(config: GameConfig, pointerLock: PointerLock): FpsControls {
+        const controls = new FpsControls(config, pointerLock);
+        controls.init();
+        return controls;
     }
 
-    private initRenderer(config: GameConfig, parent: HTMLElement) {
-        this.renderer = new WebGLRenderer({antialias: config.antialias});
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = PCFShadowMap;
-        this.renderer.localClippingEnabled = true;
-        this.renderer.domElement.id = 'game_canvas';
-        this.renderer.autoClear = false;
-        parent.appendChild(this.renderer.domElement);
+    private createRenderer(config: GameConfig, parent: HTMLElement): WebGLRenderer {
+        const renderer = new WebGLRenderer({antialias: config.antialias});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = PCFShadowMap;
+        renderer.localClippingEnabled = true;
+        renderer.domElement.id = 'game_canvas';
+        renderer.autoClear = false;
+        parent.appendChild(renderer.domElement);
+        return renderer;
     }
 
-    private initAnimationSystem() {
-        this.systems.set(GameSystemType.ANIMATION, new TweenAnimationSystem());
+    private createStats(config: GameConfig, parent: HTMLElement): Stats {
+        const stats = Stats();
+        if (config.showStats) {
+            parent.appendChild(stats.dom);
+        }
+        return stats;
     }
 
-    private initPhysicsSystem() {
+    private createAnimationSystem(): GameSystem {
+        const animationSystem = new TweenAnimationSystem();
+        this.systems.set(GameSystemType.ANIMATION, animationSystem);
+        return animationSystem;
+    }
+
+    private createPhysicsSystem(): GameSystem {
         const physicsSystem = new PhysicsSystem();
         physicsSystem.allowSleep = true;
         physicsSystem.defaultContactMaterial.contactEquationStiffness = 1e9;
         physicsSystem.defaultContactMaterial.contactEquationRelaxation = 4;
         physicsSystem.solver = new SplitSolver(new GSSolver());
         this.systems.set(GameSystemType.PHYSICS, physicsSystem);
-    }
-
-    private initStats(config: GameConfig, parent: HTMLElement) {
-        this.stats = Stats();
-        if (config.showStats) {
-            parent.appendChild(this.stats.dom);
-        }
+        return physicsSystem;
     }
 
     private render() {
