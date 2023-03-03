@@ -14,9 +14,9 @@ import {Body, Box, Cylinder, Heightfield, Material, Quaternion, Shape, Sphere, T
 
 import {GameConfig} from '../game-config';
 import {CollisionModel, CollisionModelBody} from './collision-model';
-import {PhysicsSystem} from './physics-system';
 import {NamedSphere} from './cannon/named-sphere';
 import {NamedBox} from './cannon/named-box';
+import {PhysicsManager} from './physics-manager';
 
 export class CollisionModelFactory {
     constructor(private readonly parameters: CollisionModelFactoryParameters) {
@@ -111,10 +111,10 @@ export class CollisionModelFactory {
     private getBodyMaterial(bodyDef: any): Material {
         let material = undefined;
         if (bodyDef.material) {
-            material = this.parameters.physicsSystem.materials.get(bodyDef.material);
+            material = this.parameters.physicsManager.materials.get(bodyDef.material);
         }
         if (!material) {
-            material = this.parameters.physicsSystem.materials.get('default');
+            material = this.parameters.physicsManager.materials.get('default');
         }
         return material!;
     }
@@ -192,5 +192,5 @@ export class CollisionModelFactory {
 
 export interface CollisionModelFactoryParameters {
     config: GameConfig;
-    physicsSystem: PhysicsSystem;
+    physicsManager: PhysicsManager;
 }

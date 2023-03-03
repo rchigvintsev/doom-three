@@ -3,5 +3,5 @@ export interface GameSystem {
 }
 
 export enum GameSystemType {
-    ANIMATION, PHYSICS, PARTICLE, DEBRIS, DECAL
+    PARTICLE, DECAL
 }

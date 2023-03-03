@@ -5,7 +5,7 @@ import {Vec3} from 'cannon-es';
 import {CollisionModel} from '../collision-model';
 import {isNamedShape} from '../cannon/named-shape';
 import {NamedSphere} from '../cannon/named-sphere';
-import {PhysicsSystem} from '../physics-system';
+import {PhysicsManager} from '../physics-manager';
 
 export class PlayerCollisionModel extends CollisionModel {
     private readonly originOffset = new Vec3();
@@ -32,15 +32,15 @@ export class PlayerCollisionModel extends CollisionModel {
         }
     }
 
-    register(physicsSystem: PhysicsSystem, _scene: Scene) {
+    register(physicsManager: PhysicsManager, _scene: Scene) {
         for (const body of this.delegate.bodies) {
-            physicsSystem.addBody(body);
+            physicsManager.addBody(body);
         }
     }
 
-    unregister(physicsSystem: PhysicsSystem, _scene: Scene) {
+    unregister(physicsManager: PhysicsManager, _scene: Scene) {
         for (const body of this.delegate.bodies) {
-            physicsSystem.removeBody(body);
+            physicsManager.removeBody(body);
         }
     }
 

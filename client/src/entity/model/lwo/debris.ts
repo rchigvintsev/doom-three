@@ -7,9 +7,9 @@ import {TangibleEntity} from '../../tangible-entity';
 import {ModelParameters} from '../model-parameters';
 import {ContactEquation} from 'equations/ContactEquation';
 import {CollisionModelBody} from '../../../physics/collision-model';
-import {PhysicsSystem} from '../../../physics/physics-system';
 import {Weapon} from '../md5/weapon/weapon';
 import {Sound} from '../../sound/sound';
+import {PhysicsManager} from '../../../physics/physics-manager';
 
 export class Debris extends LwoModel implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -28,15 +28,15 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
         if (this.collisionModel) {
-            this.collisionModel.register(physicsSystem, scene);
+            this.collisionModel.register(physicsManager, scene);
         }
     }
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
         if (this.collisionModel) {
-            this.collisionModel.unregister(physicsSystem, scene);
+            this.collisionModel.unregister(physicsManager, scene);
         }
     }
 

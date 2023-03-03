@@ -2,12 +2,12 @@ import {Intersection, Scene, Vector3} from 'three';
 
 import {GameEntity} from './game-entity';
 import {Weapon} from './model/md5/weapon/weapon';
-import {PhysicsSystem} from '../physics/physics-system';
+import {PhysicsManager} from '../physics/physics-manager';
 
 export interface TangibleEntity extends GameEntity {
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene): void;
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene): void;
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene): void;
 
     /**
      * Called when someone attacks this entity with the given weapon.

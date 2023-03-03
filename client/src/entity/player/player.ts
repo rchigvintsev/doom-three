@@ -4,7 +4,6 @@ import {random} from 'mathjs';
 
 import {TangibleEntity} from '../tangible-entity';
 import {Weapon} from '../model/md5/weapon/weapon';
-import {PhysicsSystem} from '../../physics/physics-system';
 import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
 import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
@@ -14,6 +13,7 @@ import {Pistol} from '../model/md5/weapon/pistol';
 import {Shotgun} from '../model/md5/weapon/shotgun';
 import {isFirearm} from '../model/md5/weapon/firearm';
 import {Sound} from '../sound/sound';
+import {PhysicsManager} from '../../physics/physics-manager';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -56,12 +56,12 @@ export class Player extends Object3D implements TangibleEntity {
         playerResolve(this);
     }
 
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.parameters.collisionModel.register(physicsSystem, scene);
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.collisionModel.register(physicsManager, scene);
     }
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.parameters.collisionModel.unregister(physicsSystem, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.collisionModel.unregister(physicsManager, scene);
     }
 
     update(deltaTime: number) {

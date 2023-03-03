@@ -14,7 +14,6 @@ import {Weapon} from './entity/model/md5/weapon/weapon';
 import {CollisionModelFactory} from './physics/collision-model-factory';
 import {PlayerFactory} from './entity/player/player-factory';
 import {Player} from './entity/player/player';
-import {PhysicsSystem} from './physics/physics-system';
 import {ParticleFactory} from './entity/particle/particle-factory';
 import {ParticleSystem} from './particles/particle-system';
 import {DebrisSystem} from './debris/debris-system';
@@ -28,6 +27,7 @@ import {WeaponFactory} from './entity/model/md5/weapon/weapon-factory';
 import {MonsterFactory} from './entity/model/md5/monster/monster-factory';
 import {GameConfig} from './game-config';
 import {TYPES} from './types';
+import {PhysicsManager} from './physics/physics-manager';
 
 export class MapLoader {
     constructor(private readonly game: Game, private readonly diContainer: Container) {
@@ -37,11 +37,11 @@ export class MapLoader {
         console.debug(`Loading of map "${mapName}"...`);
 
         const config = this.diContainer.get<GameConfig>(TYPES.Config);
-        const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
+        const physicsManager = this.diContainer.getNamed<PhysicsManager>(TYPES.PhysicsManager, 'physics');
 
         const evalScope = this.getExpressionEvaluationScope(assets.tableDefs);
         const materialFactory = new MaterialFactory({assets, evalScope});
-        const collisionModelFactory = new CollisionModelFactory({config, physicsSystem});
+        const collisionModelFactory = new CollisionModelFactory({config, physicsManager});
         const soundFactory = new SoundFactory({config, assets, audioListener: this.game.audioListener});
         const particleFactory = new ParticleFactory({config, assets, materialFactory});
         const debrisFactory = new DebrisFactory({
@@ -143,8 +143,8 @@ export class MapLoader {
         const mapFactory = new GameMapFactory({config, assets, player, hud, areaFactory, lightFactory, monsterFactory});
 
         const map = mapFactory.create(assets.mapDef);
-        const physicsSystem = <PhysicsSystem>this.game.systems.get(GameSystemType.PHYSICS);
-        map.registerCollisionModels(physicsSystem, this.game.scene);
+        const physicsManager = this.diContainer.getNamed<PhysicsManager>(TYPES.PhysicsManager, 'physics');
+        map.registerCollisionModels(physicsManager, this.game.scene);
         return map;
     }
 

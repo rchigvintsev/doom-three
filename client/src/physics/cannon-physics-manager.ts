@@ -1,13 +1,21 @@
-import {ContactMaterial, Material, World} from 'cannon-es';
+import {ContactMaterial, GSSolver, Material, SplitSolver, World} from 'cannon-es';
 
-import {GameSystem} from '../game-system';
+import {injectable} from 'inversify';
 
-export class PhysicsSystem extends World implements GameSystem {
+import {PhysicsManager} from './physics-manager';
+
+@injectable()
+export class CannonPhysicsManager extends World implements PhysicsManager {
+    readonly physicsManager = true;
     readonly materials = new Map<string, Material>();
 
     constructor() {
         super();
         this.gravity.set(0, -9.8, 0);
+        this.allowSleep = true;
+        this.defaultContactMaterial.contactEquationStiffness = 1e9;
+        this.defaultContactMaterial.contactEquationRelaxation = 4;
+        this.solver = new SplitSolver(new GSSolver());
         this.initMaterials();
     }
 

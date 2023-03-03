@@ -2,12 +2,12 @@ import {Group, Intersection, Light, Raycaster, Scene, Vector2, Vector3} from 'th
 
 import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
-import {PhysicsSystem} from '../../physics/physics-system';
 import {Player} from '../player/player';
 import {Hud} from '../hud/hud';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 import {Monster} from '../model/md5/monster/monster';
+import {PhysicsManager} from '../../physics/physics-manager';
 
 const SCREEN_CENTER_COORDS = new Vector2();
 
@@ -48,14 +48,14 @@ export class GameMap extends Group implements TangibleEntity {
         // Do nothing
     }
 
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.parameters.areas.forEach(area => area.registerCollisionModels(physicsSystem, scene));
-        this.parameters.player.registerCollisionModels(physicsSystem, scene);
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.areas.forEach(area => area.registerCollisionModels(physicsManager, scene));
+        this.parameters.player.registerCollisionModels(physicsManager, scene);
     }
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.parameters.areas.forEach(area => area.unregisterCollisionModels(physicsSystem, scene));
-        this.parameters.player.unregisterCollisionModels(physicsSystem, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.areas.forEach(area => area.unregisterCollisionModels(physicsManager, scene));
+        this.parameters.player.unregisterCollisionModels(physicsManager, scene);
     }
 
     update(deltaTime: number) {

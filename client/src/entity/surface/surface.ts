@@ -3,8 +3,8 @@ import {BufferGeometry, Intersection, Material, Mesh, Quaternion, Scene, Vector3
 import {MeshBasedEntity, updateMaterials} from '../mesh-based-entity';
 import {TangibleEntity} from '../tangible-entity';
 import {CollisionModel} from '../../physics/collision-model';
-import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
+import {PhysicsManager} from '../../physics/physics-manager';
 
 export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
     readonly tangibleEntity = true;
@@ -23,12 +23,12 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         // Do nothing
     }
 
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.collisionModel.register(physicsSystem, scene);
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.collisionModel.register(physicsManager, scene);
     }
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.collisionModel.unregister(physicsSystem, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.collisionModel.unregister(physicsManager, scene);
     }
 
     update(deltaTime: number) {

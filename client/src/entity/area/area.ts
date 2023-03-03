@@ -1,9 +1,9 @@
 import {Group, Intersection, Light, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
-import {PhysicsSystem} from '../../physics/physics-system';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {TangibleEntity} from '../tangible-entity';
+import {PhysicsManager} from '../../physics/physics-manager';
 
 export class Area extends Group implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -22,12 +22,12 @@ export class Area extends Group implements TangibleEntity {
         // Do nothing
     }
 
-    registerCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsSystem, scene));
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsManager, scene));
     }
 
-    unregisterCollisionModels(physicsSystem: PhysicsSystem, scene: Scene) {
-        this.surfaces.forEach(surface => surface.unregisterCollisionModels(physicsSystem, scene));
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.surfaces.forEach(surface => surface.unregisterCollisionModels(physicsManager, scene));
     }
 
     update(deltaTime: number) {

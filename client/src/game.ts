@@ -1,7 +1,7 @@
 import {AudioListener, Camera, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import {GSSolver, SplitSolver} from 'cannon-es';
+import {inject, injectable, multiInject} from 'inversify';
 
 import {GameConfig} from './game-config';
 import {MapLoader} from './map-loader';
@@ -9,24 +9,22 @@ import {ProgressEvent} from './event/progress-event';
 import {FpsControls} from './control/fps-controls';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
-import {PhysicsSystem} from './physics/physics-system';
 import {PointerUnlockEvent} from './event/pointer-lock-events';
 import {GameSystem, GameSystemType} from './game-system';
-import {TweenAnimationSystem} from './animation/tween-animation-system';
 import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
-import {createDiContainer} from './di.config';
+import {configureDiContainer} from './di.config';
+import {TYPES} from './types';
+import {GameManager} from './game-manager';
 
+@injectable()
 export class Game {
     readonly systems = new Map<GameSystemType, GameSystem>();
+    readonly scene: Scene;
+    readonly camera: PerspectiveCamera;
+    readonly audioListener: AudioListener;
 
     private readonly clock = new Clock();
-    private readonly _config: GameConfig;
-    private readonly canvasContainer: HTMLElement;
-    private readonly _scene: Scene;
-    private readonly _camera: PerspectiveCamera;
-    private readonly _audioListener: AudioListener;
-    private readonly pointerLock: PointerLock;
     private readonly controls: FpsControls;
     private readonly renderer: WebGLRenderer;
     private readonly stats: Stats;
@@ -34,49 +32,47 @@ export class Game {
     private map?: GameMap;
     private hud?: Hud;
 
-    constructor() {
-        this._config = GameConfig.load();
+    constructor(@inject(TYPES.Config) readonly config: GameConfig,
+                @inject(TYPES.PointerLock) private readonly pointerLock: PointerLock,
+                @multiInject(TYPES.GameManager) private readonly gameManagers: GameManager[]) {
+        this.scene = this.createScene();
+        this.camera = this.createCamera(this.config);
+        this.audioListener = this.createAudioListener(this.camera);
+        this.controls = this.createControls(this.config, this.pointerLock);
+        this.renderer = this.createRenderer(this.config);
+        this.stats = this.createStats(this.config);
 
-        this.canvasContainer = this.getRequiredGameCanvasContainer();
-
-        this._scene = this.createScene();
-        this._camera = this.createCamera(this._config);
-        this._audioListener = this.createAudioListener(this._camera);
-        this.pointerLock = this.createPointerLock(this.canvasContainer);
-        this.controls = this.createControls(this._config, this.pointerLock);
-        this.renderer = this.createRenderer(this._config, this.canvasContainer);
-        this.stats = this.createStats(this._config, this.canvasContainer);
-
-        this.createAnimationSystem();
-        this.createPhysicsSystem();
-
-        // Disable context menu
-        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
     static load(mapName: string) {
-        Game.showLockScreen(() => {
-            const game = new Game();
-            game.pointerLock.request();
-            game.start();
+        // Disable context menu
+        window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
 
-            const assetLoader = new AssetLoader(game.config);
-            assetLoader.addEventListener(ProgressEvent.TYPE, e => game.onProgress(e));
+        showLockScreen(() => {
+            const pointerLock = createPointerLock();
+            pointerLock.request();
+
+            const config = GameConfig.load();
+            const assetLoader = new AssetLoader(config);
+            assetLoader.addEventListener(ProgressEvent.TYPE, e => {
+                const percentage = e.loaded / (e.total / 100);
+                console.debug(`Load progress: ${percentage.toFixed()}%`);
+            });
             assetLoader.load(mapName).then(assets => {
-                const diContainer = createDiContainer(game.config, assets);
+                const diContainer = configureDiContainer(pointerLock, config, assets);
+                const game = diContainer.get<Game>(TYPES.Game);
 
-                const map = new MapLoader(game, diContainer).load(mapName, assets);
+                game.map = new MapLoader(game, diContainer).load(mapName, assets);
                 console.debug(`Map "${mapName}" is loaded`);
+                game.scene.add(game.map);
 
-                game.map = map;
-                game.scene.add(map);
+                game.hud = game.map.parameters.hud;
 
-                game.hud = map.parameters.hud;
-
-                game.controls.player = map.parameters.player;
+                game.controls.player = game.map.parameters.player;
                 game.controls.enabled = true;
 
+                game.start();
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
@@ -84,39 +80,6 @@ export class Game {
 
     start() {
         this.animate();
-    }
-
-    animate() {
-        requestAnimationFrame(() => this.animate());
-        this.update();
-        this.render();
-        if (this._config.showStats) {
-            this.stats.update();
-        }
-    }
-
-    get config(): GameConfig {
-        return this._config;
-    }
-
-    get scene(): Scene {
-        return this._scene;
-    }
-
-    get camera(): PerspectiveCamera {
-        return this._camera;
-    }
-
-    get audioListener(): AudioListener {
-        return this._audioListener;
-    }
-
-    private getRequiredGameCanvasContainer(): HTMLElement {
-        const container = document.getElementById('game_canvas_container');
-        if (!container) {
-            throw new Error('Game canvas container element is not found in DOM');
-        }
-        return container;
     }
 
     private createScene(): Scene {
@@ -134,20 +97,13 @@ export class Game {
         return audioListener;
     }
 
-    private createPointerLock(target: HTMLElement): PointerLock {
-        const pointerLock = new PointerLock(target);
-        pointerLock.init();
-        pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => Game.showLockScreen(() => pointerLock.request()));
-        return pointerLock;
-    }
-
     private createControls(config: GameConfig, pointerLock: PointerLock): FpsControls {
         const controls = new FpsControls(config, pointerLock);
         controls.init();
         return controls;
     }
 
-    private createRenderer(config: GameConfig, parent: HTMLElement): WebGLRenderer {
+    private createRenderer(config: GameConfig): WebGLRenderer {
         const renderer = new WebGLRenderer({antialias: config.antialias});
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -156,39 +112,24 @@ export class Game {
         renderer.localClippingEnabled = true;
         renderer.domElement.id = 'game_canvas';
         renderer.autoClear = false;
-        parent.appendChild(renderer.domElement);
+        getGameCanvasContainer()!.appendChild(renderer.domElement);
         return renderer;
     }
 
-    private createStats(config: GameConfig, parent: HTMLElement): Stats {
+    private createStats(config: GameConfig): Stats {
         const stats = Stats();
         if (config.showStats) {
-            parent.appendChild(stats.dom);
+            getGameCanvasContainer()!.appendChild(stats.dom);
         }
         return stats;
     }
 
-    private createAnimationSystem(): GameSystem {
-        const animationSystem = new TweenAnimationSystem();
-        this.systems.set(GameSystemType.ANIMATION, animationSystem);
-        return animationSystem;
-    }
-
-    private createPhysicsSystem(): GameSystem {
-        const physicsSystem = new PhysicsSystem();
-        physicsSystem.allowSleep = true;
-        physicsSystem.defaultContactMaterial.contactEquationStiffness = 1e9;
-        physicsSystem.defaultContactMaterial.contactEquationRelaxation = 4;
-        physicsSystem.solver = new SplitSolver(new GSSolver());
-        this.systems.set(GameSystemType.PHYSICS, physicsSystem);
-        return physicsSystem;
-    }
-
-    private render() {
-        this.renderer.clear();
-        this.renderer.render(this._scene, this._camera);
-        if (this.hud) {
-            this.hud.render(this.renderer);
+    private animate() {
+        requestAnimationFrame(() => this.animate());
+        this.update();
+        this.render();
+        if (this.config.showStats) {
+            this.stats.update();
         }
     }
 
@@ -200,48 +141,69 @@ export class Game {
         for (const system of this.systems.values()) {
             system.update(deltaTime);
         }
+        for (const manager of this.gameManagers) {
+            manager.update(deltaTime);
+        }
         this.controls.update();
+        this.hud?.update(deltaTime);
+    }
+
+    private render() {
+        this.renderer.clear();
+        this.renderer.render(this.scene, this.camera);
         if (this.hud) {
-            this.hud.update(deltaTime);
+            this.hud.render(this.renderer);
         }
     }
 
     private onWindowResize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
-        this._camera.aspect = width / height;
-        this._camera.updateProjectionMatrix();
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
         this.renderer.setSize(width, height);
+        this.hud?.onWindowResize();
+    }
+}
 
-        if (this.hud) {
-            this.hud.onWindowResize();
+function createPointerLock(): PointerLock {
+    const gameCanvasContainer = getRequiredGameCanvasContainer();
+    const pointerLock = new PointerLock(gameCanvasContainer);
+    pointerLock.init();
+    pointerLock.addEventListener(PointerUnlockEvent.TYPE, () => showLockScreen(() => pointerLock.request()));
+    return pointerLock;
+}
+
+function getRequiredGameCanvasContainer(): HTMLElement {
+    const container = getGameCanvasContainer();
+    if (!container) {
+        throw new Error('Game canvas container element is not found in DOM');
+    }
+    return container;
+}
+
+function getGameCanvasContainer(): HTMLElement | null {
+    return document.getElementById('game_canvas_container');
+}
+
+function showLockScreen(onClick?: () => void) {
+    const lockScreen = document.getElementById('lock_screen');
+    if (!lockScreen) {
+        throw new Error('Failed to show lock screen: lock screen element is not found in DOM');
+    }
+    lockScreen.classList.remove('hidden');
+    lockScreen.addEventListener('auxclick', () => {
+        hideLockScreen();
+        if (onClick) {
+            onClick();
         }
-    }
+    }, {once: true});
+}
 
-    private onProgress(e: ProgressEvent) {
-        const percentage = e.loaded / (e.total / 100);
-        console.debug(`Load progress: ${percentage.toFixed()}%`);
+function hideLockScreen() {
+    const lockScreen = document.getElementById('lock_screen');
+    if (!lockScreen) {
+        throw new Error('Failed to hide lock screen: lock screen element is not found in DOM');
     }
-
-    private static showLockScreen(onClick?: () => void) {
-        const lockScreen = document.getElementById('lock_screen');
-        if (!lockScreen) {
-            throw new Error('Failed to show lock screen: lock screen element is not found in DOM');
-        }
-        lockScreen.classList.remove('hidden');
-        lockScreen.addEventListener('auxclick', () => {
-            Game.hideLockScreen();
-            if (onClick) {
-                onClick();
-            }
-        }, {once: true});
-    }
-
-    private static hideLockScreen() {
-        const lockScreen = document.getElementById('lock_screen');
-        if (!lockScreen) {
-            throw new Error('Failed to hide lock screen: lock screen element is not found in DOM');
-        }
-        lockScreen.classList.add('hidden');
-    }
+    lockScreen.classList.add('hidden');
 }

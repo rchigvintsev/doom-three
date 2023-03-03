@@ -2,8 +2,8 @@ import {Object3D, Quaternion, Scene, Vector3} from 'three';
 
 import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
 
-import {PhysicsSystem} from './physics-system';
 import {Weapon} from '../entity/model/md5/weapon/weapon';
+import {PhysicsManager} from './physics-manager';
 
 export class CollisionModel {
     onUpdate?: (position: Vector3, quaternion: Quaternion) => void;
@@ -30,18 +30,18 @@ export class CollisionModel {
         }
     }
 
-    register(physicsSystem: PhysicsSystem, scene: Scene) {
+    register(physicsManager: PhysicsManager, scene: Scene) {
         for (const body of this.bodies) {
-            physicsSystem.addBody(body);
+            physicsManager.addBody(body);
             if (body.helper) {
                 scene.add(body.helper);
             }
         }
     }
 
-    unregister(physicsSystem: PhysicsSystem, scene: Scene) {
+    unregister(physicsManager: PhysicsManager, scene: Scene) {
         for (const body of this.bodies) {
-            physicsSystem.removeBody(body);
+            physicsManager.removeBody(body);
             body.reset();
             if (body.helper) {
                 scene.remove(body.helper);
