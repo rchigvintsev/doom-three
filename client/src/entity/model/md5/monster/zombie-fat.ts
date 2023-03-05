@@ -1,10 +1,7 @@
-import {ArrowHelper, Vector3} from 'three';
-
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
-import {Game} from '../../../../game';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -65,10 +62,6 @@ export class ZombieFat extends Monster {
         super.doInit();
         this.initAnimationFlows();
         this.idle();
-
-        Game.__directionHelper = new ArrowHelper(new Vector3(0, 0, 0), this.position, 1);
-        Game.__scene.add(Game.__directionHelper);
-
         zombieResolve(this);
     }
 

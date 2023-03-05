@@ -1,16 +1,20 @@
 import {Mesh, Object3D, Quaternion, Scene, Vector3} from 'three';
 
-import {GameSystem} from '../game-system';
-import {DecalFactory} from '../entity/decal/decal-factory';
-import {Decal} from '../entity/decal/decal';
-import {GameConfig} from '../game-config';
+import {inject, injectable} from 'inversify';
 
-export class DecalSystem implements GameSystem {
+import {GameManager} from '../../game-manager';
+import {TYPES} from '../../types';
+import {GameConfig} from '../../game-config';
+import {DecalFactory} from './decal-factory';
+import {Decal} from './decal';
+
+@injectable()
+export class DecalManager implements GameManager {
     private readonly decalHelper = new Object3D();
 
-    constructor(private readonly config: GameConfig,
-                private readonly scene: Scene,
-                private readonly decalFactory: DecalFactory) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.Scene) private readonly scene: Scene,
+                @inject(TYPES.DecalFactory) private readonly decalFactory: DecalFactory) {
         this.scene.add(this.decalHelper);
     }
 

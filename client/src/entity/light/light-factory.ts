@@ -1,19 +1,24 @@
 import {Light, Mesh, MeshBasicMaterial, PointLight, SphereGeometry, SpotLight} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
 
+import {GameEntityFactory} from '../game-entity-factory';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
+
+@injectable()
 export class LightFactory implements GameEntityFactory<Light> {
-    constructor(private readonly parameters: GameEntityFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig) {
     }
 
     create(lightDef: any): Light {
-        const worldScale = this.parameters.config.worldScale;
+        const worldScale = this.config.worldScale;
         const light = this.createLight(lightDef, lightDef.distance * worldScale);
         light.name = lightDef.name;
         light.position.fromArray(lightDef.position).multiplyScalar(worldScale);
         light.castShadow = lightDef.castShadow;
 
-        if (this.parameters.config.showLightSources) {
+        if (this.config.showLightSources) {
             const lightSphere = this.createLightSphere(lightDef);
             light.add(lightSphere);
         }
@@ -32,7 +37,7 @@ export class LightFactory implements GameEntityFactory<Light> {
     }
 
     private createLightSphere(lightDef: any) {
-        const sphereRadius = 5 * this.parameters.config.worldScale;
+        const sphereRadius = 5 * this.config.worldScale;
         const sphereGeometry = new SphereGeometry(sphereRadius);
         const sphereMaterial = new MeshBasicMaterial();
         sphereMaterial.color.set(lightDef.color);

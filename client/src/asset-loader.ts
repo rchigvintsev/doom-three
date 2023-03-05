@@ -61,7 +61,10 @@ export class AssetLoader extends EventDispatcher<ProgressEvent> {
                 this.loadModels(context),
                 this.loadAnimations(context),
                 this.loadSounds(context)
-            ]).then(() => assets);
+            ]).then(() => {
+                console.debug(`Assets for map "${mapName}" are loaded`);
+                return assets;
+            });
         });
     }
 

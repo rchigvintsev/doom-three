@@ -2,7 +2,7 @@ import {ContactMaterial, GSSolver, Material, SplitSolver, World} from 'cannon-es
 
 import {injectable} from 'inversify';
 
-import {PhysicsManager} from './physics-manager';
+import {PhysicsManager} from '../physics-manager';
 
 @injectable()
 export class CannonPhysicsManager extends World implements PhysicsManager {

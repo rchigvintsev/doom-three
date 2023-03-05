@@ -3,7 +3,6 @@ import {Group, Intersection, Light, Raycaster, Scene, Vector2, Vector3} from 'th
 import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
 import {Player} from '../player/player';
-import {Hud} from '../hud/hud';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 import {Monster} from '../model/md5/monster/monster';
@@ -65,7 +64,6 @@ export class GameMap extends Group implements TangibleEntity {
         for (const monster of this.parameters.monsters) {
             monster.update(deltaTime);
         }
-        this.parameters.player.update(deltaTime);
     }
 
     onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
@@ -106,7 +104,6 @@ export class GameMap extends Group implements TangibleEntity {
 
 export interface GameMapParameters {
     player: Player;
-    hud: Hud;
     areas: Area[];
     lights: Light[];
     monsters: Monster[];

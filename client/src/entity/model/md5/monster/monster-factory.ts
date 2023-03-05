@@ -1,12 +1,27 @@
 import {BufferGeometry} from 'three';
 
-import {Md5ModelFactory, Md5ModelFactoryParameters} from '../md5-model-factory';
+import {inject, injectable} from 'inversify';
+
+import {Md5ModelFactory} from '../md5-model-factory';
 import {Md5Model, Md5ModelParameters} from '../md5-model';
 import {ZombieFat} from './zombie-fat';
+import {GameConfig} from '../../../../game-config';
+import {GameAssets} from '../../../../game-assets';
+import {MaterialFactory} from '../../../../material/material-factory';
+import {SoundFactory} from '../../../sound/sound-factory';
+import {TYPES} from '../../../../types';
+import {Monster} from './monster';
 
+@injectable()
 export class MonsterFactory extends Md5ModelFactory {
-    constructor(parameters: Md5ModelFactoryParameters) {
-        super(parameters);
+    constructor(@inject(TYPES.Config) config: GameConfig,
+                @inject(TYPES.Assets) assets: GameAssets,
+                @inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
+                @inject(TYPES.SoundFactory) soundFactory: SoundFactory) {
+        super(config, assets, materialFactory, soundFactory);
+    }
+    create(modelDef: any): Monster {
+        return <Monster>super.create(modelDef);
     }
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {
@@ -18,7 +33,7 @@ export class MonsterFactory extends Md5ModelFactory {
 
     private createZombieFat(modelDef: any, geometry: BufferGeometry): ZombieFat {
         const zombieParams = {...modelDef} as Md5ModelParameters;
-        zombieParams.config = this.parameters.config;
+        zombieParams.config = this.config;
         zombieParams.geometry = geometry;
         zombieParams.materials = this.createMaterials(modelDef);
         zombieParams.sounds = this.createSounds(modelDef);

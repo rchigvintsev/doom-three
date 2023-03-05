@@ -1,24 +1,31 @@
 import {PerspectiveCamera} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {Player} from './player';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
 import {SoundFactory} from '../sound/sound-factory';
 import {Sound} from '../sound/sound';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
 
+@injectable()
 export class PlayerFactory implements GameEntityFactory<Player> {
-    constructor(private readonly parameters: PlayerFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.SoundFactory) private readonly soundFactory: SoundFactory,
+                @inject(TYPES.CollisionModelFactory) private readonly collisionModelFactory: CollisionModelFactory) {
     }
 
-    create(playerDef: any): Player {
+    create(parameters: {playerDef: any, camera: PerspectiveCamera, weapons: Map<string, Weapon>}): Player {
         const player = new Player({
-            camera: this.parameters.camera,
-            weapons: this.parameters.weapons,
-            sounds: this.createSounds(playerDef),
-            collisionModel: this.createCollisionModel(playerDef),
-            config: this.parameters.config
+            config: this.config,
+            camera: parameters.camera,
+            weapons: parameters.weapons,
+            sounds: this.createSounds(parameters.playerDef),
+            collisionModel: this.createCollisionModel(parameters.playerDef)
         });
         player.init();
         player.enableFists();
@@ -29,20 +36,13 @@ export class PlayerFactory implements GameEntityFactory<Player> {
         const sounds = new Map<string, Sound>();
         if (playerDef.sounds) {
             for (const soundName of Object.keys(playerDef.sounds)) {
-                sounds.set(soundName, this.parameters.soundFactory.create(playerDef.sounds[soundName]));
+                sounds.set(soundName, this.soundFactory.create(playerDef.sounds[soundName]));
             }
         }
         return sounds;
     }
 
     private createCollisionModel(playerDef: any) {
-        return new PlayerCollisionModel(this.parameters.collisionModelFactory.create(playerDef));
+        return new PlayerCollisionModel(this.collisionModelFactory.create(playerDef));
     }
-}
-
-export interface PlayerFactoryParameters extends GameEntityFactoryParameters {
-    camera: PerspectiveCamera;
-    weapons: Map<string, Weapon>;
-    soundFactory: SoundFactory;
-    collisionModelFactory: CollisionModelFactory;
 }

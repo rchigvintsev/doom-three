@@ -1,45 +1,53 @@
 import {Light, Vector3} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {GameMap} from './game-map';
 import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
-import {Player} from '../player/player';
-import {Hud} from '../hud/hud';
 import {Monster} from '../model/md5/monster/monster';
 import {GameAssets} from '../../game-assets';
 import {MonsterFactory} from '../model/md5/monster/monster-factory';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
+import {Player} from '../player/player';
 
+@injectable()
 export class GameMapFactory implements GameEntityFactory<GameMap> {
-    constructor(private readonly parameters: MapFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.Assets) private readonly assets: GameAssets,
+                @inject(TYPES.AreaFactory) private readonly areaFactory: AreaFactory,
+                @inject(TYPES.LightFactory) private readonly lightFactory: LightFactory,
+                @inject(TYPES.MonsterFactory) private readonly monsterFactory: MonsterFactory) {
     }
 
-    create(mapDef: any): GameMap {
-        const areas = this.createAreas(mapDef);
-        const lights = this.createLights(mapDef);
-        const monsters = this.createMonsters(mapDef);
-        if (mapDef.player) {
-            this.parameters.player.origin = new Vector3()
-                .fromArray(mapDef.player.origin)
-                .multiplyScalar(this.parameters.config.worldScale);
+    create(parameters: {mapDef: any, player: Player}): GameMap {
+        const areas = this.createAreas(parameters.mapDef);
+        const lights = this.createLights(parameters.mapDef);
+        const monsters = this.createMonsters(parameters.mapDef);
+        if (parameters.mapDef.player) {
+            parameters.player.origin = new Vector3()
+                .fromArray(parameters.mapDef.player.origin)
+                .multiplyScalar(this.config.worldScale);
         }
-        return new GameMap({player: this.parameters.player, hud: this.parameters.hud, areas, lights, monsters});
+        return new GameMap({player: parameters.player, areas, lights, monsters});
     }
 
     private createAreas(mapDef: any): Area[] {
         const areas = [];
         for (const areaDef of mapDef.areas) {
-            areas.push(this.parameters.areaFactory.create(areaDef));
+            areas.push(this.areaFactory.create(areaDef));
         }
         return areas;
     }
 
     private createLights(mapDef: any): Light[] {
         const lights = [];
-        if (!this.parameters.config.renderOnlyWireframe && mapDef.lights) {
+        if (!this.config.renderOnlyWireframe && mapDef.lights) {
             for (const lightDef of mapDef.lights) {
-                lights.push(this.parameters.lightFactory.create(lightDef));
+                lights.push(this.lightFactory.create(lightDef));
             }
         }
         return lights;
@@ -49,22 +57,13 @@ export class GameMapFactory implements GameEntityFactory<GameMap> {
         const monsters = [];
         if (mapDef.monsters) {
             for (const monsterDef of mapDef.monsters) {
-                const modelDef = this.parameters.assets.monsterDefs.get(monsterDef.type);
+                const modelDef = this.assets.monsterDefs.get(monsterDef.type);
                 if (!modelDef) {
                     throw new Error(`Unsupported monster type: ${monsterDef.type}`);
                 }
-                monsters.push(<Monster>this.parameters.monsterFactory.create({...modelDef, ...monsterDef}));
+                monsters.push(this.monsterFactory.create({...modelDef, ...monsterDef}));
             }
         }
         return monsters;
     }
-}
-
-export interface MapFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    player: Player;
-    hud: Hud;
-    areaFactory: AreaFactory;
-    lightFactory: LightFactory;
-    monsterFactory: MonsterFactory;
 }

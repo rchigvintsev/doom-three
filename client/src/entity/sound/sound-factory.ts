@@ -1,22 +1,29 @@
 import {Audio, AudioListener, PositionalAudio} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {GameAssets} from '../../game-assets';
 import {Sound} from './sound';
+import {TYPES} from '../../types';
+import {GameConfig} from '../../game-config';
 
+@injectable()
 export class SoundFactory implements GameEntityFactory<Sound> {
-    constructor(private readonly parameters: SoundFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.Assets) private readonly assets: GameAssets,
+                @inject(TYPES.AudioListener) private readonly audioListener: AudioListener) {
     }
 
     create(soundName: string): Sound {
-        const soundDef = this.parameters.assets.soundDefs.get(soundName);
+        const soundDef = this.assets.soundDefs.get(soundName);
         if (!soundDef) {
             throw new Error(`Definition of sound "${soundName}" is not found`);
         }
 
         const audios: Audio<AudioNode>[] = [];
         for (const soundSrc of soundDef.sources) {
-            const audioBuffer = this.parameters.assets.sounds.get(soundSrc);
+            const audioBuffer = this.assets.sounds.get(soundSrc);
             if (!audioBuffer) {
                 throw new Error(`Sound "${soundSrc}" is not found in game assets`);
             }
@@ -33,15 +40,9 @@ export class SoundFactory implements GameEntityFactory<Sound> {
     }
 
     private createAudio(soundDef: any): Audio<AudioNode> {
-        const audioListener = this.parameters.audioListener;
         if (soundDef.type === 'positional') {
-            return new PositionalAudio(audioListener);
+            return new PositionalAudio(this.audioListener);
         }
-        return new Audio(audioListener);
+        return new Audio(this.audioListener);
     }
-}
-
-export interface SoundFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    audioListener: AudioListener;
 }

@@ -1,23 +1,30 @@
 import {SpriteMaterial, Vector3} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
 import {GameAssets} from '../../game-assets';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
 
 const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
 
+@injectable()
 export class ParticleFactory implements GameEntityFactory<Particle[]> {
-    constructor(private readonly parameters: ParticleFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.Assets) private readonly assets: GameAssets,
+                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
     }
 
     create(particleName: string): Particle[] {
-        const particleDef = this.parameters.assets.particleDefs.get(particleName);
+        const particleDef = this.assets.particleDefs.get(particleName);
         if (!particleDef) {
             throw new Error(`Definition of particle "${particleName}" is not found`);
         }
-        const materials = this.parameters.materialFactory.create(particleDef.material);
+        const materials = this.materialFactory.create(particleDef.material);
         if (!(materials[0] instanceof SpriteMaterial)) {
             throw new Error(`Material "${particleDef.material}" is not SpriteMaterial`);
         }
@@ -27,7 +34,7 @@ export class ParticleFactory implements GameEntityFactory<Particle[]> {
             const particleMaterial = materials[0].clone();
             particleMaterial.color.setHex(particleDef.color);
 
-            const worldScale = this.parameters.config.worldScale;
+            const worldScale = this.config.worldScale;
             const gravity = new Vector3();
             if (particleDef.gravity) {
                 gravity.set(
@@ -50,9 +57,4 @@ export class ParticleFactory implements GameEntityFactory<Particle[]> {
         }
         return particles;
     }
-}
-
-export interface ParticleFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    materialFactory: MaterialFactory;
 }

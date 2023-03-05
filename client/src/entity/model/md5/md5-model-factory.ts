@@ -4,17 +4,19 @@ import {Md5MeshGeometry} from '../../../geometry/md5-mesh-geometry';
 import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {ParticleSystem} from '../../../particles/particle-system';
-import {AbstractModelFactory, ModelFactoryParameters} from '../abstract-model-factory';
-import {DebrisSystem} from '../../../debris/debris-system';
+import {AbstractModelFactory} from '../abstract-model-factory';
 import {GameAssets} from '../../../game-assets';
-import {DecalSystem} from '../../../decal/decal-system';
 import {SoundFactory} from '../../sound/sound-factory';
 import {Sound} from '../../sound/sound';
+import {MaterialFactory} from '../../../material/material-factory';
+import {GameConfig} from '../../../game-config';
 
 export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
-    constructor(parameters: Md5ModelFactoryParameters) {
-        super(parameters);
+    constructor(config: GameConfig,
+                assets: GameAssets,
+                materialFactory: MaterialFactory,
+                protected readonly soundFactory: SoundFactory) {
+        super(config, assets, materialFactory);
     }
 
     create(modelDef: any): Md5Model {
@@ -28,16 +30,16 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 
         const skeleton = this.createSkeleton(animations[0]);
         this.bindSkeleton(model, skeleton);
-        if (this.parameters.config.showSkeletons) {
+        if (this.config.showSkeletons) {
             model.skeletonHelper = new SkeletonHelper(model);
         }
 
         model.animations = this.createAnimationClips(animations, skeleton);
 
-        model.scale.setScalar(this.parameters.config.worldScale);
+        model.scale.setScalar(this.config.worldScale);
 
         if (modelDef.position) {
-            model.position.fromArray(modelDef.position).multiplyScalar(this.parameters.config.worldScale);
+            model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
         }
         if (modelDef.rotation) {
             model.rotation.set(
@@ -49,7 +51,7 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         }
 
-        if (this.parameters.config.showWireframe && !this.parameters.config.renderOnlyWireframe) {
+        if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
 
@@ -59,7 +61,7 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {
         const modelParams = {
-            config: this.parameters.config,
+            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef)
@@ -75,22 +77,6 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             }
         }
         return sounds;
-    }
-
-    protected get soundFactory(): SoundFactory {
-        return (<Md5ModelFactoryParameters>this.parameters).soundFactory;
-    }
-
-    protected get particleSystem(): ParticleSystem {
-        return (<Md5ModelFactoryParameters>this.parameters).particleSystem;
-    }
-
-    protected get debrisSystem(): DebrisSystem {
-        return (<Md5ModelFactoryParameters>this.parameters).debrisSystem;
-    }
-
-    protected get decalSystem(): DecalSystem {
-        return (<Md5ModelFactoryParameters>this.parameters).decalSystem;
     }
 
     private getRequiredModelMesh(modelDef: any): SkinnedMesh {
@@ -153,15 +139,4 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     private createAnimationClips(animations: Md5Animation[], skeleton: Skeleton) {
         return animations.map(animation => AnimationClip.parseAnimation(animation, skeleton.bones));
     }
-
-    private get assets(): GameAssets {
-        return (<Md5ModelFactoryParameters>this.parameters).assets;
-    }
-}
-
-export interface Md5ModelFactoryParameters extends ModelFactoryParameters {
-    soundFactory: SoundFactory;
-    particleSystem: ParticleSystem;
-    debrisSystem: DebrisSystem;
-    decalSystem: DecalSystem;
 }

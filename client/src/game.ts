@@ -4,23 +4,21 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import {inject, injectable, multiInject} from 'inversify';
 
 import {GameConfig} from './game-config';
-import {MapLoader} from './map-loader';
+import {GameLoader} from './game-loader';
 import {ProgressEvent} from './event/progress-event';
 import {FpsControls} from './control/fps-controls';
 import {PointerLock} from './control/pointer-lock';
 import {GameMap} from './entity/map/game-map';
 import {PointerUnlockEvent} from './event/pointer-lock-events';
-import {GameSystem, GameSystemType} from './game-system';
 import {Hud} from './entity/hud/hud';
 import {AssetLoader} from './asset-loader';
 import {configureDiContainer} from './di.config';
 import {TYPES} from './types';
 import {GameManager} from './game-manager';
+import {Player} from './entity/player/player';
 
 @injectable()
 export class Game {
-    readonly systems = new Map<GameSystemType, GameSystem>();
-    readonly scene: Scene;
     readonly camera: PerspectiveCamera;
     readonly audioListener: AudioListener;
 
@@ -30,12 +28,14 @@ export class Game {
     private readonly stats: Stats;
 
     private map?: GameMap;
+    private player?: Player;
     private hud?: Hud;
 
     constructor(@inject(TYPES.Config) readonly config: GameConfig,
                 @inject(TYPES.PointerLock) private readonly pointerLock: PointerLock,
+                @inject(TYPES.Scene) private readonly scene: Scene,
+                @inject(TYPES.GameLoader) private readonly gameLoader: GameLoader,
                 @multiInject(TYPES.GameManager) private readonly gameManagers: GameManager[]) {
-        this.scene = this.createScene();
         this.camera = this.createCamera(this.config);
         this.audioListener = this.createAudioListener(this.camera);
         this.controls = this.createControls(this.config, this.pointerLock);
@@ -45,7 +45,7 @@ export class Game {
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
-    static load(mapName: string) {
+    static loadGame(mapName: string) {
         // Disable context menu
         window.addEventListener('contextmenu', (event: MouseEvent) => event.preventDefault());
 
@@ -61,29 +61,10 @@ export class Game {
             });
             assetLoader.load(mapName).then(assets => {
                 const diContainer = configureDiContainer(pointerLock, config, assets);
-                const game = diContainer.get<Game>(TYPES.Game);
-
-                game.map = new MapLoader(game, diContainer).load(mapName, assets);
-                console.debug(`Map "${mapName}" is loaded`);
-                game.scene.add(game.map);
-
-                game.hud = game.map.parameters.hud;
-
-                game.controls.player = game.map.parameters.player;
-                game.controls.enabled = true;
-
-                game.start();
+                diContainer.get<Game>(TYPES.Game).load().start();
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
-    }
-
-    start() {
-        this.animate();
-    }
-
-    private createScene(): Scene {
-        return new Scene();
     }
 
     private createCamera(config: GameConfig): PerspectiveCamera {
@@ -124,6 +105,25 @@ export class Game {
         return stats;
     }
 
+    private load(): this {
+        const {map, player, hud} = this.gameLoader.load(this.camera);
+
+        this.map = map;
+        this.scene.add(map);
+
+        this.player = player;
+        this.controls.player = player;
+        this.controls.enabled = true;
+
+        this.hud = hud;
+
+        return this;
+    }
+
+    private start() {
+        this.animate();
+    }
+
     private animate() {
         requestAnimationFrame(() => this.animate());
         this.update();
@@ -135,16 +135,12 @@ export class Game {
 
     private update() {
         const deltaTime = this.clock.getDelta();
-        if (this.map) {
-            this.map.update(deltaTime);
-        }
-        for (const system of this.systems.values()) {
-            system.update(deltaTime);
-        }
         for (const manager of this.gameManagers) {
             manager.update(deltaTime);
         }
         this.controls.update();
+        this.map?.update(deltaTime);
+        this.player?.update(deltaTime);
         this.hud?.update(deltaTime);
     }
 

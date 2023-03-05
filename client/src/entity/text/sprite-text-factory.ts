@@ -1,6 +1,8 @@
 import {BufferAttribute, Color, Object3D, SpriteMaterial} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {SpriteText} from './sprite-text';
 import {GameAssets} from '../../game-assets';
 import {MaterialFactory} from '../../material/material-factory';
@@ -10,13 +12,16 @@ import {SpriteChar} from './sprite-char';
 import {SpriteTextScaler} from './sprite-text-scaler';
 import {MaterialStyle} from '../../material/stylable-material';
 import {ScreenPosition} from '../../util/screen-position';
+import {TYPES} from '../../types';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
+@injectable()
 export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
     private readonly fontChars = new Map<string, Map<string, SpriteChar>>();
 
-    constructor(private readonly parameters: SpriteTextFactoryParameters) {
+    constructor(@inject(TYPES.Assets) private readonly assets: GameAssets,
+                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
     }
 
     create(textDef: any): SpriteText {
@@ -49,7 +54,7 @@ export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
         const fontDef = this.getFontDef(textDef);
         for (const ch of Object.keys(fontDef.characters)) {
             const charDef = fontDef.characters[ch];
-            const materials = this.parameters.materialFactory.create(charDef.material);
+            const materials = this.materialFactory.create(charDef.material);
             const spriteChar = new SpriteChar(ch, <SpriteMaterial>materials[0]);
             this.applyFontStyle(textDef, charDef, spriteChar);
             fontChars.set(ch, spriteChar);
@@ -58,7 +63,7 @@ export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
     }
 
     private getFontDef(textDef: any) {
-        return this.parameters.assets.fontDefs.get(`${textDef.font}__${textDef.fontSize}`);
+        return this.assets.fontDefs.get(`${textDef.font}__${textDef.fontSize}`);
     }
 
     private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {
@@ -107,9 +112,4 @@ export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
         }
         return new ScreenPosition();
     }
-}
-
-export interface SpriteTextFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    materialFactory: MaterialFactory;
 }

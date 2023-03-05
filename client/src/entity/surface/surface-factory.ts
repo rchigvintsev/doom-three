@@ -1,34 +1,40 @@
 import {BufferAttribute, BufferGeometry, Mesh, MeshBasicMaterial, Vector2, Vector3} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {Surface} from './surface';
 import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {BufferAttributes} from '../../util/buffer-attributes';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
 
+@injectable()
 export class SurfaceFactory implements GameEntityFactory<Surface> {
-    constructor(private readonly parameters: SurfaceFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
+                @inject(TYPES.CollisionModelFactory) private readonly collisionModelFactory: CollisionModelFactory) {
     }
 
     create(surfaceDef: any): Surface {
-        const config = this.parameters.config;
         let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
-        const collisionModel = this.parameters.collisionModelFactory.create(surfaceDef);
-        if (config.renderOnlyWireframe) {
+        const collisionModel = this.collisionModelFactory.create(surfaceDef);
+        if (this.config.renderOnlyWireframe) {
             surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}), collisionModel);
         } else {
-            const materials = this.parameters.materialFactory.create(surfaceDef.material);
+            const materials = this.materialFactory.create(surfaceDef.material);
             surface = new Surface(geometry, materials, collisionModel);
-            if (config.showWireframe) {
+            if (this.config.showWireframe) {
                 surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
             }
         }
 
         surface.name = surfaceDef.name;
-        surface.scale.setScalar(config.worldScale);
+        surface.scale.setScalar(this.config.worldScale);
         if (surfaceDef.position) {
-            surface.position.fromArray(surfaceDef.position).multiplyScalar(config.worldScale);
+            surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
         }
         surface.init();
 
@@ -102,9 +108,4 @@ export class SurfaceFactory implements GameEntityFactory<Surface> {
         cb.normalize();
         return cb;
     }
-}
-
-export interface SurfaceFactoryParameters extends GameEntityFactoryParameters {
-    materialFactory: MaterialFactory;
-    collisionModelFactory: CollisionModelFactory;
 }

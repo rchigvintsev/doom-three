@@ -1,6 +1,8 @@
 import {BufferGeometry} from 'three';
 
-import {Md5ModelFactory, Md5ModelFactoryParameters} from '../md5-model-factory';
+import {inject, injectable} from 'inversify';
+
+import {Md5ModelFactory} from '../md5-model-factory';
 import {Md5Model} from '../md5-model';
 import {Fists} from './fists';
 import {Flashlight} from './flashlight';
@@ -10,12 +12,32 @@ import {Shotgun} from './shotgun';
 import {CachingSoundFactory} from '../../../sound/caching-sound-factory';
 import {GameEntityFactory} from '../../../game-entity-factory';
 import {Sound} from '../../../sound/sound';
+import {GameAssets} from '../../../../game-assets';
+import {GameConfig} from '../../../../game-config';
+import {MaterialFactory} from '../../../../material/material-factory';
+import {SoundFactory} from '../../../sound/sound-factory';
+import {TYPES} from '../../../../types';
+import {DebrisManager} from '../../lwo/debris-manager';
+import {Weapon} from './weapon';
+import {ParticleManager} from '../../../particle/particle-manager';
+import {DecalManager} from '../../../decal/decal-manager';
 
+@injectable()
 export class WeaponFactory extends Md5ModelFactory {
     private readonly cachingSoundFactory: GameEntityFactory<Sound>;
-    constructor(parameters: Md5ModelFactoryParameters) {
-        super(parameters);
-        this.cachingSoundFactory = new CachingSoundFactory(parameters.soundFactory);
+    constructor(@inject(TYPES.Config) config: GameConfig,
+                @inject(TYPES.Assets) assets: GameAssets,
+                @inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
+                @inject(TYPES.SoundFactory) soundFactory: SoundFactory,
+                @inject(TYPES.ParticleManager) private readonly particleManager: ParticleManager,
+                @inject(TYPES.DebrisManager) private readonly debrisManager: DebrisManager,
+                @inject(TYPES.DecalManager) private readonly decalManager: DecalManager) {
+        super(config, assets,  materialFactory, soundFactory);
+        this.cachingSoundFactory = new CachingSoundFactory(soundFactory);
+    }
+
+    create(modelDef: any): Weapon {
+        return <Weapon>super.create(modelDef);
     }
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {
@@ -36,7 +58,7 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createFists(modelDef: any, geometry: BufferGeometry): Fists {
         const fistsParams = {
-            config: this.parameters.config,
+            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
@@ -47,11 +69,11 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createFlashlight(modelDef: any, geometry: BufferGeometry): Flashlight {
         let flashlightMap = undefined;
-        if (!this.parameters.config.renderOnlyWireframe) {
-            flashlightMap = this.parameters.materialFactory.getTexture('lights/flashlight5');
+        if (!this.config.renderOnlyWireframe) {
+            flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
         }
         const flashlightParams = {
-            config: this.parameters.config,
+            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
@@ -63,27 +85,27 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createPistol(modelDef: any, geometry: BufferGeometry): Pistol {
         const pistolParams = {...modelDef} as FirearmParameters;
-        pistolParams.config = this.parameters.config;
+        pistolParams.config = this.config;
         pistolParams.geometry = geometry;
         pistolParams.materials = this.createMaterials(modelDef);
         pistolParams.sounds = this.createSounds(modelDef);
         pistolParams.soundFactory = this.cachingSoundFactory;
-        pistolParams.particleSystem = this.particleSystem;
-        pistolParams.debrisSystem = this.debrisSystem;
-        pistolParams.decalSystem = this.decalSystem;
+        pistolParams.particleManager = this.particleManager;
+        pistolParams.debrisManager = this.debrisManager;
+        pistolParams.decalManager = this.decalManager;
         return new Pistol(pistolParams);
     }
 
     private createShotgun(modelDef: any, geometry: BufferGeometry): Shotgun {
         const shotgunParams = {...modelDef} as FirearmParameters;
-        shotgunParams.config = this.parameters.config;
+        shotgunParams.config = this.config;
         shotgunParams.geometry = geometry;
         shotgunParams.materials = this.createMaterials(modelDef);
         shotgunParams.sounds = this.createSounds(modelDef);
         shotgunParams.soundFactory = this.cachingSoundFactory;
-        shotgunParams.particleSystem = this.particleSystem;
-        shotgunParams.debrisSystem = this.debrisSystem;
-        shotgunParams.decalSystem = this.decalSystem;
+        shotgunParams.particleManager = this.particleManager;
+        shotgunParams.debrisManager = this.debrisManager;
+        shotgunParams.decalManager = this.decalManager;
         return new Shotgun(shotgunParams);
     }
 }

@@ -570,12 +570,6 @@
       "type": "monster_zombie_fat",
       "position": [-63, 0, -150],
       "rotation": [0, 0, 180]
-    },
-    {
-      "name": "monster_zombie_fat2",
-      "type": "monster_zombie_fat",
-      "position": [-13, 0, -150],
-      "rotation": [0, 0, 180]
     }
   ]
 }

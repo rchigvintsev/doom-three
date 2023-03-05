@@ -2,7 +2,7 @@ import {degToRad} from 'three/src/math/MathUtils';
 
 import {randomInt} from 'mathjs';
 
-import {Particle} from '../entity/particle/particle';
+import {Particle} from './particle';
 
 export class ParticleGroup {
     visible = false;

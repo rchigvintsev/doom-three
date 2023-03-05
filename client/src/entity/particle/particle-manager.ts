@@ -1,14 +1,19 @@
 import {Scene} from 'three';
 
-import {ParticleFactory} from '../entity/particle/particle-factory';
-import {GameSystem} from '../game-system';
-import {ParticleGroup} from './particle-group';
+import {inject, injectable} from 'inversify';
 
-export class ParticleSystem implements GameSystem {
+import {ParticleFactory} from './particle-factory';
+import {ParticleGroup} from './particle-group';
+import {GameManager} from '../../game-manager';
+import {TYPES} from '../../types';
+
+@injectable()
+export class ParticleManager implements GameManager {
     private readonly particleGroups = new Map<string, ParticleGroup[]>();
     private readonly availableParticleGroups = new Map<string, ParticleGroup[]>();
 
-    constructor(private readonly scene: Scene, private readonly particleFactory: ParticleFactory) {
+    constructor(@inject(TYPES.Scene) private readonly scene: Scene,
+                @inject(TYPES.ParticleFactory) private readonly particleFactory: ParticleFactory) {
     }
 
     createParticles(particleName: string): ParticleGroup {

@@ -1,29 +1,35 @@
 import {Color, SpriteMaterial} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {AmmoIndicator, Hud} from './hud';
 import {MaterialFactory} from '../../material/material-factory';
-import {GameAssets} from '../../game-assets';
 import {SpriteTextFactory} from '../text/sprite-text-factory';
 import {SpriteText} from '../text/sprite-text';
 import {Player} from '../player/player';
 import {MaterialStyle} from '../../material/stylable-material';
 import {HudElement} from './hud-element';
 import {ScreenPosition} from '../../util/screen-position';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
 
 const SCALE_FACTOR = 2;
 
+@injectable()
 export class HudFactory implements GameEntityFactory<Hud> {
-    constructor(private readonly parameters: HudFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
+                @inject(TYPES.SpriteTextFactory) private readonly spriteTextFactory: SpriteTextFactory) {
     }
 
-    create(hudDef: any): Hud {
-        const crosshair = this.createCrosshair(hudDef);
-        const ammoIndicator = this.createAmmoIndicator(hudDef);
-        const weaponIndicator = this.createWeaponIndicator(hudDef);
+    create(parameters: {hudDef: any, player: Player}): Hud {
+        const crosshair = this.createCrosshair(parameters.hudDef);
+        const ammoIndicator = this.createAmmoIndicator(parameters.hudDef);
+        const weaponIndicator = this.createWeaponIndicator(parameters.hudDef);
         const hud = new Hud({
-            config: this.parameters.config,
-            player: this.parameters.player,
+            config: this.config,
+            player: parameters.player,
             crosshair,
             ammoIndicator,
             weaponIndicator
@@ -71,7 +77,7 @@ export class HudFactory implements GameEntityFactory<Hud> {
     }
 
     private createHudElement(hudElementDef: any): HudElement {
-        const spriteMaterials = this.parameters.materialFactory.create(hudElementDef.material || hudElementDef.name);
+        const spriteMaterials = this.materialFactory.create(hudElementDef.material || hudElementDef.name);
         const material = <SpriteMaterial>spriteMaterials[0];
         const hudElement = new HudElement({
             material,
@@ -87,7 +93,7 @@ export class HudFactory implements GameEntityFactory<Hud> {
     }
 
     private createSpriteText(textDef: any) {
-        const spriteText = this.parameters.spriteTextFactory.create(textDef);
+        const spriteText = this.spriteTextFactory.create(textDef);
         spriteText.scale.multiplyScalar(SCALE_FACTOR);
         return spriteText;
     }
@@ -123,11 +129,4 @@ export class HudFactory implements GameEntityFactory<Hud> {
             hudElement.visible = hudElementDef.visibleOnStyle.includes('default');
         }
     }
-}
-
-export interface HudFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    player: Player;
-    materialFactory: MaterialFactory;
-    spriteTextFactory: SpriteTextFactory;
 }

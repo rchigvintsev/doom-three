@@ -17,14 +17,14 @@ import {degToRad} from 'three/src/math/MathUtils';
 import {Tween} from '@tweenjs/tween.js';
 
 import {Weapon, WeaponParameters, WeaponState} from './weapon';
-import {DebrisSystem} from '../../../../debris/debris-system';
-import {DecalSystem} from '../../../../decal/decal-system';
-import {ParticleSystem} from '../../../../particles/particle-system';
+import {DebrisManager} from '../../lwo/debris-manager';
+import {ParticleManager} from '../../../particle/particle-manager';
 import {isUpdatableMaterial} from '../../../../material/updatable-material';
 import {UpdatableMeshBasicMaterial} from '../../../../material/updatable-mesh-basic-material';
 import {MaterialKind} from '../../../../material/material-kind';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
+import {DecalManager} from '../../../decal/decal-manager';
 
 const SHELL_POSITION = new Vector3();
 const SHELL_QUATERNION = new Quaternion();
@@ -109,9 +109,8 @@ export abstract class Firearm extends Weapon {
     onHit = (() => {
         const decalPosition = new Vector3();
         return (target: Mesh, intersection: Intersection) => {
-            const shotgunParams = <FirearmParameters>this.parameters;
-            shotgunParams.decalSystem.createDecal({
-                name: shotgunParams.detonationMark,
+            this.decalManager.createDecal({
+                name: this.detonationMarkDecalName,
                 target,
                 position: target.worldToLocal(decalPosition.copy(intersection.point)),
                 normal: intersection.face?.normal
@@ -199,7 +198,7 @@ export abstract class Firearm extends Weapon {
 
     protected ejectShell() {
         if (this.shellDebrisName) {
-            const debris = this.debrisSystem.createDebris(this.shellDebrisName);
+            const debris = this.debrisManager.createDebris(this.shellDebrisName);
 
             const collisionModel = debris.collisionModel!;
             this.computeShellPosition(SHELL_POSITION);
@@ -245,7 +244,7 @@ export abstract class Firearm extends Weapon {
 
     protected showMuzzleSmoke() {
         if (!this.config.renderOnlyWireframe) {
-            const smokeParticles = this.particleSystem.createParticles(this.muzzleSmokeParticleName);
+            const smokeParticles = this.particleManager.createParticles(this.muzzleSmokeParticleName);
             smokeParticles.onShowParticle = particle => this.computeMuzzleSmokeParticlePosition(particle.position);
             smokeParticles.show();
         }
@@ -360,19 +359,23 @@ export abstract class Firearm extends Weapon {
                     positionOffset.setScalar(0);
                 }
 
-                const particles = this.particleSystem.createParticles(particleName);
+                const particles = this.particleManager.createParticles(particleName);
                 particles.onShowParticle = particle => particle.position.copy(intersection.point).sub(positionOffset);
                 particles.show();
             }
         };
     })();
 
-    private get particleSystem(): ParticleSystem {
-        return (<FirearmParameters>this.parameters).particleSystem;
+    private get particleManager(): ParticleManager {
+        return (<FirearmParameters>this.parameters).particleManager;
     }
 
-    private get debrisSystem(): DebrisSystem {
-        return (<FirearmParameters>this.parameters).debrisSystem;
+    private get decalManager(): DecalManager {
+        return (<FirearmParameters>this.parameters).decalManager;
+    }
+
+    private get debrisManager(): DebrisManager {
+        return (<FirearmParameters>this.parameters).debrisManager;
     }
 
     private get muzzleSmokeParticleName(): string {
@@ -385,6 +388,10 @@ export abstract class Firearm extends Weapon {
 
     private get detonationSparkParticleName(): string {
         return (<FirearmParameters>this.parameters).detonationSpark;
+    }
+
+    private get detonationMarkDecalName(): string {
+        return (<FirearmParameters>this.parameters).detonationMark;
     }
 
     private get fireFlashDistance(): number {
@@ -427,9 +434,9 @@ export function isFirearm(weapon: any): weapon is Firearm {
 }
 
 export interface FirearmParameters extends WeaponParameters {
-    particleSystem: ParticleSystem;
-    debrisSystem: DebrisSystem;
-    decalSystem: DecalSystem;
+    particleManager: ParticleManager;
+    debrisManager: DebrisManager;
+    decalManager: DecalManager;
     muzzleSmoke: string;
     shell: string;
     detonationMark: string;

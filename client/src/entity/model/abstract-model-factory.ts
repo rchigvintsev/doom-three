@@ -1,19 +1,22 @@
 import {Material, MeshBasicMaterial, MeshPhongMaterial} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {GameEntityFactory} from '../game-entity-factory';
 import {GameEntity} from '../game-entity';
 import {MaterialFactory} from '../../material/material-factory';
+import {GameConfig} from '../../game-config';
 import {GameAssets} from '../../game-assets';
 
 export abstract class AbstractModelFactory<T extends GameEntity> implements GameEntityFactory<T> {
-    constructor(protected readonly parameters: ModelFactoryParameters) {
+    constructor(protected readonly config: GameConfig,
+                protected readonly assets: GameAssets,
+                protected readonly materialFactory: MaterialFactory) {
     }
 
     abstract create(entityDef: any): T;
 
     protected createMaterials(modelDef: any): Material[] {
         const materials: Material[] = [];
-        if (this.parameters.config.renderOnlyWireframe) {
+        if (this.config.renderOnlyWireframe) {
             if (modelDef.materials) {
                 for (let i = 0; i < modelDef.materials.length; i++) {
                     materials.push(new MeshBasicMaterial({wireframe: true}));
@@ -25,7 +28,7 @@ export abstract class AbstractModelFactory<T extends GameEntity> implements Game
         } else {
             if (modelDef.materials) {
                 for (let i = 0; i < modelDef.materials.length; i++) {
-                    materials.push(this.parameters.materialFactory.create(modelDef.materials[i])[0]);
+                    materials.push(this.materialFactory.create(modelDef.materials[i])[0]);
                 }
             }
             if (materials.length == 0) {
@@ -34,9 +37,4 @@ export abstract class AbstractModelFactory<T extends GameEntity> implements Game
         }
         return materials;
     }
-}
-
-export interface ModelFactoryParameters extends GameEntityFactoryParameters {
-    assets: GameAssets;
-    materialFactory: MaterialFactory;
 }

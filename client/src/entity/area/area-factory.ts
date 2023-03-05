@@ -1,31 +1,33 @@
 import {Light} from 'three';
 
-import {GameEntityFactory, GameEntityFactoryParameters} from '../game-entity-factory';
+import {inject, injectable} from 'inversify';
+
+import {GameEntityFactory} from '../game-entity-factory';
 import {Area} from './area';
 import {SurfaceFactory} from '../surface/surface-factory';
 import {Surface} from '../surface/surface';
 import {LightFactory} from '../light/light-factory';
+import {GameConfig} from '../../game-config';
+import {TYPES} from '../../types';
 
+@injectable()
 export class AreaFactory implements GameEntityFactory<Area> {
-    constructor(private readonly parameters: AreaFactoryParameters) {
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
+                @inject(TYPES.SurfaceFactory) private readonly surfaceFactory: SurfaceFactory,
+                @inject(TYPES.LightFactory) private readonly lightFactory: LightFactory) {
     }
 
     create(areaDef: any): Area {
         const surfaces: Surface[] = [];
         const lights: Light[] = [];
         for (const surfaceDef of areaDef.surfaces) {
-            surfaces.push(this.parameters.surfaceFactory.create(surfaceDef));
+            surfaces.push(this.surfaceFactory.create(surfaceDef));
         }
-        if (!this.parameters.config.renderOnlyWireframe && areaDef.lights) {
+        if (!this.config.renderOnlyWireframe && areaDef.lights) {
             for (const lightDef of areaDef.lights) {
-                lights.push(this.parameters.lightFactory.create(lightDef));
+                lights.push(this.lightFactory.create(lightDef));
             }
         }
         return new Area(surfaces, lights);
     }
-}
-
-export interface AreaFactoryParameters extends GameEntityFactoryParameters {
-    surfaceFactory: SurfaceFactory;
-    lightFactory: LightFactory;
 }

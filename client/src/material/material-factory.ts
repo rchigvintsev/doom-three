@@ -20,6 +20,8 @@ import {
 import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 
 import {compile} from 'mathjs';
+import {inject, injectable} from 'inversify';
+import 'reflect-metadata';
 
 import {GameAssets} from '../game-assets';
 import {CustomShaderLib} from '../shader/custom-shader-lib';
@@ -30,15 +32,20 @@ import {UpdatableMaterial} from './updatable-material';
 import {UpdatableSpriteMaterial} from './updatable-sprite-material';
 import {UpdatableMeshPhongMaterial} from './updatable-mesh-phong-material';
 import {parseMaterialKind} from './material-kind';
+import {TYPES} from '../types';
 
+@injectable()
 export class MaterialFactory {
-    constructor(private readonly parameters: MaterialFactoryParameters) {
+    private readonly evalScope: any;
+
+    constructor(@inject(TYPES.Assets) private readonly assets: GameAssets) {
+        this.evalScope = this.createExpressionEvaluationScope(assets.tableDefs);
     }
 
     create(materialName: any): Material[] {
         let materialDef;
         if (typeof materialName === 'string') {
-            materialDef = this.parameters.assets.materialDefs.get(materialName);
+            materialDef = this.assets.materialDefs.get(materialName);
             if (!materialDef) {
                 throw new Error(`Definition of material "${materialName}" is not found`);
             }
@@ -60,7 +67,7 @@ export class MaterialFactory {
     }
 
     getTexture(textureName: string): Texture {
-        const texture = this.parameters.assets.textures.get(textureName);
+        const texture = this.assets.textures.get(textureName);
         if (!texture) {
             throw new Error(`Texture "${textureName}" is not found in game assets`);
         }
@@ -70,7 +77,7 @@ export class MaterialFactory {
     private createBasicMaterial(materialDef: any): MeshBasicMaterial {
         const material = new UpdatableMeshBasicMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
-            evalScope: this.parameters.evalScope
+            evalScope: this.evalScope
         });
         material.name = materialDef.name;
 
@@ -119,6 +126,31 @@ export class MaterialFactory {
         return material;
     }
 
+    private createExpressionEvaluationScope(tables: Map<string, any>): any {
+        const evalScope: any = {};
+        tables.forEach((table, name) => {
+            /*
+             * Based on the code from DeclTable.cpp file that can be found in DOOM 3 GitHub repository
+             * (https://github.com/id-Software/DOOM-3).
+             */
+            evalScope[name] = (deltaTime: number) => {
+                deltaTime *= table.values.length;
+                let index = Math.floor(deltaTime);
+                const frac = deltaTime - index;
+                index %= table.values.length;
+                if (!table.snap) {
+                    const val = table.values[index] * (1.0 - frac);
+                    if (index < table.values.length - 1) {
+                        return val + table.values[index + 1] * frac;
+                    }
+                    return val + table.values[0] * frac;
+                }
+                return table.values[index];
+            };
+        });
+        return evalScope;
+    }
+
     private createShaderMaterial(materialDef: any): ShaderMaterial {
         if (!materialDef.shader) {
             throw new Error(`Shader name is not specified for material "${materialDef.name}"`);
@@ -150,7 +182,7 @@ export class MaterialFactory {
             fragmentShader: shader.fragmentShader
         }, {
             kind: parseMaterialKind(materialDef.kind),
-            evalScope: this.parameters.evalScope
+            evalScope: this.evalScope
         });
         material.name = materialDef.name;
         this.setTransparency(material, materialDef);
@@ -163,7 +195,7 @@ export class MaterialFactory {
     private createSpriteMaterial(materialDef: any): SpriteMaterial {
         const material = new UpdatableSpriteMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
-            evalScope: this.parameters.evalScope
+            evalScope: this.evalScope
         });
         material.name = materialDef.name;
 
@@ -188,7 +220,7 @@ export class MaterialFactory {
     private createPhongMaterial(materialDef: any): MeshPhongMaterial {
         const material = new UpdatableMeshPhongMaterial({}, {
             kind: parseMaterialKind(materialDef.kind),
-            evalScope: this.parameters.evalScope
+            evalScope: this.evalScope
         });
         material.name = materialDef.name;
 
@@ -251,7 +283,7 @@ export class MaterialFactory {
     }
 
     private createUpdatableMap(materialName: string, mapDef: any): UpdatableTexture {
-        const texture = new UpdatableTexture(this.parameters.evalScope);
+        const texture = new UpdatableTexture(this.evalScope);
         texture.copy(this.getTexture(mapDef.name));
         texture.matrixAutoUpdate = false;
 
@@ -377,9 +409,4 @@ export class MaterialFactory {
             material.depthTest = materialDef.depthTest;
         }
     }
-}
-
-export interface MaterialFactoryParameters {
-    assets: GameAssets;
-    evalScope?: any;
 }
