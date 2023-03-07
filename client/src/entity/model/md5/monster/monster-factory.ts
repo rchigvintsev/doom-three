@@ -11,6 +11,7 @@ import {MaterialFactory} from '../../../../material/material-factory';
 import {SoundFactory} from '../../../sound/sound-factory';
 import {TYPES} from '../../../../types';
 import {Monster} from './monster';
+import {MonsterWanderBehavior} from '../../../../ai/monster-wander-behavior';
 
 @injectable()
 export class MonsterFactory extends Md5ModelFactory {
@@ -21,7 +22,9 @@ export class MonsterFactory extends Md5ModelFactory {
         super(config, assets, materialFactory, soundFactory);
     }
     create(modelDef: any): Monster {
-        return <Monster>super.create(modelDef);
+        const monster = <Monster>super.create(modelDef);
+        monster.behaviors.push(new MonsterWanderBehavior(monster));
+        return monster;
     }
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {

@@ -75,6 +75,18 @@ export class ZombieFat extends Monster {
         }
     }
 
+    startWalking() {
+        this.startAnimationFlow('start_walking');
+        this.positionOffset.setScalar(0);
+        this.changeState(MonsterState.WALKING);
+    }
+
+    stopWalking() {
+        this.startAnimationFlow('stop_walking');
+        this.position.add(this.positionOffset);
+        this.changeState(MonsterState.IDLE);
+    }
+
     private idle() {
         const startAtTime = Math.random() * 9.25;
         this.animate('idle1').startAtTime(startAtTime).start();
@@ -82,18 +94,6 @@ export class ZombieFat extends Monster {
         if (this.wireframeHelper) {
             this.wireframeHelper.animate('idle1').startAtTime(startAtTime).start();
         }
-    }
-
-    private startWalking() {
-        this.startAnimationFlow('start_walking');
-        this.positionOffset.setScalar(0);
-        this.changeState(MonsterState.WALKING);
-    }
-
-    private stopWalking() {
-        this.startAnimationFlow('stop_walking');
-        this.position.add(this.positionOffset);
-        this.changeState(MonsterState.IDLE);
     }
 
     private attack() {

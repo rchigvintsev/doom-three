@@ -1,9 +1,14 @@
 import {Euler, MathUtils, Vector3} from 'three';
 
+import {randomInt} from 'mathjs';
+
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Sound} from '../../../sound/sound';
+import {AgentBehavior} from '../../../../ai/agent-behavior';
 
 export abstract class Monster extends Md5Model {
+    readonly behaviors: AgentBehavior[] = [];
+
     protected readonly direction = new Vector3();
     protected readonly positionOffset = new Vector3();
 
@@ -13,18 +18,28 @@ export abstract class Monster extends Md5Model {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+        this.updateBehaviors(deltaTime);
         this.updateDirection();
         if (this.isIdle()) {
             this.resetSkeletonPosition();
         }
     }
 
-    protected isIdle(): boolean {
+    abstract startWalking(): void;
+
+    abstract stopWalking(): void;
+
+    isIdle(): boolean {
         return this.currentState === MonsterState.IDLE;
     }
 
-    protected isWalking(): boolean {
+    isWalking(): boolean {
         return this.currentState === MonsterState.WALKING;
+    }
+
+    randomDirection() {
+        this.rotateZ(MathUtils.degToRad(randomInt(-90, 90)));
+        this.updateDirection();
     }
 
     protected isAttacking(): boolean {
@@ -57,6 +72,12 @@ export abstract class Monster extends Md5Model {
         if (this.wireframeHelper) {
             this.wireframeHelper.skeleton.bones[0].position.x = 0;
             this.wireframeHelper.skeleton.bones[0].position.z = 0;
+        }
+    }
+
+    private updateBehaviors(deltaTime: number) {
+        for (const behavior of this.behaviors) {
+            behavior.update(deltaTime);
         }
     }
 
