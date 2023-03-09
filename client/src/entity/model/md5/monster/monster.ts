@@ -8,9 +8,11 @@ import {AgentBehavior} from '../../../../ai/agent-behavior';
 
 export abstract class Monster extends Md5Model {
     readonly behaviors: AgentBehavior[] = [];
+    readonly direction = new Vector3();
 
-    protected readonly direction = new Vector3();
     protected readonly positionOffset = new Vector3();
+
+    private readonly _calculatedPosition = new Vector3();
 
     constructor(parameters: Md5ModelParameters) {
         super(parameters);
@@ -29,6 +31,10 @@ export abstract class Monster extends Md5Model {
 
     abstract stopWalking(): void;
 
+    get calculatedPosition(): Vector3 {
+        return this._calculatedPosition.copy(this.position).add(this.positionOffset);
+    }
+
     isIdle(): boolean {
         return this.currentState === MonsterState.IDLE;
     }
@@ -37,8 +43,8 @@ export abstract class Monster extends Md5Model {
         return this.currentState === MonsterState.WALKING;
     }
 
-    randomDirection() {
-        this.rotateZ(MathUtils.degToRad(randomInt(-90, 90)));
+    randomDirection(angleFrom = 0, angleTo = 360) {
+        this.rotateZ(MathUtils.degToRad(randomInt(angleFrom, angleTo)));
         this.updateDirection();
     }
 
@@ -86,7 +92,7 @@ export abstract class Monster extends Md5Model {
 
         return () => {
             directionRotation.set(this.rotation.x, this.rotation.y, this.rotation.z - MathUtils.degToRad(90));
-            this.getWorldDirection(this.direction).applyEuler(directionRotation);
+            this.getWorldDirection(this.direction).applyEuler(directionRotation).normalize();
         };
     })();
 }
