@@ -19,10 +19,9 @@ import {Player} from './entity/player/player';
 
 @injectable()
 export class Game {
-    readonly camera: PerspectiveCamera;
-    readonly audioListener: AudioListener;
-
     private readonly clock = new Clock();
+    private readonly camera: PerspectiveCamera;
+    private readonly audioListener: AudioListener;
     private readonly controls: FpsControls;
     private readonly renderer: WebGLRenderer;
     private readonly stats: Stats;
@@ -31,7 +30,7 @@ export class Game {
     private player?: Player;
     private hud?: Hud;
 
-    constructor(@inject(TYPES.Config) readonly config: GameConfig,
+    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
                 @inject(TYPES.PointerLock) private readonly pointerLock: PointerLock,
                 @inject(TYPES.Scene) private readonly scene: Scene,
                 @inject(TYPES.GameLoader) private readonly gameLoader: GameLoader,
