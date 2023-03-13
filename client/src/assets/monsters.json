@@ -37,6 +37,25 @@
       "whoosh": "monster_zombie_fat_whoosh",
       "pain": "monster_zombie_fat_pain",
       "bounce": "ragdoll_impact"
+    },
+    "collisionModel": {
+      "bodies": [
+        {
+          "mass": 80,
+          "collisionResponse": 0,
+          "material": "models/monster",
+          "allowSleep": false,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 50.0,
+              "height": 40.0,
+              "depth": 74.0,
+              "offset": [10, 0, 37]
+            }
+          ]
+        }
+      ]
     }
   }
 ]

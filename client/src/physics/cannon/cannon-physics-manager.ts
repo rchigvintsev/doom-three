@@ -27,6 +27,8 @@ export class CannonPhysicsManager extends World implements PhysicsManager {
         this.materials.set('default', this.defaultMaterial);
         const playerMaterial = new Material();
         this.materials.set('models/player', playerMaterial);
+        const monsterMaterial = new Material();
+        this.materials.set('models/monster', monsterMaterial);
         const floorMaterial = new Material();
         this.materials.set('floor', floorMaterial);
         const weaponShellMaterial = new Material();

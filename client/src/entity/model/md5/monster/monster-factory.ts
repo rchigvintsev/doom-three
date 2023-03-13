@@ -11,6 +11,7 @@ import {MaterialFactory} from '../../../../material/material-factory';
 import {SoundFactory} from '../../../sound/sound-factory';
 import {TYPES} from '../../../../types';
 import {Monster} from './monster';
+import {CollisionModelFactory} from '../../../../physics/collision-model-factory';
 import {MonsterWanderBehavior} from '../../../../ai/monster-wander-behavior';
 
 @injectable()
@@ -18,7 +19,8 @@ export class MonsterFactory extends Md5ModelFactory {
     constructor(@inject(TYPES.Config) config: GameConfig,
                 @inject(TYPES.Assets) assets: GameAssets,
                 @inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
-                @inject(TYPES.SoundFactory) soundFactory: SoundFactory) {
+                @inject(TYPES.SoundFactory) soundFactory: SoundFactory,
+                @inject(TYPES.CollisionModelFactory) private readonly collisionModelFactory: CollisionModelFactory) {
         super(config, assets, materialFactory, soundFactory);
     }
     create(modelDef: any): Monster {
@@ -40,6 +42,7 @@ export class MonsterFactory extends Md5ModelFactory {
         zombieParams.geometry = geometry;
         zombieParams.materials = this.createMaterials(modelDef);
         zombieParams.sounds = this.createSounds(modelDef);
+        zombieParams.collisionModel = this.collisionModelFactory.create(modelDef);
         return new ZombieFat(zombieParams);
     }
 }

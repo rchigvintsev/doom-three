@@ -6,7 +6,3 @@ export interface PhysicsManager extends GameManager {
     addBody(body: any): void;
     removeBody(body: any): void;
 }
-
-export function isPhysicsManager(manager: any): manager is PhysicsManager {
-    return manager && manager.physicsManager;
-}

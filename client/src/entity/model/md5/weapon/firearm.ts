@@ -202,9 +202,9 @@ export abstract class Firearm extends Weapon {
 
             const collisionModel = debris.collisionModel!;
             this.computeShellPosition(SHELL_POSITION);
-            collisionModel.setPosition(SHELL_POSITION);
+            collisionModel.position.setFromVector3(SHELL_POSITION);
             this.computeShellQuaternion(SHELL_QUATERNION);
-            collisionModel.setQuaternion(SHELL_QUATERNION);
+            collisionModel.quaternion.copy(SHELL_QUATERNION);
 
             this.computeShellTargetPosition(SHELL_TARGET_POSITION);
             this.shellTarget.position.copy(SHELL_TARGET_POSITION);

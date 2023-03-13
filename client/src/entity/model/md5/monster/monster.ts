@@ -1,12 +1,15 @@
-import {Euler, MathUtils, Vector3} from 'three';
+import {Euler, Intersection, MathUtils, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Sound} from '../../../sound/sound';
 import {AgentBehavior} from '../../../../ai/agent-behavior';
+import {Weapon} from '../weapon/weapon';
+import {PhysicsManager} from '../../../../physics/physics-manager';
+import {TangibleEntity} from '../../../tangible-entity';
 
-export abstract class Monster extends Md5Model {
+export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly behaviors: AgentBehavior[] = [];
     readonly direction = new Vector3();
 
@@ -25,6 +28,18 @@ export abstract class Monster extends Md5Model {
         if (this.isIdle()) {
             this.resetSkeletonPosition();
         }
+    }
+
+    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
+        // Do nothing
+    }
+
+    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.collisionModel?.register(physicsManager, scene);
+    }
+
+    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+        this.parameters.collisionModel?.unregister(physicsManager, scene);
     }
 
     abstract startWalking(): void;

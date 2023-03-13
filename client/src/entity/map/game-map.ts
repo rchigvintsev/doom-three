@@ -49,11 +49,13 @@ export class GameMap extends Group implements TangibleEntity {
 
     registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
         this.parameters.areas.forEach(area => area.registerCollisionModels(physicsManager, scene));
+        this.parameters.monsters.forEach(monster => monster.registerCollisionModels(physicsManager, scene));
         this.parameters.player.registerCollisionModels(physicsManager, scene);
     }
 
     unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
         this.parameters.areas.forEach(area => area.unregisterCollisionModels(physicsManager, scene));
+        this.parameters.monsters.forEach(monster => monster.unregisterCollisionModels(physicsManager, scene));
         this.parameters.player.unregisterCollisionModels(physicsManager, scene);
     }
 

@@ -4,6 +4,7 @@ import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {ModelParameters} from '../model-parameters';
 import {CollisionModel} from '../../../physics/collision-model';
 import {GameConfig} from '../../../game-config';
+import {Position} from '../../../util/position';
 
 export class LwoModel extends Mesh implements MeshBasedEntity {
     private initialized = false;
@@ -45,8 +46,8 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
         // Do nothing by default
     }
 
-    private onCollisionModelUpdate(position: Vector3, quaternion: Quaternion) {
-        this.position.copy(position);
+    private onCollisionModelUpdate(position: Position, quaternion: Quaternion) {
+        this.position.set(position.x, position.y, position.z);
         this.quaternion.copy(quaternion);
     }
 }

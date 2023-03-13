@@ -52,6 +52,9 @@ export class CollisionModelFactory {
             collisionFilterMask: bodyDef.collisionFilterMask || 3,
             material: this.getBodyMaterial(bodyDef)
         });
+        if (bodyDef.collisionResponse != undefined) {
+            body.collisionResponse = bodyDef.collisionResponse;
+        }
         if (bodyDef.position) {
             const position = new Vector3().fromArray(bodyDef.position).multiplyScalar(this.config.worldScale);
             body.position.set(position.x, position.y, position.z);

@@ -2,6 +2,7 @@ import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {CollisionModel} from '../../../../physics/collision-model';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -34,6 +35,8 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+        this.updateCollisionModel();
+
         this.deltaTime = 0;
 
         this.updateState();
@@ -84,6 +87,7 @@ export class ZombieFat extends Monster {
     stopWalking() {
         this.startAnimationFlow('stop_walking');
         this.position.add(this.positionOffset);
+        this.positionOffset.setScalar(0);
         this.changeState(MonsterState.IDLE);
     }
 
@@ -196,9 +200,20 @@ export class ZombieFat extends Monster {
         return 0;
     }
 
+    private get collisionModel(): CollisionModel | undefined {
+        return this.parameters.collisionModel;
+    }
+
     private increasePositionOffset(directionFactor: number) {
         this.positionOffset.x += this.direction.x * directionFactor;
         this.positionOffset.y += this.direction.y * directionFactor;
         this.positionOffset.z += this.direction.z * directionFactor;
+    }
+
+    private updateCollisionModel() {
+        if (this.collisionModel) {
+            this.collisionModel.position.setFromVector3(this.calculatedPosition);
+            this.collisionModel.quaternion.copy(this.quaternion);
+        }
     }
 }

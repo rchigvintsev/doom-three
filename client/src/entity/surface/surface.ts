@@ -5,6 +5,7 @@ import {TangibleEntity} from '../tangible-entity';
 import {CollisionModel} from '../../physics/collision-model';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {PhysicsManager} from '../../physics/physics-manager';
+import {Position} from '../../util/position';
 
 export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
     readonly tangibleEntity = true;
@@ -41,8 +42,8 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         weapon.onHit(this, intersection);
     }
 
-    private onCollisionModelUpdate(position: Vector3, quaternion: Quaternion) {
-        this.position.copy(position);
+    private onCollisionModelUpdate(position: Position, quaternion: Quaternion) {
+        this.position.set(position.x, position.y, position.z);
         this.quaternion.copy(quaternion);
     }
 }

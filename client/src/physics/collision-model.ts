@@ -4,30 +4,17 @@ import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-
 
 import {Weapon} from '../entity/model/md5/weapon/weapon';
 import {PhysicsManager} from './physics-manager';
+import {Position} from '../util/position';
 
 export class CollisionModel {
-    onUpdate?: (position: Vector3, quaternion: Quaternion) => void;
+    readonly position = new Position();
+    readonly quaternion = new Quaternion();
 
-    private position = new Vector3();
-    private quaternion = new Quaternion();
+    onUpdate?: (position: Position, quaternion: Quaternion) => void;
 
     constructor(readonly bodies: CollisionModelBody[]) {
-    }
-
-    setPosition(position: Vector3) {
-        this.position.copy(position);
-        const body = this.getFirstBody();
-        if (body) {
-            body.position.set(position.x, position.y, position.z);
-        }
-    }
-
-    setQuaternion(quaternion: Quaternion) {
-        this.quaternion.copy(quaternion);
-        const body = this.getFirstBody();
-        if (body) {
-            body.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-        }
+        this.position._onChange(() => this.onPositionChange());
+        this.quaternion._onChange(() => this.onQuaternionChange());
     }
 
     register(physicsManager: PhysicsManager, scene: Scene) {
@@ -103,6 +90,20 @@ export class CollisionModel {
 
     private getFirstBody(): CollisionModelBody | undefined {
         return this.bodies.length > 0 ? this.bodies[0] : undefined;
+    }
+
+    private onPositionChange() {
+        for (const body of this.bodies) {
+            body.position.set(this.position.x, this.position.y, this.position.z);
+            body.helper?.position.set(this.position.x, this.position.y, this.position.z);
+        }
+    }
+
+    private onQuaternionChange() {
+        for (const body of this.bodies) {
+            body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
+            body.helper?.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
+        }
     }
 }
 
