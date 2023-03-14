@@ -1,4 +1,4 @@
-import {Scene, Vector3} from 'three';
+import {Quaternion, Scene, Vector3} from 'three';
 
 import {Vec3} from 'cannon-es';
 
@@ -6,8 +6,13 @@ import {CollisionModel} from '../collision-model';
 import {isNamedShape} from '../cannon/named-shape';
 import {NamedSphere} from '../cannon/named-sphere';
 import {PhysicsManager} from '../physics-manager';
+import {CannonPhysicsBody} from '../cannon/cannon-physics-body';
+import {Position} from '../../util/position';
+import {Weapon} from '../../entity/model/md5/weapon/weapon';
+import {PhysicsBody} from '../physics-body';
+import {CollideEvent} from '../../event/collide-event';
 
-export class PlayerCollisionModel extends CollisionModel {
+export class PlayerCollisionModel implements CollisionModel {
     private readonly originOffset = new Vec3();
     private readonly headOffset = new Vec3();
     private readonly contactNormal = new Vec3();
@@ -16,9 +21,7 @@ export class PlayerCollisionModel extends CollisionModel {
     private readonly _headPosition = new Vector3();
 
     constructor(private readonly delegate: CollisionModel) {
-        super([]);
-
-        const body = this.delegate.bodies[0];
+        const body = this.firstBody;
         for (let i = 0; i < body.shapes.length; i++) {
             const shape = body.shapes[i];
             if (isNamedShape(shape)) {
@@ -30,6 +33,22 @@ export class PlayerCollisionModel extends CollisionModel {
                 }
             }
         }
+    }
+
+    get position(): Position {
+        return this.delegate.position;
+    }
+
+    get quaternion(): Quaternion {
+        return this.delegate.quaternion;
+    }
+
+    get bodies(): PhysicsBody[] {
+        return this.delegate.bodies;
+    }
+
+    hasMass(): boolean {
+        return this.delegate.hasMass();
     }
 
     register(physicsManager: PhysicsManager, _scene: Scene) {
@@ -48,19 +67,34 @@ export class PlayerCollisionModel extends CollisionModel {
         this.delegate.update(deltaTime);
     }
 
+    get onUpdate(): (position: Position, quaternion: Quaternion) => void {
+        return this.delegate.onUpdate;
+    }
+
+    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon) {
+        this.delegate.onAttack(hitPoint, forceVector, weapon);
+    }
+
+    applyImpulse(impulse: Vector3, relativePoint?: Vector3) {
+        this.delegate.applyImpulse(impulse, relativePoint);
+    }
+
+    addCollideEventListener(listener: (e: CollideEvent) => void) {
+        this.delegate.addCollideEventListener(listener);
+    }
+
     move(velocity: Vector3) {
-        const body = this.delegate.bodies[0];
+        const body = this.firstBody;
         body.velocity.x = velocity.x;
         body.velocity.z = velocity.z;
     }
 
     jump(speed: number) {
-        const body = this.delegate.bodies[0];
-        body.velocity.y = speed;
+        this.firstBody.velocity.y = speed;
     }
 
     hasGroundContacts() {
-        const body = this.delegate.bodies[0];
+        const body = this.firstBody;
         const world = body.world;
         if (world) {
             for (const contact of world.contacts) {
@@ -82,15 +116,19 @@ export class PlayerCollisionModel extends CollisionModel {
     }
 
     set origin(origin: Vector3) {
-        this.delegate.bodies[0].position = new Vec3(origin.x, origin.y, origin.z).vadd(this.originOffset);
+        this.firstBody.position = new Vec3(origin.x, origin.y, origin.z).vadd(this.originOffset);
     }
 
     get headPosition(): Vector3 {
-        const bodyPosition = this.delegate.bodies[0].position;
+        const bodyPosition = this.firstBody.position;
         const x = bodyPosition.x + this.headOffset.x;
         const y = bodyPosition.y + this.headOffset.y;
         const z = bodyPosition.z + this.headOffset.z;
         this._headPosition.set(x, y, z);
         return this._headPosition;
+    }
+
+    private get firstBody(): CannonPhysicsBody {
+        return this.delegate.bodies[0] as CannonPhysicsBody;
     }
 }

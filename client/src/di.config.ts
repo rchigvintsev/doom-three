@@ -31,6 +31,7 @@ import {SpriteTextFactory} from './entity/text/sprite-text-factory';
 import {ParticleManager} from './entity/particle/particle-manager';
 import {GameLoader} from './game-loader';
 import {DecalManager} from './entity/decal/decal-manager';
+import {CannonCollisionModelFactory} from './physics/cannon/cannon-collision-model-factory';
 
 export function configureDiContainer(pointerLock: PointerLock, config: GameConfig, assets: GameAssets): Container {
     const container = new Container({skipBaseClassChecks: true, defaultScope: 'Singleton'});
@@ -41,7 +42,7 @@ export function configureDiContainer(pointerLock: PointerLock, config: GameConfi
     container.bind<Scene>(TYPES.Scene).toConstantValue(new Scene());
     container.bind<AudioListener>(TYPES.AudioListener).toConstantValue(new AudioListener());
 
-    container.bind<CollisionModelFactory>(TYPES.CollisionModelFactory).to(CollisionModelFactory);
+    container.bind<CollisionModelFactory>(TYPES.CollisionModelFactory).to(CannonCollisionModelFactory);
     container.bind<MaterialFactory>(TYPES.MaterialFactory).to(MaterialFactory);
     container.bind<SpriteTextFactory>(TYPES.SpriteTextFactory).to(SpriteTextFactory);
     container.bind<LightFactory>(TYPES.LightFactory).to(LightFactory);

@@ -5,11 +5,10 @@ import {randomInt} from 'mathjs';
 import {LwoModel} from './lwo-model';
 import {TangibleEntity} from '../../tangible-entity';
 import {ModelParameters} from '../model-parameters';
-import {ContactEquation} from 'equations/ContactEquation';
-import {CollisionModelBody} from '../../../physics/collision-model';
 import {Weapon} from '../md5/weapon/weapon';
 import {Sound} from '../../sound/sound';
 import {PhysicsManager} from '../../../physics/physics-manager';
+import {CollideEvent} from '../../../event/collide-event';
 
 export class Debris extends LwoModel implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -22,10 +21,7 @@ export class Debris extends LwoModel implements TangibleEntity {
     constructor(parameters: DebrisParameters) {
         super(parameters);
         this.visible = false;
-
-        if (parameters.collisionModel) {
-            parameters.collisionModel.bodies[0].addEventListener('collide', (e: any) => this.onCollide(e));
-        }
+        parameters.collisionModel?.addCollideEventListener((e: CollideEvent) => this.onCollide(e));
     }
 
     registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
@@ -60,9 +56,8 @@ export class Debris extends LwoModel implements TangibleEntity {
         }
     }
 
-    private onCollide(event: {body: CollisionModelBody, target: CollisionModelBody, contact: ContactEquation}) {
-        const relativeVelocity = event.contact.getImpactVelocityAlongNormal();
-        if (Math.abs(relativeVelocity) > 1.0) {
+    private onCollide(event: CollideEvent) {
+        if (Math.abs(event.contact.impactVelocityAlongNormal) > 1.0) {
             this.playBounceSound();
         }
     }
