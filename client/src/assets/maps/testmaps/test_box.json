@@ -36,6 +36,7 @@
           "collisionModel": {
             "bodies": [
               {
+                "name": "ceiling",
                 "mass": 0,
                 "material": "default",
                 "shapes": [
@@ -82,6 +83,7 @@
           "collisionModel": {
             "bodies": [
               {
+                "name": "floor",
                 "mass": 0,
                 "material": "floor",
                 "shapes": [
@@ -93,7 +95,8 @@
                   }
                 ],
                 "position": [64.0, -5.0, 0.0],
-                "quaternion": [-0.7070714249637373, 0.0, 0.0, 0.7071421356415908]
+                "quaternion": [-0.7070714249637373, 0.0, 0.0, 0.7071421356415908],
+                "collisionFilterGroup": 2
               }
             ]
           }
@@ -176,6 +179,7 @@
           "collisionModel": {
             "bodies": [
               {
+                "name": "wall1",
                 "mass": 0,
                 "material": "default",
                 "shapes": [
@@ -190,6 +194,7 @@
                 "quaternion": [0.0, -0.7071067811865475, -0.0, 0.7071067811865476]
               },
               {
+                "name": "wall2",
                 "mass": 0,
                 "material": "default",
                 "shapes": [
@@ -204,6 +209,7 @@
                 "quaternion": [0.0, 0.7071067811865475, 0.0, 0.7071067811865476]
               },
               {
+                "name": "wall3",
                 "mass": 0,
                 "material": "default",
                 "shapes": [
@@ -218,6 +224,7 @@
                 "quaternion": [0.0, 1.0, 0.0, 0.0]
               },
               {
+                "name": "wall4",
                 "mass": 0,
                 "material": "default",
                 "shapes": [
@@ -359,6 +366,7 @@
           "collisionModel": {
             "bodies": [
               {
+                "name": "box1",
                 "mass": 10,
                 "material": "default",
                 "shapes": [
@@ -499,6 +507,7 @@
           "collisionModel": {
             "bodies": [
               {
+                "name": "box2",
                 "mass": 10,
                 "material": "default",
                 "shapes": [

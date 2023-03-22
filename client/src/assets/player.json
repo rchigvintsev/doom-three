@@ -7,6 +7,7 @@
   },
   "collisionModel": {
     "bodies": [{
+      "name": "player",
       "mass": 80,
       "material": "models/player",
       "fixedRotation": true,
@@ -26,7 +27,7 @@
         "radius": 6,
         "offset": [0, 51, 0]
       }],
-      "collisionFilterMask": 1
+      "collisionFilterMask": 3
     }]
   }
 }

@@ -28,6 +28,10 @@ export class Md5ModelWireframeHelper extends SkinnedMesh {
         this.animationFlows.get(name)?.start();
     }
 
+    stopAnimationFlow(name: string) {
+        this.animationFlows.get(name)?.stop();
+    }
+
     animate(name: string): AnyAnimationFlowStep {
         return this.animationMixer.animate(name);
     }

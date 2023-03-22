@@ -17,6 +17,8 @@ export abstract class AbstractAnimationFlowStep implements AnimationFlowStep {
 
     abstract start(): void;
 
+    abstract stop(): void;
+
     get started(): boolean {
         return this._started;
     }

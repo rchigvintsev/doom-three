@@ -84,6 +84,13 @@ export class Position {
         return array;
     }
 
+    multiplyScalar(value: number): this {
+        this._x *= value;
+        this._y *= value;
+        this._z *= value;
+        return this;
+    }
+
     _onChange(callback: () => void): this {
         this._onChangeCallback = callback;
         return this;

@@ -47,6 +47,20 @@ export class ConditionalAnimationFlowStep extends AbstractAnimationFlowStep {
         this.started = true;
     }
 
+    stop() {
+        if (this.started) {
+            if (this.predicate()) {
+                this.getThenStep().flow.stop();
+            } else {
+                const elseStep = this.getElseStep();
+                if (elseStep) {
+                    elseStep.flow.stop();
+                }
+            }
+            this.started = false;
+        }
+    }
+
     clone(flow: AnimationFlow): AnimationFlowStep {
         const prevStep = flow.lastStep!;
         let thenStep;

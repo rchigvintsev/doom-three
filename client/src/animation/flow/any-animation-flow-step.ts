@@ -55,6 +55,13 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements
         this.started = true;
     }
 
+    stop() {
+        if (this.started) {
+            this.doStop();
+            this.started = false;
+        }
+    }
+
     clone(flow: AnimationFlow): AnyAnimationFlowStep {
         const clone = flow.anyStep(this.actions.map(action => action.getClip().name), this.stopBeforeStart);
         if (this.repetitionSupplier != undefined) {
@@ -107,6 +114,10 @@ export class AnyAnimationFlowStep extends RepeatableAnimationFlowStep implements
         if (this.onStartCallback) {
             this.onStartCallback(this._action!);
         }
+    }
+
+    protected doStop() {
+        this._action!.stop();
     }
 
     protected invokeOnTimeCallbacks(deltaTime: number) {

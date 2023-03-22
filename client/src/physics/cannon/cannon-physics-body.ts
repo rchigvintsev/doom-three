@@ -5,9 +5,12 @@ import {Body, BodyType, Material, Quaternion, Shape, Vec3} from 'cannon-es';
 import {PhysicsBody} from '../physics-body';
 
 export class CannonPhysicsBody extends Body implements PhysicsBody {
+    readonly name: string | undefined;
+
     helper: Object3D | undefined;
 
     constructor(options?: {
+        name?: string;
         collisionFilterGroup?: number;
         collisionFilterMask?: number;
         collisionResponse?: boolean;
@@ -30,6 +33,7 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         isTrigger?: boolean;
     }) {
         super(options);
+        this.name = options?.name;
     }
 
     reset() {

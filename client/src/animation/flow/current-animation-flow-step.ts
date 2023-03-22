@@ -32,6 +32,13 @@ export class CurrentAnimationFlowStep extends AbstractAnimationFlowStep {
         this.started = true;
     }
 
+    stop() {
+        if (this.started) {
+            this._action!.stop();
+            this.started = false;
+        }
+    }
+
     clone(flow: AnimationFlow): CurrentAnimationFlowStep {
         return flow.currentStep(this.stopBeforeStart);
     }

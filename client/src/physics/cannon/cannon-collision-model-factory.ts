@@ -21,9 +21,10 @@ import {CannonCollisionModel} from './cannon-collision-model';
 import {NamedBox} from './named-box';
 import {NamedSphere} from './named-sphere';
 import {CannonPhysicsBody} from './cannon-physics-body';
+import {CollisionModelFactory} from '../collision-model-factory';
 
 @injectable()
-export class CannonCollisionModelFactory {
+export class CannonCollisionModelFactory implements CollisionModelFactory {
     constructor(@inject(TYPES.Config) private readonly config: GameConfig,
                 @inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
     }
@@ -45,13 +46,15 @@ export class CannonCollisionModelFactory {
     private createBody(bodyDef: any): CannonPhysicsBody {
         /*
          * collisionFilterGroup = 1 for most objects
-         * collisionFilterGroup = 2 for objects that don't interact with player, since player body can only collide
-         * with objects from group 1
+         * collisionFilterGroup = 2 for floor
+         * collisionFilterGroup = 4 for objects that don't interact with player, since player body can only collide
+         * with objects from groups 1 and 2
          */
         const body = new CannonPhysicsBody({
+            name: bodyDef.name,
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup,
-            collisionFilterMask: bodyDef.collisionFilterMask || 3,
+            collisionFilterMask: bodyDef.collisionFilterMask || 7,
             material: this.getBodyMaterial(bodyDef)
         });
         if (bodyDef.collisionResponse != undefined) {

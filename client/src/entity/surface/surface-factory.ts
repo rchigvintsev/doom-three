@@ -34,7 +34,7 @@ export class SurfaceFactory implements GameEntityFactory<Surface> {
         surface.name = surfaceDef.name;
         surface.scale.setScalar(this.config.worldScale);
         if (surfaceDef.position) {
-            surface.position.fromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
+            collisionModel.position.setFromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
         }
         surface.init();
 

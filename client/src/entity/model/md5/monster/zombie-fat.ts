@@ -2,7 +2,6 @@ import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
-import {CollisionModel} from '../../../../physics/collision-model';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -27,6 +26,7 @@ export class ZombieFat extends Monster {
 
     private currentWalkAnimationName?: string;
     private currentAttackAnimationName?: string;
+    private stopWalkingScheduled = false;
     private lastArm = LEFT_ARM;
 
     constructor(parameters: Md5ModelParameters) {
@@ -35,7 +35,6 @@ export class ZombieFat extends Monster {
 
     update(deltaTime: number) {
         super.update(deltaTime);
-        this.updateCollisionModel();
 
         this.deltaTime = 0;
 
@@ -44,12 +43,14 @@ export class ZombieFat extends Monster {
             this.playChatterSound();
         } else if (this.isWalking()) {
             this.increasePositionOffset(deltaTime * this.walkSpeed);
+            this.updateCollisionModel();
+            this.stopWalkingIfScheduled();
         } else if (this.isAttacking()) {
             this.increasePositionOffset(deltaTime * this.attackSpeed);
         }
     }
 
-    public changeAnimation() {
+    changeAnimation() {
         if (this.changedAnimationAt > 0) {
             const now = performance.now();
             if (now - this.changedAnimationAt < 500) {
@@ -61,10 +62,25 @@ export class ZombieFat extends Monster {
         this.changedAnimationAt = performance.now();
     }
 
+    startWalking() {
+        if (this.isIdle()) {
+            this.startAnimationFlow('start_walking');
+            this.positionOffset.setScalar(0);
+            this.changeState(MonsterState.WALKING);
+        }
+    }
+
+    stopWalking() {
+        if (this.isWalking()) {
+            this.stopWalkingScheduled = true;
+        }
+    }
+
     protected doInit() {
         super.doInit();
         this.initAnimationFlows();
         this.idle();
+        this.updateCollisionModel();
         zombieResolve(this);
     }
 
@@ -78,21 +94,10 @@ export class ZombieFat extends Monster {
         }
     }
 
-    startWalking() {
-        this.startAnimationFlow('start_walking');
-        this.positionOffset.setScalar(0);
-        this.changeState(MonsterState.WALKING);
-    }
-
-    stopWalking() {
-        this.startAnimationFlow('stop_walking');
-        this.position.add(this.positionOffset);
-        this.positionOffset.setScalar(0);
-        this.changeState(MonsterState.IDLE);
-    }
-
-    private idle() {
-        const startAtTime = Math.random() * 9.25;
+    private idle(startAtTime?: number) {
+        if (startAtTime == undefined) {
+            startAtTime = Math.random() * 9.25;
+        }
         this.animate('idle1').startAtTime(startAtTime).start();
         this.changeState(MonsterState.IDLE);
         if (this.wireframeHelper) {
@@ -114,6 +119,17 @@ export class ZombieFat extends Monster {
             this.lastArm = nextArm;
             this.positionOffset.setScalar(0);
             this.changeState(MonsterState.ATTACKING);
+        }
+    }
+
+    private stopWalkingIfScheduled() {
+        if (this.stopWalkingScheduled) {
+            const runningAction = this.runningAction;
+            const runningActionName = runningAction?.getClip().name;
+            if (runningActionName === this.currentWalkAnimationName && runningAction?.weight === 1) {
+                this.doStopWalking();
+                this.stopWalkingScheduled = false;
+            }
         }
     }
 
@@ -200,10 +216,6 @@ export class ZombieFat extends Monster {
         return 0;
     }
 
-    private get collisionModel(): CollisionModel | undefined {
-        return this.parameters.collisionModel;
-    }
-
     private increasePositionOffset(directionFactor: number) {
         this.positionOffset.x += this.direction.x * directionFactor;
         this.positionOffset.y += this.direction.y * directionFactor;
@@ -211,9 +223,15 @@ export class ZombieFat extends Monster {
     }
 
     private updateCollisionModel() {
-        if (this.collisionModel) {
-            this.collisionModel.position.setFromVector3(this.calculatedPosition);
-            this.collisionModel.quaternion.copy(this.quaternion);
-        }
+        this.collisionModel.position.setFromVector3(this.calculatedPosition);
+        this.collisionModel.quaternion.copy(this.quaternion);
+    }
+
+    private doStopWalking() {
+        this.startAnimationFlow('stop_walking');
+        this.position.add(this.positionOffset);
+        this.positionOffset.setScalar(0);
+        this.resetSkeletonPosition();
+        this.changeState(MonsterState.IDLE);
     }
 }

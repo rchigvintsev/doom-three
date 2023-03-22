@@ -33,6 +33,12 @@ export class AnimationFlow {
         }
     }
 
+    stop() {
+        for (const step of this.steps) {
+            step.stop();
+        }
+    }
+
     singleStep(actionName: string, stopBeforeStart = true): AnyAnimationFlowStep {
         return this.anyStep([actionName], stopBeforeStart);
     }

@@ -4,6 +4,7 @@ import {randomInt} from 'mathjs';
 
 import {AgentBehavior} from './agent-behavior';
 import {Monster} from '../entity/model/md5/monster/monster';
+import {CollideEvent} from '../event/collide-event';
 
 const MIN_STATE_CHANGE_INTERVAL_MILLIS = 2000;
 const MAX_STATE_CHANGE_INTERVAL_MILLIS = 5000;
@@ -12,11 +13,13 @@ export class MonsterWanderBehavior implements AgentBehavior {
     private readonly monsterOrigin: Vector3;
 
     private stateChangeScheduledAt = -1;
+    private obstacleDetected = false;
     private outOfBoundingArea = false;
     private _boundingAreaHelper?: Mesh;
 
     constructor(private readonly monster: Monster, private readonly boundingRadius = Infinity) {
         this.monsterOrigin = monster.position.clone();
+        monster.collisionModel.addCollideEventListener(e => this.onCollide(e));
     }
 
     update(_deltaTime: number) {
@@ -25,8 +28,9 @@ export class MonsterWanderBehavior implements AgentBehavior {
             this.scheduleNextStateChange(0);
         } else if (this.stateChangeScheduledAt < performance.now()) {
             if (this.monster.isIdle()) {
-                if (this.outOfBoundingArea) {
+                if (this.outOfBoundingArea || this.obstacleDetected) {
                     this.monster.randomDirection(135, 225);
+                    this.obstacleDetected = false;
                 } else {
                     this.monster.randomDirection();
                 }
@@ -66,5 +70,13 @@ export class MonsterWanderBehavior implements AgentBehavior {
         const sphereGeometry = new SphereGeometry(boundingRadius);
         const sphereMaterial = new MeshNormalMaterial({wireframe: true});
         return new Mesh(sphereGeometry, sphereMaterial);
+    }
+
+    private onCollide(_e: CollideEvent) {
+        if (this.monster.isWalking()) {
+            this.monster.stopWalking();
+            this.scheduleNextStateChange();
+            this.obstacleDetected = true;
+        }
     }
 }

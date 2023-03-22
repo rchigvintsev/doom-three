@@ -139,6 +139,11 @@ export class CrossFadeAnyAnimationFlowStep extends AnyAnimationFlowStep {
         this.started = true;
     }
 
+    protected doStop() {
+        super.doStop();
+        this.playing = false;
+    }
+
     private isActionRepeating(action?: AnimationAction): boolean {
         return !!action && action.loop === LoopRepeat && action.repetitions > 1 && action.isRunning();
     }

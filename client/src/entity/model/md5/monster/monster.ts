@@ -8,6 +8,7 @@ import {AgentBehavior} from '../../../../ai/agent-behavior';
 import {Weapon} from '../weapon/weapon';
 import {PhysicsManager} from '../../../../physics/physics-manager';
 import {TangibleEntity} from '../../../tangible-entity';
+import {CollisionModel} from '../../../../physics/collision-model';
 
 export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly behaviors: AgentBehavior[] = [];
@@ -35,11 +36,11 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
     }
 
     registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.parameters.collisionModel?.register(physicsManager, scene);
+        this.collisionModel.register(physicsManager, scene);
     }
 
     unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.parameters.collisionModel?.unregister(physicsManager, scene);
+        this.collisionModel.unregister(physicsManager, scene);
     }
 
     abstract startWalking(): void;
@@ -48,6 +49,10 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     get calculatedPosition(): Vector3 {
         return this._calculatedPosition.copy(this.position).add(this.positionOffset);
+    }
+
+    get collisionModel(): CollisionModel {
+        return this.parameters.collisionModel!;
     }
 
     isIdle(): boolean {

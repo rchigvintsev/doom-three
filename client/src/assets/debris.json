@@ -12,6 +12,7 @@
     "collisionModel": {
       "bodies": [
         {
+          "name": "small-shell",
           "mass": 0.005,
           "material": "models/weapons/shell",
           "sleepSpeedLimit": 20,
@@ -25,7 +26,7 @@
               "offset": [0, 0.065, 0]
             }
           ],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 4
         }
       ]
     }
@@ -43,6 +44,7 @@
     "collisionModel": {
       "bodies": [
         {
+          "name": "shotgun-shell",
           "mass": 0.01,
           "material": "models/weapons/shell",
           "sleepSpeedLimit": 20,
@@ -56,7 +58,7 @@
               "offset": [0, 0, 0]
             }
           ],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 4
         }
       ]
     }

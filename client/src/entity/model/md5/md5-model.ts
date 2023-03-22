@@ -1,4 +1,4 @@
-import {Material, SkeletonHelper, SkinnedMesh} from 'three';
+import {AnimationAction, Material, SkeletonHelper, SkinnedMesh} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
@@ -104,6 +104,13 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         }
     }
 
+    protected stopAnimationFlow(name: string) {
+        this.animationFlows.get(name)?.stop();
+        if (this.wireframeHelper) {
+            this.wireframeHelper.stopAnimationFlow(name);
+        }
+    }
+
     protected isAnyAnimationRunning(...animationNames: string[]): boolean {
         const actions = this.animationMixer.findActions(...animationNames);
         for (const action of actions) {
@@ -119,6 +126,10 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         for (const action of actions) {
             action.stop();
         }
+    }
+
+    protected get runningAction(): AnimationAction | undefined {
+        return this.animationMixer.getRunningAction();
     }
 
     protected playSound(soundName: string, delay?: number): Sound | undefined  {

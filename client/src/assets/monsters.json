@@ -41,7 +41,8 @@
     "collisionModel": {
       "bodies": [
         {
-          "mass": 80,
+          "name": "zombie-fat-kinematic",
+          "mass": 0.1,
           "collisionResponse": 0,
           "material": "models/monster",
           "allowSleep": false,
@@ -53,7 +54,8 @@
               "depth": 74.0,
               "offset": [10, 0, 37]
             }
-          ]
+          ],
+          "collisionFilterMask": 1
         }
       ]
     }

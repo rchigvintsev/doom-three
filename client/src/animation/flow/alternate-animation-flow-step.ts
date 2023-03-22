@@ -29,6 +29,18 @@ export class AlternateAnimationFlowStep extends AbstractAnimationFlowStep {
         this.started = true;
     }
 
+    stop() {
+        if (this.started) {
+            if (this.index === 0) {
+                this.steps[this.index].stop();
+            } else {
+                this.steps[this.index!].flow.stop();
+            }
+            this.index = undefined;
+            this.started = false;
+        }
+    }
+
     get action(): AnimationAction {
         if (!this.started) {
             throw new Error('Animation flow step "alternate" is not started');
