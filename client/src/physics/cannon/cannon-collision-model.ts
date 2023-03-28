@@ -96,7 +96,8 @@ export class CannonCollisionModel implements CollisionModel {
 
     addCollideEventListener(listener: (e: CollideEvent) => void) {
         this.firstBody?.addEventListener(CollideEvent.TYPE, (e: any) => {
-            const contact = new PhysicsContact(e.contact.getImpactVelocityAlongNormal());
+            const contactNormal = new Vector3(e.contact.ni.x, e.contact.ni.y, e.contact.ni.z);
+            const contact = new PhysicsContact(e.contact.getImpactVelocityAlongNormal(), contactNormal);
             return listener(new CollideEvent(e.body, contact, e.target));
         });
     }
