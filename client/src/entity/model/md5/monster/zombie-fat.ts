@@ -72,7 +72,12 @@ export class ZombieFat extends Monster {
 
     stopWalking() {
         if (this.isWalking()) {
-            this.stopWalkingScheduled = true;
+            if (this.isWalkAnimationRunningWithFullWeight()) {
+                this.doStopWalking();
+            } else {
+                // Wait until fading of idle and walk actions completes
+                this.stopWalkingScheduled = true;
+            }
         }
     }
 
@@ -123,14 +128,16 @@ export class ZombieFat extends Monster {
     }
 
     private stopWalkingIfScheduled() {
-        if (this.stopWalkingScheduled) {
-            const runningAction = this.runningAction;
-            const runningActionName = runningAction?.getClip().name;
-            if (runningActionName === this.currentWalkAnimationName && runningAction?.weight === 1) {
-                this.doStopWalking();
-                this.stopWalkingScheduled = false;
-            }
+        if (this.stopWalkingScheduled && this.isWalkAnimationRunningWithFullWeight()) {
+            this.doStopWalking();
+            this.stopWalkingScheduled = false;
         }
+    }
+
+    private isWalkAnimationRunningWithFullWeight(): boolean {
+        const runningAction = this.runningAction;
+        const runningActionName = runningAction?.getClip().name;
+        return runningActionName === this.currentWalkAnimationName && runningAction?.weight === 1;
     }
 
     private initAnimationFlows() {
