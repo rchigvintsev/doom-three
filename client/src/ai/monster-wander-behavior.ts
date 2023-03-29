@@ -11,6 +11,8 @@ const MAX_STATE_CHANGE_INTERVAL_MILLIS = 5000;
 
 export class MonsterWanderBehavior implements AgentBehavior {
     private readonly monsterOrigin: Vector3;
+    private readonly collideEventQueue = new CollideEventQueue();
+    private readonly directionStatuses = new Map<Direction, DirectionStatus>();
 
     private stateChangeScheduledAt = -1;
     private obstacleDetected = false;
@@ -26,19 +28,21 @@ export class MonsterWanderBehavior implements AgentBehavior {
         if (this.stateChangeScheduledAt === -1) {
             // First update
             this.scheduleNextStateChange(0);
-        } else if (this.stateChangeScheduledAt < performance.now()) {
+            return;
+        }
+
+        if (this.stateChangeScheduledAt < performance.now()) {
             if (this.monster.isIdle()) {
-                if (this.outOfBoundingArea || this.obstacleDetected) {
-                    this.monster.randomDirection(135, 225);
+                if (this.testDirections()) {
+                    this.chooseNextDirection();
                     this.obstacleDetected = false;
-                } else {
-                    this.monster.randomDirection();
+                    this.monster.startWalking();
+                    this.scheduleNextStateChange();
                 }
-                this.monster.startWalking();
             } else {
                 this.monster.stopWalking();
+                this.scheduleNextStateChange();
             }
-            this.scheduleNextStateChange();
         } else if (this.boundingRadius !== Infinity && this.monster.isWalking()) {
             const distanceFromOrigin = this.monsterOrigin.distanceTo(this.monster.calculatedPosition);
             if (distanceFromOrigin >= this.boundingRadius) {
@@ -61,6 +65,66 @@ export class MonsterWanderBehavior implements AgentBehavior {
         return this._boundingAreaHelper;
     }
 
+    private testDirections(): boolean {
+        if (this.directionStatuses.get(Direction.LEFT) == undefined) {
+            this.collideEventQueue.clear();
+            // Turn monster's collision model to the left
+            this.monster.testTurn(-90);
+            this.directionStatuses.set(Direction.LEFT, DirectionStatus.UNKNOWN);
+            return false;
+        }
+
+        if (this.directionStatuses.get(Direction.LEFT) === DirectionStatus.UNKNOWN) {
+            const directionStatus = this.collideEventQueue.isEmpty() ? DirectionStatus.CLEAR : DirectionStatus.BLOCKED;
+            this.directionStatuses.set(Direction.LEFT, directionStatus);
+
+            this.collideEventQueue.clear();
+            // Turn monster's collision model to the right
+            this.monster.testTurn(90);
+            this.directionStatuses.set(Direction.RIGHT, DirectionStatus.UNKNOWN);
+            return false;
+        }
+
+        if (this.directionStatuses.get(Direction.RIGHT) === DirectionStatus.UNKNOWN) {
+            const directionStatus = this.collideEventQueue.isEmpty() ? DirectionStatus.CLEAR : DirectionStatus.BLOCKED;
+            this.directionStatuses.set(Direction.RIGHT, directionStatus);
+            // Return monster's collision model to the original position
+            this.monster.testTurn(0);
+            this.collideEventQueue.clear();
+        }
+
+        // Signal that test is completed
+        return true;
+    }
+
+    private chooseNextDirection() {
+        if (this.isDirectionBlocked(Direction.LEFT) && this.isDirectionBlocked(Direction.RIGHT)) {
+            if (this.obstacleDetected || this.outOfBoundingArea || randomInt(0, 2) === 0) {
+                // Turn monster back
+                this.monster.turn(180);
+            }
+        } else if (this.isDirectionBlocked(Direction.LEFT)) {
+            const angleFrom = this.outOfBoundingArea ? 135 : (this.obstacleDetected ? 90 : 0);
+            this.monster.randomTurn(angleFrom, 181);
+        } else if (this.isDirectionBlocked(Direction.RIGHT)) {
+            const angleTo = this.outOfBoundingArea ? 226 : (this.obstacleDetected ? 271 : 361);
+            this.monster.randomTurn(180, angleTo);
+        } else {
+            if (this.outOfBoundingArea) {
+                this.monster.randomTurn(135, 226);
+            } else if (this.obstacleDetected) {
+                this.monster.randomTurn(90, 271);
+            } else {
+                this.monster.randomTurn();
+            }
+        }
+        this.directionStatuses.clear();
+    }
+
+    private isDirectionBlocked(direction: Direction) {
+        return this.directionStatuses.get(direction) === DirectionStatus.BLOCKED;
+    }
+
     private scheduleNextStateChange(intervalFrom = MIN_STATE_CHANGE_INTERVAL_MILLIS,
                                     intervalTo = MAX_STATE_CHANGE_INTERVAL_MILLIS) {
         this.stateChangeScheduledAt = performance.now() + randomInt(intervalFrom, intervalTo);
@@ -72,7 +136,9 @@ export class MonsterWanderBehavior implements AgentBehavior {
         return new Mesh(sphereGeometry, sphereMaterial);
     }
 
-    private onCollide(_e: CollideEvent) {
+    private onCollide(e: CollideEvent) {
+        this.collideEventQueue.push(e);
+
         if (this.monster.isWalking()) {
             this.monster.stopWalking();
             this.scheduleNextStateChange();
@@ -80,3 +146,30 @@ export class MonsterWanderBehavior implements AgentBehavior {
         }
     }
 }
+
+class CollideEventQueue {
+    private readonly queue: CollideEvent[] = [];
+
+    isEmpty(): boolean {
+        return this.queue.length === 0;
+    }
+
+    push(e: CollideEvent) {
+        if (this.isEmpty()) {
+            this.queue.push(e);
+            return;
+        }
+
+        const lastEvent = this.queue[this.queue.length - 1];
+        if (e.body.name !== lastEvent.body.name || !e.contact.normal.equals(lastEvent.contact.normal)) {
+            this.queue.push(e);
+        }
+    }
+
+    clear() {
+        this.queue.length = 0;
+    }
+}
+
+enum Direction {LEFT, RIGHT}
+enum DirectionStatus {UNKNOWN, CLEAR, BLOCKED}

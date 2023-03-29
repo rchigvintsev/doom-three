@@ -1,4 +1,4 @@
-import {Euler, Intersection, MathUtils, Scene, Vector3} from 'three';
+import {Euler, Intersection, MathUtils, Quaternion, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -63,10 +63,27 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         return this.currentState === MonsterState.WALKING;
     }
 
-    randomDirection(angleFrom = 0, angleTo = 360) {
-        this.rotateZ(MathUtils.degToRad(randomInt(angleFrom, angleTo)));
+    turn(angle: number) {
+        this.rotateZ(MathUtils.degToRad(angle * -1));
         this.updateDirection();
+        this.updateCollisionModel();
     }
+
+    randomTurn(angleFrom = 0, angleTo = 360) {
+        this.turn(randomInt(angleFrom, angleTo));
+    }
+
+    testTurn = (() => {
+        const q1 = new Quaternion();
+        const q2 = new Quaternion();
+        const zAxis = new Vector3(0, 0, 1);
+
+        return (angle: number) => {
+            q1.setFromAxisAngle(zAxis, MathUtils.degToRad(angle * -1));
+            q2.copy(this.quaternion).multiply(q1);
+            this.updateCollisionModel(this.calculatedPosition, q2);
+        };
+    })();
 
     protected isAttacking(): boolean {
         return this.currentState === MonsterState.ATTACKING;
@@ -99,6 +116,12 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
             this.wireframeHelper.skeleton.bones[0].position.x = 0;
             this.wireframeHelper.skeleton.bones[0].position.z = 0;
         }
+    }
+
+    protected updateCollisionModel(position: Vector3 = this.calculatedPosition,
+                                   quaternion: Quaternion = this.quaternion) {
+        this.collisionModel.position.setFromVector3(position);
+        this.collisionModel.quaternion.copy(quaternion);
     }
 
     private updateBehaviors(deltaTime: number) {

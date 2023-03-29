@@ -229,11 +229,6 @@ export class ZombieFat extends Monster {
         this.positionOffset.z += this.direction.z * directionFactor;
     }
 
-    private updateCollisionModel() {
-        this.collisionModel.position.setFromVector3(this.calculatedPosition);
-        this.collisionModel.quaternion.copy(this.quaternion);
-    }
-
     private doStopWalking() {
         this.startAnimationFlow('stop_walking');
         this.position.add(this.positionOffset);
