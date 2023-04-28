@@ -1,6 +1,6 @@
 import {Quaternion, Scene, Vector3} from 'three';
 
-import {Vec3} from 'cannon-es';
+import {Constraint, Vec3} from 'cannon-es';
 
 import {Position} from '../../util/position';
 import {PhysicsManager} from '../physics-manager';
@@ -14,13 +14,17 @@ export class CannonCollisionModel implements CollisionModel {
     readonly position = new Position();
     readonly quaternion = new Quaternion();
 
-    onUpdate: (position: Position, quaternion: Quaternion) => void = () => {
-        // Do nothing by default
-    };
-
-    constructor(readonly bodies: CannonPhysicsBody[]) {
+    constructor(readonly bodies: CannonPhysicsBody[], readonly constraints: Constraint[] = []) {
         this.position._onChange(() => this.onPositionChange());
         this.quaternion._onChange(() => this.onQuaternionChange());
+    }
+
+    getBody(name: string): CannonPhysicsBody | undefined {
+        for (const body of this.bodies) {
+            if (body.name === name) {
+                return body;
+            }
+        }
     }
 
     hasMass(): boolean {
@@ -35,6 +39,10 @@ export class CannonCollisionModel implements CollisionModel {
                 scene.add(body.helper);
             }
         }
+
+        for (const constraint of this.constraints) {
+            physicsManager.addConstraint(constraint);
+        }
     }
 
     unregister(physicsManager: PhysicsManager, scene: Scene) {
@@ -44,6 +52,10 @@ export class CannonCollisionModel implements CollisionModel {
             if (body.helper) {
                 scene.remove(body.helper);
             }
+        }
+
+        for (const constraint of this.constraints) {
+            physicsManager.removeConstraint(constraint);
         }
     }
 
@@ -101,6 +113,10 @@ export class CannonCollisionModel implements CollisionModel {
             return listener(new CollideEvent(e.body, contact, e.target));
         });
     }
+
+    onUpdate: (position: Position, quaternion: Quaternion) => void = () => {
+        // Do nothing by default
+    };
 
     private get firstBody(): CannonPhysicsBody | undefined {
         return this.bodies.length > 0 ? this.bodies[0] : undefined;

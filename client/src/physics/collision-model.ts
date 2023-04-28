@@ -13,6 +13,8 @@ export interface CollisionModel {
 
     get bodies(): PhysicsBody[];
 
+    getBody(name: string): PhysicsBody | undefined;
+
     hasMass(): boolean;
 
     register(physicsManager: PhysicsManager, scene: Scene): void;

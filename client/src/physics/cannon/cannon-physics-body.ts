@@ -1,6 +1,6 @@
-import {Object3D} from 'three';
+import {Object3D, Quaternion, Vector3} from 'three';
 
-import {Body, BodyType, Material, Quaternion, Shape, Vec3} from 'cannon-es';
+import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
 
 import {PhysicsBody} from '../physics-body';
 
@@ -23,7 +23,7 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         allowSleep?: boolean;
         sleepSpeedLimit?: number;
         sleepTimeLimit?: number;
-        quaternion?: Quaternion;
+        quaternion?: Quat;
         angularVelocity?: Vec3;
         fixedRotation?: boolean;
         angularDamping?: number;
@@ -60,5 +60,19 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         this.velocity.setZero();
         this.vlambda.setZero();
         this.wlambda.setZero();
+    }
+
+    setPosition(position: Vector3) {
+        this.position.set(position.x, position.y, position.z);
+        if (this.helper) {
+            this.helper.position.copy(position);
+        }
+    }
+
+    setQuaternion(quaternion: Quaternion) {
+        this.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        if (this.helper) {
+            this.helper.quaternion.copy(quaternion);
+        }
     }
 }

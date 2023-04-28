@@ -24,6 +24,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     update(deltaTime: number) {
         super.update(deltaTime);
+        this.collisionModel.update(deltaTime);
         this.updateBehaviors(deltaTime);
         this.updateDirection();
         if (this.isIdle()) {
