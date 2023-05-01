@@ -14,11 +14,11 @@
       "allowSleep": false,
       "shapes": [{
         "type": "sphere",
-        "name": "bottom-body",
+        "name": "bottomBody",
         "radius": 15
       }, {
         "type": "sphere",
-        "name": "top-body",
+        "name": "topBody",
         "radius": 15,
         "offset": [0, 30, 0]
       }, {

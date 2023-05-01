@@ -1,3 +1,5 @@
+import {Matrix4, Quaternion, Vector3} from 'three';
+
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
@@ -43,11 +45,11 @@ export class ZombieFat extends Monster {
             this.playChatterSound();
         } else if (this.isWalking()) {
             this.increasePositionOffset(deltaTime * this.walkSpeed);
-            this.updateCollisionModel();
             this.stopWalkingIfScheduled();
         } else if (this.isAttacking()) {
             this.increasePositionOffset(deltaTime * this.attackSpeed);
         }
+        this.updateCollisionModel();
     }
 
     changeAnimation() {
@@ -88,6 +90,48 @@ export class ZombieFat extends Monster {
         this.updateCollisionModel();
         zombieResolve(this);
     }
+
+    protected updateCollisionModel(position: Vector3 = this.calculatedPosition,
+                                   quaternion: Quaternion = this.quaternion) {
+        super.updateCollisionModel(position, quaternion);
+        this.updateRagdoll();
+    }
+
+    private updateRagdoll = (() => {
+        const boneMatrix = new Matrix4();
+        const ragdollMatrix = new Matrix4();
+        const translationMatrix = new Matrix4();
+
+        const v1 = new Vector3();
+        const v2 = new Vector3();
+
+        const position = new Vector3();
+        const quaternion = new Quaternion();
+        const scale = new Vector3();
+
+        return () => {
+            const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
+            if (rightLowerLeg) {
+                const rightKneeBone = this.skeleton.bones[14];
+                v1.setFromMatrixPosition(boneMatrix.identity().multiply(rightKneeBone.matrixWorld));
+
+                const rightAnkleBone = this.skeleton.bones[15];
+                v2.setFromMatrixPosition(boneMatrix.identity().multiply(rightAnkleBone.matrixWorld));
+
+                const direction = v1.sub(v2);
+                const length = direction.length() / this.config.worldScale;
+
+                ragdollMatrix
+                    .identity()
+                    .multiply(rightKneeBone.matrixWorld)
+                    .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
+                    .decompose(position, quaternion, scale);
+
+                rightLowerLeg.setPosition(position);
+                rightLowerLeg.setQuaternion(quaternion);
+            }
+        };
+    })();
 
     protected updateState() {
         if (this.currentState === MonsterState.ATTACKING && this.isAnyAnimationRunning('idle1')) {
