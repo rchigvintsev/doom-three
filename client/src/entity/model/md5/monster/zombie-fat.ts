@@ -1,9 +1,10 @@
-import {Matrix4, Quaternion, Vector3} from 'three';
+import {Bone, Matrix4, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -97,7 +98,47 @@ export class ZombieFat extends Monster {
         this.updateRagdoll();
     }
 
-    private updateRagdoll = (() => {
+    protected updateState() {
+        if (this.currentState === MonsterState.ATTACKING && this.isAnyAnimationRunning('idle1')) {
+            // Switch state to idle as soon as idle animation is running to prevent monster drifting back after slap
+            this.resetSkeletonPosition();
+            this.position.add(this.positionOffset);
+            this.positionOffset.setScalar(0);
+            this.changeState(MonsterState.IDLE);
+        }
+    }
+
+    private updateRagdoll() {
+        const leftLowerLeg = this.collisionModel.getBody('leftLowerLeg');
+        if (leftLowerLeg) {
+            const leftKneeBone = this.skeleton.bones[6];
+            const leftAnkleBone = this.skeleton.bones[8];
+            this.updateRagdollPart(leftLowerLeg, leftKneeBone, leftAnkleBone);
+        }
+
+        const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
+        if (rightLowerLeg) {
+            const rightKneeBone = this.skeleton.bones[14];
+            const rightAnkleBone = this.skeleton.bones[16];
+            this.updateRagdollPart(rightLowerLeg, rightKneeBone, rightAnkleBone);
+        }
+
+        const leftUpperLeg = this.collisionModel.getBody('leftUpperLeg');
+        if (leftUpperLeg) {
+            const leftHipBone = this.skeleton.bones[4];
+            const leftKneeBone = this.skeleton.bones[6];
+            this.updateRagdollPart(leftUpperLeg, leftHipBone, leftKneeBone);
+        }
+
+        const rightUpperLeg = this.collisionModel.getBody('rightUpperLeg');
+        if (rightUpperLeg) {
+            const rightHipBone = this.skeleton.bones[12];
+            const rightKneeBone = this.skeleton.bones[14];
+            this.updateRagdollPart(rightUpperLeg, rightHipBone, rightKneeBone);
+        }
+    }
+
+    private updateRagdollPart = (() => {
         const boneMatrix = new Matrix4();
         const ragdollMatrix = new Matrix4();
         const translationMatrix = new Matrix4();
@@ -109,39 +150,22 @@ export class ZombieFat extends Monster {
         const quaternion = new Quaternion();
         const scale = new Vector3();
 
-        return () => {
-            const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
-            if (rightLowerLeg) {
-                const rightKneeBone = this.skeleton.bones[14];
-                v1.setFromMatrixPosition(boneMatrix.identity().multiply(rightKneeBone.matrixWorld));
+        return (ragdollPart: PhysicsBody, boneA: Bone, boneB: Bone) => {
+            v1.setFromMatrixPosition(boneMatrix.identity().multiply(boneA.matrixWorld));
+            v2.setFromMatrixPosition(boneMatrix.identity().multiply(boneB.matrixWorld));
+            const direction = v1.sub(v2);
+            const length = direction.length() / this.config.worldScale;
 
-                const rightAnkleBone = this.skeleton.bones[15];
-                v2.setFromMatrixPosition(boneMatrix.identity().multiply(rightAnkleBone.matrixWorld));
+            ragdollMatrix
+                .identity()
+                .multiply(boneA.matrixWorld)
+                .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
+                .decompose(position, quaternion, scale);
 
-                const direction = v1.sub(v2);
-                const length = direction.length() / this.config.worldScale;
-
-                ragdollMatrix
-                    .identity()
-                    .multiply(rightKneeBone.matrixWorld)
-                    .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
-                    .decompose(position, quaternion, scale);
-
-                rightLowerLeg.setPosition(position);
-                rightLowerLeg.setQuaternion(quaternion);
-            }
+            ragdollPart.setPosition(position);
+            ragdollPart.setQuaternion(quaternion);
         };
     })();
-
-    protected updateState() {
-        if (this.currentState === MonsterState.ATTACKING && this.isAnyAnimationRunning('idle1')) {
-            // Switch state to idle as soon as idle animation is running to prevent monster drifting back after slap
-            this.resetSkeletonPosition();
-            this.position.add(this.positionOffset);
-            this.positionOffset.setScalar(0);
-            this.changeState(MonsterState.IDLE);
-        }
-    }
 
     private idle(startAtTime?: number) {
         if (startAtTime == undefined) {

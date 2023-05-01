@@ -59,6 +59,20 @@
           "collisionFilterMask": 1
         },
         {
+          "name": "leftLowerLeg",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 7,
+              "height": 15.4,
+              "depth": 7,
+              "position": [6, 7.7, 0]
+            }
+          ],
+          "collisionFilterGroup": 2
+        },
+        {
           "name": "rightLowerLeg",
           "mass": 1,
           "shapes": [
@@ -71,6 +85,60 @@
             }
           ],
           "collisionFilterGroup": 2
+        },
+        {
+          "name": "leftUpperLeg",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 8,
+              "height": 20.3,
+              "depth": 8,
+              "position": [6, 10.4, 0]
+            }
+          ],
+          "collisionFilterGroup": 2
+        },
+        {
+          "name": "rightUpperLeg",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 8,
+              "height": 20.3,
+              "depth": 8,
+              "position": [-6, 10.4, 0]
+            }
+          ],
+          "collisionFilterGroup": 2
+        }
+      ],
+      "constraints": [
+        {
+          "name": "leftKneeJoint",
+          "type": "cone-twist",
+          "bodyA": "leftLowerLeg",
+          "bodyB": "leftUpperLeg",
+          "pivotA": [0, 7.7, 0],
+          "pivotB": [0, -10.4, 0],
+          "axisA": "Y",
+          "axisB": "Y",
+          "angle": 0.79,
+          "twistAngle": 1.05
+        },
+        {
+          "name": "rightKneeJoint",
+          "type": "cone-twist",
+          "bodyA": "rightLowerLeg",
+          "bodyB": "rightUpperLeg",
+          "pivotA": [0, 7.7, 0],
+          "pivotB": [0, -10.4, 0],
+          "axisA": "Y",
+          "axisB": "Y",
+          "angle": 0.79,
+          "twistAngle": 1.05
         }
       ]
     }

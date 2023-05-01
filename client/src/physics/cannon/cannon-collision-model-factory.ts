@@ -13,6 +13,7 @@ import {
 import {
     Body,
     Box,
+    ConeTwistConstraint,
     Constraint,
     Cylinder,
     Heightfield,
@@ -50,6 +51,12 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 bodies.push(body);
                 if (this.config.showCollisionModels) {
                     body.helper = this.bodyToMesh(body);
+                }
+            }
+
+            if (entityDef.collisionModel.constraints) {
+                for (const constraintDef of entityDef.collisionModel.constraints) {
+                    constraints.push(this.createConstraint(constraintDef, bodies));
                 }
             }
         }
@@ -135,6 +142,34 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         }
 
         return body;
+    }
+
+    private createConstraint(constraintDef: any, bodies: CannonPhysicsBody[]): Constraint {
+        if (constraintDef.type === 'cone-twist') {
+            const bodyA = bodies.find(e => e.name === constraintDef.bodyA);
+            if (!bodyA) {
+                throw Error(`Body with name "${constraintDef.bodyA}" is not found`);
+            }
+            const bodyB = bodies.find(e => e.name === constraintDef.bodyB);
+            if (!bodyB) {
+                throw Error(`Body with name "${constraintDef.bodyB}" is not found`);
+            }
+            const pivotA = new Vec3(constraintDef.pivotA[0], constraintDef.pivotA[1], constraintDef.pivotA[2])
+                .scale(this.config.worldScale);
+            const pivotB = new Vec3(constraintDef.pivotB[0], constraintDef.pivotB[1], constraintDef.pivotB[2])
+                .scale(this.config.worldScale);
+            const axisA = constraintDef.axisA === 'X'
+                ? Vec3.UNIT_X
+                : (constraintDef.axisA === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
+            const axisB = constraintDef.axisB === 'X'
+                ? Vec3.UNIT_X
+                : (constraintDef.axisB === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
+            return new ConeTwistConstraint(bodyA, bodyB, {
+                pivotA, pivotB, axisA, axisB, angle: constraintDef.angle,
+                twistAngle: constraintDef.twistAngle
+            });
+        }
+        throw new Error('Unsupported constraint type: ' + constraintDef.type);
     }
 
     private getBodyMaterial(bodyDef: any): Material {

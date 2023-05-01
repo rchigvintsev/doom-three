@@ -28,7 +28,7 @@ export class PlayerCollisionModel implements CollisionModel {
                 const shapeName = shape.name;
                 if (shapeName === 'head') {
                     this.headOffset.copy(body.shapeOffsets[i]);
-                } else if (shapeName === 'bottom-body') {
+                } else if (shapeName === 'bottomBody') {
                     this.originOffset.y = (<NamedSphere>shape).radius;
                 }
             }
