@@ -15,6 +15,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly direction = new Vector3();
 
     protected readonly positionOffset = new Vector3();
+    protected turnAngle = 0;
 
     private readonly _calculatedPosition = new Vector3();
 
@@ -65,9 +66,12 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
     }
 
     turn(angle: number) {
-        this.rotateZ(MathUtils.degToRad(angle * -1));
-        this.updateDirection();
-        this.updateCollisionModel();
+        if (angle !== 0) {
+            this.turnAngle += angle;
+            this.rotateZ(MathUtils.degToRad(angle * -1));
+            this.updateDirection();
+            this.updateCollisionModel();
+        }
     }
 
     randomTurn(angleFrom = 0, angleTo = 360) {

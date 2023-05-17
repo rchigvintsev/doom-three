@@ -1,9 +1,20 @@
-import {Bone, Matrix4, Quaternion, Vector3} from 'three';
+import {
+    AxesHelper,
+    Bone,
+    MathUtils,
+    Matrix4,
+    Mesh,
+    MeshNormalMaterial,
+    Quaternion,
+    SphereGeometry,
+    Vector3
+} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {Game} from '../../../../game';
 import {PhysicsBody} from '../../../../physics/physics-body';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
@@ -136,15 +147,25 @@ export class ZombieFat extends Monster {
             const rightKneeBone = this.skeleton.bones[14];
             this.updateRagdollPart(rightUpperLeg, rightHipBone, rightKneeBone);
         }
+
+        const belly = this.collisionModel.getBody('belly');
+        if (belly) {
+            const pelvisBone = this.skeleton.bones[21];
+            const chestBone = this.skeleton.bones[26];
+            this.updateRagdollPart(belly, pelvisBone, chestBone);
+        }
     }
 
     private updateRagdollPart = (() => {
         const boneMatrix = new Matrix4();
         const ragdollMatrix = new Matrix4();
+        const rotationMatrix = new Matrix4();
         const translationMatrix = new Matrix4();
 
         const v1 = new Vector3();
         const v2 = new Vector3();
+
+        const yAxis = new Vector3(0, 1, 0);
 
         const position = new Vector3();
         const quaternion = new Quaternion();
@@ -153,14 +174,31 @@ export class ZombieFat extends Monster {
         return (ragdollPart: PhysicsBody, boneA: Bone, boneB: Bone) => {
             v1.setFromMatrixPosition(boneMatrix.identity().multiply(boneA.matrixWorld));
             v2.setFromMatrixPosition(boneMatrix.identity().multiply(boneB.matrixWorld));
-            const direction = v1.sub(v2);
-            const length = direction.length() / this.config.worldScale;
 
-            ragdollMatrix
-                .identity()
-                .multiply(boneA.matrixWorld)
-                .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
-                .decompose(position, quaternion, scale);
+            if (ragdollPart.name === 'belly') {
+                const angle = MathUtils.degToRad(this.turnAngle);
+                v1.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
+                v2.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
+
+                const direction = v2.sub(v1).normalize();
+                rotationMatrix.identity().makeRotationFromQuaternion(quaternion.setFromUnitVectors(this.up, direction));
+
+                ragdollMatrix
+                    .identity()
+                    .multiply(boneA.matrixWorld)
+                    .multiply(rotationMatrix)
+                    .multiply(translationMatrix.identity().makeTranslation(0, 5.51, 2.5))
+                    .decompose(position, quaternion, scale);
+            } else {
+                const direction = v1.sub(v2);
+                const length = direction.length() / this.config.worldScale;
+
+                ragdollMatrix
+                    .identity()
+                    .multiply(boneA.matrixWorld)
+                    .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
+                    .decompose(position, quaternion, scale);
+            }
 
             ragdollPart.setPosition(position);
             ragdollPart.setQuaternion(quaternion);

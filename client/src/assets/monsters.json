@@ -94,7 +94,7 @@
               "type": "box",
               "width": 8,
               "height": 20.3,
-              "depth": 8,
+              "depth": 9,
               "position": [6, 10.4, 0]
             }
           ],
@@ -108,8 +108,22 @@
               "type": "box",
               "width": 8,
               "height": 20.3,
-              "depth": 8,
+              "depth": 9,
               "position": [-6, 10.4, 0]
+            }
+          ],
+          "collisionFilterGroup": 2
+        },
+        {
+          "name": "belly",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 17,
+              "height": 11.02,
+              "depth": 15,
+              "position": [0, 26.3, 0]
             }
           ],
           "collisionFilterGroup": 2
