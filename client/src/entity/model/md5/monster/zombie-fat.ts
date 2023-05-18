@@ -187,7 +187,7 @@ export class ZombieFat extends Monster {
                     .identity()
                     .multiply(boneA.matrixWorld)
                     .multiply(rotationMatrix)
-                    .multiply(translationMatrix.identity().makeTranslation(0, 5.51, 2.5))
+                    .multiply(translationMatrix.identity().makeTranslation(0, 5.25, 2.4))
                     .decompose(position, quaternion, scale);
             } else {
                 const direction = v1.sub(v2);
