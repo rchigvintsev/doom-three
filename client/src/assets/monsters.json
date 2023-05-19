@@ -69,7 +69,7 @@
               "depth": 7
             }
           ],
-          "position": [5.2, 11.2, -1.2],
+          "position": [5.19, 11.21, -1.23],
           "collisionFilterGroup": 2
         },
         {
@@ -83,7 +83,7 @@
               "depth": 7
             }
           ],
-          "position": [-6, 11.2, -1.3],
+          "position": [-5.97, 11.22, -1.26],
           "collisionFilterGroup": 2
         },
         {
@@ -97,7 +97,7 @@
               "depth": 9
             }
           ],
-          "position": [5.3, 28.95, -0.5],
+          "position": [5.26, 28.70, -0.54],
           "collisionFilterGroup": 2
         },
         {
@@ -111,7 +111,7 @@
               "depth": 9
             }
           ],
-          "position": [-5.6, 28.95, -0.6],
+          "position": [-5.61, 28.71, -0.57],
           "collisionFilterGroup": 2
         },
         {
@@ -122,10 +122,24 @@
               "type": "box",
               "width": 17,
               "height": 10.5,
-              "depth": 15
+              "depth": 17
             }
           ],
-          "position": [0, 44.86, 2.4],
+          "position": [0.02, 45.55, 0.68],
+          "collisionFilterGroup": 2
+        },
+        {
+          "name": "chest",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 15,
+              "height": 11.5,
+              "depth": 14
+            }
+          ],
+          "position": [0.02, 55.86, -2.01],
           "collisionFilterGroup": 2
         }
       ],
@@ -136,7 +150,7 @@
           "bodyA": "leftLowerLeg",
           "bodyB": "leftUpperLeg",
           "pivotA": [0, 7.7, 0],
-          "pivotB": [-0.1, -10.5, -0.7],
+          "pivotB": [-0.11, -10.5, -0.69],
           "axisA": "Y",
           "axisB": "Y",
           "angle": 0.79,
@@ -148,7 +162,7 @@
           "bodyA": "rightLowerLeg",
           "bodyB": "rightUpperLeg",
           "pivotA": [0, 7.7, 0],
-          "pivotB": [-0.4, -10.5, -0.7],
+          "pivotB": [-0.36, -10.5, -0.69],
           "axisA": "Y",
           "axisB": "Y",
           "angle": 0.79,
@@ -160,7 +174,7 @@
           "bodyA": "leftUpperLeg",
           "bodyB": "belly",
           "pivotA": [0, 10.5, 0],
-          "pivotB": [5.3, -5.86, -2.9],
+          "pivotB": [5.24, -5.86, -1.22],
           "axisA": "Y",
           "axisB": "Y",
           "angle": 0.79,
@@ -172,7 +186,19 @@
           "bodyA": "rightUpperLeg",
           "bodyB": "belly",
           "pivotA": [0, 10.5, 0],
-          "pivotB": [-5.6, -5.86, -3],
+          "pivotB": [-5.63, -5.86, -1.25],
+          "axisA": "Y",
+          "axisB": "Y",
+          "angle": 0.79,
+          "twistAngle": 1.05
+        },
+        {
+          "name": "spineJoint",
+          "type": "cone-twist",
+          "bodyA": "belly",
+          "bodyB": "chest",
+          "pivotA": [0, 5.25, 0],
+          "pivotB": [0, -5.75, 2.69],
           "axisA": "Y",
           "axisB": "Y",
           "angle": 0.79,

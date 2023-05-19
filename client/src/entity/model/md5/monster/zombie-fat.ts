@@ -154,6 +154,13 @@ export class ZombieFat extends Monster {
             const chestBone = this.skeleton.bones[26];
             this.updateRagdollPart(belly, pelvisBone, chestBone);
         }
+
+        const chest = this.collisionModel.getBody('chest');
+        if (chest) {
+            const neckBone = this.skeleton.bones[30];
+            const chestBone = this.skeleton.bones[26];
+            this.updateRagdollPart(chest, chestBone, neckBone);
+        }
     }
 
     private updateRagdollPart = (() => {
@@ -187,16 +194,22 @@ export class ZombieFat extends Monster {
                     .identity()
                     .multiply(boneA.matrixWorld)
                     .multiply(rotationMatrix)
-                    .multiply(translationMatrix.identity().makeTranslation(0, 5.25, 2.4))
+                    .multiply(translationMatrix.identity().makeTranslation(0, 5.25, 3.1))
                     .decompose(position, quaternion, scale);
             } else {
                 const direction = v1.sub(v2);
                 const length = direction.length() / this.config.worldScale;
 
+                if (ragdollPart.name === 'chest') {
+                    translationMatrix.identity().makeTranslation(0, 5.75, 2);
+                } else {
+                    translationMatrix.identity().makeTranslation(0, length / 2.0, 0);
+                }
+
                 ragdollMatrix
                     .identity()
                     .multiply(boneA.matrixWorld)
-                    .multiply(translationMatrix.identity().makeTranslation(0, length / 2.0, 0))
+                    .multiply(translationMatrix)
                     .decompose(position, quaternion, scale);
             }
 
