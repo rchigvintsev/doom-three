@@ -161,6 +161,20 @@ export class ZombieFat extends Monster {
             const chestBone = this.skeleton.bones[26];
             this.updateRagdollPart(chest, chestBone, neckBone);
         }
+
+        const leftUpperArm = this.collisionModel.getBody('leftUpperArm');
+        if (leftUpperArm) {
+            const leftShoulderBone = this.skeleton.bones[32];
+            const leftElbowBone = this.skeleton.bones[33];
+            this.updateRagdollPart(leftUpperArm, leftShoulderBone, leftElbowBone);
+        }
+
+        const leftLowerArm = this.collisionModel.getBody('leftLowerArm');
+        if (leftLowerArm) {
+            const leftElbowBone = this.skeleton.bones[33];
+            const leftWristBone = this.skeleton.bones[35];
+            this.updateRagdollPart(leftLowerArm, leftElbowBone, leftWristBone);
+        }
     }
 
     private updateRagdollPart = (() => {
