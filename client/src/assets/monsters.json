@@ -171,6 +171,36 @@
           "position": [23.92, 60.57, -4.13],
           "rotation": [0.03, -0.08, -1.60],
           "collisionFilterGroup": 2
+        },
+        {
+          "name": "rightUpperArm",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 6,
+              "height": 12.74,
+              "depth": 6
+            }
+          ],
+          "position": [-13.80, 60.84, -4.75],
+          "rotation": [-3.09, -0.11, -1.62],
+          "collisionFilterGroup": 2
+        },
+        {
+          "name": "rightLowerArm",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "box",
+              "width": 5,
+              "height": 7.5,
+              "depth": 5
+            }
+          ],
+          "position": [-23.90, 60.33, -3.69],
+          "rotation": [-3.09, -0.11, -1.62],
+          "collisionFilterGroup": 2
         }
       ],
       "constraints": [
@@ -253,6 +283,30 @@
           "bodyB": "leftLowerArm",
           "pivotA": [0, -6.35, -0.59],
           "pivotB": [0, 3.77, 0],
+          "axisA": "X",
+          "axisB": "X",
+          "angle": 0.79,
+          "twistAngle": 1.05
+        },
+        {
+          "name": "rightShoulderJoint",
+          "type": "cone-twist",
+          "bodyA": "chest",
+          "bodyB": "rightUpperArm",
+          "pivotA": [-7.5, 4.98, -2.74],
+          "pivotB": [0, 6.37, 0],
+          "axisA": "X",
+          "axisB": "X",
+          "angle": 0.79,
+          "twistAngle": 1.05
+        },
+        {
+          "name": "rightElbowJoint",
+          "type": "cone-twist",
+          "bodyA": "rightUpperArm",
+          "bodyB": "rightLowerArm",
+          "pivotA": [0, -6.37, 1.06],
+          "pivotB": [0, 3.75, 0],
           "axisA": "X",
           "axisB": "X",
           "angle": 0.79,

@@ -175,6 +175,20 @@ export class ZombieFat extends Monster {
             const leftWristBone = this.skeleton.bones[35];
             this.updateRagdollPart(leftLowerArm, leftElbowBone, leftWristBone);
         }
+
+        const rightUpperArm = this.collisionModel.getBody('rightUpperArm');
+        if (rightUpperArm) {
+            const rightShoulderBone = this.skeleton.bones[49];
+            const rightElbowBone = this.skeleton.bones[50];
+            this.updateRagdollPart(rightUpperArm, rightShoulderBone, rightElbowBone);
+        }
+
+        const rightLowerArm = this.collisionModel.getBody('rightLowerArm');
+        if (rightLowerArm) {
+            const rightElbowBone = this.skeleton.bones[50];
+            const rightWristBone = this.skeleton.bones[52];
+            this.updateRagdollPart(rightLowerArm, rightElbowBone, rightWristBone);
+        }
     }
 
     private updateRagdollPart = (() => {
@@ -187,6 +201,7 @@ export class ZombieFat extends Monster {
         const v2 = new Vector3();
 
         const yAxis = new Vector3(0, 1, 0);
+        const zAxis = new Vector3(0, 0, 1);
 
         const position = new Vector3();
         const quaternion = new Quaternion();
@@ -196,36 +211,41 @@ export class ZombieFat extends Monster {
             v1.setFromMatrixPosition(boneMatrix.identity().multiply(boneA.matrixWorld));
             v2.setFromMatrixPosition(boneMatrix.identity().multiply(boneB.matrixWorld));
 
+            rotationMatrix.identity();
+
             if (ragdollPart.name === 'belly') {
                 const angle = MathUtils.degToRad(this.turnAngle);
                 v1.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
                 v2.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
 
                 const direction = v2.sub(v1).normalize();
-                rotationMatrix.identity().makeRotationFromQuaternion(quaternion.setFromUnitVectors(this.up, direction));
+                rotationMatrix.makeRotationFromQuaternion(quaternion.setFromUnitVectors(this.up, direction));
 
-                ragdollMatrix
-                    .identity()
-                    .multiply(boneA.matrixWorld)
-                    .multiply(rotationMatrix)
-                    .multiply(translationMatrix.identity().makeTranslation(0, 5.25, 3.1))
-                    .decompose(position, quaternion, scale);
+                translationMatrix.identity().makeTranslation(0, 5.25, 3.1);
+            } else if (ragdollPart.name === 'chest') {
+                translationMatrix.identity().makeTranslation(0, 5.75, 2);
+            } else if (ragdollPart.name == 'rightLowerArm') {
+                const direction = v1.sub(v2);
+                const length = direction.length() / this.config.worldScale;
+                translationMatrix.identity().makeTranslation(0, -length / 2.0, 0);
+            } else if (ragdollPart.name === 'rightUpperArm') {
+                const direction = v1.sub(v2);
+                const length = direction.length() / this.config.worldScale;
+                rotationMatrix
+                    .makeRotationFromQuaternion(quaternion.setFromAxisAngle(zAxis, MathUtils.degToRad(25)));
+                translationMatrix.identity().makeTranslation(0, -length / 2.0, 0);
             } else {
                 const direction = v1.sub(v2);
                 const length = direction.length() / this.config.worldScale;
-
-                if (ragdollPart.name === 'chest') {
-                    translationMatrix.identity().makeTranslation(0, 5.75, 2);
-                } else {
-                    translationMatrix.identity().makeTranslation(0, length / 2.0, 0);
-                }
-
-                ragdollMatrix
-                    .identity()
-                    .multiply(boneA.matrixWorld)
-                    .multiply(translationMatrix)
-                    .decompose(position, quaternion, scale);
+                translationMatrix.identity().makeTranslation(0, length / 2.0, 0);
             }
+
+            ragdollMatrix
+                .identity()
+                .multiply(boneA.matrixWorld)
+                .multiply(rotationMatrix)
+                .multiply(translationMatrix)
+                .decompose(position, quaternion, scale);
 
             ragdollPart.setPosition(position);
             ragdollPart.setQuaternion(quaternion);
