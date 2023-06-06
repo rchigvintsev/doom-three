@@ -3,6 +3,7 @@ import {
     BufferGeometry,
     CylinderGeometry,
     Group,
+    Material,
     MathUtils,
     Mesh,
     MeshBasicMaterial,
@@ -17,7 +18,7 @@ import {
     Constraint,
     Cylinder,
     Heightfield,
-    Material,
+    Material as Mat,
     Quaternion,
     Shape,
     Sphere,
@@ -46,11 +47,16 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         const bodies: CannonPhysicsBody[] = [];
         const constraints: Constraint[] = [];
         if (entityDef.collisionModel) {
+            let helperMaterial;
+            if (this.config.showCollisionModels) {
+                helperMaterial = this.createMaterialWithRandomColor();
+            }
+
             for (const bodyDef of entityDef.collisionModel.bodies) {
                 const body = this.createBody(bodyDef);
                 bodies.push(body);
                 if (this.config.showCollisionModels) {
-                    body.helper = this.bodyToMesh(body);
+                    body.helper = this.bodyToMesh(body, helperMaterial);
                 }
             }
 
@@ -172,7 +178,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         throw new Error('Unsupported constraint type: ' + constraintDef.type);
     }
 
-    private getBodyMaterial(bodyDef: any): Material {
+    private getBodyMaterial(bodyDef: any): Mat {
         let material = undefined;
         if (bodyDef.material) {
             material = this.physicsManager.materials.get(bodyDef.material);
@@ -210,15 +216,16 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         throw new Error(`Unsupported shape type: "${shapeDef.type}"`);
     }
 
-    private bodyToMesh(body: Body): Group {
+    private bodyToMesh(body: Body, material?: Material): Group {
         const shapeGroup = new Group();
 
-        const shapeMaterial = new MeshBasicMaterial({wireframe: true});
-        shapeMaterial.color.setHex(Math.random() * 0xffffff);
+        if (!material) {
+            material = this.createMaterialWithRandomColor();
+        }
 
         body.shapes.forEach((shape, i) => {
             const shapeGeometry = this.shapeToGeometry(shape);
-            const shapeMesh = new Mesh(shapeGeometry, shapeMaterial);
+            const shapeMesh = new Mesh(shapeGeometry, material);
             const shapeOffset = body.shapeOffsets[i];
             shapeMesh.position.set(shapeOffset.x, shapeOffset.y, shapeOffset.z);
             const shapeOrientation = body.shapeOrientations[i];
@@ -251,5 +258,11 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             default:
                 throw new Error(`Unsupported shape type: "${shape.type}"`);
         }
+    }
+
+    private createMaterialWithRandomColor() {
+        const result = new MeshBasicMaterial({wireframe: true});
+        result.color.setHex(Math.random() * 0xffffff);
+        return result;
     }
 }
