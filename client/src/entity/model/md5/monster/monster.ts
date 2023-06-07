@@ -1,4 +1,4 @@
-import {Euler, Intersection, MathUtils, Quaternion, Scene, Vector3} from 'three';
+import {Bone, Euler, Intersection, MathUtils, Matrix4, Quaternion, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -9,6 +9,7 @@ import {Weapon} from '../weapon/weapon';
 import {PhysicsManager} from '../../../../physics/physics-manager';
 import {TangibleEntity} from '../../../tangible-entity';
 import {CollisionModel} from '../../../../physics/collision-model';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly behaviors: AgentBehavior[] = [];
@@ -128,6 +129,79 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         this.collisionModel.position.setFromVector3(position);
         this.collisionModel.quaternion.copy(quaternion);
     }
+
+    protected updateRagdollPart = (() => {
+        const boneMatrix = new Matrix4();
+        const ragdollMatrix = new Matrix4();
+        const rotationMatrix = new Matrix4();
+        const translationMatrix = new Matrix4();
+
+        const v1 = new Vector3();
+        const v2 = new Vector3();
+
+        const yAxis = new Vector3(0, 1, 0);
+
+        const position = new Vector3();
+        const quaternion = new Quaternion();
+        const scale = new Vector3();
+
+        return (ragdollPart: PhysicsBody,
+                parameters: {
+                    boneA: Bone,
+                    boneB?: Bone,
+                    rotationFunc?: (rotationMatrix: Matrix4, direction: Vector3) => void,
+                    translationFunc?: (translationMatrix: Matrix4, length: number) => void
+                }) => {
+            if (!parameters.boneB) {
+                translationMatrix.identity();
+                if (parameters.translationFunc) {
+                    parameters.translationFunc(translationMatrix, 0);
+                }
+
+                ragdollMatrix
+                    .identity()
+                    .multiply(parameters.boneA.matrixWorld)
+                    .multiply(translationMatrix)
+                    .decompose(position, quaternion, scale);
+                ragdollPart.setPosition(position);
+                ragdollPart.setQuaternion(quaternion);
+                return;
+            }
+
+            v1.setFromMatrixPosition(boneMatrix.identity().multiply(parameters.boneA.matrixWorld));
+            v2.setFromMatrixPosition(boneMatrix.identity().multiply(parameters.boneB.matrixWorld));
+
+            const angle = MathUtils.degToRad(this.turnAngle);
+            v1.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
+            v2.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
+
+            const direction = v2.sub(v1);
+            const length = direction.length() / this.config.worldScale;
+
+            rotationMatrix.identity();
+            translationMatrix.identity();
+
+            if (parameters.rotationFunc) {
+                parameters.rotationFunc(rotationMatrix, direction.normalize());
+            }
+
+            if (parameters.translationFunc) {
+                parameters.translationFunc(translationMatrix, length);
+            } else {
+                translationMatrix.makeTranslation(0, length / 2.0, 0);
+            }
+
+            ragdollMatrix
+                .identity()
+                .multiply(parameters.boneA.matrixWorld)
+                .multiply(rotationMatrix)
+                .multiply(translationMatrix)
+                .decompose(position, quaternion, scale);
+
+            ragdollPart.setPosition(position);
+            ragdollPart.setQuaternion(quaternion);
+        };
+    })();
 
     private updateBehaviors(deltaTime: number) {
         for (const behavior of this.behaviors) {

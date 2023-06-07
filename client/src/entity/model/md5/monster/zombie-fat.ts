@@ -1,21 +1,9 @@
-import {
-    AxesHelper,
-    Bone,
-    MathUtils,
-    Matrix4,
-    Mesh,
-    MeshNormalMaterial,
-    Quaternion,
-    SphereGeometry,
-    Vector3
-} from 'three';
+import {Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
-import {Game} from '../../../../game';
-import {PhysicsBody} from '../../../../physics/physics-body';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -119,136 +107,108 @@ export class ZombieFat extends Monster {
         }
     }
 
-    private updateRagdoll() {
-        const leftLowerLeg = this.collisionModel.getBody('leftLowerLeg');
-        if (leftLowerLeg) {
-            const leftKneeBone = this.skeleton.bones[6];
-            const leftAnkleBone = this.skeleton.bones[8];
-            this.updateRagdollPart(leftLowerLeg, leftKneeBone, leftAnkleBone);
-        }
-
-        const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
-        if (rightLowerLeg) {
-            const rightKneeBone = this.skeleton.bones[14];
-            const rightAnkleBone = this.skeleton.bones[16];
-            this.updateRagdollPart(rightLowerLeg, rightKneeBone, rightAnkleBone);
-        }
-
-        const leftUpperLeg = this.collisionModel.getBody('leftUpperLeg');
-        if (leftUpperLeg) {
-            const leftHipBone = this.skeleton.bones[4];
-            const leftKneeBone = this.skeleton.bones[6];
-            this.updateRagdollPart(leftUpperLeg, leftHipBone, leftKneeBone);
-        }
-
-        const rightUpperLeg = this.collisionModel.getBody('rightUpperLeg');
-        if (rightUpperLeg) {
-            const rightHipBone = this.skeleton.bones[12];
-            const rightKneeBone = this.skeleton.bones[14];
-            this.updateRagdollPart(rightUpperLeg, rightHipBone, rightKneeBone);
-        }
-
-        const belly = this.collisionModel.getBody('belly');
-        if (belly) {
-            const pelvisBone = this.skeleton.bones[21];
-            const chestBone = this.skeleton.bones[26];
-            this.updateRagdollPart(belly, pelvisBone, chestBone);
-        }
-
-        const chest = this.collisionModel.getBody('chest');
-        if (chest) {
-            const neckBone = this.skeleton.bones[30];
-            const chestBone = this.skeleton.bones[26];
-            this.updateRagdollPart(chest, chestBone, neckBone);
-        }
-
-        const leftUpperArm = this.collisionModel.getBody('leftUpperArm');
-        if (leftUpperArm) {
-            const leftShoulderBone = this.skeleton.bones[32];
-            const leftElbowBone = this.skeleton.bones[33];
-            this.updateRagdollPart(leftUpperArm, leftShoulderBone, leftElbowBone);
-        }
-
-        const leftLowerArm = this.collisionModel.getBody('leftLowerArm');
-        if (leftLowerArm) {
-            const leftElbowBone = this.skeleton.bones[33];
-            const leftWristBone = this.skeleton.bones[35];
-            this.updateRagdollPart(leftLowerArm, leftElbowBone, leftWristBone);
-        }
-
-        const rightUpperArm = this.collisionModel.getBody('rightUpperArm');
-        if (rightUpperArm) {
-            const rightShoulderBone = this.skeleton.bones[49];
-            const rightElbowBone = this.skeleton.bones[50];
-            this.updateRagdollPart(rightUpperArm, rightShoulderBone, rightElbowBone);
-        }
-
-        const rightLowerArm = this.collisionModel.getBody('rightLowerArm');
-        if (rightLowerArm) {
-            const rightElbowBone = this.skeleton.bones[50];
-            const rightWristBone = this.skeleton.bones[52];
-            this.updateRagdollPart(rightLowerArm, rightElbowBone, rightWristBone);
-        }
-    }
-
-    private updateRagdollPart = (() => {
-        const boneMatrix = new Matrix4();
-        const ragdollMatrix = new Matrix4();
-        const rotationMatrix = new Matrix4();
-        const translationMatrix = new Matrix4();
-
-        const v1 = new Vector3();
-        const v2 = new Vector3();
-
-        const yAxis = new Vector3(0, 1, 0);
+    private updateRagdoll = (() => {
+        const q = new Quaternion();
         const zAxis = new Vector3(0, 0, 1);
 
-        const position = new Vector3();
-        const quaternion = new Quaternion();
-        const scale = new Vector3();
-
-        return (ragdollPart: PhysicsBody, boneA: Bone, boneB: Bone) => {
-            v1.setFromMatrixPosition(boneMatrix.identity().multiply(boneA.matrixWorld));
-            v2.setFromMatrixPosition(boneMatrix.identity().multiply(boneB.matrixWorld));
-
-            rotationMatrix.identity();
-
-            if (ragdollPart.name === 'belly') {
-                const angle = MathUtils.degToRad(this.turnAngle);
-                v1.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
-                v2.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
-
-                const direction = v2.sub(v1).normalize();
-                rotationMatrix.makeRotationFromQuaternion(quaternion.setFromUnitVectors(this.up, direction));
-
-                translationMatrix.identity().makeTranslation(0, 5.25, 3.1);
-            } else if (ragdollPart.name === 'chest') {
-                translationMatrix.identity().makeTranslation(0, 5.75, 2);
-            } else if (ragdollPart.name == 'rightLowerArm') {
-                const direction = v1.sub(v2);
-                const length = direction.length() / this.config.worldScale;
-                translationMatrix.identity().makeTranslation(0, -length / 2.0, 0);
-            } else if (ragdollPart.name === 'rightUpperArm') {
-                const direction = v1.sub(v2);
-                const length = direction.length() / this.config.worldScale;
-                rotationMatrix
-                    .makeRotationFromQuaternion(quaternion.setFromAxisAngle(zAxis, MathUtils.degToRad(25)));
-                translationMatrix.identity().makeTranslation(0, -length / 2.0, 0);
-            } else {
-                const direction = v1.sub(v2);
-                const length = direction.length() / this.config.worldScale;
-                translationMatrix.identity().makeTranslation(0, length / 2.0, 0);
+        return () => {
+            const leftLowerLeg = this.collisionModel.getBody('leftLowerLeg');
+            if (leftLowerLeg) {
+                const leftKneeBone = this.skeleton.bones[6];
+                const leftAnkleBone = this.skeleton.bones[8];
+                this.updateRagdollPart(leftLowerLeg, {boneA: leftKneeBone, boneB: leftAnkleBone});
             }
 
-            ragdollMatrix
-                .identity()
-                .multiply(boneA.matrixWorld)
-                .multiply(rotationMatrix)
-                .multiply(translationMatrix)
-                .decompose(position, quaternion, scale);
+            const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
+            if (rightLowerLeg) {
+                const rightKneeBone = this.skeleton.bones[14];
+                const rightAnkleBone = this.skeleton.bones[16];
+                this.updateRagdollPart(rightLowerLeg, {boneA: rightKneeBone, boneB: rightAnkleBone});
+            }
 
-            ragdollPart.setPosition(position);
-            ragdollPart.setQuaternion(quaternion);
+            const leftUpperLeg = this.collisionModel.getBody('leftUpperLeg');
+            if (leftUpperLeg) {
+                const leftHipBone = this.skeleton.bones[4];
+                const leftKneeBone = this.skeleton.bones[6];
+                this.updateRagdollPart(leftUpperLeg, {boneA: leftHipBone, boneB: leftKneeBone});
+            }
+
+            const rightUpperLeg = this.collisionModel.getBody('rightUpperLeg');
+            if (rightUpperLeg) {
+                const rightHipBone = this.skeleton.bones[12];
+                const rightKneeBone = this.skeleton.bones[14];
+                this.updateRagdollPart(rightUpperLeg, {boneA: rightHipBone, boneB: rightKneeBone});
+            }
+
+            const belly = this.collisionModel.getBody('belly');
+            if (belly) {
+                const pelvisBone = this.skeleton.bones[21];
+                const chestBone = this.skeleton.bones[26];
+                this.updateRagdollPart(belly, {
+                    boneA: pelvisBone,
+                    boneB: chestBone,
+                    rotationFunc: (rm, d) => rm.makeRotationFromQuaternion(q.setFromUnitVectors(this.up, d.normalize())),
+                    translationFunc: (tm, l) => tm.makeTranslation(0, l / 2.0, 3.1)
+                });
+            }
+
+            const chest = this.collisionModel.getBody('chest');
+            if (chest) {
+                const neckBone = this.skeleton.bones[30];
+                const chestBone = this.skeleton.bones[26];
+                this.updateRagdollPart(chest, {
+                    boneA: chestBone,
+                    boneB: neckBone,
+                    translationFunc: (tm, l) => tm.makeTranslation(0, l / 2.0, 2)
+                });
+            }
+
+            const leftUpperArm = this.collisionModel.getBody('leftUpperArm');
+            if (leftUpperArm) {
+                const leftShoulderBone = this.skeleton.bones[32];
+                const leftElbowBone = this.skeleton.bones[33];
+                this.updateRagdollPart(leftUpperArm, {boneA: leftShoulderBone, boneB: leftElbowBone});
+            }
+
+            const leftLowerArm = this.collisionModel.getBody('leftLowerArm');
+            if (leftLowerArm) {
+                const leftElbowBone = this.skeleton.bones[33];
+                const leftWristBone = this.skeleton.bones[35];
+                this.updateRagdollPart(leftLowerArm, {boneA: leftElbowBone, boneB: leftWristBone});
+            }
+
+            const rightUpperArm = this.collisionModel.getBody('rightUpperArm');
+            if (rightUpperArm) {
+                const rightShoulderBone = this.skeleton.bones[49];
+                const rightElbowBone = this.skeleton.bones[50];
+                this.updateRagdollPart(rightUpperArm, {
+                    boneA: rightShoulderBone,
+                    boneB: rightElbowBone,
+                    // 0.383972 rad = 22 degrees
+                    rotationFunc: (rm) => rm.makeRotationFromQuaternion(q.setFromAxisAngle(zAxis, 0.383972)),
+                    translationFunc: (tm, l) => tm.makeTranslation(0, -l / 2.0, 0)
+                });
+            }
+
+            const rightLowerArm = this.collisionModel.getBody('rightLowerArm');
+            if (rightLowerArm) {
+                const rightElbowBone = this.skeleton.bones[50];
+                const rightWristBone = this.skeleton.bones[52];
+                this.updateRagdollPart(rightLowerArm, {
+                    boneA: rightElbowBone,
+                    boneB: rightWristBone,
+                    translationFunc: (tm, l) => tm.makeTranslation(0, -l / 2.0, 0)
+                });
+            }
+
+            const head = this.collisionModel.getBody('head');
+            if (head) {
+                const headBone = this.skeleton.bones[68];
+                this.updateRagdollPart(head, {
+                    boneA: headBone,
+                    translationFunc: (tm) => tm.makeTranslation(0, 1, 1.5)
+                });
+            }
         };
     })();
 

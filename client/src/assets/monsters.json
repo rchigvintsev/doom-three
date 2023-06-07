@@ -135,7 +135,7 @@
             {
               "type": "box",
               "width": 15,
-              "height": 11.5,
+              "height": 16,
               "depth": 14
             }
           ],
@@ -200,6 +200,18 @@
           ],
           "position": [-23.90, 60.33, -3.69],
           "rotation": [-3.09, -0.11, -1.62],
+          "collisionFilterGroup": 2
+        },
+        {
+          "name": "head",
+          "mass": 1,
+          "shapes": [
+            {
+              "type": "sphere",
+              "radius": 5
+            }
+          ],
+          "position": [0.02, 70.33, -1.15],
           "collisionFilterGroup": 2
         }
       ],
@@ -269,7 +281,7 @@
           "type": "cone-twist",
           "bodyA": "chest",
           "bodyB": "leftUpperArm",
-          "pivotA": [7.5, 4.46, -1.53],
+          "pivotA": [7.5, 2.21, -1.53],
           "pivotB": [0, 6.35, 0],
           "axisA": "X",
           "axisB": "X",
@@ -293,7 +305,7 @@
           "type": "cone-twist",
           "bodyA": "chest",
           "bodyB": "rightUpperArm",
-          "pivotA": [-7.5, 4.98, -2.74],
+          "pivotA": [-7.5, 2.73, -2.74],
           "pivotB": [0, 6.37, 0],
           "axisA": "X",
           "axisB": "X",
@@ -309,6 +321,18 @@
           "pivotB": [0, 3.75, 0],
           "axisA": "X",
           "axisB": "X",
+          "angle": 0.79,
+          "twistAngle": 1.05
+        },
+        {
+          "name": "neckJoint",
+          "type": "cone-twist",
+          "bodyA": "chest",
+          "bodyB": "head",
+          "pivotA": [0, 8.74, 0.86],
+          "pivotB": [0, -5.74, 0],
+          "axisA": "Y",
+          "axisB": "Y",
           "angle": 0.79,
           "twistAngle": 1.05
         }
