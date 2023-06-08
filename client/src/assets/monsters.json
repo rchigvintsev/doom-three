@@ -42,7 +42,7 @@
     "collisionModel": {
       "bodies": [
         {
-          "name": "zombieFatKinematic",
+          "name": "bounding",
           "mass": 0.1,
           "collisionResponse": 0,
           "material": "models/monster",
@@ -60,7 +60,8 @@
         },
         {
           "name": "leftLowerLeg",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 8.4,
           "shapes": [
             {
               "type": "box",
@@ -74,7 +75,8 @@
         },
         {
           "name": "rightLowerLeg",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 8.4,
           "shapes": [
             {
               "type": "box",
@@ -88,7 +90,8 @@
         },
         {
           "name": "leftUpperLeg",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 14.4,
           "shapes": [
             {
               "type": "box",
@@ -102,7 +105,8 @@
         },
         {
           "name": "rightUpperLeg",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 14.4,
           "shapes": [
             {
               "type": "box",
@@ -116,7 +120,8 @@
         },
         {
           "name": "belly",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 27.6,
           "shapes": [
             {
               "type": "box",
@@ -130,7 +135,8 @@
         },
         {
           "name": "chest",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 24,
           "shapes": [
             {
               "type": "box",
@@ -144,7 +150,8 @@
         },
         {
           "name": "leftUpperArm",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 3.6,
           "shapes": [
             {
               "type": "box",
@@ -159,7 +166,8 @@
         },
         {
           "name": "leftLowerArm",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 3.6,
           "shapes": [
             {
               "type": "box",
@@ -174,7 +182,8 @@
         },
         {
           "name": "rightUpperArm",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 3.6,
           "shapes": [
             {
               "type": "box",
@@ -189,7 +198,8 @@
         },
         {
           "name": "rightLowerArm",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 3.6,
           "shapes": [
             {
               "type": "box",
@@ -204,7 +214,8 @@
         },
         {
           "name": "head",
-          "mass": 1,
+          "type": "kinematic",
+          "mass": 8.4,
           "shapes": [
             {
               "type": "sphere",

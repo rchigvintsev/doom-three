@@ -13,6 +13,7 @@ import {
 
 import {
     Body,
+    BodyType,
     Box,
     ConeTwistConstraint,
     Constraint,
@@ -74,12 +75,13 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
          * collisionFilterGroup = 1 for most of the objects
          *
          * collisionFilterGroup = 2 for objects (like floor or monster ragdoll model) that don't interact with monster
-         * kinematic bodies
+         * bounding bodies
          *
          * collisionFilterGroup = 4 for objects (like ammo shells) that don't interact with player's body
          */
         const body = new CannonPhysicsBody({
             name: bodyDef.name,
+            type: this.getBodyType(bodyDef),
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup || 1,
             collisionFilterMask: bodyDef.collisionFilterMask || 7,
@@ -264,5 +266,15 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         const result = new MeshBasicMaterial({wireframe: true});
         result.color.setHex(Math.random() * 0xffffff);
         return result;
+    }
+
+    private getBodyType(bodyDef: any): BodyType {
+        if (bodyDef.type === 'static' || bodyDef.mass === 0) {
+            return Body.STATIC;
+        }
+        if (bodyDef.type === 'kinematic') {
+            return Body.KINEMATIC;
+        }
+        return Body.DYNAMIC;
     }
 }
