@@ -1,4 +1,4 @@
-import {Material, MeshBasicMaterial, MeshPhongMaterial} from 'three';
+import {BufferGeometry, Material, MeshBasicMaterial, MeshPhongMaterial} from 'three';
 
 import {GameEntityFactory} from '../game-entity-factory';
 import {GameEntity} from '../game-entity';
@@ -14,7 +14,7 @@ export abstract class AbstractModelFactory<T extends GameEntity> implements Game
 
     abstract create(entityDef: any): T;
 
-    protected createMaterials(modelDef: any): Material[] {
+    protected createMaterials(modelDef: any, geometry?: BufferGeometry): Material[] {
         const materials: Material[] = [];
         if (this.config.renderOnlyWireframe) {
             if (modelDef.materials) {
@@ -35,6 +35,15 @@ export abstract class AbstractModelFactory<T extends GameEntity> implements Game
                 materials.push(new MeshPhongMaterial());
             }
         }
+
+        if (geometry) {
+            for (const group of geometry.groups) {
+                if (group.materialIndex != undefined && !materials[group.materialIndex]) {
+                    materials[group.materialIndex] = new MeshBasicMaterial({visible: false});
+                }
+            }
+        }
+
         return materials;
     }
 }
