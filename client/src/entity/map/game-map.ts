@@ -1,4 +1,4 @@
-import {Group, Intersection, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
+import {Group, Intersection, Light, Mesh, Ray, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
@@ -7,6 +7,7 @@ import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 import {Monster} from '../model/md5/monster/monster';
 import {PhysicsManager} from '../../physics/physics-manager';
+import {Object3D} from 'three/src/core/Object3D';
 
 const SCREEN_CENTER_COORDS = new Vector2();
 
@@ -16,11 +17,14 @@ export class GameMap extends Group implements TangibleEntity {
     private readonly raycaster = new Raycaster();
     private readonly forceVector = new Vector3();
 
+    private readonly areasAndMonsters: Object3D[] = [];
+
     constructor(readonly parameters: GameMapParameters) {
         super();
 
         for (const area of parameters.areas) {
             this.add(area);
+            this.areasAndMonsters.push(area);
         }
 
         for (const light of parameters.lights) {
@@ -29,6 +33,7 @@ export class GameMap extends Group implements TangibleEntity {
 
         for (const monster of parameters.monsters) {
             this.add(monster);
+            this.areasAndMonsters.push(monster);
             if (monster.skeletonHelper) {
                 this.add(monster.skeletonHelper);
             }
@@ -68,7 +73,7 @@ export class GameMap extends Group implements TangibleEntity {
         }
     }
 
-    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 
@@ -84,14 +89,15 @@ export class GameMap extends Group implements TangibleEntity {
         for (const c of coords) {
             this.raycaster.setFromCamera(c, this.parameters.player.camera);
             this.forceVector.unproject(this.parameters.player.camera).normalize().multiplyScalar(e.force).negate();
-            const intersections = this.raycaster.intersectObjects(this.parameters.areas);
+
+            const intersections = this.raycaster.intersectObjects(this.areasAndMonsters);
             for (const intersection of intersections) {
                 let target: any = intersection.object;
                 while (!isTangibleEntity(target) && target.parent) {
                     target = target.parent;
                 }
                 if (isTangibleEntity(target)) {
-                    target.onAttack(intersection, this.forceVector, e.weapon);
+                    target.onAttack(this.raycaster.ray, intersection, this.forceVector, e.weapon);
                     missed = false;
                     break;
                 }

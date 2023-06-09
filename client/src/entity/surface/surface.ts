@@ -1,4 +1,4 @@
-import {BufferGeometry, Intersection, Material, Mesh, Quaternion, Scene, Vector3} from 'three';
+import {BufferGeometry, Intersection, Material, Mesh, Quaternion, Ray, Scene, Vector3} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../mesh-based-entity';
 import {TangibleEntity} from '../tangible-entity';
@@ -37,8 +37,8 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         this.collisionModel.update(deltaTime);
     }
 
-    onAttack(intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
-        this.collisionModel.onAttack(intersection.point, forceVector, weapon);
+    onAttack(ray: Ray, intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
+        this.collisionModel.onAttack(ray, intersection.point, forceVector, weapon);
         weapon.onHit(this, intersection);
     }
 

@@ -40,6 +40,7 @@
       "bounce": "ragdoll_impact"
     },
     "collisionModel": {
+      "ragdoll": true,
       "bodies": [
         {
           "name": "bounding",

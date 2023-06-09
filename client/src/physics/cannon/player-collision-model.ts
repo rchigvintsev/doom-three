@@ -1,12 +1,12 @@
-import {Quaternion, Scene, Vector3} from 'three';
+import {Quaternion, Ray, Scene, Vector3} from 'three';
 
 import {Vec3} from 'cannon-es';
 
 import {CollisionModel} from '../collision-model';
-import {isNamedShape} from '../cannon/named-shape';
-import {NamedSphere} from '../cannon/named-sphere';
+import {isNamedShape} from './named-shape';
+import {NamedSphere} from './named-sphere';
 import {PhysicsManager} from '../physics-manager';
-import {CannonPhysicsBody} from '../cannon/cannon-physics-body';
+import {CannonPhysicsBody} from './cannon-physics-body';
 import {Position} from '../../util/position';
 import {Weapon} from '../../entity/model/md5/weapon/weapon';
 import {PhysicsBody} from '../physics-body';
@@ -75,8 +75,8 @@ export class PlayerCollisionModel implements CollisionModel {
         return this.delegate.onUpdate;
     }
 
-    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon) {
-        this.delegate.onAttack(hitPoint, forceVector, weapon);
+    onAttack(ray: Ray, hitPoint: Vector3, forceVector: Vector3, weapon: Weapon) {
+        this.delegate.onAttack(ray, hitPoint, forceVector, weapon);
     }
 
     applyImpulse(impulse: Vector3, relativePoint?: Vector3) {

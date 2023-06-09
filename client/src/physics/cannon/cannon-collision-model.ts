@@ -1,4 +1,4 @@
-import {Quaternion, Scene, Vector3} from 'three';
+import {Quaternion, Ray, Scene, Vector3} from 'three';
 
 import {Constraint, Vec3} from 'cannon-es';
 
@@ -81,7 +81,7 @@ export class CannonCollisionModel implements CollisionModel {
         }
     }
 
-    onAttack(hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_ray: Ray, hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
         if (this.hasMass()) {
             this.applyImpulse(forceVector, hitPoint);
         }

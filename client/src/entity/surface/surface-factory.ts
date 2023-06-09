@@ -20,7 +20,7 @@ export class SurfaceFactory implements GameEntityFactory<Surface> {
     create(surfaceDef: any): Surface {
         let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
-        const collisionModel = this.collisionModelFactory.create(surfaceDef);
+        const collisionModel = this.collisionModelFactory.create(surfaceDef.collisionModel);
         if (this.config.renderOnlyWireframe) {
             surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}), collisionModel);
         } else {

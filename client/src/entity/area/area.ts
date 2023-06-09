@@ -1,4 +1,4 @@
-import {Group, Intersection, Light, Scene, Vector3} from 'three';
+import {Group, Intersection, Light, Ray, Scene, Vector3} from 'three';
 
 import {Surface} from '../surface/surface';
 import {Weapon} from '../model/md5/weapon/weapon';
@@ -36,7 +36,7 @@ export class Area extends Group implements TangibleEntity {
         }
     }
 
-    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
+    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
         // Do nothing
     }
 }

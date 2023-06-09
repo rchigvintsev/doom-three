@@ -37,6 +37,7 @@ import {NamedBox} from './named-box';
 import {NamedSphere} from './named-sphere';
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {CollisionModelFactory} from '../collision-model-factory';
+import {CannonRagdollCollisionModel} from './cannon-ragdoll-collision-model';
 
 @injectable()
 export class CannonCollisionModelFactory implements CollisionModelFactory {
@@ -44,16 +45,16 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 @inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
     }
 
-    create(entityDef: any): CollisionModel {
+    create(collisionModelDef: any): CollisionModel {
         const bodies: CannonPhysicsBody[] = [];
         const constraints: Constraint[] = [];
-        if (entityDef.collisionModel) {
+        if (collisionModelDef) {
             let helperMaterial;
             if (this.config.showCollisionModels) {
                 helperMaterial = this.createMaterialWithRandomColor();
             }
 
-            for (const bodyDef of entityDef.collisionModel.bodies) {
+            for (const bodyDef of collisionModelDef.bodies) {
                 const body = this.createBody(bodyDef);
                 bodies.push(body);
                 if (this.config.showCollisionModels) {
@@ -61,13 +62,13 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 }
             }
 
-            if (entityDef.collisionModel.constraints) {
-                for (const constraintDef of entityDef.collisionModel.constraints) {
+            if (collisionModelDef.constraints) {
+                for (const constraintDef of collisionModelDef.constraints) {
                     constraints.push(this.createConstraint(constraintDef, bodies));
                 }
             }
         }
-        return new CannonCollisionModel(bodies, constraints);
+        return this.createCollisionModel(collisionModelDef.ragdoll, bodies, constraints);
     }
 
     private createBody(bodyDef: any): CannonPhysicsBody {
@@ -276,5 +277,12 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             return Body.KINEMATIC;
         }
         return Body.DYNAMIC;
+    }
+
+    private createCollisionModel(ragdoll: boolean, bodies: CannonPhysicsBody[], constraints: Constraint[]) {
+        if (ragdoll) {
+            return new CannonRagdollCollisionModel(bodies, constraints, this.config.worldScale);
+        }
+        return new CannonCollisionModel(bodies, constraints);
     }
 }

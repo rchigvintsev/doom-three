@@ -1,10 +1,10 @@
-import {Intersection, Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Intersection, Object3D, PerspectiveCamera, Ray, Scene, Vector3} from 'three';
 
 import {random} from 'mathjs';
 
 import {TangibleEntity} from '../tangible-entity';
 import {Weapon} from '../model/md5/weapon/weapon';
-import {PlayerCollisionModel} from '../../physics/player/player-collision-model';
+import {PlayerCollisionModel} from '../../physics/cannon/player-collision-model';
 import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../model/md5/weapon/fists';
@@ -84,7 +84,7 @@ export class Player extends Object3D implements TangibleEntity {
         }
     }
 
-    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon): void {
+    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon): void {
         // Do nothing for now
     }
 

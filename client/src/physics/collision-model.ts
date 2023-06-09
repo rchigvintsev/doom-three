@@ -1,4 +1,4 @@
-import {Quaternion, Scene, Vector3} from 'three';
+import {Quaternion, Ray, Scene, Vector3} from 'three';
 
 import {Weapon} from '../entity/model/md5/weapon/weapon';
 import {PhysicsManager} from './physics-manager';
@@ -27,7 +27,7 @@ export interface CollisionModel {
 
     set onUpdate(callback: (position: Position, quaternion: Quaternion) => void);
 
-    onAttack(hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
+    onAttack(ray: Ray, hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
 
     applyImpulse(impulse: Vector3, relativePoint?: Vector3): void;
 

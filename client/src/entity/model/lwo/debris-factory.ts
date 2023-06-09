@@ -53,6 +53,6 @@ export class DebrisFactory extends LwoModelFactory {
     }
 
     private createCollisionModel(modelDef: any) {
-        return this.collisionModelFactory.create(modelDef);
+        return this.collisionModelFactory.create(modelDef.collisionModel);
     }
 }

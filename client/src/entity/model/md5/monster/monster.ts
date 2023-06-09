@@ -1,4 +1,4 @@
-import {Bone, Euler, Intersection, MathUtils, Matrix4, Quaternion, Scene, Vector3} from 'three';
+import {Bone, Euler, Intersection, MathUtils, Matrix4, Quaternion, Ray, Scene, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -12,11 +12,13 @@ import {CollisionModel} from '../../../../physics/collision-model';
 import {PhysicsBody} from '../../../../physics/physics-body';
 
 export abstract class Monster extends Md5Model implements TangibleEntity {
+    readonly tangibleEntity = true;
     readonly behaviors: AgentBehavior[] = [];
     readonly direction = new Vector3();
 
     protected readonly positionOffset = new Vector3();
     protected turnAngle = 0;
+    protected health = 100;
 
     private readonly _calculatedPosition = new Vector3();
 
@@ -34,8 +36,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         }
     }
 
-    onAttack(_intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
+    onAttack(ray: Ray, intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
+        this.collisionModel.onAttack(ray, intersection.point, forceVector, weapon);
     }
 
     registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
