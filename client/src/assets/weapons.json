@@ -85,7 +85,8 @@
     "ammoClipSize": 12,
     "maxAmmoReserve": 348,
     "attackDistance": 1000,
-    "attackForce": 5
+    "attackForce": 5,
+    "damage": 15
   },
   {
     "name": "shotgun",

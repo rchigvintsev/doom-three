@@ -1,9 +1,8 @@
-import {Group, Intersection, Light, Mesh, Ray, Raycaster, Scene, Vector2, Vector3} from 'three';
+import {Group, Light, Raycaster, Scene, Vector2, Vector3} from 'three';
 
 import {Area} from '../area/area';
 import {isTangibleEntity, TangibleEntity} from '../tangible-entity';
 import {Player} from '../player/player';
-import {Weapon} from '../model/md5/weapon/weapon';
 import {AttackEvent} from '../../event/weapon-events';
 import {Monster} from '../model/md5/monster/monster';
 import {PhysicsManager} from '../../physics/physics-manager';
@@ -15,7 +14,7 @@ export class GameMap extends Group implements TangibleEntity {
     readonly tangibleEntity = true;
 
     private readonly raycaster = new Raycaster();
-    private readonly forceVector = new Vector3();
+    private readonly force = new Vector3();
 
     private readonly areasAndMonsters: Object3D[] = [];
 
@@ -73,10 +72,6 @@ export class GameMap extends Group implements TangibleEntity {
         }
     }
 
-    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
-    }
-
     private _onAttack(e: AttackEvent) {
         let missed = true;
         this.raycaster.far = e.distance;
@@ -88,7 +83,7 @@ export class GameMap extends Group implements TangibleEntity {
 
         for (const c of coords) {
             this.raycaster.setFromCamera(c, this.parameters.player.camera);
-            this.forceVector.unproject(this.parameters.player.camera).normalize().multiplyScalar(e.force).negate();
+            this.force.unproject(this.parameters.player.camera).normalize().multiplyScalar(e.force).negate();
 
             const intersections = this.raycaster.intersectObjects(this.areasAndMonsters);
             for (const intersection of intersections) {
@@ -97,7 +92,9 @@ export class GameMap extends Group implements TangibleEntity {
                     target = target.parent;
                 }
                 if (isTangibleEntity(target)) {
-                    target.onAttack(this.raycaster.ray, intersection, this.forceVector, e.weapon);
+                    if (target.onAttack) {
+                        target.onAttack(e.weapon, this.force, this.raycaster.ray, intersection);
+                    }
                     missed = false;
                     break;
                 }

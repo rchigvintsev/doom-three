@@ -3,9 +3,9 @@ import {BufferGeometry, Intersection, Material, Mesh, Quaternion, Ray, Scene, Ve
 import {MeshBasedEntity, updateMaterials} from '../mesh-based-entity';
 import {TangibleEntity} from '../tangible-entity';
 import {CollisionModel} from '../../physics/collision-model';
-import {Weapon} from '../model/md5/weapon/weapon';
 import {PhysicsManager} from '../../physics/physics-manager';
 import {Position} from '../../util/position';
+import {Weapon} from '../model/md5/weapon/weapon';
 
 export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
     readonly tangibleEntity = true;
@@ -15,7 +15,7 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
                 private readonly collisionModel: CollisionModel) {
         super(geometry, materials);
         if (collisionModel.hasMass()) {
-            collisionModel.onUpdate = (position, quaternion) =>
+            collisionModel.onUpdateCallback = (position, quaternion) =>
                 this.onCollisionModelUpdate(position, quaternion);
         }
     }
@@ -37,8 +37,8 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         this.collisionModel.update(deltaTime);
     }
 
-    onAttack(ray: Ray, intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
-        this.collisionModel.onAttack(ray, intersection.point, forceVector, weapon);
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
+        this.collisionModel.onAttack(weapon, force, ray, intersection.point);
         weapon.onHit(this, intersection);
     }
 

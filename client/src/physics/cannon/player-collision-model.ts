@@ -8,9 +8,9 @@ import {NamedSphere} from './named-sphere';
 import {PhysicsManager} from '../physics-manager';
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {Position} from '../../util/position';
-import {Weapon} from '../../entity/model/md5/weapon/weapon';
 import {PhysicsBody} from '../physics-body';
 import {CollideEvent} from '../../event/collide-event';
+import {Weapon} from '../../entity/model/md5/weapon/weapon';
 
 export class PlayerCollisionModel implements CollisionModel {
     private readonly originOffset = new Vec3();
@@ -47,6 +47,22 @@ export class PlayerCollisionModel implements CollisionModel {
         return this.delegate.bodies;
     }
 
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) {
+        this.delegate.onAttack(weapon, force, ray, hitPoint);
+    }
+
+    onHitCallback(body: PhysicsBody, weapon: Weapon) {
+        if (this.delegate.onHitCallback) {
+            this.delegate.onHitCallback(body, weapon);
+        }
+    }
+
+    onUpdateCallback(position: Position, quaternion: Quaternion) {
+        if (this.delegate.onUpdateCallback) {
+            this.delegate.onUpdateCallback(position, quaternion);
+        }
+    }
+
     getBody(name: string): PhysicsBody | undefined {
         return this.delegate.getBody(name);
     }
@@ -69,14 +85,6 @@ export class PlayerCollisionModel implements CollisionModel {
 
     update(deltaTime: number) {
         this.delegate.update(deltaTime);
-    }
-
-    get onUpdate(): (position: Position, quaternion: Quaternion) => void {
-        return this.delegate.onUpdate;
-    }
-
-    onAttack(ray: Ray, hitPoint: Vector3, forceVector: Vector3, weapon: Weapon) {
-        this.delegate.onAttack(ray, hitPoint, forceVector, weapon);
     }
 
     applyImpulse(impulse: Vector3, relativePoint?: Vector3) {

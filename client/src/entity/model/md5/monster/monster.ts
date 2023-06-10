@@ -26,6 +26,11 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         super(parameters);
     }
 
+    protected doInit() {
+        super.doInit();
+        this.collisionModel.onHitCallback = (body, weapon) => this.onBodyHit(body, weapon);
+    }
+
     update(deltaTime: number) {
         super.update(deltaTime);
         this.collisionModel.update(deltaTime);
@@ -36,8 +41,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         }
     }
 
-    onAttack(ray: Ray, intersection: Intersection, forceVector: Vector3, weapon: Weapon) {
-        this.collisionModel.onAttack(ray, intersection.point, forceVector, weapon);
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
+        this.collisionModel.onAttack(weapon, force, ray, intersection.point);
     }
 
     registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
@@ -219,6 +224,13 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
             this.getWorldDirection(this.direction).applyEuler(directionRotation).normalize();
         };
     })();
+
+    private onBodyHit(_body: PhysicsBody, weapon: Weapon) {
+        this.health -= weapon.damage;
+        if (this.health <= 0) {
+            console.log(`Monster "${this.name}" is dead`);
+        }
+    }
 }
 
 export class MonsterState extends Md5ModelState {

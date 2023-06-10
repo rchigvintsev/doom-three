@@ -1,4 +1,4 @@
-import {Intersection, Scene, Vector3, Ray} from 'three';
+import {Intersection, Ray, Scene, Vector3} from 'three';
 
 import {GameEntity} from './game-entity';
 import {Weapon} from './model/md5/weapon/weapon';
@@ -10,14 +10,9 @@ export interface TangibleEntity extends GameEntity {
     unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene): void;
 
     /**
-     * Called when someone attacks this entity with the given weapon.
-     *
-     * @param ray ray cast from weapon to this entity
-     * @param intersection intersection of ray cast from weapon with this entity
-     * @param forceVector force vector
-     * @param weapon weapon
+     * Called when someone attacks this entity.
      */
-    onAttack(ray: Ray, intersection: Intersection, forceVector: Vector3, weapon: Weapon): void;
+    onAttack?: (weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) => void;
 }
 
 export function isTangibleEntity(entity: any): entity is TangibleEntity {

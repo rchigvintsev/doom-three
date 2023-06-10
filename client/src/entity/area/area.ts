@@ -1,7 +1,6 @@
-import {Group, Intersection, Light, Ray, Scene, Vector3} from 'three';
+import {Group, Light, Scene} from 'three';
 
 import {Surface} from '../surface/surface';
-import {Weapon} from '../model/md5/weapon/weapon';
 import {TangibleEntity} from '../tangible-entity';
 import {PhysicsManager} from '../../physics/physics-manager';
 
@@ -34,9 +33,5 @@ export class Area extends Group implements TangibleEntity {
         for (const surface of this.surfaces) {
             surface.update(deltaTime);
         }
-    }
-
-    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
     }
 }

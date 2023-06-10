@@ -1,4 +1,4 @@
-import {Intersection, Object3D, PerspectiveCamera, Ray, Scene, Vector3} from 'three';
+import {Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
 
 import {random} from 'mathjs';
 
@@ -82,10 +82,6 @@ export class Player extends Object3D implements TangibleEntity {
                 }
             }
         }
-    }
-
-    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon): void {
-        // Do nothing for now
     }
 
     move(velocity: Vector3) {

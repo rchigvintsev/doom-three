@@ -62,7 +62,8 @@ export class WeaponFactory extends Md5ModelFactory {
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
-            soundFactory: this.cachingSoundFactory
+            soundFactory: this.cachingSoundFactory,
+            damage: modelDef.damage
         };
         return new Fists(fistsParams);
     }
@@ -78,7 +79,8 @@ export class WeaponFactory extends Md5ModelFactory {
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
             lightMap: flashlightMap,
-            soundFactory: this.cachingSoundFactory
+            soundFactory: this.cachingSoundFactory,
+            damage: modelDef.damage
         };
         return new Flashlight(flashlightParams);
     }
@@ -93,6 +95,7 @@ export class WeaponFactory extends Md5ModelFactory {
         pistolParams.particleManager = this.particleManager;
         pistolParams.debrisManager = this.debrisManager;
         pistolParams.decalManager = this.decalManager;
+        pistolParams.damage = modelDef.damage;
         return new Pistol(pistolParams);
     }
 
@@ -106,6 +109,7 @@ export class WeaponFactory extends Md5ModelFactory {
         shotgunParams.particleManager = this.particleManager;
         shotgunParams.debrisManager = this.debrisManager;
         shotgunParams.decalManager = this.decalManager;
+        shotgunParams.damage = modelDef.damage;
         return new Shotgun(shotgunParams);
     }
 }

@@ -1,11 +1,10 @@
-import {Intersection, Ray, Scene, Vector3} from 'three';
+import {Scene} from 'three';
 
 import {randomInt} from 'mathjs';
 
 import {LwoModel} from './lwo-model';
 import {TangibleEntity} from '../../tangible-entity';
 import {ModelParameters} from '../model-parameters';
-import {Weapon} from '../md5/weapon/weapon';
 import {Sound} from '../../sound/sound';
 import {PhysicsManager} from '../../../physics/physics-manager';
 import {CollideEvent} from '../../../event/collide-event';
@@ -34,10 +33,6 @@ export class Debris extends LwoModel implements TangibleEntity {
         if (this.collisionModel) {
             this.collisionModel.unregister(physicsManager, scene);
         }
-    }
-
-    onAttack(_ray: Ray, _intersection: Intersection, _forceVector: Vector3, _weapon: Weapon) {
-        // Do nothing
     }
 
     show(delay = 0) {

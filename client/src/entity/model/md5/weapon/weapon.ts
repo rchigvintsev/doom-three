@@ -33,6 +33,10 @@ export abstract class Weapon extends Md5Model {
         this.visible = false;
     }
 
+    get damage(): number {
+        return (<WeaponParameters>this.parameters).damage;
+    }
+
     update(deltaTime: number, player?: Player) {
         super.update(deltaTime);
         this.updateState();
@@ -214,6 +218,7 @@ export abstract class Weapon extends Md5Model {
 
 export interface WeaponParameters extends Md5ModelParameters {
     soundFactory: GameEntityFactory<Sound>;
+    damage: number;
 }
 
 export class WeaponState extends Md5ModelState {

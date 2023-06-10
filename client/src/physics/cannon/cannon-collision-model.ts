@@ -4,13 +4,17 @@ import {Constraint, Vec3} from 'cannon-es';
 
 import {Position} from '../../util/position';
 import {PhysicsManager} from '../physics-manager';
-import {Weapon} from '../../entity/model/md5/weapon/weapon';
 import {CollisionModel} from '../collision-model';
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {CollideEvent} from '../../event/collide-event';
 import {PhysicsContact} from '../physics-contact';
+import {Weapon} from '../../entity/model/md5/weapon/weapon';
+import {PhysicsBody} from '../physics-body';
 
 export class CannonCollisionModel implements CollisionModel {
+    onHitCallback?: (body: PhysicsBody, weapon: Weapon) => void;
+    onUpdateCallback?: (position: Position, quaternion: Quaternion) => void;
+
     readonly position = new Position();
     readonly quaternion = new Quaternion();
 
@@ -28,8 +32,7 @@ export class CannonCollisionModel implements CollisionModel {
     }
 
     hasMass(): boolean {
-        const body = this.firstBody;
-        return !!body && body.mass > 0;
+        return this.firstBody.mass > 0;
     }
 
     register(physicsManager: PhysicsManager, scene: Scene) {
@@ -76,14 +79,17 @@ export class CannonCollisionModel implements CollisionModel {
             }
         }
 
-        if (this.onUpdate) {
-            this.onUpdate(this.position, this.quaternion);
+        if (this.onUpdateCallback) {
+            this.onUpdateCallback(this.position, this.quaternion);
         }
     }
 
-    onAttack(_ray: Ray, hitPoint: Vector3, forceVector: Vector3, _weapon: Weapon) {
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) {
         if (this.hasMass()) {
-            this.applyImpulse(forceVector, hitPoint);
+            this.applyImpulse(force, hitPoint);
+        }
+        if (this.onHitCallback) {
+            this.onHitCallback(this.firstBody, weapon);
         }
     }
 
@@ -93,48 +99,38 @@ export class CannonCollisionModel implements CollisionModel {
 
         return (impulse: Vector3, relativePoint?: Vector3) => {
             const body = this.firstBody;
-            if (body) {
-                body.wakeUp();
-                cannonImpulse.set(impulse.x, impulse.y, impulse.z);
-                if (relativePoint) {
-                    cannonRelativePoint.set(relativePoint.x, relativePoint.y, relativePoint.z);
-                    body.applyImpulse(cannonImpulse, cannonRelativePoint);
-                } else {
-                    body.applyImpulse(cannonImpulse);
-                }
+            body.wakeUp();
+            cannonImpulse.set(impulse.x, impulse.y, impulse.z);
+            if (relativePoint) {
+                cannonRelativePoint.set(relativePoint.x, relativePoint.y, relativePoint.z);
+                body.applyImpulse(cannonImpulse, cannonRelativePoint);
+            } else {
+                body.applyImpulse(cannonImpulse);
             }
         };
     })();
 
     addCollideEventListener(listener: (e: CollideEvent) => void) {
-        this.firstBody?.addEventListener(CollideEvent.TYPE, (e: any) => {
+        this.firstBody.addEventListener(CollideEvent.TYPE, (e: any) => {
             const contactNormal = new Vector3(e.contact.ni.x, e.contact.ni.y, e.contact.ni.z);
             const contact = new PhysicsContact(e.contact.getImpactVelocityAlongNormal(), contactNormal);
             return listener(new CollideEvent(e.body, contact, e.target));
         });
     }
 
-    onUpdate: (position: Position, quaternion: Quaternion) => void = () => {
-        // Do nothing by default
-    };
-
-    private get firstBody(): CannonPhysicsBody | undefined {
-        return this.bodies.length > 0 ? this.bodies[0] : undefined;
+    private get firstBody(): CannonPhysicsBody {
+        return this.bodies[0];
     }
 
     private onPositionChange() {
         const body = this.firstBody;
-        if (body) {
-            body.position.set(this.position.x, this.position.y, this.position.z);
-            body.helper?.position.set(this.position.x, this.position.y, this.position.z);
-        }
+        body.position.set(this.position.x, this.position.y, this.position.z);
+        body.helper?.position.set(this.position.x, this.position.y, this.position.z);
     }
 
     private onQuaternionChange() {
         const body = this.firstBody;
-        if (body) {
-            body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
-            body.helper?.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
-        }
+        body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
+        body.helper?.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
     }
 }

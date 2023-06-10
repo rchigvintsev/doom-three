@@ -15,13 +15,16 @@ export class CannonRagdollCollisionModel extends CannonCollisionModel {
         const cannonRay = new CannonRay(new Vec3(), new Vec3());
         const raycastResult = new RaycastResult();
 
-        return (ray: Ray, _hitPoint: Vector3, _forceVector: Vector3, weapon: Weapon) => {
+        return (weapon: Weapon, _force: Vector3, ray: Ray, _hitPoint: Vector3) => {
             this.updateRay(ray, cannonRay);
             raycastResult.reset();
             cannonRay.intersectBodies(this.bodies, raycastResult);
             if (raycastResult.body) {
                 const hitBody = raycastResult.body as CannonPhysicsBody;
                 console.log(`Body "${hitBody.name}" is hit using weapon "${weapon.name}"`);
+                if (this.onHitCallback) {
+                    this.onHitCallback(hitBody, weapon);
+                }
             }
         };
     })();

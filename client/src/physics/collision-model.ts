@@ -23,11 +23,11 @@ export interface CollisionModel {
 
     update(deltaTime: number): void;
 
-    get onUpdate(): (position: Position, quaternion: Quaternion) => void;
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3): void;
 
-    set onUpdate(callback: (position: Position, quaternion: Quaternion) => void);
+    onHitCallback?: (body: PhysicsBody, weapon: Weapon) => void;
 
-    onAttack(ray: Ray, hitPoint: Vector3, forceVector: Vector3, weapon: Weapon): void;
+    onUpdateCallback?: (position: Position, quaternion: Quaternion) => void;
 
     applyImpulse(impulse: Vector3, relativePoint?: Vector3): void;
 
