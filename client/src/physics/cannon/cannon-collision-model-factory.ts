@@ -86,7 +86,8 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup || 1,
             collisionFilterMask: bodyDef.collisionFilterMask || 7,
-            material: this.getBodyMaterial(bodyDef)
+            material: this.getBodyMaterial(bodyDef),
+            damageFactor: bodyDef.damageFactor
         });
         if (bodyDef.collisionResponse != undefined) {
             body.collisionResponse = bodyDef.collisionResponse;

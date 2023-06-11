@@ -224,7 +224,8 @@
             }
           ],
           "position": [0.02, 70.33, -1.15],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "damageFactor": 2
         }
       ],
       "constraints": [

@@ -6,6 +6,7 @@ import {PhysicsBody} from '../physics-body';
 
 export class CannonPhysicsBody extends Body implements PhysicsBody {
     readonly name: string | undefined;
+    readonly damageFactor: number;
 
     helper: Object3D | undefined;
 
@@ -31,9 +32,11 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         angularFactor?: Vec3;
         shape?: Shape;
         isTrigger?: boolean;
+        damageFactor?: number;
     }) {
         super(options);
         this.name = options?.name;
+        this.damageFactor = options?.damageFactor || 1;
     }
 
     reset() {

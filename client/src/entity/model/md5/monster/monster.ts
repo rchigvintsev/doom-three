@@ -225,8 +225,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         };
     })();
 
-    private onBodyHit(_body: PhysicsBody, weapon: Weapon) {
-        this.health -= weapon.damage;
+    private onBodyHit(body: PhysicsBody, weapon: Weapon) {
+        this.health -= (weapon.damage * body.damageFactor);
         if (this.health <= 0) {
             console.log(`Monster "${this.name}" is dead`);
         }

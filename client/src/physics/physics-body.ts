@@ -5,6 +5,8 @@ export interface PhysicsBody {
 
     get helper(): Object3D | undefined;
 
+    get damageFactor(): number;
+
     reset(): void;
 
     setPosition(position: Vector3): void;
