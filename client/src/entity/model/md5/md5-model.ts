@@ -121,11 +121,15 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return false;
     }
 
-    protected stopAllAnimations(...animationNames: string[]) {
+    protected stopAnimations(...animationNames: string[]) {
         const actions = this.animationMixer.findActions(...animationNames);
         for (const action of actions) {
             action.stop();
         }
+    }
+
+    protected stopAllAnimations() {
+        this.animationMixer.stopAllAction();
     }
 
     protected get runningAction(): AnimationAction | undefined {
@@ -148,10 +152,14 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         return sound;
     }
 
-    protected stopAllSounds(...soundNames: string[]) {
+    protected stopSounds(...soundNames: string[]) {
         for (const soundName of soundNames) {
             this.parameters.sounds.get(soundName)?.stop();
         }
+    }
+
+    protected stopAllSounds() {
+        this.parameters.sounds.forEach(sound => sound.stop());
     }
 
     protected findMaterialByName(name: string): Material | undefined {

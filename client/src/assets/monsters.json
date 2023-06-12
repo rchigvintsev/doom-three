@@ -37,6 +37,7 @@
       "chatter_combat": "monster_zombie_fat_chatter_combat",
       "whoosh": "monster_zombie_fat_whoosh",
       "pain": "monster_zombie_fat_pain",
+      "death": "monster_zombie_fat_death",
       "bounce": "ragdoll_impact"
     },
     "collisionModel": {

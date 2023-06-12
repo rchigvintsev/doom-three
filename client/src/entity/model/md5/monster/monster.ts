@@ -102,6 +102,10 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         return this.currentState === MonsterState.ATTACKING;
     }
 
+    protected isDead() {
+        return this.currentState === MonsterState.DEAD;
+    }
+
     protected playSound(soundName: string, delay?: number): Sound | undefined {
         const sound = super.playSound(soundName, delay);
         if (sound && !sound.parent) {
@@ -210,6 +214,16 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         };
     })();
 
+    protected onBodyHit(body: PhysicsBody, weapon: Weapon) {
+        if (!this.isDead()) {
+            this.health -= (weapon.damage * body.damageFactor);
+            if (this.health <= 0) {
+                this.changeState(MonsterState.DEAD);
+                console.log(`Monster "${this.name}" is dead`);
+            }
+        }
+    }
+
     private updateBehaviors(deltaTime: number) {
         for (const behavior of this.behaviors) {
             behavior.update(deltaTime);
@@ -224,17 +238,11 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
             this.getWorldDirection(this.direction).applyEuler(directionRotation).normalize();
         };
     })();
-
-    private onBodyHit(body: PhysicsBody, weapon: Weapon) {
-        this.health -= (weapon.damage * body.damageFactor);
-        if (this.health <= 0) {
-            console.log(`Monster "${this.name}" is dead`);
-        }
-    }
 }
 
 export class MonsterState extends Md5ModelState {
     static readonly IDLE = 'idle';
     static readonly WALKING = 'walking';
     static readonly ATTACKING = 'attacking';
+    static readonly DEAD = 'dead';
 }

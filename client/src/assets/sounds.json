@@ -358,6 +358,16 @@
     ]
   },
   {
+    "name": "monster_zombie_fat_death",
+    "type": "positional",
+    "sources": [
+      "sound/ed/zombie2/zombie_death1.ogg",
+      "sound/ed/zombie2/zombie_death2.ogg",
+      "sound/ed/zombie2/zombie_death3.ogg",
+      "sound/ed/zombie2/zombie_death4.ogg"
+    ]
+  },
+  {
     "name": "ragdoll_impact",
     "type": "positional",
     "sources": [

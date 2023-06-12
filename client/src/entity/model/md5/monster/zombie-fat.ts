@@ -4,6 +4,8 @@ import {randomInt} from 'mathjs';
 
 import {Monster, MonsterState} from './monster';
 import {Md5ModelParameters} from '../md5-model';
+import {PhysicsBody} from '../../../../physics/physics-body';
+import {Weapon} from '../weapon/weapon';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -104,6 +106,20 @@ export class ZombieFat extends Monster {
             this.position.add(this.positionOffset);
             this.positionOffset.setScalar(0);
             this.changeState(MonsterState.IDLE);
+        }
+    }
+
+    protected onBodyHit(body: PhysicsBody, weapon: Weapon) {
+        const wasDead = this.isDead();
+        super.onBodyHit(body, weapon);
+        if (!wasDead) {
+            this.stopAllSounds();
+            if (this.isDead()) {
+                this.stopAllAnimations();
+                this.playDeathSound();
+            } else {
+                this.playPainSound();
+            }
         }
     }
 
@@ -225,7 +241,7 @@ export class ZombieFat extends Monster {
 
     private attack() {
         if (this.canAttack()) {
-            this.stopAllSounds('chatter');
+            this.stopSounds('chatter');
             const nextArm = (this.lastArm + 1) % 2;
             let animationFlowName;
             if (nextArm === LEFT_ARM) {
@@ -308,6 +324,14 @@ export class ZombieFat extends Monster {
 
     private playFootstepSound() {
         this.playSound('footstep');
+    }
+
+    private playPainSound() {
+        this.playSingleSound('pain');
+    }
+
+    private playDeathSound() {
+        this.playSingleSound('death');
     }
 
     private get walkSpeed(): number {

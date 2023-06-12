@@ -44,8 +44,8 @@ export class Shotgun extends Firearm {
     attack() {
         const canAttack = this.canAttack();
         if (canAttack && this.isReloading()) {
-            this.stopAllAnimations('reload_start', 'reload_loop', 'reload_loop2', 'reload_loop3', 'reload_end');
-            this.stopAllSounds('reload_start', 'reload_loop', 'pump');
+            this.stopAnimations('reload_start', 'reload_loop', 'reload_loop2', 'reload_loop3', 'reload_end');
+            this.stopSounds('reload_start', 'reload_loop', 'pump');
         }
         super.attack();
         if (canAttack) {
