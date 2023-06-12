@@ -1,5 +1,9 @@
 const CONFIG_KEY = 'doom-three-config';
 
+export enum DifficultyLevel {
+    RECRUIT, MARINE, VETERAN, NIGHTMARE
+}
+
 const DEFAULT_CAMERA_FOV = 75;
 const DEFAULT_CAMERA_NEAR = 0.01;
 const DEFAULT_CAMERA_FAR = 1000;
@@ -16,6 +20,7 @@ const DEFAULT_SHOW_LIGHT_SOURCES = false;
 const DEFAULT_SHOW_SKELETONS = false;
 const DEFAULT_SHOW_COLLISION_MODELS = false;
 const DEFAULT_GHOST_MODE = false;
+const DEFAULT_DIFFICULTY_LEVEL = DifficultyLevel.MARINE;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -34,6 +39,7 @@ export class GameConfig {
     showSkeletons = DEFAULT_SHOW_SKELETONS;
     showCollisionModels = DEFAULT_SHOW_COLLISION_MODELS;
     ghostMode = DEFAULT_GHOST_MODE;
+    difficultyLevel = DEFAULT_DIFFICULTY_LEVEL;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];
