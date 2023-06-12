@@ -19,7 +19,8 @@
       "raise": "fist_raise",
       "whoosh": "fist_whoosh",
       "impact": "fist_impact"
-    }
+    },
+    "damage": 20
   },
   {
     "name": "flashlight",
@@ -45,7 +46,8 @@
       "whoosh": "fist_whoosh",
       "impact_metal": "monster_zombie_fat_wrench",
       "impact_cardboard": "flashlight_impact"
-    }
+    },
+    "damage": 40
   },
   {
     "name": "pistol",
@@ -86,7 +88,7 @@
     "maxAmmoReserve": 348,
     "attackDistance": 1000,
     "attackForce": 5,
-    "damage": 15
+    "damage": 14
   },
   {
     "name": "shotgun",
@@ -136,6 +138,7 @@
     "ammoClipSize": 8,
     "maxAmmoReserve": 312,
     "attackDistance": 1000,
-    "attackForce": 3
+    "attackForce": 3,
+    "damage": 14
   }
 ]
