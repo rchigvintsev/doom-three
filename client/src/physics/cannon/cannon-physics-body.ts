@@ -39,6 +39,13 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         this.damageFactor = options?.damageFactor || 1;
     }
 
+    update() {
+        if (this.helper) {
+            this.helper.position.copy(this.getPosition());
+            this.helper.quaternion.copy(this.getQuaternion());
+        }
+    }
+
     reset() {
         this.angularFactor.set(1, 1, 1);
         this.angularVelocity.setZero();
@@ -65,12 +72,22 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         this.wlambda.setZero();
     }
 
+    getPosition = (() => {
+        const position = new Vector3();
+        return () => position.set(this.position.x, this.position.y, this.position.z);
+    })();
+
     setPosition(position: Vector3) {
         this.position.set(position.x, position.y, position.z);
         if (this.helper) {
             this.helper.position.copy(position);
         }
     }
+
+    getQuaternion = (() => {
+        const quaternion = new Quaternion();
+        return () => quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
+    })();
 
     setQuaternion(quaternion: Quaternion) {
         this.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);

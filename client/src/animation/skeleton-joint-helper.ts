@@ -1,4 +1,4 @@
-import {Matrix4, Mesh, MeshNormalMaterial, SkinnedMesh, SphereGeometry, Vector3} from 'three';
+import {Mesh, MeshNormalMaterial, SkinnedMesh, SphereGeometry, Vector3} from 'three';
 
 export class SkeletonJointHelper {
     logJointPositions = false;
@@ -22,13 +22,12 @@ export class SkeletonJointHelper {
 
     update = (() => {
         const bonePosition = new Vector3();
-        const boneMatrix = new Matrix4();
 
         return () => {
             for (const bone of this.parent.skeleton.bones) {
                 const helper = this.jointHelpers.get(bone.name);
                 if (helper) {
-                    bonePosition.setFromMatrixPosition(boneMatrix.identity().multiply(bone.matrixWorld));
+                    bonePosition.setFromMatrixPosition(bone.matrixWorld);
                     if (this.logJointPositions) {
                         console.log(`Joint "${bone.name}": `
                             + `position = [${bonePosition.x}, ${bonePosition.y}, ${bonePosition.z}]`);

@@ -13,7 +13,7 @@ export interface CollisionModel {
 
     get bodies(): PhysicsBody[];
 
-    getBody(name: string): PhysicsBody | undefined;
+    bodyByName(name: string): PhysicsBody | undefined;
 
     hasMass(): boolean;
 

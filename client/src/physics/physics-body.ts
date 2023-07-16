@@ -9,7 +9,11 @@ export interface PhysicsBody {
 
     reset(): void;
 
+    getPosition(): Vector3;
+
     setPosition(position: Vector3): void;
+
+    getQuaternion(): Quaternion;
 
     setQuaternion(quaternion: Quaternion): void;
 }

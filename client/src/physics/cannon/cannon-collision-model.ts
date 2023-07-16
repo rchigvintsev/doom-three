@@ -18,17 +18,17 @@ export class CannonCollisionModel implements CollisionModel {
     readonly position = new Position();
     readonly quaternion = new Quaternion();
 
-    constructor(readonly bodies: CannonPhysicsBody[], readonly constraints: Constraint[] = []) {
+    constructor(protected readonly parameters: CannonCollisionModelParameters) {
         this.position._onChange(() => this.onPositionChange());
         this.quaternion._onChange(() => this.onQuaternionChange());
     }
 
-    getBody(name: string): CannonPhysicsBody | undefined {
-        for (const body of this.bodies) {
-            if (body.name === name) {
-                return body;
-            }
-        }
+    get bodies(): CannonPhysicsBody[] {
+        return this.parameters.bodies;
+    }
+
+    bodyByName(name: string): CannonPhysicsBody | undefined {
+        return this.findBodyByName(name, this.parameters.bodies);
     }
 
     hasMass(): boolean {
@@ -36,20 +36,20 @@ export class CannonCollisionModel implements CollisionModel {
     }
 
     register(physicsManager: PhysicsManager, scene: Scene) {
-        for (const body of this.bodies) {
+        for (const body of this.parameters.bodies) {
             physicsManager.addBody(body);
             if (body.helper) {
                 scene.add(body.helper);
             }
         }
 
-        for (const constraint of this.constraints) {
+        for (const constraint of this.parameters.constraints) {
             physicsManager.addConstraint(constraint);
         }
     }
 
     unregister(physicsManager: PhysicsManager, scene: Scene) {
-        for (const body of this.bodies) {
+        for (const body of this.parameters.bodies) {
             physicsManager.removeBody(body);
             body.reset();
             if (body.helper) {
@@ -57,30 +57,26 @@ export class CannonCollisionModel implements CollisionModel {
             }
         }
 
-        for (const constraint of this.constraints) {
+        for (const constraint of this.parameters.constraints) {
             physicsManager.removeConstraint(constraint);
         }
     }
 
     update(_deltaTime: number) {
-        for (let i = 0; i < this.bodies.length; i++) {
-            const body = this.bodies[i];
-            const position = body.position;
-            const quaternion = body.quaternion;
-
-            if (i === 0) {
-                this.position.set(position.x, position.y, position.z);
-                this.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-            }
-
-            if (body.helper) {
-                body.helper.position.set(position.x, position.y, position.z);
-                body.helper.quaternion.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-            }
-        }
-
+        this.updateBodies(this.parameters.bodies);
         if (this.onUpdateCallback) {
             this.onUpdateCallback(this.position, this.quaternion);
+        }
+    }
+
+    protected updateBodies(bodies: CannonPhysicsBody[]) {
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            body.update();
+            if (i === 0) {
+                this.position.setFromVector3(body.getPosition());
+                this.quaternion.copy(body.getQuaternion());
+            }
         }
     }
 
@@ -118,8 +114,16 @@ export class CannonCollisionModel implements CollisionModel {
         });
     }
 
-    private get firstBody(): CannonPhysicsBody {
-        return this.bodies[0];
+    protected get firstBody(): CannonPhysicsBody {
+        return this.parameters.bodies[0];
+    }
+
+    protected findBodyByName(name: string, bodies: CannonPhysicsBody[]): CannonPhysicsBody | undefined {
+        for (const body of bodies) {
+            if (body.name === name) {
+                return body;
+            }
+        }
     }
 
     private onPositionChange() {
@@ -133,4 +137,9 @@ export class CannonCollisionModel implements CollisionModel {
         body.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
         body.helper?.quaternion.set(this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w);
     }
+}
+
+export interface CannonCollisionModelParameters {
+    bodies: CannonPhysicsBody[];
+    constraints: Constraint[];
 }

@@ -142,7 +142,6 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
     }
 
     protected updateRagdollPart = (() => {
-        const boneMatrix = new Matrix4();
         const ragdollMatrix = new Matrix4();
         const rotationMatrix = new Matrix4();
         const translationMatrix = new Matrix4();
@@ -179,8 +178,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
                 return;
             }
 
-            v1.setFromMatrixPosition(boneMatrix.identity().multiply(parameters.boneA.matrixWorld));
-            v2.setFromMatrixPosition(boneMatrix.identity().multiply(parameters.boneB.matrixWorld));
+            v1.setFromMatrixPosition(parameters.boneA.matrixWorld);
+            v2.setFromMatrixPosition(parameters.boneB.matrixWorld);
 
             const angle = MathUtils.degToRad(this.turnAngle);
             v1.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));

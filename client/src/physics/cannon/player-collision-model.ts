@@ -63,8 +63,8 @@ export class PlayerCollisionModel implements CollisionModel {
         }
     }
 
-    getBody(name: string): PhysicsBody | undefined {
-        return this.delegate.getBody(name);
+    bodyByName(name: string): PhysicsBody | undefined {
+        return this.delegate.bodyByName(name);
     }
 
     hasMass(): boolean {

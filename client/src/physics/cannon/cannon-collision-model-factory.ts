@@ -46,6 +46,13 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
     }
 
     create(collisionModelDef: any): CollisionModel {
+        if (collisionModelDef.ragdoll) {
+            return this.createRagdollCollisionModel(collisionModelDef);
+        }
+        return this.createRegularCollisionModel(collisionModelDef);
+    }
+
+    private createRegularCollisionModel(collisionModelDef: any): CannonCollisionModel {
         const bodies: CannonPhysicsBody[] = [];
         const constraints: Constraint[] = [];
         if (collisionModelDef) {
@@ -68,10 +75,51 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 }
             }
         }
-        return this.createCollisionModel(collisionModelDef.ragdoll, bodies, constraints);
+        return new CannonCollisionModel({bodies, constraints});
     }
 
-    private createBody(bodyDef: any): CannonPhysicsBody {
+    private createRagdollCollisionModel(collisionModelDef: any): CannonRagdollCollisionModel {
+        const bodies: CannonPhysicsBody[] = [];
+        const deadStateBodies: CannonPhysicsBody[] = [];
+        const deadStateConstraints: Constraint[] = [];
+        if (collisionModelDef) {
+            let helperMaterial;
+            if (this.config.showCollisionModels) {
+                helperMaterial = this.createMaterialWithRandomColor();
+            }
+
+            for (const bodyDef of collisionModelDef.bodies) {
+                const body = this.createBody(bodyDef);
+                bodies.push(body);
+                if (this.config.showCollisionModels) {
+                    body.helper = this.bodyToMesh(body, helperMaterial);
+                }
+
+                // Create mirroring body for dead state
+                if (body.type === Body.KINEMATIC) {
+                    const deadBody = this.createBody(bodyDef, {type: Body.DYNAMIC});
+                    deadStateBodies.push(deadBody);
+                    deadBody.helper = body.helper;
+                }
+            }
+
+            if (collisionModelDef.constraints) {
+                for (const constraintDef of collisionModelDef.constraints) {
+                    deadStateConstraints.push(this.createConstraint(constraintDef, deadStateBodies));
+                }
+            }
+        }
+        return new CannonRagdollCollisionModel({
+            bodies,
+            constraints: [],
+            deadStateBodies,
+            deadStateConstraints,
+            physicsManager: this.physicsManager,
+            worldScale: this.config.worldScale
+        });
+    }
+
+    private createBody(bodyDef: any, options?: BodyOptions): CannonPhysicsBody {
         /*
          * collisionFilterGroup = 1 for most of the objects
          *
@@ -82,7 +130,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
          */
         const body = new CannonPhysicsBody({
             name: bodyDef.name,
-            type: this.getBodyType(bodyDef),
+            type: this.getBodyType(bodyDef, options),
             mass: bodyDef.mass,
             collisionFilterGroup: bodyDef.collisionFilterGroup || 1,
             collisionFilterMask: bodyDef.collisionFilterMask || 7,
@@ -175,7 +223,9 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 ? Vec3.UNIT_X
                 : (constraintDef.axisB === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
             return new ConeTwistConstraint(bodyA, bodyB, {
-                pivotA, pivotB, axisA, axisB, angle: constraintDef.angle,
+                pivotA, pivotB,
+                axisA, axisB,
+                angle: constraintDef.angle,
                 twistAngle: constraintDef.twistAngle
             });
         }
@@ -270,7 +320,11 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         return result;
     }
 
-    private getBodyType(bodyDef: any): BodyType {
+    private getBodyType(bodyDef: any, options?: BodyOptions): BodyType {
+        if (options && options.type != undefined) {
+            return options.type;
+        }
+
         if (bodyDef.type === 'static' || bodyDef.mass === 0) {
             return Body.STATIC;
         }
@@ -279,11 +333,8 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         }
         return Body.DYNAMIC;
     }
+}
 
-    private createCollisionModel(ragdoll: boolean, bodies: CannonPhysicsBody[], constraints: Constraint[]) {
-        if (ragdoll) {
-            return new CannonRagdollCollisionModel(bodies, constraints, this.config.worldScale);
-        }
-        return new CannonCollisionModel(bodies, constraints);
-    }
+interface BodyOptions {
+    type?: BodyType;
 }

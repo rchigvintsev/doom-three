@@ -44,8 +44,8 @@
       "ragdoll": true,
       "bodies": [
         {
-          "name": "bounding",
-          "mass": 0.1,
+          "name": "boundingBox",
+          "mass": 0,
           "collisionResponse": 0,
           "material": "models/monster",
           "allowSleep": false,
