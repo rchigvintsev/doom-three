@@ -10,6 +10,7 @@ import {PhysicsManager} from '../../../../physics/physics-manager';
 import {TangibleEntity} from '../../../tangible-entity';
 import {CollisionModel} from '../../../../physics/collision-model';
 import {PhysicsBody} from '../../../../physics/physics-body';
+import {RagdollCollisionModel} from '../../../../physics/ragdoll-collision-model';
 
 export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -22,7 +23,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     private readonly _calculatedPosition = new Vector3();
 
-    constructor(parameters: Md5ModelParameters) {
+    constructor(parameters: MonsterParameters) {
         super(parameters);
     }
 
@@ -98,6 +99,10 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         };
     })();
 
+    protected get scene(): Scene {
+        return (<MonsterParameters>this.parameters).scene;
+    }
+
     protected isAttacking(): boolean {
         return this.currentState === MonsterState.ATTACKING;
     }
@@ -141,7 +146,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         this.collisionModel.quaternion.copy(quaternion);
     }
 
-    protected updateRagdollPart = (() => {
+    protected makeRagdollPartFollowAnimation = (() => {
         const ragdollMatrix = new Matrix4();
         const rotationMatrix = new Matrix4();
         const translationMatrix = new Matrix4();
@@ -217,6 +222,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         if (!this.isDead()) {
             this.health -= (weapon.damage * body.damageFactor);
             if (this.health <= 0) {
+                this.stopAllAnimations();
+                (<RagdollCollisionModel>this.collisionModel).kill();
                 this.changeState(MonsterState.DEAD);
                 console.log(`Monster "${this.name}" is dead`);
             }
@@ -244,4 +251,8 @@ export class MonsterState extends Md5ModelState {
     static readonly WALKING = 'walking';
     static readonly ATTACKING = 'attacking';
     static readonly DEAD = 'dead';
+}
+
+export interface MonsterParameters extends Md5ModelParameters {
+    scene: Scene;
 }

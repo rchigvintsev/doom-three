@@ -1,9 +1,8 @@
-import {Quaternion, Vector3} from 'three';
+import {Bone, Matrix4, Quaternion, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
-import {Monster, MonsterState} from './monster';
-import {Md5ModelParameters} from '../md5-model';
+import {Monster, MonsterParameters, MonsterState} from './monster';
 import {PhysicsBody} from '../../../../physics/physics-body';
 import {Weapon} from '../weapon/weapon';
 
@@ -33,7 +32,7 @@ export class ZombieFat extends Monster {
     private stopWalkingScheduled = false;
     private lastArm = LEFT_ARM;
 
-    constructor(parameters: Md5ModelParameters) {
+    constructor(parameters: MonsterParameters) {
         super(parameters);
     }
 
@@ -95,8 +94,12 @@ export class ZombieFat extends Monster {
 
     protected updateCollisionModel(position: Vector3 = this.calculatedPosition,
                                    quaternion: Quaternion = this.quaternion) {
-        super.updateCollisionModel(position, quaternion);
-        this.updateRagdoll();
+        if (this.isDead()) {
+            this.makeSkeletonFollowRagdoll();
+        } else {
+            super.updateCollisionModel(position, quaternion);
+            this.makeRagdollFollowAnimation();
+        }
     }
 
     protected updateState() {
@@ -115,7 +118,6 @@ export class ZombieFat extends Monster {
         if (!wasDead) {
             this.stopAllSounds();
             if (this.isDead()) {
-                this.stopAllAnimations();
                 this.playDeathSound();
             } else {
                 this.playPainSound();
@@ -123,44 +125,44 @@ export class ZombieFat extends Monster {
         }
     }
 
-    private updateRagdoll = (() => {
+    private makeRagdollFollowAnimation = (() => {
         const q = new Quaternion();
         const zAxis = new Vector3(0, 0, 1);
 
         return () => {
-            const leftLowerLeg = this.collisionModel.getBody('leftLowerLeg');
+            const leftLowerLeg = this.collisionModel.bodyByName('leftLowerLeg');
             if (leftLowerLeg) {
                 const leftKneeBone = this.skeleton.bones[6];
                 const leftAnkleBone = this.skeleton.bones[8];
-                this.updateRagdollPart(leftLowerLeg, {boneA: leftKneeBone, boneB: leftAnkleBone});
+                this.makeRagdollPartFollowAnimation(leftLowerLeg, {boneA: leftKneeBone, boneB: leftAnkleBone});
             }
 
-            const rightLowerLeg = this.collisionModel.getBody('rightLowerLeg');
+            const rightLowerLeg = this.collisionModel.bodyByName('rightLowerLeg');
             if (rightLowerLeg) {
                 const rightKneeBone = this.skeleton.bones[14];
                 const rightAnkleBone = this.skeleton.bones[16];
-                this.updateRagdollPart(rightLowerLeg, {boneA: rightKneeBone, boneB: rightAnkleBone});
+                this.makeRagdollPartFollowAnimation(rightLowerLeg, {boneA: rightKneeBone, boneB: rightAnkleBone});
             }
 
-            const leftUpperLeg = this.collisionModel.getBody('leftUpperLeg');
+            const leftUpperLeg = this.collisionModel.bodyByName('leftUpperLeg');
             if (leftUpperLeg) {
                 const leftHipBone = this.skeleton.bones[4];
                 const leftKneeBone = this.skeleton.bones[6];
-                this.updateRagdollPart(leftUpperLeg, {boneA: leftHipBone, boneB: leftKneeBone});
+                this.makeRagdollPartFollowAnimation(leftUpperLeg, {boneA: leftHipBone, boneB: leftKneeBone});
             }
 
-            const rightUpperLeg = this.collisionModel.getBody('rightUpperLeg');
+            const rightUpperLeg = this.collisionModel.bodyByName('rightUpperLeg');
             if (rightUpperLeg) {
                 const rightHipBone = this.skeleton.bones[12];
                 const rightKneeBone = this.skeleton.bones[14];
-                this.updateRagdollPart(rightUpperLeg, {boneA: rightHipBone, boneB: rightKneeBone});
+                this.makeRagdollPartFollowAnimation(rightUpperLeg, {boneA: rightHipBone, boneB: rightKneeBone});
             }
 
-            const belly = this.collisionModel.getBody('belly');
+            const belly = this.collisionModel.bodyByName('belly');
             if (belly) {
                 const pelvisBone = this.skeleton.bones[21];
                 const chestBone = this.skeleton.bones[26];
-                this.updateRagdollPart(belly, {
+                this.makeRagdollPartFollowAnimation(belly, {
                     boneA: pelvisBone,
                     boneB: chestBone,
                     rotationFunc: (rm, d) => rm.makeRotationFromQuaternion(q.setFromUnitVectors(this.up, d.normalize())),
@@ -168,36 +170,36 @@ export class ZombieFat extends Monster {
                 });
             }
 
-            const chest = this.collisionModel.getBody('chest');
+            const chest = this.collisionModel.bodyByName('chest');
             if (chest) {
                 const neckBone = this.skeleton.bones[30];
                 const chestBone = this.skeleton.bones[26];
-                this.updateRagdollPart(chest, {
+                this.makeRagdollPartFollowAnimation(chest, {
                     boneA: chestBone,
                     boneB: neckBone,
                     translationFunc: (tm, l) => tm.makeTranslation(0, l / 2.0, 2)
                 });
             }
 
-            const leftUpperArm = this.collisionModel.getBody('leftUpperArm');
+            const leftUpperArm = this.collisionModel.bodyByName('leftUpperArm');
             if (leftUpperArm) {
                 const leftShoulderBone = this.skeleton.bones[32];
                 const leftElbowBone = this.skeleton.bones[33];
-                this.updateRagdollPart(leftUpperArm, {boneA: leftShoulderBone, boneB: leftElbowBone});
+                this.makeRagdollPartFollowAnimation(leftUpperArm, {boneA: leftShoulderBone, boneB: leftElbowBone});
             }
 
-            const leftLowerArm = this.collisionModel.getBody('leftLowerArm');
+            const leftLowerArm = this.collisionModel.bodyByName('leftLowerArm');
             if (leftLowerArm) {
                 const leftElbowBone = this.skeleton.bones[33];
                 const leftWristBone = this.skeleton.bones[35];
-                this.updateRagdollPart(leftLowerArm, {boneA: leftElbowBone, boneB: leftWristBone});
+                this.makeRagdollPartFollowAnimation(leftLowerArm, {boneA: leftElbowBone, boneB: leftWristBone});
             }
 
-            const rightUpperArm = this.collisionModel.getBody('rightUpperArm');
+            const rightUpperArm = this.collisionModel.bodyByName('rightUpperArm');
             if (rightUpperArm) {
                 const rightShoulderBone = this.skeleton.bones[49];
                 const rightElbowBone = this.skeleton.bones[50];
-                this.updateRagdollPart(rightUpperArm, {
+                this.makeRagdollPartFollowAnimation(rightUpperArm, {
                     boneA: rightShoulderBone,
                     boneB: rightElbowBone,
                     // 0.383972 rad = 22 degrees
@@ -206,25 +208,138 @@ export class ZombieFat extends Monster {
                 });
             }
 
-            const rightLowerArm = this.collisionModel.getBody('rightLowerArm');
+            const rightLowerArm = this.collisionModel.bodyByName('rightLowerArm');
             if (rightLowerArm) {
                 const rightElbowBone = this.skeleton.bones[50];
                 const rightWristBone = this.skeleton.bones[52];
-                this.updateRagdollPart(rightLowerArm, {
+                this.makeRagdollPartFollowAnimation(rightLowerArm, {
                     boneA: rightElbowBone,
                     boneB: rightWristBone,
                     translationFunc: (tm, l) => tm.makeTranslation(0, -l / 2.0, 0)
                 });
             }
 
-            const head = this.collisionModel.getBody('head');
+            const head = this.collisionModel.bodyByName('head');
             if (head) {
                 const headBone = this.skeleton.bones[68];
-                this.updateRagdollPart(head, {
+                this.makeRagdollPartFollowAnimation(head, {
                     boneA: headBone,
                     translationFunc: (tm) => tm.makeTranslation(0, 1, 1.5)
                 });
             }
+        };
+    })();
+
+    private makeSkeletonFollowRagdoll() {
+        const leftLowerLeg = this.collisionModel.bodyByName('leftLowerLeg');
+        const leftLowerLegBone = this.skeleton.getBoneByName('Lloleg');
+        if (leftLowerLeg && leftLowerLegBone) {
+            this.makeSkeletonFollowRagdollPart(leftLowerLeg, leftLowerLegBone,
+                bone => bone.rotateX(Math.PI),
+                bone => bone.translateY(-7.7 * this.parameters.config.worldScale));
+        }
+
+        const rightLowerLeg = this.collisionModel.bodyByName('rightLowerLeg');
+        const rightLowerLegBone = this.skeleton.getBoneByName('Rloleg');
+        if (rightLowerLeg && rightLowerLegBone) {
+            this.makeSkeletonFollowRagdollPart(rightLowerLeg, rightLowerLegBone,
+                bone => bone.rotateX(Math.PI),
+                bone => bone.translateY(-7.7 * this.parameters.config.worldScale));
+        }
+
+        const leftUpperLeg = this.collisionModel.bodyByName('leftUpperLeg');
+        const leftUpperLegBone = this.skeleton.getBoneByName('Lupleg');
+        if (leftUpperLeg && leftUpperLegBone) {
+            this.makeSkeletonFollowRagdollPart(leftUpperLeg, leftUpperLegBone,
+                bone => bone.rotateX(Math.PI),
+                bone => bone.translateY(-10.05 * this.parameters.config.worldScale));
+        }
+
+        const rightUpperLeg = this.collisionModel.bodyByName('rightUpperLeg');
+        const rightUpperLegBone = this.skeleton.getBoneByName('Rupleg');
+        if (rightUpperLeg && rightUpperLegBone) {
+            this.makeSkeletonFollowRagdollPart(rightUpperLeg, rightUpperLegBone,
+                bone => bone.rotateX(Math.PI),
+                bone => bone.translateY(-10.05 * this.parameters.config.worldScale));
+        }
+
+        const belly = this.collisionModel.bodyByName('belly');
+        const bodyBone = this.skeleton.getBoneByName('Body');
+        if (belly && bodyBone) {
+            this.makeSkeletonFollowRagdollPart(belly, bodyBone,
+                undefined,
+                bone => bone.translateY(-5.25 * this.parameters.config.worldScale));
+        }
+
+        const chest = this.collisionModel.bodyByName('chest');
+        const chestBone = this.skeleton.getBoneByName('chest');
+        if (chest && chestBone) {
+            this.makeSkeletonFollowRagdollPart(chest, chestBone,
+                undefined,
+                bone => bone.translateY(-8 * this.parameters.config.worldScale));
+        }
+
+        const head = this.collisionModel.bodyByName('head');
+        const headBone = this.skeleton.getBoneByName('head');
+        if (head && headBone) {
+            this.makeSkeletonFollowRagdollPart(head, headBone);
+        }
+
+        const rightUpperArm = this.collisionModel.bodyByName('rightUpperArm');
+        const rightUpperArmBone = this.skeleton.getBoneByName('Ruparm');
+        if (rightUpperArm && rightUpperArmBone) {
+            this.makeSkeletonFollowRagdollPart(rightUpperArm, rightUpperArmBone,
+                bone => bone.rotateY(Math.PI),
+                bone => bone.translateY(6.37 * this.parameters.config.worldScale));
+        }
+
+        const rightLowerArm = this.collisionModel.bodyByName('rightLowerArm');
+        const rightLowerArmBone = this.skeleton.getBoneByName('Rloarm');
+        if (rightLowerArm && rightLowerArmBone) {
+            this.makeSkeletonFollowRagdollPart(rightLowerArm, rightLowerArmBone,
+                bone => bone.rotateY(Math.PI),
+                bone => bone.translateY(3.75 * this.parameters.config.worldScale));
+        }
+
+        const leftUpperArm = this.collisionModel.bodyByName('leftUpperArm');
+        const leftUpperArmBone = this.skeleton.getBoneByName('Luparm');
+        if (leftUpperArm && leftUpperArmBone) {
+            this.makeSkeletonFollowRagdollPart(leftUpperArm, leftUpperArmBone, bone => {
+                bone.rotateX(Math.PI);
+                bone.rotateY(Math.PI);
+            }, bone => bone.translateY(-6.35 * this.parameters.config.worldScale));
+        }
+
+        const leftLowerArm = this.collisionModel.bodyByName('leftLowerArm');
+        const leftLowerArmBone = this.skeleton.getBoneByName('Lloarm');
+        if (leftLowerArm && leftLowerArmBone) {
+            this.makeSkeletonFollowRagdollPart(leftLowerArm, leftLowerArmBone, bone => {
+                bone.rotateX(Math.PI);
+                bone.rotateY(Math.PI);
+            }, bone => bone.translateY(-3.77 * this.parameters.config.worldScale));
+        }
+    }
+
+    private makeSkeletonFollowRagdollPart = (() => {
+        const rotationMatrix = new Matrix4();
+
+        return (body: PhysicsBody,
+                bone: Bone,
+                rotationFunc?: (bone: Bone) => void,
+                translationFunc?: (bone: Bone) => void) => {
+            const oldParent = bone.parent;
+            this.scene.attach(bone);
+
+            bone.position.copy(body.getPosition());
+            bone.quaternion.setFromRotationMatrix(rotationMatrix.makeRotationFromQuaternion(body.getQuaternion()));
+            if (rotationFunc) {
+                rotationFunc(bone);
+            }
+            if (translationFunc) {
+                translationFunc(bone);
+            }
+
+            oldParent!.attach(bone);
         };
     })();
 

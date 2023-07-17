@@ -6,8 +6,9 @@ import {CannonCollisionModel, CannonCollisionModelParameters} from './cannon-col
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {Weapon} from '../../entity/model/md5/weapon/weapon';
 import {PhysicsManager} from '../physics-manager';
+import {RagdollCollisionModel} from '../ragdoll-collision-model';
 
-export class CannonRagdollCollisionModel extends CannonCollisionModel {
+export class CannonRagdollCollisionModel extends CannonCollisionModel implements RagdollCollisionModel {
     private _dead = false;
 
     constructor(parameters: CannonRagdollCollisionModelParameters) {
