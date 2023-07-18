@@ -231,14 +231,12 @@ export class ZombieFat extends Monster {
     })();
 
     private makeSkeletonFollowRagdoll() {
-        const worldScale = this.parameters.config.worldScale;
-
         const leftLowerLeg = this.collisionModel.bodyByName('leftLowerLeg');
         const leftLowerLegBone = this.skeleton.getBoneByName('Lloleg');
         if (leftLowerLeg && leftLowerLegBone) {
             this.makeSkeletonFollowRagdollPart(leftLowerLeg, leftLowerLegBone,
                 bone => bone.rotateX(Math.PI),
-                bone => bone.translateY(-leftLowerLeg.height / 2.0 * worldScale));
+                bone => bone.translateY(-leftLowerLeg.height / 2.0));
         }
 
         const rightLowerLeg = this.collisionModel.bodyByName('rightLowerLeg');
@@ -246,7 +244,7 @@ export class ZombieFat extends Monster {
         if (rightLowerLeg && rightLowerLegBone) {
             this.makeSkeletonFollowRagdollPart(rightLowerLeg, rightLowerLegBone,
                 bone => bone.rotateX(Math.PI),
-                bone => bone.translateY(-rightLowerLeg.height / 2.0 * worldScale));
+                bone => bone.translateY(-rightLowerLeg.height / 2.0));
         }
 
         const leftUpperLeg = this.collisionModel.bodyByName('leftUpperLeg');
@@ -254,7 +252,7 @@ export class ZombieFat extends Monster {
         if (leftUpperLeg && leftUpperLegBone) {
             this.makeSkeletonFollowRagdollPart(leftUpperLeg, leftUpperLegBone,
                 bone => bone.rotateX(Math.PI),
-                bone => bone.translateY(-leftUpperLeg.height / 2.0 * worldScale));
+                bone => bone.translateY(-leftUpperLeg.height / 2.0));
         }
 
         const rightUpperLeg = this.collisionModel.bodyByName('rightUpperLeg');
@@ -262,7 +260,7 @@ export class ZombieFat extends Monster {
         if (rightUpperLeg && rightUpperLegBone) {
             this.makeSkeletonFollowRagdollPart(rightUpperLeg, rightUpperLegBone,
                 bone => bone.rotateX(Math.PI),
-                bone => bone.translateY(-rightUpperLeg.height / 2.0 * worldScale));
+                bone => bone.translateY(-rightUpperLeg.height / 2.0));
         }
 
         const belly = this.collisionModel.bodyByName('belly');
@@ -270,7 +268,7 @@ export class ZombieFat extends Monster {
         if (belly && bodyBone) {
             this.makeSkeletonFollowRagdollPart(belly, bodyBone,
                 undefined,
-                bone => bone.translateY(-belly.height / 2.0 * worldScale));
+                bone => bone.translateY(-belly.height / 2.0));
         }
 
         const chest = this.collisionModel.bodyByName('chest');
@@ -278,7 +276,7 @@ export class ZombieFat extends Monster {
         if (chest && chestBone) {
             this.makeSkeletonFollowRagdollPart(chest, chestBone,
                 undefined,
-                bone => bone.translateY(chest.height / 2.0 * worldScale));
+                bone => bone.translateY(-chest.height / 2.0));
         }
 
         const head = this.collisionModel.bodyByName('head');
@@ -292,7 +290,7 @@ export class ZombieFat extends Monster {
         if (rightUpperArm && rightUpperArmBone) {
             this.makeSkeletonFollowRagdollPart(rightUpperArm, rightUpperArmBone,
                 bone => bone.rotateY(Math.PI),
-                bone => bone.translateY(rightUpperArm.height / 2.0 * worldScale));
+                bone => bone.translateY(rightUpperArm.height / 2.0));
         }
 
         const rightLowerArm = this.collisionModel.bodyByName('rightLowerArm');
@@ -300,7 +298,7 @@ export class ZombieFat extends Monster {
         if (rightLowerArm && rightLowerArmBone) {
             this.makeSkeletonFollowRagdollPart(rightLowerArm, rightLowerArmBone,
                 bone => bone.rotateY(Math.PI),
-                bone => bone.translateY(rightLowerArm.height / 2.0 * worldScale));
+                bone => bone.translateY(rightLowerArm.height / 2.0));
         }
 
         const leftUpperArm = this.collisionModel.bodyByName('leftUpperArm');
@@ -308,7 +306,7 @@ export class ZombieFat extends Monster {
         if (leftUpperArm && leftUpperArmBone) {
             this.makeSkeletonFollowRagdollPart(leftUpperArm, leftUpperArmBone,
                     bone => bone.rotateX(Math.PI).rotateY(Math.PI),
-                    bone => bone.translateY(-leftUpperArm.height / 2.0 * worldScale));
+                    bone => bone.translateY(-leftUpperArm.height / 2.0));
         }
 
         const leftLowerArm = this.collisionModel.bodyByName('leftLowerArm');
@@ -316,7 +314,7 @@ export class ZombieFat extends Monster {
         if (leftLowerArm && leftLowerArmBone) {
             this.makeSkeletonFollowRagdollPart(leftLowerArm, leftLowerArmBone,
                     bone => bone.rotateX(Math.PI).rotateY(Math.PI),
-                    bone => bone.translateY(-leftLowerArm.height / 2.0 * worldScale));
+                    bone => bone.translateY(-leftLowerArm.height / 2.0));
         }
     }
 
