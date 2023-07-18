@@ -7,6 +7,8 @@ export interface PhysicsBody {
 
     get damageFactor(): number;
 
+    get height(): number;
+
     reset(): void;
 
     getPosition(): Vector3;

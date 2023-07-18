@@ -1,6 +1,6 @@
 import {Object3D, Quaternion, Vector3} from 'three';
 
-import {Body, BodyType, Material, Quaternion as Quat, Shape, Vec3} from 'cannon-es';
+import {Body, BodyType, Box, Cylinder, Material, Quaternion as Quat, Shape, Sphere, Vec3, SHAPE_TYPES} from 'cannon-es';
 
 import {PhysicsBody} from '../physics-body';
 
@@ -37,6 +37,24 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         super(options);
         this.name = options?.name;
         this.damageFactor = options?.damageFactor || 1;
+    }
+
+    get height(): number {
+        if (this.shapes.length > 0) {
+            const firstShape = this.shapes[0];
+            if (firstShape.type === SHAPE_TYPES.BOX) {
+                const halfExtents = (<Box>firstShape).halfExtents;
+                return Math.max(Math.max(halfExtents.x, halfExtents.y), halfExtents.z) * 2.0;
+            }
+            if (firstShape.type === SHAPE_TYPES.CYLINDER) {
+                return (<Cylinder>firstShape).height;
+            }
+            if (firstShape.type === SHAPE_TYPES.SPHERE) {
+                return (<Sphere>firstShape).radius * 2.0;
+            }
+            return firstShape.boundingSphereRadius * 2.0;
+        }
+        return 0;
     }
 
     update() {
