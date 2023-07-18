@@ -73,7 +73,9 @@
             }
           ],
           "position": [5.19, 11.21, -1.23],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "rightLowerLeg",
@@ -88,7 +90,9 @@
             }
           ],
           "position": [-5.97, 11.22, -1.26],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "leftUpperLeg",
@@ -103,7 +107,9 @@
             }
           ],
           "position": [5.26, 28.70, -0.54],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "rightUpperLeg",
@@ -118,7 +124,9 @@
             }
           ],
           "position": [-5.61, 28.71, -0.57],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "belly",
@@ -133,7 +141,9 @@
             }
           ],
           "position": [0.02, 45.55, 0.68],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "chest",
@@ -148,7 +158,9 @@
             }
           ],
           "position": [0.02, 55.86, -2.01],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "leftUpperArm",
@@ -164,7 +176,9 @@
           ],
           "position": [13.81, 60.32, -3.54],
           "rotation": [0.04, 0.09, -1.60],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "leftLowerArm",
@@ -180,7 +194,9 @@
           ],
           "position": [23.92, 60.57, -4.13],
           "rotation": [0.03, -0.08, -1.60],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "rightUpperArm",
@@ -196,7 +212,9 @@
           ],
           "position": [-13.80, 60.84, -4.75],
           "rotation": [-3.09, -0.11, -1.62],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "rightLowerArm",
@@ -212,7 +230,9 @@
           ],
           "position": [-23.90, 60.33, -3.69],
           "rotation": [-3.09, -0.11, -1.62],
-          "collisionFilterGroup": 2
+          "collisionFilterGroup": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 2
         },
         {
           "name": "head",
@@ -226,7 +246,9 @@
           ],
           "position": [0.02, 70.33, -1.15],
           "collisionFilterGroup": 2,
-          "damageFactor": 2
+          "damageFactor": 2,
+          "allowSleep": true,
+          "sleepSpeedLimit": 3
         }
       ],
       "constraints": [
