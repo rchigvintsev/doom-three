@@ -259,8 +259,8 @@
           "bodyB": "leftUpperLeg",
           "pivotA": [0, 7.7, 0],
           "pivotB": [-0.11, -10.5, -0.69],
-          "axisB": [0, 0.35, 0.65],
           "axisA": "Y",
+          "axisB": [0, 0.35, 0.65],
           "angle": 1.22,
           "twistAngle": 0
         },
@@ -271,8 +271,8 @@
           "bodyB": "rightUpperLeg",
           "pivotA": [0, 7.7, 0],
           "pivotB": [-0.36, -10.5, -0.69],
-          "axisB": [0, 0.35, 0.65],
           "axisA": "Y",
+          "axisB": [0, 0.35, 0.65],
           "angle": 1.22,
           "twistAngle": 0
         },
@@ -283,10 +283,10 @@
           "bodyB": "belly",
           "pivotA": [0, 10.5, 0],
           "pivotB": [5.24, -5.86, -1.22],
-          "axisA": "Y",
+          "axisA": [0, 0.5, 0.5],
           "axisB": "Y",
-          "angle": 0.79,
-          "twistAngle": 1.05
+          "angle": 1.05,
+          "twistAngle": 0.79
         },
         {
           "name": "rightHipJoint",
@@ -295,10 +295,10 @@
           "bodyB": "belly",
           "pivotA": [0, 10.5, 0],
           "pivotB": [-5.63, -5.86, -1.25],
-          "axisA": "Y",
+          "axisA": [0, 0.5, 0.5],
           "axisB": "Y",
-          "angle": 0.79,
-          "twistAngle": 1.05
+          "angle": 1.05,
+          "twistAngle": 0.79
         },
         {
           "name": "spineJoint",
