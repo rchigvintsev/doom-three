@@ -82,7 +82,7 @@ export class CannonCollisionModel implements CollisionModel {
 
     onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) {
         if (this.hasMass()) {
-            this.applyImpulse(force, hitPoint);
+            this.applyImpulse(this.firstBody, force, hitPoint);
         }
         if (this.onHitCallback) {
             this.onHitCallback(this.firstBody, weapon);
@@ -93,8 +93,7 @@ export class CannonCollisionModel implements CollisionModel {
         const cannonImpulse = new Vec3();
         const cannonRelativePoint = new Vec3();
 
-        return (impulse: Vector3, relativePoint?: Vector3) => {
-            const body = this.firstBody;
+        return (body: CannonPhysicsBody, impulse: Vector3, relativePoint?: Vector3) => {
             body.wakeUp();
             cannonImpulse.set(impulse.x, impulse.y, impulse.z);
             if (relativePoint) {

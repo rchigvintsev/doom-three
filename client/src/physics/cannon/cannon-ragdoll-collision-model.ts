@@ -70,13 +70,14 @@ export class CannonRagdollCollisionModel extends CannonCollisionModel implements
         const cannonRay = new CannonRay(new Vec3(), new Vec3());
         const raycastResult = new RaycastResult();
 
-        return (weapon: Weapon, _force: Vector3, ray: Ray, _hitPoint: Vector3) => {
+        return (weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) => {
             this.updateRay(ray, cannonRay);
             raycastResult.reset();
             cannonRay.intersectBodies(this._dead ? this.deadStateBodies : this.bodies, raycastResult);
             if (raycastResult.body) {
                 const hitBody = raycastResult.body as CannonPhysicsBody;
                 console.log(`Body "${hitBody.name}" is hit using weapon "${weapon.name}"`);
+                this.applyImpulse(hitBody, force, hitPoint);
                 if (this.onHitCallback) {
                     this.onHitCallback(hitBody, weapon);
                 }

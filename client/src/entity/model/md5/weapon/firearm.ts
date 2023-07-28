@@ -210,7 +210,7 @@ export abstract class Firearm extends Weapon {
             this.shellTarget.position.copy(SHELL_TARGET_POSITION);
             this.shellTarget.updateMatrixWorld();
 
-            collisionModel.applyImpulse(SHELL_EJECTION_FORCE
+            collisionModel.applyImpulse(collisionModel.bodies[0], SHELL_EJECTION_FORCE
                 .subVectors(SHELL_TARGET_POSITION.setFromMatrixPosition(this.shellTarget.matrixWorld), SHELL_POSITION)
                 .multiplyScalar(this.shellEjectionForceFactor));
 

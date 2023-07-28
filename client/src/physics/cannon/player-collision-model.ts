@@ -87,8 +87,8 @@ export class PlayerCollisionModel implements CollisionModel {
         this.delegate.update(deltaTime);
     }
 
-    applyImpulse(impulse: Vector3, relativePoint?: Vector3) {
-        this.delegate.applyImpulse(impulse, relativePoint);
+    applyImpulse(body: PhysicsBody, impulse: Vector3, relativePoint?: Vector3) {
+        this.delegate.applyImpulse(body, impulse, relativePoint);
     }
 
     addCollideEventListener(listener: (e: CollideEvent) => void) {

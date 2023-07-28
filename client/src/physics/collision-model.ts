@@ -29,7 +29,7 @@ export interface CollisionModel {
 
     onUpdateCallback?: (position: Position, quaternion: Quaternion) => void;
 
-    applyImpulse(impulse: Vector3, relativePoint?: Vector3): void;
+    applyImpulse(body: PhysicsBody, impulse: Vector3, relativePoint?: Vector3): void;
 
     addCollideEventListener(listener: (e: CollideEvent) => void): void;
 }
