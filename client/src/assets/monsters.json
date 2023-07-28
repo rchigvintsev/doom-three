@@ -259,10 +259,10 @@
           "bodyB": "leftUpperLeg",
           "pivotA": [0, 7.7, 0],
           "pivotB": [-0.11, -10.5, -0.69],
+          "axisB": [0, 0.35, 0.65],
           "axisA": "Y",
-          "axisB": "Y",
-          "angle": 0.79,
-          "twistAngle": 1.05
+          "angle": 1.22,
+          "twistAngle": 0
         },
         {
           "name": "rightKneeJoint",
@@ -271,10 +271,10 @@
           "bodyB": "rightUpperLeg",
           "pivotA": [0, 7.7, 0],
           "pivotB": [-0.36, -10.5, -0.69],
+          "axisB": [0, 0.35, 0.65],
           "axisA": "Y",
-          "axisB": "Y",
-          "angle": 0.79,
-          "twistAngle": 1.05
+          "angle": 1.22,
+          "twistAngle": 0
         },
         {
           "name": "leftHipJoint",

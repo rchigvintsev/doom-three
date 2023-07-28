@@ -212,16 +212,13 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             if (!bodyB) {
                 throw Error(`Body with name "${constraintDef.bodyB}" is not found`);
             }
-            const pivotA = new Vec3(constraintDef.pivotA[0], constraintDef.pivotA[1], constraintDef.pivotA[2])
-                .scale(this.config.worldScale);
-            const pivotB = new Vec3(constraintDef.pivotB[0], constraintDef.pivotB[1], constraintDef.pivotB[2])
-                .scale(this.config.worldScale);
-            const axisA = constraintDef.axisA === 'X'
-                ? Vec3.UNIT_X
-                : (constraintDef.axisA === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
-            const axisB = constraintDef.axisB === 'X'
-                ? Vec3.UNIT_X
-                : (constraintDef.axisB === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
+
+            const pivotA = this.getPivot(constraintDef.pivotA);
+            const pivotB = this.getPivot(constraintDef.pivotB);
+
+            const axisA = this.getAxis(constraintDef.axisA);
+            const axisB = this.getAxis(constraintDef.axisB);
+
             return new ConeTwistConstraint(bodyA, bodyB, {
                 pivotA, pivotB,
                 axisA, axisB,
@@ -332,6 +329,17 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             return Body.KINEMATIC;
         }
         return Body.DYNAMIC;
+    }
+
+    private getPivot(pivotDef: any) {
+        return new Vec3(pivotDef[0], pivotDef[1], pivotDef[2]).scale(this.config.worldScale);
+    }
+
+    private getAxis(axisDef: any): Vec3 {
+        if ((typeof axisDef) === 'string') {
+            return axisDef === 'X' ? Vec3.UNIT_X : (axisDef === 'Y' ? Vec3.UNIT_Y : Vec3.UNIT_Z);
+        }
+        return new Vec3(axisDef[0], axisDef[1], axisDef[2]);
     }
 }
 
