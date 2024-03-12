@@ -45,7 +45,7 @@
       "bodies": [
         {
           "name": "boundingBox",
-          "mass": 0,
+          "mass": 1,
           "collisionResponse": 0,
           "material": "models/monster",
           "allowSleep": false,
