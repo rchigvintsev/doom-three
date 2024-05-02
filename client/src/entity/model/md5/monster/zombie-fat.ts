@@ -5,6 +5,7 @@ import {randomInt} from 'mathjs';
 import {Monster, MonsterParameters, MonsterState} from './monster';
 import {PhysicsBody} from '../../../../physics/physics-body';
 import {Weapon} from '../weapon/weapon';
+import {Game} from '../../../../game';
 
 let zombieResolve: (zombie: ZombieFat) => void = () => undefined;
 
@@ -115,7 +116,7 @@ export class ZombieFat extends Monster {
     protected onBodyHit(body: PhysicsBody, weapon: Weapon) {
         const wasDead = this.isDead();
         super.onBodyHit(body, weapon);
-        if (!wasDead) {
+        if (!wasDead && weapon.damage > 0) {
             this.stopAllSounds();
             if (this.isDead()) {
                 this.playDeathSound();
@@ -448,27 +449,29 @@ export class ZombieFat extends Monster {
     }
 
     private get walkSpeed(): number {
+        const config = Game.getContext().config;
         switch (this.currentWalkAnimationName) {
             case 'walk1':
-                return WALK1_SPEED * this.config.worldScale;
+                return WALK1_SPEED * config.worldScale;
             case 'walk2':
-                return WALK2_SPEED * this.config.worldScale;
+                return WALK2_SPEED * config.worldScale;
             case 'walk3':
-                return WALK3_SPEED * this.config.worldScale;
+                return WALK3_SPEED * config.worldScale;
             case 'walk4':
-                return WALK4_SPEED * this.config.worldScale;
+                return WALK4_SPEED * config.worldScale;
         }
         return 0;
     }
 
     private get attackSpeed(): number {
+        const config = Game.getContext().config;
         switch (this.currentAttackAnimationName) {
             case 'attack_leftslap':
-                return LEFT_SLAP_SPEED * this.config.worldScale;
+                return LEFT_SLAP_SPEED * config.worldScale;
             case 'attack2':
-                return ATTACK2_SPEED * this.config.worldScale;
+                return ATTACK2_SPEED * config.worldScale;
             case 'attack3':
-                return ATTACK3_SPEED * this.config.worldScale;
+                return ATTACK3_SPEED * config.worldScale;
         }
         return 0;
     }

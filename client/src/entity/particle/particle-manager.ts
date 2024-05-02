@@ -1,19 +1,17 @@
-import {Scene} from 'three';
-
 import {inject, injectable} from 'inversify';
 
 import {ParticleFactory} from './particle-factory';
 import {ParticleGroup} from './particle-group';
 import {GameManager} from '../../game-manager';
 import {TYPES} from '../../types';
+import {Game} from '../../game';
 
 @injectable()
 export class ParticleManager implements GameManager {
     private readonly particleGroups = new Map<string, ParticleGroup[]>();
     private readonly availableParticleGroups = new Map<string, ParticleGroup[]>();
 
-    constructor(@inject(TYPES.Scene) private readonly scene: Scene,
-                @inject(TYPES.ParticleFactory) private readonly particleFactory: ParticleFactory) {
+    constructor(@inject(TYPES.ParticleFactory) private readonly particleFactory: ParticleFactory) {
     }
 
     createParticles(particleName: string): ParticleGroup {
@@ -21,7 +19,7 @@ export class ParticleManager implements GameManager {
         if (!particleGroup) {
             const particles = this.particleFactory.create(particleName);
             for (const particle of particles) {
-                this.scene.add(particle);
+                Game.getContext().scene.add(particle);
             }
 
             particleGroup = new ParticleGroup(particleName, particles);

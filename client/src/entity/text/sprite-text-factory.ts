@@ -4,7 +4,6 @@ import {inject, injectable} from 'inversify';
 
 import {GameEntityFactory} from '../game-entity-factory';
 import {SpriteText} from './sprite-text';
-import {GameAssets} from '../../game-assets';
 import {MaterialFactory} from '../../material/material-factory';
 import {FontStyle, parseFontStyle} from './font-style';
 import {parseTextAlign, TextAlign} from './text-align';
@@ -13,6 +12,7 @@ import {SpriteTextScaler} from './sprite-text-scaler';
 import {MaterialStyle} from '../../material/stylable-material';
 import {ScreenPosition} from '../../util/screen-position';
 import {TYPES} from '../../types';
+import {Game} from '../../game';
 
 const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 
@@ -20,8 +20,7 @@ const FONT_STYLE_ITALIC_SHIFT_FACTOR = 0.35;
 export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
     private readonly fontChars = new Map<string, Map<string, SpriteChar>>();
 
-    constructor(@inject(TYPES.Assets) private readonly assets: GameAssets,
-                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
+    constructor(@inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
     }
 
     create(textDef: any): SpriteText {
@@ -63,7 +62,7 @@ export class SpriteTextFactory implements GameEntityFactory<SpriteText> {
     }
 
     private getFontDef(textDef: any) {
-        return this.assets.fontDefs.get(`${textDef.font}__${textDef.fontSize}`);
+        return Game.getContext().assets.fontDefs.get(`${textDef.font}__${textDef.fontSize}`);
     }
 
     private applyFontStyle(textDef: any, charDef: any, char: SpriteChar) {

@@ -1,4 +1,4 @@
-import {Group, Light, Scene} from 'three';
+import {Group, Light} from 'three';
 
 import {Surface} from '../surface/surface';
 import {TangibleEntity} from '../tangible-entity';
@@ -21,12 +21,12 @@ export class Area extends Group implements TangibleEntity {
         // Do nothing
     }
 
-    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsManager, scene));
+    registerCollisionModels(physicsManager: PhysicsManager) {
+        this.surfaces.forEach(surface => surface.registerCollisionModels(physicsManager));
     }
 
-    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.surfaces.forEach(surface => surface.unregisterCollisionModels(physicsManager, scene));
+    unregisterCollisionModels(physicsManager: PhysicsManager) {
+        this.surfaces.forEach(surface => surface.unregisterCollisionModels(physicsManager));
     }
 
     update(deltaTime: number) {

@@ -3,6 +3,7 @@ import {BufferGeometry, Quaternion, Vector2, Vector3} from 'three';
 import {Player} from '../../../player/player';
 import {Firearm, FirearmParameters, FirearmState} from './firearm';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
+import {Game} from '../../../../game';
 
 const SHELL_EJECTION_TIMEOUT_MILLIS = 650;
 const BUCKSHOT_DISTRIBUTION_FACTOR = 0.5;
@@ -205,8 +206,9 @@ export class Shotgun extends Firearm {
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(-15, 0, 0);
             if (offset) {
-                view.y -= offset.x / this.config.worldScale;
-                view.z -= offset.y / this.config.worldScale;
+                const config = Game.getContext().config;
+                view.y -= offset.x / config.worldScale;
+                view.z -= offset.y / config.worldScale;
             }
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };

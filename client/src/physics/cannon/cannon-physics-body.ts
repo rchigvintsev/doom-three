@@ -3,12 +3,14 @@ import {Object3D, Quaternion, Vector3} from 'three';
 import {Body, BodyType, Box, Cylinder, Material, Quaternion as Quat, Shape, Sphere, Vec3, SHAPE_TYPES} from 'cannon-es';
 
 import {PhysicsBody} from '../physics-body';
+import {PhysicsBodyHelper} from '../physics-body-helper';
 
 export class CannonPhysicsBody extends Body implements PhysicsBody {
     readonly name: string | undefined;
     readonly damageFactor: number;
+    readonly boundingBox: boolean;
 
-    helper: Object3D | undefined;
+    helper: PhysicsBodyHelper | undefined;
 
     constructor(options?: {
         name?: string;
@@ -32,11 +34,13 @@ export class CannonPhysicsBody extends Body implements PhysicsBody {
         angularFactor?: Vec3;
         shape?: Shape;
         isTrigger?: boolean;
-        damageFactor?: number;
+        damageFactor?: number,
+        boundingBox?: boolean
     }) {
         super(options);
         this.name = options?.name;
         this.damageFactor = options?.damageFactor || 1;
+        this.boundingBox = options?.boundingBox || false;
     }
 
     get height(): number {

@@ -3,20 +3,17 @@ import {BufferGeometry, Material, MeshBasicMaterial, MeshPhongMaterial} from 'th
 import {GameEntityFactory} from '../game-entity-factory';
 import {GameEntity} from '../game-entity';
 import {MaterialFactory} from '../../material/material-factory';
-import {GameConfig} from '../../game-config';
-import {GameAssets} from '../../game-assets';
+import {Game} from '../../game';
 
 export abstract class AbstractModelFactory<T extends GameEntity> implements GameEntityFactory<T> {
-    constructor(protected readonly config: GameConfig,
-                protected readonly assets: GameAssets,
-                protected readonly materialFactory: MaterialFactory) {
+    constructor(protected readonly materialFactory: MaterialFactory) {
     }
 
     abstract create(entityDef: any): T;
 
     protected createMaterials(modelDef: any, geometry?: BufferGeometry): Material[] {
         const materials: Material[] = [];
-        if (this.config.renderOnlyWireframe) {
+        if (Game.getContext().config.renderOnlyWireframe) {
             if (modelDef.materials) {
                 for (let i = 0; i < modelDef.materials.length; i++) {
                     materials.push(new MeshBasicMaterial({wireframe: true}));

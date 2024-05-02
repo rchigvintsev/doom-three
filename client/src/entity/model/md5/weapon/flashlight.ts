@@ -1,9 +1,10 @@
-import {BufferGeometry, Intersection, Mesh, SpotLight, Texture, Vector3} from 'three';
+import {BufferGeometry, Intersection, Mesh, Ray, SpotLight, Texture, Vector3} from 'three';
 
 import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
+import {Game} from '../../../../game';
 
 const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
@@ -27,10 +28,11 @@ export class Flashlight extends Weapon {
 
     constructor(parameters: FlashlightParameters) {
         super(parameters);
+        const config = Game.getContext().config;
 
-        this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
+        this.attackDistance = ATTACK_DISTANCE * config.worldScale;
 
-        if (!this.config.renderOnlyWireframe) {
+        if (!config.renderOnlyWireframe) {
             this.light = new SpotLight();
             this.light.intensity = LIGHT_INTENSITY;
             this.light.distance = LIGHT_DISTANCE;
@@ -65,7 +67,7 @@ export class Flashlight extends Weapon {
         }
     }
 
-    onHit(target: Mesh, intersection: Intersection) {
+    onHit(target: Mesh, _ray: Ray, intersection: Intersection) {
         this.playImpactSound(intersection.point, target);
     }
 
@@ -114,8 +116,9 @@ export class Flashlight extends Weapon {
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(0, 0, -15);
             if (offset) {
-                view.z -= offset.x / this.config.worldScale;
-                view.y += offset.y / this.config.worldScale;
+                const config = Game.getContext().config;
+                view.z -= offset.x / config.worldScale;
+                view.y += offset.y / config.worldScale;
             }
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };
@@ -134,7 +137,7 @@ export class Flashlight extends Weapon {
     }
 
     private updateLight() {
-        if (this.visible && !this.config.renderOnlyWireframe) {
+        if (this.visible && !Game.getContext().config.renderOnlyWireframe) {
             this.updateMatrixWorld();
 
             const bones = this.skeleton.bones;

@@ -2,7 +2,6 @@ import {AnimationAction, Material, SkeletonHelper, SkinnedMesh} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
-import {GameConfig} from '../../../game-config';
 import {FluentAnimationMixer} from '../../../animation/fluent-animation-mixer';
 import {ModelParameters} from '../model-parameters';
 import {AnyAnimationFlowStep} from '../../../animation/flow/any-animation-flow-step';
@@ -12,6 +11,7 @@ import {AnimationFlowStep} from '../../../animation/flow/animation-flow-step';
 import {CrossFadeAnyAnimationFlowStep} from '../../../animation/flow/cross-fade-any-animation-flow-step';
 import {CurrentAnimationFlowStep} from '../../../animation/flow/current-animation-flow-step';
 import {Sound} from '../../sound/sound';
+import {Game} from '../../../game';
 
 export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
     skeletonHelper?: SkeletonHelper;
@@ -41,13 +41,9 @@ export class Md5Model extends SkinnedMesh implements MeshBasedEntity {
         if (this._wireframeHelper) {
             this._wireframeHelper.update(deltaTime);
         }
-        if (!this.config.renderOnlyWireframe) {
+        if (!Game.getContext().config.renderOnlyWireframe) {
             updateMaterials(this, deltaTime);
         }
-    }
-
-    get config(): GameConfig {
-        return this.parameters.config;
     }
 
     get wireframeHelper(): Md5ModelWireframeHelper | undefined {

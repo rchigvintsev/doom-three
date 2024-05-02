@@ -1,8 +1,4 @@
 export const TYPES = {
-    PointerLock: Symbol.for('PointerLock'),
-    Config: Symbol.for('Config'),
-    Assets: Symbol.for('Assets'),
-    Scene: Symbol.for('Scene'),
     AudioListener: Symbol.for('AudioListener'),
 
     CollisionModelFactory: Symbol.for('CollisionModelFactory'),

@@ -1,11 +1,10 @@
-import {Object3D, PerspectiveCamera, Scene, Vector3} from 'three';
+import {Object3D, Scene, Vector3} from 'three';
 
 import {random} from 'mathjs';
 
 import {TangibleEntity} from '../tangible-entity';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {PlayerCollisionModel} from '../../physics/cannon/player-collision-model';
-import {GameConfig} from '../../game-config';
 import {AttackEvent, WeaponDisableEvent} from '../../event/weapon-events';
 import {Fists} from '../model/md5/weapon/fists';
 import {Flashlight} from '../model/md5/weapon/flashlight';
@@ -14,6 +13,7 @@ import {Shotgun} from '../model/md5/weapon/shotgun';
 import {isFirearm} from '../model/md5/weapon/firearm';
 import {Sound} from '../sound/sound';
 import {PhysicsManager} from '../../physics/physics-manager';
+import {Game} from '../../game';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -43,7 +43,7 @@ export class Player extends Object3D implements TangibleEntity {
         super();
 
         this._pitchObject = new Object3D();
-        this._pitchObject.add(parameters.camera);
+        this._pitchObject.add(Game.getContext().camera);
         this.add(this._pitchObject);
 
         this.weapons.forEach(weapon => {
@@ -56,12 +56,12 @@ export class Player extends Object3D implements TangibleEntity {
         playerResolve(this);
     }
 
-    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.parameters.collisionModel.register(physicsManager, scene);
+    registerCollisionModels(physicsManager: PhysicsManager) {
+        this.parameters.collisionModel.register(physicsManager);
     }
 
-    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.parameters.collisionModel.unregister(physicsManager, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager) {
+        this.parameters.collisionModel.unregister(physicsManager);
     }
 
     update(deltaTime: number) {
@@ -69,7 +69,7 @@ export class Player extends Object3D implements TangibleEntity {
             this._currentWeapon.update(deltaTime, this);
         }
         this.parameters.collisionModel.update(deltaTime);
-        if (!this.parameters.config.ghostMode) {
+        if (!Game.getContext().config.ghostMode) {
             this.position.copy(this.parameters.collisionModel.headPosition);
             if (this.airborne) {
                 const now = performance.now();
@@ -85,7 +85,7 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     move(velocity: Vector3) {
-        if (this.parameters.config.ghostMode) {
+        if (Game.getContext().config.ghostMode) {
             this.translateX(velocity.x);
             this.translateY(velocity.y);
             this.translateZ(velocity.z);
@@ -97,16 +97,12 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     jump(speed: number) {
-        if (!this.parameters.config.ghostMode) {
+        if (!Game.getContext().config.ghostMode) {
             this.parameters.collisionModel.jump(speed);
             this.tookOffAt = performance.now();
             this._airborne = true;
             this.playJumpSound();
         }
-    }
-
-    get camera(): PerspectiveCamera {
-        return this.parameters.camera;
     }
 
     get weapons(): Map<string, Weapon> {
@@ -259,15 +255,16 @@ export class Player extends Object3D implements TangibleEntity {
         this.dispatchEvent(e);
         if (isFirearm(this._currentWeapon)) {
             // Emulate recoil on fire
-            this._currentWeapon.recoilTween.onUpdate(rotation => this.camera.rotation.x = rotation.x).start();
+            this._currentWeapon
+                .recoilTween
+                .onUpdate(rotation => Game.getContext().camera.rotation.x = rotation.x)
+                .start();
         }
     }
 }
 
 export interface PlayerParameters {
-    camera: PerspectiveCamera;
     weapons: Map<string, Weapon>;
     sounds: Map<string, Sound>;
     collisionModel: PlayerCollisionModel;
-    config: GameConfig;
 }

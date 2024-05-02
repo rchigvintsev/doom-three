@@ -5,18 +5,14 @@ import {Md5Animation} from '../../../animation/md5-animation';
 import {Md5Model} from './md5-model';
 import {Md5ModelWireframeHelper} from './md5-model-wireframe-helper';
 import {AbstractModelFactory} from '../abstract-model-factory';
-import {GameAssets} from '../../../game-assets';
 import {SoundFactory} from '../../sound/sound-factory';
 import {Sound} from '../../sound/sound';
 import {MaterialFactory} from '../../../material/material-factory';
-import {GameConfig} from '../../../game-config';
+import {Game} from '../../../game';
 
 export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
-    constructor(config: GameConfig,
-                assets: GameAssets,
-                materialFactory: MaterialFactory,
-                protected readonly soundFactory: SoundFactory) {
-        super(config, assets, materialFactory);
+    constructor(materialFactory: MaterialFactory, protected readonly soundFactory: SoundFactory) {
+        super(materialFactory);
     }
 
     create(modelDef: any): Md5Model {
@@ -28,18 +24,20 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
         const model = this.createModel(modelDef, modelGeometry);
         model.name = modelDef.name;
 
+        const config = Game.getContext().config;
+
         const skeleton = this.createSkeleton(animations[0]);
         this.bindSkeleton(model, skeleton);
-        if (this.config.showSkeletons) {
+        if (config.showSkeletons) {
             model.skeletonHelper = new SkeletonHelper(model);
         }
 
         model.animations = this.createAnimationClips(animations, skeleton);
 
-        model.scale.setScalar(this.config.worldScale);
+        model.scale.setScalar(config.worldScale);
 
         if (modelDef.position) {
-            model.position.fromArray(modelDef.position).multiplyScalar(this.config.worldScale);
+            model.position.fromArray(modelDef.position).multiplyScalar(config.worldScale);
         }
         if (modelDef.rotation) {
             model.rotation.set(
@@ -51,7 +49,7 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
             model.rotation.set(MathUtils.degToRad(-90), 0, MathUtils.degToRad(90));
         }
 
-        if (this.config.showWireframe && !this.config.renderOnlyWireframe) {
+        if (config.showWireframe && !config.renderOnlyWireframe) {
             model.wireframeHelper = this.createWireframeHelper(model, animations);
         }
 
@@ -61,7 +59,6 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
 
     protected createModel(modelDef: any, geometry: BufferGeometry): Md5Model {
         const modelParams = {
-            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef)
@@ -80,7 +77,7 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private getRequiredModelMesh(modelDef: any): SkinnedMesh {
-        const mesh = <SkinnedMesh>this.assets.modelMeshes.get(modelDef.model);
+        const mesh = <SkinnedMesh>Game.getContext().assets.modelMeshes.get(modelDef.model);
         if (!mesh) {
             throw new Error(`MD5 model mesh "${modelDef.model}" is not found in game assets`);
         }
@@ -88,7 +85,8 @@ export abstract class Md5ModelFactory extends AbstractModelFactory<Md5Model> {
     }
 
     private getAnimations(modelDef: any): Md5Animation[] {
-        return modelDef.animations.map((animationName: string) => this.assets.modelAnimations.get(animationName));
+        const assets = Game.getContext().assets;
+        return modelDef.animations.map((animationName: string) => assets.modelAnimations.get(animationName));
     }
 
     private bindPose(geometry: Md5MeshGeometry, animation: Md5Animation) {

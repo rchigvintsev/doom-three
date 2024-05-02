@@ -1,5 +1,3 @@
-import {Scene} from 'three';
-
 import {randomInt} from 'mathjs';
 
 import {LwoModel} from './lwo-model';
@@ -23,15 +21,15 @@ export class Debris extends LwoModel implements TangibleEntity {
         parameters.collisionModel?.addCollideEventListener((e: CollideEvent) => this.onCollide(e));
     }
 
-    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+    registerCollisionModels(physicsManager: PhysicsManager) {
         if (this.collisionModel) {
-            this.collisionModel.register(physicsManager, scene);
+            this.collisionModel.register(physicsManager);
         }
     }
 
-    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
+    unregisterCollisionModels(physicsManager: PhysicsManager) {
         if (this.collisionModel) {
-            this.collisionModel.unregister(physicsManager, scene);
+            this.collisionModel.unregister(physicsManager);
         }
     }
 

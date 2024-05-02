@@ -1,20 +1,20 @@
-import {Object3D, OrthographicCamera, Scene, WebGLRenderer} from 'three';
+import {Object3D, OrthographicCamera, Scene} from 'three';
 
 import {GameEntity} from '../game-entity';
-import {GameConfig} from '../../game-config';
 import {isUpdatableMaterial} from '../../material/updatable-material';
 import {SpriteText} from '../text/sprite-text';
 import {Player} from '../player/player';
 import {isFirearm} from '../model/md5/weapon/firearm';
 import {Weapon} from '../model/md5/weapon/weapon';
 import {HudElement} from './hud-element';
+import {Game} from '../../game';
 
 export class Hud implements GameEntity {
     private readonly scene = new Scene();
     private readonly camera: OrthographicCamera;
 
     constructor(private readonly parameters: HudParameters) {
-        this.camera = this.createCamera(this.parameters.config);
+        this.camera = this.createCamera();
 
         for (const element of this.parameters.crosshair) {
             this.scene.add(element);
@@ -47,7 +47,8 @@ export class Hud implements GameEntity {
         }
     }
 
-    render(renderer: WebGLRenderer) {
+    render() {
+        const renderer = Game.getContext().renderer;
         renderer.clearDepth();
         renderer.render(this.scene, this.camera);
     }
@@ -70,7 +71,7 @@ export class Hud implements GameEntity {
         }
     }
 
-    private createCamera(_config: GameConfig): OrthographicCamera {
+    private createCamera(): OrthographicCamera {
         const width = window.innerWidth;
         const height = window.innerHeight;
         return new OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -500, 1000);
@@ -78,7 +79,6 @@ export class Hud implements GameEntity {
 }
 
 export interface HudParameters {
-    config: GameConfig;
     player: Player;
     crosshair: HudElement[];
     ammoIndicator: AmmoIndicator;

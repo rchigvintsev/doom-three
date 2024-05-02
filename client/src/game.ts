@@ -1,7 +1,8 @@
-import {AudioListener, Camera, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
+import {AudioListener, Clock, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer} from 'three';
+
 import Stats from 'three/examples/jsm/libs/stats.module';
 
-import {inject, injectable, multiInject} from 'inversify';
+import {injectable} from 'inversify';
 
 import {GameConfig} from './game-config';
 import {GameLoader} from './game-loader';
@@ -16,32 +17,42 @@ import {configureDiContainer} from './di.config';
 import {TYPES} from './types';
 import {GameManager} from './game-manager';
 import {Player} from './entity/player/player';
+import {GameContext} from './game-context';
+import {GameAssets} from './game-assets';
 
 @injectable()
 export class Game {
+    private static context: GameContext;
+
     private readonly clock = new Clock();
-    private readonly camera: PerspectiveCamera;
-    private readonly audioListener: AudioListener;
     private readonly controls: FpsControls;
-    private readonly renderer: WebGLRenderer;
     private readonly stats: Stats;
 
     private map?: GameMap;
     private player?: Player;
     private hud?: Hud;
 
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.PointerLock) private readonly pointerLock: PointerLock,
-                @inject(TYPES.Scene) private readonly scene: Scene,
-                @inject(TYPES.GameLoader) private readonly gameLoader: GameLoader,
-                @multiInject(TYPES.GameManager) private readonly gameManagers: GameManager[]) {
-        this.camera = this.createCamera(this.config);
-        this.audioListener = this.createAudioListener(this.camera);
-        this.controls = this.createControls(this.config, this.pointerLock);
-        this.renderer = this.createRenderer(this.config);
-        this.stats = this.createStats(this.config);
+    constructor(pointerLock: PointerLock,
+                config: GameConfig,
+                assets: GameAssets,
+                private readonly gameLoader: GameLoader,
+                private readonly gameManagers: GameManager[]) {
+        const camera = this.createCamera(config);
+        const scene = this.createScene();
+        const renderer = this.createRenderer(config);
+        const audioListener = this.createAudioListener();
+        camera.add(audioListener);
+
+        this.controls = this.createControls(config, pointerLock);
+        this.stats = this.createStats(config);
 
         window.addEventListener('resize', () => this.onWindowResize());
+
+        Game.context = new GameContext(config, assets, camera, scene, renderer);
+    }
+
+    static getContext(): GameContext {
+        return Game.context;
     }
 
     static loadGame(mapName: string) {
@@ -60,7 +71,9 @@ export class Game {
             });
             assetLoader.load(mapName).then(assets => {
                 const diContainer = configureDiContainer(pointerLock, config, assets);
-                diContainer.get<Game>(TYPES.Game).load().start();
+                const game = diContainer.get<Game>(TYPES.Game);
+                game.load();
+                game.start();
                 console.debug('Game started');
             }).catch(reason => console.error(`Failed to load map "${mapName}"`, reason));
         });
@@ -71,10 +84,12 @@ export class Game {
         return new PerspectiveCamera(config.cameraFov, aspect, config.cameraNear, config.cameraFar);
     }
 
-    private createAudioListener(camera: Camera): AudioListener {
-        const audioListener = new AudioListener();
-        camera.add(audioListener);
-        return audioListener;
+    private createScene(): Scene {
+        return new Scene();
+    }
+
+    private createAudioListener(): AudioListener {
+        return new AudioListener();
     }
 
     private createControls(config: GameConfig, pointerLock: PointerLock): FpsControls {
@@ -104,19 +119,17 @@ export class Game {
         return stats;
     }
 
-    private load(): this {
-        const {map, player, hud} = this.gameLoader.load(this.camera);
+    private load() {
+        const {map, player, hud} = this.gameLoader.load();
 
         this.map = map;
-        this.scene.add(map);
+        Game.context.scene.add(map);
 
         this.player = player;
         this.controls.player = player;
         this.controls.enabled = true;
 
         this.hud = hud;
-
-        return this;
     }
 
     private start() {
@@ -127,7 +140,7 @@ export class Game {
         requestAnimationFrame(() => this.animate());
         this.update();
         this.render();
-        if (this.config.showStats) {
+        if (Game.context.config.showStats) {
             this.stats.update();
         }
     }
@@ -144,19 +157,24 @@ export class Game {
     }
 
     private render() {
-        this.renderer.clear();
-        this.renderer.render(this.scene, this.camera);
+        const context = Game.context;
+        context.renderer.clear();
+        context.renderer.render(context.scene, context.camera);
         if (this.hud) {
-            this.hud.render(this.renderer);
+            this.hud.render();
         }
     }
 
     private onWindowResize() {
         const width = window.innerWidth;
         const height = window.innerHeight;
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(width, height);
+
+        const context = Game.context;
+
+        context.camera.aspect = width / height;
+        context.camera.updateProjectionMatrix();
+
+        context.renderer.setSize(width, height);
         this.hud?.onWindowResize();
     }
 }

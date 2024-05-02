@@ -9,6 +9,7 @@ import {
     Object3D,
     PointLight,
     Quaternion,
+    Ray,
     Vector2,
     Vector3
 } from 'three';
@@ -25,6 +26,8 @@ import {MaterialKind} from '../../../../material/material-kind';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {DecalManager} from '../../../decal/decal-manager';
+import {Monster} from '../monster/monster';
+import {Game} from '../../../../game';
 
 const SHELL_POSITION = new Vector3();
 const SHELL_QUATERNION = new Quaternion();
@@ -108,7 +111,11 @@ export abstract class Firearm extends Weapon {
 
     onHit = (() => {
         const decalPosition = new Vector3();
-        return (target: Mesh, intersection: Intersection) => {
+        return (target: Mesh, _ray: Ray, intersection: Intersection) => {
+            if (target instanceof Monster && target.isDead()) {
+                return;
+            }
+
             this.decalManager.createDecal({
                 name: this.detonationMarkDecalName,
                 target,
@@ -243,7 +250,7 @@ export abstract class Firearm extends Weapon {
     }
 
     protected showMuzzleSmoke() {
-        if (!this.config.renderOnlyWireframe) {
+        if (!Game.getContext().config.renderOnlyWireframe) {
             const smokeParticles = this.particleManager.createParticles(this.muzzleSmokeParticleName);
             smokeParticles.onShowParticle = particle => this.computeMuzzleSmokeParticlePosition(particle.position);
             smokeParticles.show();
@@ -282,7 +289,9 @@ export abstract class Firearm extends Weapon {
     }
 
     private initFireFlash() {
-        if (!this.config.renderOnlyWireframe) {
+        const config = Game.getContext().config;
+
+        if (!config.renderOnlyWireframe) {
             for (const materialName of this.fireFlashMaterialNames) {
                 const material = <UpdatableMeshBasicMaterial>this.findMaterialByName(materialName);
                 if (!material) {
@@ -296,7 +305,7 @@ export abstract class Firearm extends Weapon {
                 this.fireFlashMaterialParams = new Map<string, any>();
 
                 this.fireFlashLight = new PointLight(0x000);
-                this.fireFlashLight.distance = this.fireFlashDistance * this.config.worldScale;
+                this.fireFlashLight.distance = this.fireFlashDistance * config.worldScale;
                 this.add(this.fireFlashLight);
             }
         }
@@ -347,14 +356,16 @@ export abstract class Firearm extends Weapon {
     private showDetonationParticle = (() => {
         const normalMatrix = new Matrix3();
         const positionOffset = new Vector3();
+        const config = Game.getContext().config;
+
         return (particleName: string, intersection: Intersection) => {
-            if (!this.config.renderOnlyWireframe) {
+            if (!config.renderOnlyWireframe) {
                 if (intersection.face) {
                     normalMatrix.getNormalMatrix(intersection.object.matrixWorld);
                     positionOffset.copy(intersection.face.normal)
                         .applyMatrix3(normalMatrix)
                         .normalize()
-                        .multiplyScalar(2 * this.parameters.config.worldScale);
+                        .multiplyScalar(2 * config.worldScale);
                 } else {
                     positionOffset.setScalar(0);
                 }

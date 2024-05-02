@@ -1,4 +1,4 @@
-import {AudioListener, Scene} from 'three';
+import {AudioListener} from 'three';
 
 import {Container} from 'inversify';
 import 'reflect-metadata';
@@ -33,13 +33,8 @@ import {GameLoader} from './game-loader';
 import {DecalManager} from './entity/decal/decal-manager';
 import {CannonCollisionModelFactory} from './physics/cannon/cannon-collision-model-factory';
 
-export function configureDiContainer(pointerLock: PointerLock, config: GameConfig, assets: GameAssets): Container {
+export function configureDiContainer(pointerLock: PointerLock, config: GameConfig, assets: GameAssets) {
     const container = new Container({skipBaseClassChecks: true, defaultScope: 'Singleton'});
-
-    container.bind<PointerLock>(TYPES.PointerLock).toConstantValue(pointerLock);
-    container.bind<GameConfig>(TYPES.Config).toConstantValue(config);
-    container.bind<GameAssets>(TYPES.Assets).toConstantValue(assets);
-    container.bind<Scene>(TYPES.Scene).toConstantValue(new Scene());
     container.bind<AudioListener>(TYPES.AudioListener).toConstantValue(new AudioListener());
 
     container.bind<CollisionModelFactory>(TYPES.CollisionModelFactory).to(CannonCollisionModelFactory);
@@ -74,7 +69,10 @@ export function configureDiContainer(pointerLock: PointerLock, config: GameConfi
         .toDynamicValue(context => context.container.get<DecalManager>(TYPES.DecalManager));
 
     container.bind<GameLoader>(TYPES.GameLoader).to(GameLoader);
-    container.bind<Game>(TYPES.Game).to(Game);
-
+    container.bind<Game>(TYPES.Game).toDynamicValue(context => {
+        const gameLoader = context.container.get<GameLoader>(TYPES.GameLoader);
+        const gameManagers = context.container.getAll<GameManager>(TYPES.GameManager);
+        return new Game(pointerLock, config, assets, gameLoader, gameManagers);
+    });
     return container;
 }

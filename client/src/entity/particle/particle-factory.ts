@@ -5,22 +5,21 @@ import {inject, injectable} from 'inversify';
 import {GameEntityFactory} from '../game-entity-factory';
 import {Particle} from './particle';
 import {MaterialFactory} from '../../material/material-factory';
-import {GameAssets} from '../../game-assets';
-import {GameConfig} from '../../game-config';
 import {TYPES} from '../../types';
+import {Game} from '../../game';
 
 const GRAVITY_FACTOR = 0.015;
 const SCALE_FACTOR   = 2;
 
 @injectable()
 export class ParticleFactory implements GameEntityFactory<Particle[]> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.Assets) private readonly assets: GameAssets,
-                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
+    constructor(@inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory) {
     }
 
     create(particleName: string): Particle[] {
-        const particleDef = this.assets.particleDefs.get(particleName);
+        const context = Game.getContext();
+
+        const particleDef = context.assets.particleDefs.get(particleName);
         if (!particleDef) {
             throw new Error(`Definition of particle "${particleName}" is not found`);
         }
@@ -34,7 +33,7 @@ export class ParticleFactory implements GameEntityFactory<Particle[]> {
             const particleMaterial = materials[0].clone();
             particleMaterial.color.setHex(particleDef.color);
 
-            const worldScale = this.config.worldScale;
+            const worldScale = context.config.worldScale;
             const gravity = new Vector3();
             if (particleDef.gravity) {
                 gravity.set(

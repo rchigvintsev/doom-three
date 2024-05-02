@@ -1,7 +1,6 @@
-import {Mesh} from 'three';
-
 import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
+import {Game} from '../../../../game';
 
 const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
@@ -11,7 +10,7 @@ export class Fists extends Weapon {
 
     constructor(parameters: WeaponParameters) {
         super(parameters);
-        this.attackDistance = ATTACK_DISTANCE * this.config.worldScale;
+        this.attackDistance = ATTACK_DISTANCE * Game.getContext().config.worldScale;
     }
 
     attack() {
@@ -22,7 +21,7 @@ export class Fists extends Weapon {
         }
     }
 
-    onHit(_target: Mesh) {
+    onHit() {
         this.playSound('impact');
     }
 

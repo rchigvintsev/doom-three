@@ -7,13 +7,12 @@ import {Surface} from './surface';
 import {MaterialFactory} from '../../material/material-factory';
 import {CollisionModelFactory} from '../../physics/collision-model-factory';
 import {BufferAttributes} from '../../util/buffer-attributes';
-import {GameConfig} from '../../game-config';
 import {TYPES} from '../../types';
+import {Game} from '../../game';
 
 @injectable()
 export class SurfaceFactory implements GameEntityFactory<Surface> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
+    constructor(@inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
                 @inject(TYPES.CollisionModelFactory) private readonly collisionModelFactory: CollisionModelFactory) {
     }
 
@@ -21,20 +20,21 @@ export class SurfaceFactory implements GameEntityFactory<Surface> {
         let surface;
         const geometry = this.createGeometry(surfaceDef.geometry);
         const collisionModel = this.collisionModelFactory.create(surfaceDef.collisionModel);
-        if (this.config.renderOnlyWireframe) {
+        const config = Game.getContext().config;
+        if (config.renderOnlyWireframe) {
             surface = new Surface(geometry, new MeshBasicMaterial({wireframe: true}), collisionModel);
         } else {
             const materials = this.materialFactory.create(surfaceDef.material);
             surface = new Surface(geometry, materials, collisionModel);
-            if (this.config.showWireframe) {
+            if (config.showWireframe) {
                 surface.add(new Mesh(geometry, new MeshBasicMaterial({wireframe: true})));
             }
         }
 
         surface.name = surfaceDef.name;
-        surface.scale.setScalar(this.config.worldScale);
+        surface.scale.setScalar(config.worldScale);
         if (surfaceDef.position) {
-            collisionModel.position.setFromArray(surfaceDef.position).multiplyScalar(this.config.worldScale);
+            collisionModel.position.setFromArray(surfaceDef.position).multiplyScalar(config.worldScale);
         }
         surface.init();
 

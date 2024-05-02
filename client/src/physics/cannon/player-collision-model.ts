@@ -71,13 +71,13 @@ export class PlayerCollisionModel implements CollisionModel {
         return this.delegate.hasMass();
     }
 
-    register(physicsManager: PhysicsManager, _scene: Scene) {
+    register(physicsManager: PhysicsManager) {
         for (const body of this.delegate.bodies) {
             physicsManager.addBody(body);
         }
     }
 
-    unregister(physicsManager: PhysicsManager, _scene: Scene) {
+    unregister(physicsManager: PhysicsManager) {
         for (const body of this.delegate.bodies) {
             physicsManager.removeBody(body);
         }

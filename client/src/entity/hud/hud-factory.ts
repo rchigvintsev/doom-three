@@ -18,8 +18,7 @@ const SCALE_FACTOR = 2;
 
 @injectable()
 export class HudFactory implements GameEntityFactory<Hud> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
+    constructor(@inject(TYPES.MaterialFactory) private readonly materialFactory: MaterialFactory,
                 @inject(TYPES.SpriteTextFactory) private readonly spriteTextFactory: SpriteTextFactory) {
     }
 
@@ -28,7 +27,6 @@ export class HudFactory implements GameEntityFactory<Hud> {
         const ammoIndicator = this.createAmmoIndicator(parameters.hudDef);
         const weaponIndicator = this.createWeaponIndicator(parameters.hudDef);
         const hud = new Hud({
-            config: this.config,
             player: parameters.player,
             crosshair,
             ammoIndicator,

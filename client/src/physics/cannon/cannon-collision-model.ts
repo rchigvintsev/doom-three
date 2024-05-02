@@ -1,4 +1,4 @@
-import {Quaternion, Ray, Scene, Vector3} from 'three';
+import {Quaternion, Ray, Vector3} from 'three';
 
 import {Constraint, Vec3} from 'cannon-es';
 
@@ -10,6 +10,7 @@ import {CollideEvent} from '../../event/collide-event';
 import {PhysicsContact} from '../physics-contact';
 import {Weapon} from '../../entity/model/md5/weapon/weapon';
 import {PhysicsBody} from '../physics-body';
+import {Game} from '../../game';
 
 export class CannonCollisionModel implements CollisionModel {
     onHitCallback?: (body: PhysicsBody, weapon: Weapon) => void;
@@ -35,11 +36,11 @@ export class CannonCollisionModel implements CollisionModel {
         return this.firstBody.mass > 0;
     }
 
-    register(physicsManager: PhysicsManager, scene: Scene) {
+    register(physicsManager: PhysicsManager) {
         for (const body of this.parameters.bodies) {
             physicsManager.addBody(body);
             if (body.helper) {
-                scene.add(body.helper);
+                Game.getContext().scene.add(body.helper);
             }
         }
 
@@ -48,12 +49,12 @@ export class CannonCollisionModel implements CollisionModel {
         }
     }
 
-    unregister(physicsManager: PhysicsManager, scene: Scene) {
+    unregister(physicsManager: PhysicsManager) {
         for (const body of this.parameters.bodies) {
             physicsManager.removeBody(body);
             body.reset();
             if (body.helper) {
-                scene.remove(body.helper);
+                Game.getContext().scene.remove(body.helper);
             }
         }
 

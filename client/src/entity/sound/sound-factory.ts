@@ -3,27 +3,26 @@ import {Audio, AudioListener, PositionalAudio} from 'three';
 import {inject, injectable} from 'inversify';
 
 import {GameEntityFactory} from '../game-entity-factory';
-import {GameAssets} from '../../game-assets';
 import {Sound} from './sound';
 import {TYPES} from '../../types';
-import {GameConfig} from '../../game-config';
+import {Game} from '../../game';
 
 @injectable()
 export class SoundFactory implements GameEntityFactory<Sound> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.Assets) private readonly assets: GameAssets,
-                @inject(TYPES.AudioListener) private readonly audioListener: AudioListener) {
+    constructor(@inject(TYPES.AudioListener) private readonly audioListener: AudioListener) {
     }
 
     create(soundName: string): Sound {
-        const soundDef = this.assets.soundDefs.get(soundName);
+        const context = Game.getContext();
+
+        const soundDef = context.assets.soundDefs.get(soundName);
         if (!soundDef) {
             throw new Error(`Definition of sound "${soundName}" is not found`);
         }
 
         const audios: Audio<AudioNode>[] = [];
         for (const soundSrc of soundDef.sources) {
-            const audioBuffer = this.assets.sounds.get(soundSrc);
+            const audioBuffer = context.assets.sounds.get(soundSrc);
             if (!audioBuffer) {
                 throw new Error(`Sound "${soundSrc}" is not found in game assets`);
             }

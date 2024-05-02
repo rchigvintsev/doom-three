@@ -17,9 +17,9 @@ export interface CollisionModel {
 
     hasMass(): boolean;
 
-    register(physicsManager: PhysicsManager, scene: Scene): void;
+    register(physicsManager: PhysicsManager): void;
 
-    unregister(physicsManager: PhysicsManager, scene: Scene): void;
+    unregister(physicsManager: PhysicsManager): void;
 
     update(deltaTime: number): void;
 

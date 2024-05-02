@@ -11,6 +11,7 @@ import {TangibleEntity} from '../../../tangible-entity';
 import {CollisionModel} from '../../../../physics/collision-model';
 import {PhysicsBody} from '../../../../physics/physics-body';
 import {RagdollCollisionModel} from '../../../../physics/ragdoll-collision-model';
+import {Game} from '../../../../game';
 
 export abstract class Monster extends Md5Model implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -44,14 +45,15 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
         this.collisionModel.onAttack(weapon, force, ray, intersection.point);
+        weapon.onHit(this, ray, intersection);
     }
 
-    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.collisionModel.register(physicsManager, scene);
+    registerCollisionModels(physicsManager: PhysicsManager) {
+        this.collisionModel.register(physicsManager);
     }
 
-    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.collisionModel.unregister(physicsManager, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager) {
+        this.collisionModel.unregister(physicsManager);
     }
 
     abstract startWalking(): void;
@@ -72,6 +74,10 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     isWalking(): boolean {
         return this.currentState === MonsterState.WALKING;
+    }
+
+    isDead() {
+        return this.currentState === MonsterState.DEAD;
     }
 
     turn(angle: number) {
@@ -105,10 +111,6 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     protected isAttacking(): boolean {
         return this.currentState === MonsterState.ATTACKING;
-    }
-
-    protected isDead() {
-        return this.currentState === MonsterState.DEAD;
     }
 
     protected playSound(soundName: string, delay?: number): Sound | undefined {
@@ -191,7 +193,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
             v2.applyQuaternion(quaternion.setFromAxisAngle(yAxis, angle));
 
             const direction = v2.sub(v1);
-            const length = direction.length() / this.config.worldScale;
+            const length = direction.length() / Game.getContext().config.worldScale;
 
             rotationMatrix.identity();
             translationMatrix.identity();

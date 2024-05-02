@@ -1,10 +1,10 @@
-import {Mesh, Quaternion, Vector3} from 'three';
+import {Mesh, Quaternion} from 'three';
 
 import {MeshBasedEntity, updateMaterials} from '../../mesh-based-entity';
 import {ModelParameters} from '../model-parameters';
 import {CollisionModel} from '../../../physics/collision-model';
-import {GameConfig} from '../../../game-config';
 import {Position} from '../../../util/position';
+import {Game} from '../../../game';
 
 export class LwoModel extends Mesh implements MeshBasedEntity {
     private initialized = false;
@@ -27,7 +27,7 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
 
     update(deltaTime: number) {
         if (this.visible) {
-            if (!this.config.renderOnlyWireframe) {
+            if (!Game.getContext().config.renderOnlyWireframe) {
                 updateMaterials(this, deltaTime);
             }
             this.collisionModel?.update(deltaTime);
@@ -36,10 +36,6 @@ export class LwoModel extends Mesh implements MeshBasedEntity {
 
     get collisionModel(): CollisionModel | undefined {
         return this.parameters.collisionModel;
-    }
-
-    protected get config(): GameConfig {
-        return this.parameters.config;
     }
 
     protected doInit() {

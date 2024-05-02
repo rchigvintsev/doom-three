@@ -1,5 +1,3 @@
-import {Scene} from 'three';
-
 import {inject, injectable} from 'inversify';
 
 import {Debris} from './debris';
@@ -7,14 +5,14 @@ import {DebrisFactory} from './debris-factory';
 import {GameManager} from '../../../game-manager';
 import {PhysicsManager} from '../../../physics/physics-manager';
 import {TYPES} from '../../../types';
+import {Game} from '../../../game';
 
 @injectable()
 export class DebrisManager implements GameManager {
     private readonly allDebrisModels = new Map<string, Debris[]>();
     private readonly availableDebrisModels = new Map<string, Debris[]>();
 
-    constructor(@inject(TYPES.Scene) private readonly scene: Scene,
-                @inject(TYPES.DebrisFactory) private readonly debrisFactory: DebrisFactory,
+    constructor(@inject(TYPES.DebrisFactory) private readonly debrisFactory: DebrisFactory,
                 @inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
     }
 
@@ -22,12 +20,12 @@ export class DebrisManager implements GameManager {
         let debrisModel = this.findAvailableDebrisModel(debrisName);
         if (!debrisModel) {
             debrisModel = this.debrisFactory.create(debrisName);
-            debrisModel.onShow = debris => debris.registerCollisionModels(this.physicsManager, this.scene);
+            debrisModel.onShow = debris => debris.registerCollisionModels(this.physicsManager);
             debrisModel.onHide = debris => {
-                debris.unregisterCollisionModels(this.physicsManager, this.scene);
+                debris.unregisterCollisionModels(this.physicsManager);
                 this.cacheDebrisModel(this.availableDebrisModels, debrisName, debris);
             };
-            this.scene.add(debrisModel);
+            Game.getContext().scene.add(debrisModel);
             this.cacheDebrisModel(this.allDebrisModels, debrisName, debrisModel);
             console.debug(`Debris model "${debrisName}" is created`);
         }

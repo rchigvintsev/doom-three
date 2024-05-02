@@ -12,8 +12,6 @@ import {Shotgun} from './shotgun';
 import {CachingSoundFactory} from '../../../sound/caching-sound-factory';
 import {GameEntityFactory} from '../../../game-entity-factory';
 import {Sound} from '../../../sound/sound';
-import {GameAssets} from '../../../../game-assets';
-import {GameConfig} from '../../../../game-config';
 import {MaterialFactory} from '../../../../material/material-factory';
 import {SoundFactory} from '../../../sound/sound-factory';
 import {TYPES} from '../../../../types';
@@ -21,18 +19,19 @@ import {DebrisManager} from '../../lwo/debris-manager';
 import {Weapon} from './weapon';
 import {ParticleManager} from '../../../particle/particle-manager';
 import {DecalManager} from '../../../decal/decal-manager';
+import {Game} from '../../../../game';
+import {PhysicsManager} from '../../../../physics/physics-manager';
 
 @injectable()
 export class WeaponFactory extends Md5ModelFactory {
     private readonly cachingSoundFactory: GameEntityFactory<Sound>;
-    constructor(@inject(TYPES.Config) config: GameConfig,
-                @inject(TYPES.Assets) assets: GameAssets,
-                @inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
+    constructor(@inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
                 @inject(TYPES.SoundFactory) soundFactory: SoundFactory,
                 @inject(TYPES.ParticleManager) private readonly particleManager: ParticleManager,
                 @inject(TYPES.DebrisManager) private readonly debrisManager: DebrisManager,
-                @inject(TYPES.DecalManager) private readonly decalManager: DecalManager) {
-        super(config, assets,  materialFactory, soundFactory);
+                @inject(TYPES.DecalManager) private readonly decalManager: DecalManager,
+                @inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
+        super(materialFactory, soundFactory);
         this.cachingSoundFactory = new CachingSoundFactory(soundFactory);
     }
 
@@ -58,7 +57,6 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createFists(modelDef: any, geometry: BufferGeometry): Fists {
         const fistsParams = {
-            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
@@ -70,11 +68,10 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createFlashlight(modelDef: any, geometry: BufferGeometry): Flashlight {
         let flashlightMap = undefined;
-        if (!this.config.renderOnlyWireframe) {
+        if (!Game.getContext().config.renderOnlyWireframe) {
             flashlightMap = this.materialFactory.getTexture('lights/flashlight5');
         }
         const flashlightParams = {
-            config: this.config,
             geometry,
             materials: this.createMaterials(modelDef),
             sounds: this.createSounds(modelDef),
@@ -87,7 +84,6 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createPistol(modelDef: any, geometry: BufferGeometry): Pistol {
         const pistolParams = {...modelDef} as FirearmParameters;
-        pistolParams.config = this.config;
         pistolParams.geometry = geometry;
         pistolParams.materials = this.createMaterials(modelDef);
         pistolParams.sounds = this.createSounds(modelDef);
@@ -101,7 +97,6 @@ export class WeaponFactory extends Md5ModelFactory {
 
     private createShotgun(modelDef: any, geometry: BufferGeometry): Shotgun {
         const shotgunParams = {...modelDef} as FirearmParameters;
-        shotgunParams.config = this.config;
         shotgunParams.geometry = geometry;
         shotgunParams.materials = this.createMaterials(modelDef);
         shotgunParams.sounds = this.createSounds(modelDef);

@@ -2,6 +2,7 @@ import {BufferGeometry, Quaternion, Vector3} from 'three';
 
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {Firearm, FirearmParameters, FirearmState} from './firearm';
+import {Game} from '../../../../game';
 
 export class Pistol extends Firearm {
     constructor(parameters: FirearmParameters) {
@@ -120,8 +121,9 @@ export class Pistol extends Firearm {
         return (geometry: BufferGeometry, offset?: Vector3) => {
             view.set(-15, 0, 0);
             if (offset) {
-                view.y -= offset.x / this.config.worldScale;
-                view.z -= offset.y / this.config.worldScale;
+                const config = Game.getContext().config;
+                view.y -= offset.x / config.worldScale;
+                view.z -= offset.y / config.worldScale;
             }
             BufferGeometries.applyTubeDeform(geometry, view, face1, face2);
         };

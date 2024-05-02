@@ -9,22 +9,19 @@ import {Debris} from './debris';
 import {SoundFactory} from '../../sound/sound-factory';
 import {Sound} from '../../sound/sound';
 import {TYPES} from '../../../types';
-import {GameConfig} from '../../../game-config';
-import {GameAssets} from '../../../game-assets';
 import {MaterialFactory} from '../../../material/material-factory';
+import {Game} from '../../../game';
 
 @injectable()
 export class DebrisFactory extends LwoModelFactory {
-    constructor(@inject(TYPES.Config) config: GameConfig,
-                @inject(TYPES.Assets) assets: GameAssets,
-                @inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
+    constructor(@inject(TYPES.MaterialFactory) materialFactory: MaterialFactory,
                 @inject(TYPES.SoundFactory) private readonly soundFactory: SoundFactory,
                 @inject(TYPES.CollisionModelFactory) private readonly collisionModelFactory: CollisionModelFactory) {
-        super(config, assets, materialFactory);
+        super(materialFactory);
     }
 
     create(debrisName: string): Debris {
-        const debrisDef = this.assets.debrisDefs.get(debrisName);
+        const debrisDef = Game.getContext().assets.debrisDefs.get(debrisName);
         if (!debrisDef) {
             throw new Error(`Definition of debris "${debrisName}" is not found`);
         }
@@ -33,7 +30,6 @@ export class DebrisFactory extends LwoModelFactory {
 
     protected createModel(modelDef: any, geometry: BufferGeometry, materials: Material[]): LwoModel {
         return new Debris({
-            config: this.config,
             geometry,
             materials,
             sounds: this.createSounds(modelDef),

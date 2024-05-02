@@ -20,10 +20,8 @@ import {
 import {OneMinusSrcColorFactor, ZeroFactor} from 'three/src/constants';
 
 import {compile} from 'mathjs';
-import {inject, injectable} from 'inversify';
+import {injectable} from 'inversify';
 import 'reflect-metadata';
-
-import {GameAssets} from '../game-assets';
 import {CustomShaderLib} from '../shader/custom-shader-lib';
 import {UpdatableShaderMaterial} from './updatable-shader-material';
 import {UpdatableTexture} from '../texture/updatable-texture';
@@ -32,20 +30,16 @@ import {UpdatableMaterial} from './updatable-material';
 import {UpdatableSpriteMaterial} from './updatable-sprite-material';
 import {UpdatableMeshPhongMaterial} from './updatable-mesh-phong-material';
 import {parseMaterialKind} from './material-kind';
-import {TYPES} from '../types';
+import {Game} from '../game';
 
 @injectable()
 export class MaterialFactory {
-    private readonly evalScope: any;
-
-    constructor(@inject(TYPES.Assets) private readonly assets: GameAssets) {
-        this.evalScope = this.createExpressionEvaluationScope(assets.tableDefs);
-    }
+    private _evalScope: any;
 
     create(materialName: any): Material[] {
         let materialDef;
         if (typeof materialName === 'string') {
-            materialDef = this.assets.materialDefs.get(materialName);
+            materialDef = Game.getContext().assets.materialDefs.get(materialName);
             if (!materialDef) {
                 throw new Error(`Definition of material "${materialName}" is not found`);
             }
@@ -67,7 +61,7 @@ export class MaterialFactory {
     }
 
     getTexture(textureName: string): Texture {
-        const texture = this.assets.textures.get(textureName);
+        const texture = Game.getContext().assets.textures.get(textureName);
         if (!texture) {
             throw new Error(`Texture "${textureName}" is not found in game assets`);
         }
@@ -408,5 +402,12 @@ export class MaterialFactory {
         if (materialDef.depthTest != undefined) {
             material.depthTest = materialDef.depthTest;
         }
+    }
+
+    private get evalScope(): any {
+        if (!this._evalScope) {
+            this._evalScope = this.createExpressionEvaluationScope(Game.getContext().assets.tableDefs);
+        }
+        return this._evalScope;
     }
 }

@@ -7,13 +7,12 @@ import {Area} from './area';
 import {SurfaceFactory} from '../surface/surface-factory';
 import {Surface} from '../surface/surface';
 import {LightFactory} from '../light/light-factory';
-import {GameConfig} from '../../game-config';
 import {TYPES} from '../../types';
+import {Game} from '../../game';
 
 @injectable()
 export class AreaFactory implements GameEntityFactory<Area> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.SurfaceFactory) private readonly surfaceFactory: SurfaceFactory,
+    constructor(@inject(TYPES.SurfaceFactory) private readonly surfaceFactory: SurfaceFactory,
                 @inject(TYPES.LightFactory) private readonly lightFactory: LightFactory) {
     }
 
@@ -23,7 +22,7 @@ export class AreaFactory implements GameEntityFactory<Area> {
         for (const surfaceDef of areaDef.surfaces) {
             surfaces.push(this.surfaceFactory.create(surfaceDef));
         }
-        if (!this.config.renderOnlyWireframe && areaDef.lights) {
+        if (!Game.getContext().config.renderOnlyWireframe && areaDef.lights) {
             for (const lightDef of areaDef.lights) {
                 lights.push(this.lightFactory.create(lightDef));
             }

@@ -8,17 +8,14 @@ import {Area} from '../area/area';
 import {AreaFactory} from '../area/area-factory';
 import {LightFactory} from '../light/light-factory';
 import {Monster} from '../model/md5/monster/monster';
-import {GameAssets} from '../../game-assets';
 import {MonsterFactory} from '../model/md5/monster/monster-factory';
-import {GameConfig} from '../../game-config';
 import {TYPES} from '../../types';
 import {Player} from '../player/player';
+import {Game} from '../../game';
 
 @injectable()
 export class GameMapFactory implements GameEntityFactory<GameMap> {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.Assets) private readonly assets: GameAssets,
-                @inject(TYPES.AreaFactory) private readonly areaFactory: AreaFactory,
+    constructor(@inject(TYPES.AreaFactory) private readonly areaFactory: AreaFactory,
                 @inject(TYPES.LightFactory) private readonly lightFactory: LightFactory,
                 @inject(TYPES.MonsterFactory) private readonly monsterFactory: MonsterFactory) {
     }
@@ -30,7 +27,7 @@ export class GameMapFactory implements GameEntityFactory<GameMap> {
         if (parameters.mapDef.player) {
             parameters.player.origin = new Vector3()
                 .fromArray(parameters.mapDef.player.origin)
-                .multiplyScalar(this.config.worldScale);
+                .multiplyScalar(Game.getContext().config.worldScale);
         }
         return new GameMap({player: parameters.player, areas, lights, monsters});
     }
@@ -45,7 +42,7 @@ export class GameMapFactory implements GameEntityFactory<GameMap> {
 
     private createLights(mapDef: any): Light[] {
         const lights = [];
-        if (!this.config.renderOnlyWireframe && mapDef.lights) {
+        if (!Game.getContext().config.renderOnlyWireframe && mapDef.lights) {
             for (const lightDef of mapDef.lights) {
                 lights.push(this.lightFactory.create(lightDef));
             }
@@ -57,7 +54,7 @@ export class GameMapFactory implements GameEntityFactory<GameMap> {
         const monsters = [];
         if (mapDef.monsters) {
             for (const monsterDef of mapDef.monsters) {
-                const modelDef = this.assets.monsterDefs.get(monsterDef.type);
+                const modelDef = Game.getContext().assets.monsterDefs.get(monsterDef.type);
                 if (!modelDef) {
                     throw new Error(`Unsupported monster type: ${monsterDef.type}`);
                 }

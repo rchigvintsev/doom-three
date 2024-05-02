@@ -2,7 +2,6 @@ import {
     BoxGeometry,
     BufferGeometry,
     CylinderGeometry,
-    Group,
     Material,
     MathUtils,
     Mesh,
@@ -29,7 +28,6 @@ import {
 import {inject, injectable} from 'inversify';
 
 import {TYPES} from '../../types';
-import {GameConfig} from '../../game-config';
 import {PhysicsManager} from '../physics-manager';
 import {CollisionModel} from '../collision-model';
 import {CannonCollisionModel} from './cannon-collision-model';
@@ -38,11 +36,12 @@ import {NamedSphere} from './named-sphere';
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {CollisionModelFactory} from '../collision-model-factory';
 import {CannonRagdollCollisionModel} from './cannon-ragdoll-collision-model';
+import {PhysicsBodyHelper} from '../physics-body-helper';
+import {Game} from '../../game';
 
 @injectable()
 export class CannonCollisionModelFactory implements CollisionModelFactory {
-    constructor(@inject(TYPES.Config) private readonly config: GameConfig,
-                @inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
+    constructor(@inject(TYPES.PhysicsManager) private readonly physicsManager: PhysicsManager) {
     }
 
     create(collisionModelDef: any): CollisionModel {
@@ -57,14 +56,15 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         const constraints: Constraint[] = [];
         if (collisionModelDef) {
             let helperMaterial;
-            if (this.config.showCollisionModels) {
+            const config = Game.getContext().config;
+            if (config.showCollisionModels) {
                 helperMaterial = this.createMaterialWithRandomColor();
             }
 
             for (const bodyDef of collisionModelDef.bodies) {
                 const body = this.createBody(bodyDef);
                 bodies.push(body);
-                if (this.config.showCollisionModels) {
+                if (config.showCollisionModels) {
                     body.helper = this.bodyToMesh(body, helperMaterial);
                 }
             }
@@ -82,16 +82,17 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         const bodies: CannonPhysicsBody[] = [];
         const deadStateBodies: CannonPhysicsBody[] = [];
         const deadStateConstraints: Constraint[] = [];
+        const config = Game.getContext().config;
         if (collisionModelDef) {
             let helperMaterial;
-            if (this.config.showCollisionModels) {
+            if (config.showCollisionModels) {
                 helperMaterial = this.createMaterialWithRandomColor();
             }
 
             for (const bodyDef of collisionModelDef.bodies) {
                 const body = this.createBody(bodyDef);
                 bodies.push(body);
-                if (this.config.showCollisionModels) {
+                if (config.showCollisionModels) {
                     body.helper = this.bodyToMesh(body, helperMaterial);
                 }
 
@@ -115,7 +116,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             deadStateBodies,
             deadStateConstraints,
             physicsManager: this.physicsManager,
-            worldScale: this.config.worldScale
+            worldScale: config.worldScale
         });
     }
 
@@ -135,13 +136,19 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             collisionFilterGroup: bodyDef.collisionFilterGroup || 1,
             collisionFilterMask: bodyDef.collisionFilterMask || 7,
             material: this.getBodyMaterial(bodyDef),
-            damageFactor: bodyDef.damageFactor
+            damageFactor: bodyDef.damageFactor,
+            boundingBox: bodyDef.boundingBox
         });
         if (bodyDef.collisionResponse != undefined) {
             body.collisionResponse = bodyDef.collisionResponse;
         }
+
+        const config = Game.getContext().config;
+
         if (bodyDef.position) {
-            const position = new Vector3().fromArray(bodyDef.position).multiplyScalar(this.config.worldScale);
+            const position = new Vector3()
+                .fromArray(bodyDef.position)
+                .multiplyScalar(config.worldScale);
             body.position.set(position.x, position.y, position.z);
         }
         if (bodyDef.rotation) {
@@ -175,7 +182,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
                 let offset = undefined;
                 if (shapeDef.offset) {
                     offset = new Vec3(shapeDef.offset[0], shapeDef.offset[1], shapeDef.offset[2])
-                        .scale(this.config.worldScale);
+                        .scale(config.worldScale);
                 }
 
                 let orientation = undefined;
@@ -241,23 +248,24 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
     }
 
     private createBodyShape(shapeDef: any): Shape {
+        const config = Game.getContext().config;
         if (shapeDef.type === 'box') {
             const halfExtents = new Vec3(shapeDef.width / 2, shapeDef.height / 2, shapeDef.depth / 2)
-                .scale(this.config.worldScale);
+                .scale(config.worldScale);
             return new NamedBox(halfExtents, shapeDef.name);
         }
         if (shapeDef.type === 'sphere') {
-            return new NamedSphere(shapeDef.radius * this.config.worldScale, shapeDef.name);
+            return new NamedSphere(shapeDef.radius * config.worldScale, shapeDef.name);
         }
         if (shapeDef.type === 'cylinder') {
             const size = new Vec3(shapeDef.radiusTop, shapeDef.radiusBottom, shapeDef.height)
-                .scale(this.config.worldScale);
+                .scale(config.worldScale);
             return new Cylinder(size.x, size.y, size.z, shapeDef.segments);
         }
         if (shapeDef.type === 'trimesh') {
             const scaledVertices = [];
             for (let i = 0; i < shapeDef.vertices.length; i++) {
-                scaledVertices.push(shapeDef.vertices[i] * this.config.worldScale);
+                scaledVertices.push(shapeDef.vertices[i] * config.worldScale);
             }
             return new Trimesh(scaledVertices, shapeDef.indices);
         }
@@ -267,8 +275,8 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
         throw new Error(`Unsupported shape type: "${shapeDef.type}"`);
     }
 
-    private bodyToMesh(body: Body, material?: Material): Group {
-        const shapeGroup = new Group();
+    private bodyToMesh(body: CannonPhysicsBody, material?: Material): PhysicsBodyHelper {
+        const helper = new PhysicsBodyHelper(body);
 
         if (!material) {
             material = this.createMaterialWithRandomColor();
@@ -281,19 +289,19 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             shapeMesh.position.set(shapeOffset.x, shapeOffset.y, shapeOffset.z);
             const shapeOrientation = body.shapeOrientations[i];
             shapeMesh.quaternion.set(shapeOrientation.x, shapeOrientation.y, shapeOrientation.z, shapeOrientation.w);
-            shapeGroup.add(shapeMesh);
+            helper.add(shapeMesh);
         });
 
-        shapeGroup.position.set(body.position.x, body.position.y, body.position.z);
-        shapeGroup.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
-        return shapeGroup;
+        helper.position.set(body.position.x, body.position.y, body.position.z);
+        helper.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+        return helper;
     }
 
     private shapeToGeometry(shape: Shape): BufferGeometry {
         switch (shape.type) {
             case Shape.types.SPHERE: {
                 const radius = (<Sphere>shape).radius;
-                const segments = Math.round(radius / this.config.worldScale) * 2;
+                const segments = Math.round(radius / Game.getContext().config.worldScale) * 2;
                 return new SphereGeometry(radius, segments, segments);
             }
             case Shape.types.BOX: {
@@ -332,7 +340,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
     }
 
     private getPivot(pivotDef: any) {
-        return new Vec3(pivotDef[0], pivotDef[1], pivotDef[2]).scale(this.config.worldScale);
+        return new Vec3(pivotDef[0], pivotDef[1], pivotDef[2]).scale(Game.getContext().config.worldScale);
     }
 
     private getAxis(axisDef: any): Vec3 {

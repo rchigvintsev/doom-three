@@ -1,4 +1,4 @@
-import {Euler, Intersection, Mesh, Vector3} from 'three';
+import {Euler, Intersection, Mesh, Ray, Vector3} from 'three';
 
 import {Md5Model, Md5ModelParameters, Md5ModelState} from '../md5-model';
 import {Player} from '../../../player/player';
@@ -7,6 +7,7 @@ import {MaterialKind} from '../../../../material/material-kind';
 import {isUpdatableMaterial} from '../../../../material/updatable-material';
 import {GameEntityFactory} from '../../../game-entity-factory';
 import {Sound} from '../../../sound/sound';
+import {Game} from '../../../../game';
 
 const BOBBING_MAGNITUDE_X = 0.40;
 const BOBBING_MAGNITUDE_Y = 0.40;
@@ -44,7 +45,7 @@ export abstract class Weapon extends Md5Model {
         if (this.enabled && !this.visible) {
             this.visible = true;
         }
-        if (!this.config.ghostMode && player) {
+        if (!Game.getContext().config.ghostMode && player) {
             this.updateAcceleration(player.movementDirection);
             this.drop(player.landedAt, player.pitchObject.rotation.x * -1);
         }
@@ -53,7 +54,7 @@ export abstract class Weapon extends Md5Model {
     updateBobbing(angle: number) {
         const x = Math.sin(angle) * BOBBING_MAGNITUDE_X;
         const y = -Math.abs(Math.sin(angle) * BOBBING_MAGNITUDE_Y);
-        this.bobbingOffset.set(x, y, 0).multiplyScalar(this.config.worldScale);
+        this.bobbingOffset.set(x, y, 0).multiplyScalar(Game.getContext().config.worldScale);
         this.position.addVectors(this.origin, this.acceleration.offset).add(this.bobbingOffset);
     }
 
@@ -81,9 +82,10 @@ export abstract class Weapon extends Md5Model {
      * Called when this weapon hit some target during the attack.
      *
      * @param target target mesh that was hit during the attack
+     * @param ray ray cast from this weapon
      * @param intersection intersection of ray cast from this weapon with target mesh
      */
-    abstract onHit(target: Mesh, intersection: Intersection): void;
+    abstract onHit(target: Mesh, ray: Ray, intersection: Intersection): void;
 
     /**
      * Called when this weapon misses during the attack.
@@ -144,7 +146,7 @@ export abstract class Weapon extends Md5Model {
                 break;	// Remainder is too old to care about
             }
             let f = t / WEAPON_OFFSET_TIME;
-            f = (Math.cos(f * 2.0 * Math.PI) - 1.0) * 0.5 * this.config.worldScale;
+            f = (Math.cos(f * 2.0 * Math.PI) - 1.0) * 0.5 * Game.getContext().config.worldScale;
 
             this.acceleration.offset.x += f * acceleration.direction.x;
             this.acceleration.offset.y += f * acceleration.direction.y;
@@ -165,7 +167,7 @@ export abstract class Weapon extends Md5Model {
             } else {
                 f = LAND_OFFSET * 0.25 * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
             }
-            this.v.multiplyScalar(f).multiplyScalar(this.config.worldScale);
+            this.v.multiplyScalar(f).multiplyScalar(Game.getContext().config.worldScale);
             this.position.add(this.v);
             return this.v;
         }

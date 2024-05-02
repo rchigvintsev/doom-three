@@ -24,12 +24,12 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         // Do nothing
     }
 
-    registerCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.collisionModel.register(physicsManager, scene);
+    registerCollisionModels(physicsManager: PhysicsManager) {
+        this.collisionModel.register(physicsManager);
     }
 
-    unregisterCollisionModels(physicsManager: PhysicsManager, scene: Scene) {
-        this.collisionModel.unregister(physicsManager, scene);
+    unregisterCollisionModels(physicsManager: PhysicsManager) {
+        this.collisionModel.unregister(physicsManager);
     }
 
     update(deltaTime: number) {
@@ -39,7 +39,7 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
 
     onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
         this.collisionModel.onAttack(weapon, force, ray, intersection.point);
-        weapon.onHit(this, intersection);
+        weapon.onHit(this, ray, intersection);
     }
 
     private onCollisionModelUpdate(position: Position, quaternion: Quaternion) {

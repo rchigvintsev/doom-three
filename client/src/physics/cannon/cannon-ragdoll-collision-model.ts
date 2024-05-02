@@ -9,6 +9,8 @@ import {PhysicsManager} from '../physics-manager';
 import {RagdollCollisionModel} from '../ragdoll-collision-model';
 
 export class CannonRagdollCollisionModel extends CannonCollisionModel implements RagdollCollisionModel {
+    readonly ragdollCollisionModel = true;
+
     private _dead = false;
 
     constructor(parameters: CannonRagdollCollisionModelParameters) {
@@ -34,6 +36,9 @@ export class CannonRagdollCollisionModel extends CannonCollisionModel implements
                         deadStateBody.setQuaternion(body.getQuaternion());
                         this.physicsManager.addBody(deadStateBody);
                         if (deadStateBody.helper) {
+                            // Regular body and dead state body share the same helper, so here we need to change body
+                            // pointer to this helper.
+                            deadStateBody.helper.body = deadStateBody;
                             deadStateBody.helper.visible = true;
                         }
                     }
@@ -85,16 +90,16 @@ export class CannonRagdollCollisionModel extends CannonCollisionModel implements
         };
     })();
 
+    get deadStateBodies(): CannonPhysicsBody[] {
+        return (<CannonRagdollCollisionModelParameters>this.parameters).deadStateBodies;
+    }
+
     protected get firstBody(): CannonPhysicsBody {
         return this._dead ? this.deadStateBodies[0] : this.bodies[0];
     }
 
     private get physicsManager(): PhysicsManager {
         return (<CannonRagdollCollisionModelParameters>this.parameters).physicsManager;
-    }
-
-    private get deadStateBodies(): CannonPhysicsBody[] {
-        return (<CannonRagdollCollisionModelParameters>this.parameters).deadStateBodies;
     }
 
     private get deadStateConstraints(): Constraint[] {
