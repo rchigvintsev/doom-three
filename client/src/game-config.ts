@@ -21,6 +21,7 @@ const DEFAULT_SHOW_SKELETONS = false;
 const DEFAULT_SHOW_COLLISION_MODELS = false;
 const DEFAULT_GHOST_MODE = false;
 const DEFAULT_DIFFICULTY_LEVEL = DifficultyLevel.MARINE;
+const DEFAULT_ENABLE_TELEKINETIC_FISTS = false;
 
 export class GameConfig {
     cameraFov = DEFAULT_CAMERA_FOV;
@@ -40,6 +41,7 @@ export class GameConfig {
     showCollisionModels = DEFAULT_SHOW_COLLISION_MODELS;
     ghostMode = DEFAULT_GHOST_MODE;
     difficultyLevel = DEFAULT_DIFFICULTY_LEVEL;
+    enableTelekineticFists = DEFAULT_ENABLE_TELEKINETIC_FISTS;
 
     static load(): GameConfig {
         const configJson = localStorage[CONFIG_KEY];

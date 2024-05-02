@@ -23,6 +23,23 @@
     "damage": 20
   },
   {
+    "name": "telekinetic-fists",
+    "model": "models/md5/weapons/fists_view/fists.md5mesh",
+    "materials": [
+      "models/weapons/berserk/fist"
+    ],
+    "animations": [
+      "models/md5/weapons/fists_view/idle.md5anim",
+      "models/md5/weapons/fists_view/lower.md5anim",
+      "models/md5/weapons/fists_view/raise.md5anim"
+    ],
+    "position": [0, -6.5, 10],
+    "sounds": {
+      "raise": "fist_raise"
+    },
+    "damage": 0
+  },
+  {
     "name": "flashlight",
     "model": "models/md5/items/flashlight_view/viewflashlight.md5mesh",
     "materials": [

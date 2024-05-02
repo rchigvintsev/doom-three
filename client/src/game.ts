@@ -43,7 +43,7 @@ export class Game {
         const audioListener = this.createAudioListener();
         camera.add(audioListener);
 
-        this.controls = this.createControls(config, pointerLock);
+        this.controls = this.createControls(pointerLock);
         this.stats = this.createStats(config);
 
         window.addEventListener('resize', () => this.onWindowResize());
@@ -92,8 +92,8 @@ export class Game {
         return new AudioListener();
     }
 
-    private createControls(config: GameConfig, pointerLock: PointerLock): FpsControls {
-        const controls = new FpsControls(config, pointerLock);
+    private createControls(pointerLock: PointerLock): FpsControls {
+        const controls = new FpsControls(pointerLock);
         controls.init();
         return controls;
     }

@@ -133,6 +133,10 @@ export class Player extends Object3D implements TangibleEntity {
         this.enableWeapon('fists');
     }
 
+    enableTelekineticFists() {
+        this.enableWeapon('telekinetic-fists');
+    }
+
     enableFlashlight() {
         this.enableWeapon('flashlight');
     }

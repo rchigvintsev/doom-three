@@ -5,6 +5,7 @@ import {inject, injectable} from 'inversify';
 import {Md5ModelFactory} from '../md5-model-factory';
 import {Md5Model} from '../md5-model';
 import {Fists} from './fists';
+import {TelekineticFists} from './telekinetic-fists';
 import {Flashlight} from './flashlight';
 import {Pistol} from './pistol';
 import {FirearmParameters} from './firearm';
@@ -43,6 +44,9 @@ export class WeaponFactory extends Md5ModelFactory {
         if (modelDef.name === 'fists') {
             return this.createFists(modelDef, geometry);
         }
+        if (modelDef.name === 'telekinetic-fists') {
+            return this.createTelekineticFists(modelDef, geometry);
+        }
         if (modelDef.name === 'flashlight') {
             return this.createFlashlight(modelDef, geometry);
         }
@@ -64,6 +68,18 @@ export class WeaponFactory extends Md5ModelFactory {
             damage: modelDef.damage
         };
         return new Fists(fistsParams);
+    }
+
+    private createTelekineticFists(modelDef: any, geometry: BufferGeometry): TelekineticFists {
+        const telekineticFistsParams = {
+            geometry,
+            materials: this.createMaterials(modelDef),
+            sounds: this.createSounds(modelDef),
+            soundFactory: this.cachingSoundFactory,
+            damage: modelDef.damage,
+            physicsManager: this.physicsManager
+        };
+        return new TelekineticFists(telekineticFistsParams);
     }
 
     private createFlashlight(modelDef: any, geometry: BufferGeometry): Flashlight {

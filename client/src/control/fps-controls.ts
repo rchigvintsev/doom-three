@@ -3,8 +3,8 @@ import {Euler, Quaternion, Vector3} from 'three';
 import {KeyboardState} from './keyboard-state';
 import {PointerLock} from './pointer-lock';
 import {Player} from '../entity/player/player';
-import {GameConfig} from '../game-config';
 import {MouseState} from './mouse-state';
+import {Game} from '../game';
 
 export class FpsControls {
     enabled = false;
@@ -21,7 +21,7 @@ export class FpsControls {
 
     private initialized = false;
 
-    constructor(private readonly config: GameConfig, private readonly pointerLock: PointerLock) {
+    constructor(private readonly pointerLock: PointerLock) {
     }
 
     init() {
@@ -38,6 +38,8 @@ export class FpsControls {
             return;
         }
 
+        const config = Game.getContext().config;
+
         if (!this.player.airborne) {
             let x = 0, y = 0, z = 0;
 
@@ -50,26 +52,26 @@ export class FpsControls {
             this.player.movementDirection = this.direction.set(x, y, z);
 
             if (x !== 0 || z !== 0) {
-                if (this.config.ghostMode) {
+                if (config.ghostMode) {
                     const a = x;
                     const b = -Math.sin(this.player.pitchObject.rotation.x) * z;
                     const c = Math.cos(this.player.pitchObject.rotation.x) * z;
                     this.inputVelocity.set(a, b, c)
                         .normalize()
-                        .multiplyScalar(this.config.playerMoveSpeedInGhostMode);
+                        .multiplyScalar(config.playerMoveSpeedInGhostMode);
                 } else {
                     this.e.y = this.player.rotation.y;
                     this.q.setFromEuler(this.e);
                     this.inputVelocity.set(x, 0, z)
                         .applyQuaternion(this.q)
                         .normalize()
-                        .multiplyScalar(this.config.playerMoveSpeed);
+                        .multiplyScalar(config.playerMoveSpeed);
                 }
                 this.player.move(this.inputVelocity);
             }
 
             if (y !== 0) {
-                this.player.jump(this.config.playerJumpSpeed);
+                this.player.jump(config.playerJumpSpeed);
             }
         }
 
@@ -83,6 +85,8 @@ export class FpsControls {
             this.player.enablePistol();
         } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_THREE)) {
             this.player.enableShotgun();
+        } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_T) && config.enableTelekineticFists) {
+            this.player.enableTelekineticFists();
         } else if (this.keyboardState.isKeyPressed(KeyboardState.KEY_R)) {
             this.player.reloadWeapon();
         }
@@ -96,10 +100,12 @@ export class FpsControls {
         const movementX = e.movementX || 0;
         const movementY = e.movementY || 0;
 
-        this.player.rotation.y -= movementX * this.config.playerLookSpeed;
+        const config = Game.getContext().config;
+
+        this.player.rotation.y -= movementX * config.playerLookSpeed;
 
         const pitchObject = this.player.pitchObject;
-        pitchObject.rotation.x -= movementY * this.config.playerLookSpeed;
+        pitchObject.rotation.x -= movementY * config.playerLookSpeed;
         pitchObject.rotation.x = Math.max(-1 * Math.PI / 2, Math.min(Math.PI / 2, pitchObject.rotation.x));
     }
 
