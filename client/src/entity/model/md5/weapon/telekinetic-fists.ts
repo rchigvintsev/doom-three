@@ -1,11 +1,9 @@
 import {
+    BackSide,
     Intersection,
-    Matrix4,
     Mesh,
     MeshLambertMaterial,
     Object3D,
-    PlaneGeometry,
-    Quaternion,
     Ray,
     Raycaster,
     SphereGeometry,
@@ -24,7 +22,7 @@ import {Game} from '../../../../game';
 import {PhysicsManager} from '../../../../physics/physics-manager';
 import {isTangibleEntity} from '../../../tangible-entity';
 
-const TELEKINESIS_DISTANCE = 150;
+const TELEKINESIS_DISTANCE = 200;
 
 /**
  * Special type of weapon intended for debugging of game physics.
@@ -33,7 +31,7 @@ export class TelekineticFists extends Weapon {
     private readonly telekinesisDistance: number;
     private readonly raycaster = new Raycaster();
     private readonly hitMarker: Mesh;
-    private readonly movementPlane: Mesh;
+    private readonly movementSphere: Mesh;
     private readonly jointBody: Body;
 
     private jointConstraint?: Constraint;
@@ -54,11 +52,11 @@ export class TelekineticFists extends Weapon {
         this.hitMarker.visible = false;
         context.scene.add(this.hitMarker);
 
-        const movementPlaneGeometry = new PlaneGeometry(10, 10);
-        const movementPlaneMaterial = new MeshLambertMaterial({color: 0x777777});
-        this.movementPlane = new Mesh(movementPlaneGeometry, movementPlaneMaterial);
-        this.movementPlane.visible = false;
-        context.scene.add(this.movementPlane);
+        const movementSphereGeometry = new SphereGeometry();
+        const movementSphereMaterial = new MeshLambertMaterial({side: BackSide});
+        this.movementSphere = new Mesh(movementSphereGeometry, movementSphereMaterial);
+        this.movementSphere.visible = false;
+        context.scene.add(this.movementSphere);
 
         this.jointBody = new Body({mass: 0});
         this.jointBody.addShape(new Sphere(0.02));
@@ -66,6 +64,7 @@ export class TelekineticFists extends Weapon {
         this.jointBody.collisionFilterMask = 0;
         parameters.physicsManager.addBody(this.jointBody);
     }
+
     init() {
         super.init();
     }
@@ -78,43 +77,45 @@ export class TelekineticFists extends Weapon {
     }
 
     onHit(target: Mesh, ray: Ray, intersection: Intersection) {
-        if (target instanceof Monster && target.isDead()) {
-            const monster = target as Monster;
-            if (isRagdollCollisionModel(monster.collisionModel)) {
-                const bodyHelpers = monster.collisionModel.deadStateBodies
-                    .filter(body => !body.boundingBox && body.helper)
-                    .map(body => body.helper!);
+        if (isTangibleEntity(target) || (target instanceof Monster && target.isDead())) {
+            let hitPoint, body;
 
-                this.raycaster.set(ray.origin, ray.direction);
-                const intersections = this.raycaster.intersectObjects(bodyHelpers);
-                if (intersections.length > 0) {
-                    const hit = intersections[0];
-                    let target: Object3D | null = hit.object;
-                    while (target && !(target instanceof PhysicsBodyHelper)) {
-                        target = target.parent;
-                    }
+            if (isTangibleEntity(target)) {
+                if ((target as any).collisionModel.hasMass()) {
+                    hitPoint = intersection.point;
+                    body = (target as any).collisionModel.bodies[0];
+                }
+            } else {
+                const monster = target as Monster;
+                if (isRagdollCollisionModel(monster.collisionModel)) {
+                    const bodyHelpers = monster.collisionModel.deadStateBodies
+                        .filter(body => !body.boundingBox && body.helper)
+                        .map(body => body.helper!);
 
-                    if (target) {
-                        const hitPoint = hit.point;
+                    this.raycaster.set(ray.origin, ray.direction);
+                    const intersections = this.raycaster.intersectObjects(bodyHelpers);
+                    if (intersections.length > 0) {
+                        const hit = intersections[0];
+                        let target: Object3D | null = hit.object;
+                        while (target && !(target instanceof PhysicsBodyHelper)) {
+                            target = target.parent;
+                        }
 
-                        this.moveHitMarker(hitPoint);
-                        this.showHitMarker();
-                        this.moveMovementPlane(hitPoint, ray.direction);
-                        this.addJointConstraint(hitPoint, target.body as unknown as Body);
-
-                        requestAnimationFrame(() => this.dragging = true);
+                        if (target) {
+                            hitPoint = hit.point;
+                            body = target.body as unknown as Body;
+                        }
                     }
                 }
             }
-        } else if (isTangibleEntity(target)) {
-            if ((target as any).collisionModel.hasMass()) {
-                const body = (target as any).collisionModel.bodies[0];
 
-                const hitPoint = intersection.point;
-
+            if (hitPoint && body) {
                 this.moveHitMarker(hitPoint);
                 this.showHitMarker();
-                this.moveMovementPlane(hitPoint, ray.direction);
+
+                this.scaleMovementSphere(hitPoint);
+                this.moveMovementSphere();
+
                 this.addJointConstraint(hitPoint, body);
 
                 requestAnimationFrame(() => this.dragging = true);
@@ -138,7 +139,7 @@ export class TelekineticFists extends Weapon {
             }
 
             this.raycaster.setFromCamera(screenCenterCoords, Game.getContext().camera);
-            const intersections = this.raycaster.intersectObject(this.movementPlane);
+            const intersections = this.raycaster.intersectObject(this.movementSphere);
             if (intersections.length > 0) {
                 const intersection = intersections[0];
                 this.moveHitMarker(intersection.point);
@@ -190,18 +191,21 @@ export class TelekineticFists extends Weapon {
         this.hitMarker.visible = false;
     }
 
-    private moveMovementPlane = (() => {
-        const rotationMatrix = new Matrix4();
-        const up = new Vector3(0, 1, 0);
-        const quaternion = new Quaternion();
+    private scaleMovementSphere = (() => {
+        const worldPosition = new Vector3();
 
-        return (position: Vector3, direction: Vector3) => {
-            this.movementPlane.position.copy(position);
-            rotationMatrix.lookAt(this.position, direction, up);
-            quaternion.setFromRotationMatrix(rotationMatrix);
-            this.movementPlane.quaternion.copy(quaternion);
+        return (hitPoint: Vector3) => {
+            this.localToWorld(worldPosition.copy(this.position));
+            const sphereRadius = worldPosition.distanceTo(hitPoint);
+            // Sphere scale matches sphere radius
+            this.movementSphere.scale.setScalar(sphereRadius);
         };
     })();
+
+    private moveMovementSphere() {
+        this.movementSphere.position.copy(this.position);
+        this.localToWorld(this.movementSphere.position);
+    }
 
     private addJointConstraint(hitPoint: Vector3, body: Body) {
         this.jointBody.position.set(hitPoint.x, hitPoint.y, hitPoint.z);
