@@ -24,7 +24,7 @@ import {Game} from '../../../../game';
 import {PhysicsManager} from '../../../../physics/physics-manager';
 import {isTangibleEntity} from '../../../tangible-entity';
 
-const TELEKINESIS_DISTANCE = 100;
+const TELEKINESIS_DISTANCE = 150;
 
 /**
  * Special type of weapon intended for debugging of game physics.
