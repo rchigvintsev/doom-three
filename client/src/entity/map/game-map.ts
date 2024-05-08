@@ -8,6 +8,7 @@ import {Monster} from '../model/md5/monster/monster';
 import {PhysicsManager} from '../../physics/physics-manager';
 import {Object3D} from 'three/src/core/Object3D';
 import {Game} from '../../game';
+import {CollisionModel} from '../../physics/collision-model';
 
 const SCREEN_CENTER_COORDS = new Vector2();
 
@@ -50,6 +51,14 @@ export class GameMap extends Group implements TangibleEntity {
 
     init() {
         // Do nothing
+    }
+
+    get collisionModels(): CollisionModel[] {
+        const collisionModels: CollisionModel[] = [];
+        this.parameters.areas.forEach(area => collisionModels.push(...area.collisionModels));
+        this.parameters.monsters.forEach(monster => collisionModels.push(...monster.collisionModels));
+        collisionModels.push(...this.parameters.player.collisionModels);
+        return collisionModels;
     }
 
     registerCollisionModels(physicsManager: PhysicsManager) {

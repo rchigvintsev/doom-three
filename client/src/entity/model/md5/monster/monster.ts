@@ -48,6 +48,10 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         weapon.onHit(this, ray, intersection);
     }
 
+    get collisionModels(): CollisionModel[] {
+        return [this.collisionModel];
+    }
+
     registerCollisionModels(physicsManager: PhysicsManager) {
         this.collisionModel.register(physicsManager);
     }

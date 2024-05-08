@@ -3,6 +3,7 @@ import {Group, Light} from 'three';
 import {Surface} from '../surface/surface';
 import {TangibleEntity} from '../tangible-entity';
 import {PhysicsManager} from '../../physics/physics-manager';
+import {CollisionModel} from '../../physics/collision-model';
 
 export class Area extends Group implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -19,6 +20,10 @@ export class Area extends Group implements TangibleEntity {
 
     init() {
         // Do nothing
+    }
+
+    get collisionModels(): CollisionModel[] {
+        return this.surfaces.flatMap(surface => surface.collisionModels);
     }
 
     registerCollisionModels(physicsManager: PhysicsManager) {

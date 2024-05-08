@@ -1,4 +1,4 @@
-import {Object3D, Scene, Vector3} from 'three';
+import {Object3D, Vector3} from 'three';
 
 import {random} from 'mathjs';
 
@@ -14,6 +14,7 @@ import {isFirearm} from '../model/md5/weapon/firearm';
 import {Sound} from '../sound/sound';
 import {PhysicsManager} from '../../physics/physics-manager';
 import {Game} from '../../game';
+import {CollisionModel} from '../../physics/collision-model';
 
 const BOBBING_SPEED = 0.1;
 const VIEW_BOBBING_MAGNITUDE = 0.002;
@@ -56,6 +57,10 @@ export class Player extends Object3D implements TangibleEntity {
         playerResolve(this);
     }
 
+    get collisionModels(): CollisionModel[] {
+        return [this.collisionModel];
+    }
+
     registerCollisionModels(physicsManager: PhysicsManager) {
         this.parameters.collisionModel.register(physicsManager);
     }
@@ -68,14 +73,15 @@ export class Player extends Object3D implements TangibleEntity {
         if (this._currentWeapon) {
             this._currentWeapon.update(deltaTime, this);
         }
-        this.parameters.collisionModel.update(deltaTime);
+
+        this.collisionModel.update(deltaTime);
         if (!Game.getContext().config.ghostMode) {
-            this.position.copy(this.parameters.collisionModel.headPosition);
+            this.position.copy(this.collisionModel.headPosition);
             if (this.airborne) {
                 const now = performance.now();
                 const delta = now - this.tookOffAt;
                 // We should give player a chance to get off the ground
-                if (delta > 100 && this.parameters.collisionModel.hasGroundContacts()) {
+                if (delta > 100 && this.collisionModel.hasGroundContacts()) {
                     this._airborne = false;
                     this._landedAt = now;
                     this.playLandingSound();
@@ -90,7 +96,7 @@ export class Player extends Object3D implements TangibleEntity {
             this.translateY(velocity.y);
             this.translateZ(velocity.z);
         } else {
-            this.parameters.collisionModel.move(velocity);
+            this.collisionModel.move(velocity);
             this.playFootstepSound();
             this.updateBobbing();
         }
@@ -98,7 +104,7 @@ export class Player extends Object3D implements TangibleEntity {
 
     jump(speed: number) {
         if (!Game.getContext().config.ghostMode) {
-            this.parameters.collisionModel.jump(speed);
+            this.collisionModel.jump(speed);
             this.tookOffAt = performance.now();
             this._airborne = true;
             this.playJumpSound();
@@ -162,8 +168,8 @@ export class Player extends Object3D implements TangibleEntity {
     }
 
     set origin(origin: Vector3) {
-        this.parameters.collisionModel.origin = origin;
-        this.position.copy(this.parameters.collisionModel.headPosition);
+        this.collisionModel.origin = origin;
+        this.position.copy(this.collisionModel.headPosition);
     }
 
     get pitchObject(): Object3D {
@@ -264,6 +270,10 @@ export class Player extends Object3D implements TangibleEntity {
                 .onUpdate(rotation => Game.getContext().camera.rotation.x = rotation.x)
                 .start();
         }
+    }
+
+    private get collisionModel(): PlayerCollisionModel {
+        return this.parameters.collisionModel;
     }
 }
 

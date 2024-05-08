@@ -36,8 +36,6 @@ export class TelekineticFists extends Weapon {
 
     private jointConstraint?: Constraint;
 
-    private dragging = false;
-
     constructor(parameters: TelekineticFistsParameters) {
         super(parameters);
 
@@ -65,61 +63,58 @@ export class TelekineticFists extends Weapon {
         parameters.physicsManager.addBody(this.jointBody);
     }
 
-    init() {
-        super.init();
-    }
-
     attack() {
         if (this.canAttack()) {
-            this.changeState(TelekineticFistsState.MOVING_OBJECTS);
+            this.changeState(TelekineticFistsState.USING_TELEKINESIS);
             this.dispatchEvent(new AttackEvent(this, this.telekinesisDistance, 0));
         }
     }
 
     onHit(target: Mesh, ray: Ray, intersection: Intersection) {
-        if (isTangibleEntity(target) || (target instanceof Monster && target.isDead())) {
-            let hitPoint, body;
+        if (!isTangibleEntity(target) || (target instanceof Monster && !target.isDead())) {
+            return;
+        }
 
-            if (isTangibleEntity(target)) {
-                if ((target as any).collisionModel.hasMass()) {
-                    hitPoint = intersection.point;
-                    body = (target as any).collisionModel.bodies[0];
-                }
-            } else {
-                const monster = target as Monster;
-                if (isRagdollCollisionModel(monster.collisionModel)) {
-                    const bodyHelpers = monster.collisionModel.deadStateBodies
-                        .filter(body => !body.boundingBox && body.helper)
-                        .map(body => body.helper!);
+        let hitPoint, body;
 
-                    this.raycaster.set(ray.origin, ray.direction);
-                    const intersections = this.raycaster.intersectObjects(bodyHelpers);
-                    if (intersections.length > 0) {
-                        const hit = intersections[0];
-                        let target: Object3D | null = hit.object;
-                        while (target && !(target instanceof PhysicsBodyHelper)) {
-                            target = target.parent;
-                        }
+        if (target instanceof Monster) {
+            if (isRagdollCollisionModel(target.collisionModel)) {
+                const bodyHelpers = target.collisionModel.deadStateBodies
+                    .filter(body => !body.boundingBox && body.helper)
+                    .map(body => body.helper!);
 
-                        if (target) {
-                            hitPoint = hit.point;
-                            body = target.body as unknown as Body;
-                        }
+                this.raycaster.set(ray.origin, ray.direction);
+                const intersections = this.raycaster.intersectObjects(bodyHelpers);
+                if (intersections.length > 0) {
+                    const hit = intersections[0];
+                    let target: Object3D | null = hit.object;
+                    while (target && !(target instanceof PhysicsBodyHelper)) {
+                        target = target.parent;
+                    }
+
+                    if (target) {
+                        hitPoint = hit.point;
+                        body = target.body;
                     }
                 }
             }
-
-            if (hitPoint && body) {
-                this.moveHitMarker(hitPoint);
-                this.showHitMarker();
-
-                this.scaleMovementSphere(hitPoint);
-                this.moveMovementSphere();
-
-                this.addJointConstraint(hitPoint, body);
-
-                requestAnimationFrame(() => this.dragging = true);
+        } else {
+            const collisionModel = target.collisionModels[0];
+            if (collisionModel && collisionModel.hasMass()) {
+                hitPoint = intersection.point;
+                body = collisionModel.bodies[0];
             }
+        }
+
+        if (hitPoint && body instanceof Body) {
+            this.moveHitMarker(hitPoint);
+            this.showHitMarker();
+
+            this.scaleMovementSphere(hitPoint);
+            this.moveMovementSphere();
+
+            this.addJointConstraint(hitPoint, body);
+            this.changeState(TelekineticFistsState.DRAGGING_OBJECT);
         }
     }
 
@@ -134,7 +129,7 @@ export class TelekineticFists extends Weapon {
         const screenCenterCoords = new Vector2();
 
         window.addEventListener('pointermove', _event => {
-            if (!this.dragging) {
+            if (!this.enabled || !this.isDraggingObject()) {
                 return;
             }
 
@@ -146,17 +141,16 @@ export class TelekineticFists extends Weapon {
                 this.moveJointBody(intersection.point);
             }
         });
-        window.addEventListener('pointerup', () => {
-            if (this.isMovingObjects()) {
-                this.removeJointConstraint();
-                this.hideHitMarker();
-                this.changeState(TelekineticFistsState.IDLE);
-            }
-        });
-    }
 
-    protected updateState() {
-        super.updateState();
+        window.addEventListener('pointerup', () => {
+            if (!this.enabled) {
+                return;
+            }
+
+            this.removeJointConstraint();
+            this.hideHitMarker();
+            this.changeState(TelekineticFistsState.IDLE);
+        });
     }
 
     private initAnimationFlows() {
@@ -175,8 +169,8 @@ export class TelekineticFists extends Weapon {
         return this.currentState === TelekineticFistsState.IDLE;
     }
 
-    private isMovingObjects(): boolean {
-        return this.currentState === TelekineticFistsState.MOVING_OBJECTS;
+    private isDraggingObject(): boolean {
+        return this.currentState === TelekineticFistsState.DRAGGING_OBJECT;
     }
 
     private showHitMarker() {
@@ -188,7 +182,9 @@ export class TelekineticFists extends Weapon {
     }
 
     private hideHitMarker() {
-        this.hitMarker.visible = false;
+        if (this.hitMarker.visible) {
+            this.hitMarker.visible = false;
+        }
     }
 
     private scaleMovementSphere = (() => {
@@ -237,5 +233,6 @@ export interface TelekineticFistsParameters extends WeaponParameters {
 }
 
 export class TelekineticFistsState extends WeaponState {
-    static readonly MOVING_OBJECTS = 'moving-objects';
+    static readonly USING_TELEKINESIS = 'using-telekinesis';
+    static readonly DRAGGING_OBJECT = 'dragging-object';
 }

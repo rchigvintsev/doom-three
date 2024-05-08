@@ -36,6 +36,7 @@ import {NamedSphere} from './named-sphere';
 import {CannonPhysicsBody} from './cannon-physics-body';
 import {CollisionModelFactory} from '../collision-model-factory';
 import {CannonRagdollCollisionModel} from './cannon-ragdoll-collision-model';
+import {CannonTestConstraint} from './cannon-test-constraint';
 import {PhysicsBodyHelper} from '../physics-body-helper';
 import {Game} from '../../game';
 

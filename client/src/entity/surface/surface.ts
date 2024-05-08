@@ -24,6 +24,10 @@ export class Surface extends Mesh implements MeshBasedEntity, TangibleEntity {
         // Do nothing
     }
 
+    get collisionModels(): CollisionModel[] {
+        return [this.collisionModel];
+    }
+
     registerCollisionModels(physicsManager: PhysicsManager) {
         this.collisionModel.register(physicsManager);
     }

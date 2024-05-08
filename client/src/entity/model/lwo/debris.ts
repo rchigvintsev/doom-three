@@ -6,6 +6,7 @@ import {ModelParameters} from '../model-parameters';
 import {Sound} from '../../sound/sound';
 import {PhysicsManager} from '../../../physics/physics-manager';
 import {CollideEvent} from '../../../event/collide-event';
+import {CollisionModel} from '../../../physics/collision-model';
 
 export class Debris extends LwoModel implements TangibleEntity {
     readonly tangibleEntity = true;
@@ -19,6 +20,10 @@ export class Debris extends LwoModel implements TangibleEntity {
         super(parameters);
         this.visible = false;
         parameters.collisionModel?.addCollideEventListener((e: CollideEvent) => this.onCollide(e));
+    }
+
+    get collisionModels(): CollisionModel[] {
+        return this.collisionModel ? [this.collisionModel] : [];
     }
 
     registerCollisionModels(physicsManager: PhysicsManager) {
