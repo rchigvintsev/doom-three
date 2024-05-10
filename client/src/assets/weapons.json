@@ -26,7 +26,7 @@
     "name": "telekinetic-fists",
     "model": "models/md5/weapons/fists_view/fists.md5mesh",
     "materials": [
-      "models/weapons/berserk/fist"
+      "models/weapons/berserk/telekinetic_fist"
     ],
     "animations": [
       "models/md5/weapons/fists_view/idle.md5anim",

@@ -72,6 +72,19 @@
     }
   },
   {
+    "name": "models/weapons/berserk/telekinetic_fist",
+    "diffuseMap": "models/weapons/berserk/telekinetic_fist",
+    "specularMap": "models/weapons/berserk/telekinetic_fist_s",
+    "normalMap": {
+      "name": "models/weapons/berserk/telekinetic_fist_local+telekinetic_fist_h",
+      "addNormals": {
+        "normalMap": "models/weapons/berserk/telekinetic_fist_local",
+        "bumpMap": "models/weapons/berserk/telekinetic_fist_h",
+        "scale": 3
+      }
+    }
+  },
+  {
     "name": "models/weapons/pistol/pistol",
     "diffuseMap": "models/weapons/pistol/pistol",
     "specularMap": "models/weapons/pistol/pistol_s",
