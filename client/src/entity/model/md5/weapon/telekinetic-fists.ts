@@ -114,7 +114,7 @@ export class TelekineticFists extends Weapon {
             this.moveMovementSphere();
 
             this.addJointConstraint(hitPoint, body);
-            this.changeState(TelekineticFistsState.DRAGGING_OBJECT);
+            this.changeState(TelekineticFistsState.STARTING_TO_DRAG_OBJECT);
         }
     }
 
@@ -122,24 +122,28 @@ export class TelekineticFists extends Weapon {
         // Do nothing
     }
 
+    update(deltaTime: number) {
+        super.update(deltaTime);
+
+        if (this.enabled) {
+            if (this.isStartingToDragObject()) {
+                this.changeState(TelekineticFistsState.DRAGGING_OBJECT);
+            } else if (this.isDraggingObject()) {
+                this.moveMovementSphere();
+                this.dragObject();
+            }
+        }
+    }
+
     protected doInit() {
         super.doInit();
         this.initAnimationFlows();
-
-        const screenCenterCoords = new Vector2();
 
         window.addEventListener('pointermove', _event => {
             if (!this.enabled || !this.isDraggingObject()) {
                 return;
             }
-
-            this.raycaster.setFromCamera(screenCenterCoords, Game.getContext().camera);
-            const intersections = this.raycaster.intersectObject(this.movementSphere);
-            if (intersections.length > 0) {
-                const intersection = intersections[0];
-                this.moveHitMarker(intersection.point);
-                this.moveJointBody(intersection.point);
-            }
+            this.dragObject();
         });
 
         window.addEventListener('pointerup', () => {
@@ -152,6 +156,20 @@ export class TelekineticFists extends Weapon {
             this.changeState(TelekineticFistsState.IDLE);
         });
     }
+
+    private dragObject = (() => {
+        const screenCenterCoords = new Vector2();
+
+        return () => {
+            this.raycaster.setFromCamera(screenCenterCoords, Game.getContext().camera);
+            const intersections = this.raycaster.intersectObject(this.movementSphere);
+            if (intersections.length > 0) {
+                const intersection = intersections[0];
+                this.moveHitMarker(intersection.point);
+                this.moveJointBody(intersection.point);
+            }
+        };
+    })();
 
     private initAnimationFlows() {
         this.addAnimationFlow('enable', this.animate('raise')
@@ -167,6 +185,10 @@ export class TelekineticFists extends Weapon {
 
     private canAttack(): boolean {
         return this.currentState === TelekineticFistsState.IDLE;
+    }
+
+    private isStartingToDragObject(): boolean {
+        return this.currentState === TelekineticFistsState.STARTING_TO_DRAG_OBJECT;
     }
 
     private isDraggingObject(): boolean {
@@ -234,5 +256,6 @@ export interface TelekineticFistsParameters extends WeaponParameters {
 
 export class TelekineticFistsState extends WeaponState {
     static readonly USING_TELEKINESIS = 'using-telekinesis';
+    static readonly STARTING_TO_DRAG_OBJECT = 'starting-to-drag-object';
     static readonly DRAGGING_OBJECT = 'dragging-object';
 }
