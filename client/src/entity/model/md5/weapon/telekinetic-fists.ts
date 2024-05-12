@@ -242,6 +242,8 @@ export class TelekineticFists extends Weapon {
         this.jointBody.position.set(position.x, position.y, position.z);
         if (this.jointConstraint) {
             this.jointConstraint.update();
+            this.jointConstraint.bodyA.wakeUp();
+            this.jointConstraint.bodyB.wakeUp();
         }
     }
 
