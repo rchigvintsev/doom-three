@@ -29,7 +29,7 @@ export class CannonCollisionModel implements CollisionModel {
     }
 
     bodyByName(name: string): CannonPhysicsBody | undefined {
-        return this.findBodyByName(name, this.parameters.bodies);
+        return this.findBodyByName(name, this.bodies);
     }
 
     hasMass(): boolean {
@@ -64,24 +64,13 @@ export class CannonCollisionModel implements CollisionModel {
     }
 
     update(_deltaTime: number) {
-        this.updateBodies(this.parameters.bodies);
+        this.updateBodies(this.bodies);
         if (this.onUpdateCallback) {
             this.onUpdateCallback(this.position, this.quaternion);
         }
     }
 
-    protected updateBodies(bodies: CannonPhysicsBody[]) {
-        for (let i = 0; i < bodies.length; i++) {
-            const body = bodies[i];
-            body.update();
-            if (i === 0) {
-                this.position.setFromVector3(body.getPosition());
-                this.quaternion.copy(body.getQuaternion());
-            }
-        }
-    }
-
-    onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) {
+    onAttack(weapon: Weapon, force: Vector3, _ray: Ray, hitPoint: Vector3) {
         if (this.hasMass()) {
             this.applyImpulse(this.firstBody, force, hitPoint);
         }
@@ -114,16 +103,29 @@ export class CannonCollisionModel implements CollisionModel {
         });
     }
 
+    wakeUp(): void {
+        for (const body of this.bodies) {
+            body.wakeUp();
+        }
+    }
+
     protected get firstBody(): CannonPhysicsBody {
-        return this.parameters.bodies[0];
+        return this.bodies[0];
+    }
+
+    protected updateBodies(bodies: CannonPhysicsBody[]) {
+        for (let i = 0; i < bodies.length; i++) {
+            const body = bodies[i];
+            body.update();
+            if (i === 0) {
+                this.position.setFromVector3(body.getPosition());
+                this.quaternion.copy(body.getQuaternion());
+            }
+        }
     }
 
     protected findBodyByName(name: string, bodies: CannonPhysicsBody[]): CannonPhysicsBody | undefined {
-        for (const body of bodies) {
-            if (body.name === name) {
-                return body;
-            }
-        }
+        return bodies.find(body => body.name === name);
     }
 
     private onPositionChange() {

@@ -20,7 +20,7 @@ import {isRagdollCollisionModel} from '../../../../physics/ragdoll-collision-mod
 import {PhysicsBodyHelper} from '../../../../physics/physics-body-helper';
 import {Game} from '../../../../game';
 import {PhysicsManager} from '../../../../physics/physics-manager';
-import {isTangibleEntity} from '../../../tangible-entity';
+import {isTangibleEntity, TangibleEntity} from '../../../tangible-entity';
 
 const TELEKINESIS_DISTANCE = 200;
 
@@ -34,6 +34,7 @@ export class TelekineticFists extends Weapon {
     private readonly movementSphere: Mesh;
     private readonly jointBody: Body;
 
+    private hitTarget?: TangibleEntity;
     private jointConstraint?: Constraint;
 
     constructor(parameters: TelekineticFistsParameters) {
@@ -75,27 +76,27 @@ export class TelekineticFists extends Weapon {
             return;
         }
 
+        this.hitTarget = target;
+
         let hitPoint, body;
 
-        if (target instanceof Monster) {
-            if (isRagdollCollisionModel(target.collisionModel)) {
-                const bodyHelpers = target.collisionModel.deadStateBodies
-                    .filter(body => !body.boundingBox && body.helper)
-                    .map(body => body.helper!);
+        if (target instanceof Monster && isRagdollCollisionModel(target.collisionModel)) {
+            const bodyHelpers = target.collisionModel.deadStateBodies
+                .filter(body => !body.boundingBox && body.helper)
+                .map(body => body.helper!);
 
-                this.raycaster.set(ray.origin, ray.direction);
-                const intersections = this.raycaster.intersectObjects(bodyHelpers);
-                if (intersections.length > 0) {
-                    const hit = intersections[0];
-                    let target: Object3D | null = hit.object;
-                    while (target && !(target instanceof PhysicsBodyHelper)) {
-                        target = target.parent;
-                    }
+            this.raycaster.set(ray.origin, ray.direction);
+            const intersections = this.raycaster.intersectObjects(bodyHelpers);
+            if (intersections.length > 0) {
+                const hit = intersections[0];
+                let target: Object3D | null = hit.object;
+                while (target && !(target instanceof PhysicsBodyHelper)) {
+                    target = target.parent;
+                }
 
-                    if (target) {
-                        hitPoint = hit.point;
-                        body = target.body;
-                    }
+                if (target) {
+                    hitPoint = hit.point;
+                    body = target.body;
                 }
             }
         } else {
@@ -153,6 +154,7 @@ export class TelekineticFists extends Weapon {
 
             this.removeJointConstraint();
             this.hideHitMarker();
+            this.hitTarget = undefined;
             this.changeState(TelekineticFistsState.IDLE);
         });
     }
@@ -242,8 +244,7 @@ export class TelekineticFists extends Weapon {
         this.jointBody.position.set(position.x, position.y, position.z);
         if (this.jointConstraint) {
             this.jointConstraint.update();
-            this.jointConstraint.bodyA.wakeUp();
-            this.jointConstraint.bodyB.wakeUp();
+            this.hitTarget?.collisionModels[0].wakeUp();
         }
     }
 

@@ -95,6 +95,10 @@ export class PlayerCollisionModel implements CollisionModel {
         this.delegate.addCollideEventListener(listener);
     }
 
+    wakeUp() {
+        this.delegate.wakeUp();
+    }
+
     move(velocity: Vector3) {
         const body = this.firstBody;
         body.velocity.x = velocity.x;

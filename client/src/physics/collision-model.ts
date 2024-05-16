@@ -32,4 +32,9 @@ export interface CollisionModel {
     applyImpulse(body: PhysicsBody, impulse: Vector3, relativePoint?: Vector3): void;
 
     addCollideEventListener(listener: (e: CollideEvent) => void): void;
+
+    /**
+     * Wakes up this collision model. It means waking up every body that makes up this model.
+     */
+    wakeUp(): void;
 }

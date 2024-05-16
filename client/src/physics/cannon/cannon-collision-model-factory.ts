@@ -116,8 +116,7 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
             constraints: [],
             deadStateBodies,
             deadStateConstraints,
-            physicsManager: this.physicsManager,
-            worldScale: config.worldScale
+            physicsManager: this.physicsManager
         });
     }
 
