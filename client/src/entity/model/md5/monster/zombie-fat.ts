@@ -1,4 +1,4 @@
-import {Bone, Matrix4, Quaternion, Vector3} from 'three';
+import {Bone, Intersection, Matrix4, Quaternion, Ray, Vector3} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -113,9 +113,9 @@ export class ZombieFat extends Monster {
         }
     }
 
-    protected onBodyHit(body: PhysicsBody, weapon: Weapon) {
+    protected onBodyHit(body: PhysicsBody, weapon: Weapon, ray: Ray, intersection: Intersection) {
         const wasDead = this.isDead();
-        super.onBodyHit(body, weapon);
+        super.onBodyHit(body, weapon, ray, intersection);
         if (!wasDead && weapon.damage > 0) {
             this.stopAllSounds();
             if (this.isDead()) {

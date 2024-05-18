@@ -8,6 +8,7 @@ import {isUpdatableMaterial} from '../../../../material/updatable-material';
 import {GameEntityFactory} from '../../../game-entity-factory';
 import {Sound} from '../../../sound/sound';
 import {Game} from '../../../../game';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 const BOBBING_MAGNITUDE_X = 0.40;
 const BOBBING_MAGNITUDE_Y = 0.40;
@@ -82,10 +83,11 @@ export abstract class Weapon extends Md5Model {
      * Called when this weapon hit some target during the attack.
      *
      * @param target target mesh that was hit during the attack
+     * @param body physics body that was hit during the attack
      * @param ray ray cast from this weapon
      * @param intersection intersection of ray cast from this weapon with target mesh
      */
-    abstract onHit(target: Mesh, ray: Ray, intersection: Intersection): void;
+    abstract onHit(target: Mesh, body: PhysicsBody, ray: Ray, intersection: Intersection): void;
 
     /**
      * Called when this weapon misses during the attack.

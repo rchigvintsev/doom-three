@@ -1,4 +1,4 @@
-import {Quaternion, Ray, Vector3} from 'three';
+import {Intersection, Quaternion, Ray, Vector3} from 'three';
 
 import {Constraint, Vec3} from 'cannon-es';
 
@@ -13,7 +13,7 @@ import {PhysicsBody} from '../physics-body';
 import {Game} from '../../game';
 
 export class CannonCollisionModel implements CollisionModel {
-    onHitCallback?: (body: PhysicsBody, weapon: Weapon) => void;
+    onHitCallback?: (body: PhysicsBody, weapon: Weapon, ray: Ray, intersection: Intersection) => void;
     onUpdateCallback?: (position: Position, quaternion: Quaternion) => void;
 
     readonly position = new Position();
@@ -70,12 +70,12 @@ export class CannonCollisionModel implements CollisionModel {
         }
     }
 
-    onAttack(weapon: Weapon, force: Vector3, _ray: Ray, hitPoint: Vector3) {
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
         if (this.hasMass()) {
-            this.applyImpulse(this.firstBody, force, hitPoint);
+            this.applyImpulse(this.firstBody, force, intersection.point);
         }
         if (this.onHitCallback) {
-            this.onHitCallback(this.firstBody, weapon);
+            this.onHitCallback(this.firstBody, weapon, ray, intersection);
         }
     }
 

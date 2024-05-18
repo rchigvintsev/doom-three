@@ -3,7 +3,6 @@ import {
     Intersection,
     Mesh,
     MeshLambertMaterial,
-    Object3D,
     Ray,
     Raycaster,
     SphereGeometry,
@@ -16,11 +15,10 @@ import {Body, Constraint, LockConstraint, Sphere} from 'cannon-es';
 import {Weapon, WeaponParameters, WeaponState} from './weapon';
 import {AttackEvent} from '../../../../event/weapon-events';
 import {Monster} from '../monster/monster';
-import {isRagdollCollisionModel} from '../../../../physics/ragdoll-collision-model';
-import {PhysicsBodyHelper} from '../../../../physics/physics-body-helper';
 import {Game} from '../../../../game';
 import {PhysicsManager} from '../../../../physics/physics-manager';
 import {isTangibleEntity, TangibleEntity} from '../../../tangible-entity';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 const TELEKINESIS_DISTANCE = 200;
 
@@ -71,52 +69,26 @@ export class TelekineticFists extends Weapon {
         }
     }
 
-    onHit(target: Mesh, ray: Ray, intersection: Intersection) {
+    onHit(target: Mesh, body: PhysicsBody, _ray: Ray, intersection: Intersection) {
         if (!isTangibleEntity(target) || (target instanceof Monster && !target.isDead())) {
+            return;
+        }
+
+        const collisionModel = target.collisionModels[0];
+        if (!collisionModel.hasMass()) {
             return;
         }
 
         this.hitTarget = target;
 
-        let hitPoint, body;
+        this.moveHitMarker(intersection.point);
+        this.showHitMarker();
 
-        if (target instanceof Monster && isRagdollCollisionModel(target.collisionModel)) {
-            const bodyHelpers = target.collisionModel.deadStateBodies
-                .filter(body => !body.boundingBox && body.helper)
-                .map(body => body.helper!);
+        this.scaleMovementSphere(intersection.point);
+        this.moveMovementSphere();
 
-            this.raycaster.set(ray.origin, ray.direction);
-            const intersections = this.raycaster.intersectObjects(bodyHelpers);
-            if (intersections.length > 0) {
-                const hit = intersections[0];
-                let target: Object3D | null = hit.object;
-                while (target && !(target instanceof PhysicsBodyHelper)) {
-                    target = target.parent;
-                }
-
-                if (target) {
-                    hitPoint = hit.point;
-                    body = target.body;
-                }
-            }
-        } else {
-            const collisionModel = target.collisionModels[0];
-            if (collisionModel && collisionModel.hasMass()) {
-                hitPoint = intersection.point;
-                body = collisionModel.bodies[0];
-            }
-        }
-
-        if (hitPoint && body instanceof Body) {
-            this.moveHitMarker(hitPoint);
-            this.showHitMarker();
-
-            this.scaleMovementSphere(hitPoint);
-            this.moveMovementSphere();
-
-            this.addJointConstraint(hitPoint, body);
-            this.changeState(TelekineticFistsState.STARTING_TO_DRAG_OBJECT);
-        }
+        this.addJointConstraint(intersection.point, body);
+        this.changeState(TelekineticFistsState.STARTING_TO_DRAG_OBJECT);
     }
 
     onMiss() {
@@ -227,9 +199,9 @@ export class TelekineticFists extends Weapon {
         this.localToWorld(this.movementSphere.position);
     }
 
-    private addJointConstraint(hitPoint: Vector3, body: Body) {
+    private addJointConstraint(hitPoint: Vector3, body: PhysicsBody) {
         this.jointBody.position.set(hitPoint.x, hitPoint.y, hitPoint.z);
-        this.jointConstraint = new LockConstraint(body, this.jointBody);
+        this.jointConstraint = new LockConstraint(<Body><unknown>body, this.jointBody);
         this.physicsManager.addConstraint(this.jointConstraint);
     }
 

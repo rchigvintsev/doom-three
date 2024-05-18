@@ -1,4 +1,4 @@
-import {Quaternion, Ray, Scene, Vector3} from 'three';
+import {Intersection, Quaternion, Ray, Vector3} from 'three';
 
 import {Vec3} from 'cannon-es';
 
@@ -47,13 +47,13 @@ export class PlayerCollisionModel implements CollisionModel {
         return this.delegate.bodies;
     }
 
-    onAttack(weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) {
-        this.delegate.onAttack(weapon, force, ray, hitPoint);
+    onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
+        this.delegate.onAttack(weapon, force, ray, intersection);
     }
 
-    onHitCallback(body: PhysicsBody, weapon: Weapon) {
+    onHitCallback(body: PhysicsBody, weapon: Weapon, ray: Ray, intersection: Intersection) {
         if (this.delegate.onHitCallback) {
-            this.delegate.onHitCallback(body, weapon);
+            this.delegate.onHitCallback(body, weapon, ray, intersection);
         }
     }
 

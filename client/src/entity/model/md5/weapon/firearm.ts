@@ -28,6 +28,7 @@ import {Player} from '../../../player/player';
 import {DecalManager} from '../../../decal/decal-manager';
 import {Monster} from '../monster/monster';
 import {Game} from '../../../../game';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 const SHELL_POSITION = new Vector3();
 const SHELL_QUATERNION = new Quaternion();
@@ -111,7 +112,7 @@ export abstract class Firearm extends Weapon {
 
     onHit = (() => {
         const decalPosition = new Vector3();
-        return (target: Mesh, _ray: Ray, intersection: Intersection) => {
+        return (target: Mesh, _body: PhysicsBody, _ray: Ray, intersection: Intersection) => {
             if (target instanceof Monster && target.isDead()) {
                 return;
             }

@@ -5,6 +5,7 @@ import {AttackEvent} from '../../../../event/weapon-events';
 import {Player} from '../../../player/player';
 import {BufferGeometries} from '../../../../util/buffer-geometries';
 import {Game} from '../../../../game';
+import {PhysicsBody} from '../../../../physics/physics-body';
 
 const PUNCH_FORCE = 30;
 const ATTACK_DISTANCE = 30;
@@ -67,7 +68,7 @@ export class Flashlight extends Weapon {
         }
     }
 
-    onHit(target: Mesh, _ray: Ray, intersection: Intersection) {
+    onHit(target: Mesh, _body: PhysicsBody, _ray: Ray, intersection: Intersection) {
         this.playImpactSound(intersection.point, target);
     }
 

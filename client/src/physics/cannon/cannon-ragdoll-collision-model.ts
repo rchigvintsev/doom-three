@@ -1,4 +1,4 @@
-import {Ray, Vector3} from 'three';
+import {Intersection, Ray, Vector3} from 'three';
 
 import {Constraint, Ray as CannonRay, RaycastResult, Vec3} from 'cannon-es';
 
@@ -64,16 +64,16 @@ export class CannonRagdollCollisionModel extends CannonCollisionModel implements
         const cannonRay = new CannonRay(new Vec3(), new Vec3());
         const raycastResult = new RaycastResult();
 
-        return (weapon: Weapon, force: Vector3, ray: Ray, hitPoint: Vector3) => {
+        return (weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) => {
             this.updateRay(ray, cannonRay);
             raycastResult.reset();
             cannonRay.intersectBodies(this.bodies, raycastResult);
             if (raycastResult.body) {
                 const hitBody = raycastResult.body as CannonPhysicsBody;
                 console.log(`Body "${hitBody.name}" is hit using weapon "${weapon.name}"`);
-                this.applyImpulse(hitBody, force, hitPoint);
+                this.applyImpulse(hitBody, force, intersection.point);
                 if (this.onHitCallback) {
-                    this.onHitCallback(hitBody, weapon);
+                    this.onHitCallback(hitBody, weapon, ray, intersection);
                 }
             }
         };

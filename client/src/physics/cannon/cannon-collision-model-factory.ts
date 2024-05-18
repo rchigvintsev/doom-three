@@ -99,9 +99,9 @@ export class CannonCollisionModelFactory implements CollisionModelFactory {
 
                 // Create mirroring body for dead state
                 if (body.type === Body.KINEMATIC) {
-                    const deadBody = this.createBody(bodyDef, {type: Body.DYNAMIC});
-                    deadStateBodies.push(deadBody);
-                    deadBody.helper = body.helper;
+                    const deadStateBody = this.createBody(bodyDef, {type: Body.DYNAMIC});
+                    deadStateBodies.push(deadStateBody);
+                    deadStateBody.helper = body.helper;
                 }
             }
 
