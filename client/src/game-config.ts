@@ -19,6 +19,7 @@ const DEFAULT_PLAYER_JUMP_SPEED = 3.2;
 const DEFAULT_SHOW_LIGHT_SOURCES = false;
 const DEFAULT_SHOW_SKELETONS = false;
 const DEFAULT_SHOW_COLLISION_MODELS = false;
+const DEFAULT_SHOW_MONSTER_BOUNDING_SPHERES = false;
 const DEFAULT_GHOST_MODE = false;
 const DEFAULT_DIFFICULTY_LEVEL = DifficultyLevel.MARINE;
 const DEFAULT_ENABLE_TELEKINETIC_FISTS = false;
@@ -39,6 +40,7 @@ export class GameConfig {
     showLightSources = DEFAULT_SHOW_LIGHT_SOURCES;
     showSkeletons = DEFAULT_SHOW_SKELETONS;
     showCollisionModels = DEFAULT_SHOW_COLLISION_MODELS;
+    showMonsterBoundingSpheres = DEFAULT_SHOW_MONSTER_BOUNDING_SPHERES;
     ghostMode = DEFAULT_GHOST_MODE;
     difficultyLevel = DEFAULT_DIFFICULTY_LEVEL;
     enableTelekineticFists = DEFAULT_ENABLE_TELEKINETIC_FISTS;

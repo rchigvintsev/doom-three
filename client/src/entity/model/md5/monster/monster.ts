@@ -1,4 +1,16 @@
-import {Bone, Euler, Intersection, MathUtils, Matrix4, Quaternion, Ray, Scene, Vector3} from 'three';
+import {
+    Bone,
+    Euler,
+    Intersection,
+    MathUtils,
+    Matrix4,
+    Mesh, MeshBasicMaterial,
+    Quaternion,
+    Ray,
+    Scene,
+    SphereGeometry,
+    Vector3
+} from 'three';
 
 import {randomInt} from 'mathjs';
 
@@ -22,6 +34,8 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
     protected turnAngle = 0;
     protected health = 100;
 
+    private boundingSphereHelper?: Mesh;
+
     private readonly _calculatedPosition = new Vector3();
 
     constructor(parameters: MonsterParameters) {
@@ -30,6 +44,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
 
     protected doInit() {
         super.doInit();
+        this.initBoundingSphereHelper();
         this.collisionModel.onHitCallback = (body, weapon, ray, intersection) =>
             this.onBodyHit(body, weapon, ray, intersection);
     }
@@ -42,6 +57,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
         if (this.isIdle()) {
             this.resetSkeletonPosition();
         }
+        this.updateBoundingSphereHelper();
     }
 
     onAttack(weapon: Weapon, force: Vector3, ray: Ray, intersection: Intersection) {
@@ -231,6 +247,7 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
                 this.stopAllAnimations();
                 (<RagdollCollisionModel>this.collisionModel).kill();
                 this.changeState(MonsterState.DEAD);
+                this.repositionBoundingSphere();
                 console.log(`Monster "${this.name}" is dead`);
             }
         }
@@ -251,6 +268,34 @@ export abstract class Monster extends Md5Model implements TangibleEntity {
             this.getWorldDirection(this.direction).applyEuler(directionRotation).normalize();
         };
     })();
+
+    private initBoundingSphereHelper() {
+        if (Game.getContext().config.showMonsterBoundingSpheres && !this.boundingSphereHelper) {
+            let boundingSphere = this.geometry.boundingSphere;
+            if (!boundingSphere) {
+                this.geometry.computeBoundingSphere();
+                boundingSphere = this.geometry.boundingSphere!;
+            }
+            const sphereGeometry = new SphereGeometry(boundingSphere.radius);
+            const sphereMaterial = new MeshBasicMaterial({color: 0xffffff, wireframe: true});
+            this.boundingSphereHelper = new Mesh(sphereGeometry, sphereMaterial);
+            this.boundingSphereHelper.position.copy(boundingSphere.center);
+            this.add(this.boundingSphereHelper);
+        }
+    }
+
+    private updateBoundingSphereHelper() {
+        if (this.geometry.boundingSphere && this.boundingSphereHelper) {
+            this.boundingSphereHelper.position.copy(this.geometry.boundingSphere.center);
+        }
+    }
+
+    private repositionBoundingSphere() {
+        if (!this.geometry.boundingSphere) {
+            this.geometry.computeBoundingSphere();
+        }
+        this.geometry.boundingSphere!.center.copy(this.position);
+    }
 }
 
 export class MonsterState extends Md5ModelState {

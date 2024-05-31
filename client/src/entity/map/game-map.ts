@@ -99,10 +99,7 @@ export class GameMap extends Group implements TangibleEntity {
 
             const intersections = this.raycaster.intersectObjects(this.areasAndMonsters);
             for (const intersection of intersections) {
-                let target: any = intersection.object;
-                while (!isTangibleEntity(target) && target.parent) {
-                    target = target.parent;
-                }
+                const target: any = intersection.object;
                 if (isTangibleEntity(target)) {
                     if (target.onAttack) {
                         target.onAttack(e.weapon, this.force, this.raycaster.ray, intersection);

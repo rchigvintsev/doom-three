@@ -2,6 +2,7 @@ import {
     BackSide,
     Intersection,
     Mesh,
+    MeshBasicMaterial,
     MeshLambertMaterial,
     Ray,
     Raycaster,
@@ -43,7 +44,11 @@ export class TelekineticFists extends Weapon {
         this.telekinesisDistance = TELEKINESIS_DISTANCE * context.config.worldScale;
 
         const hitMarkerGeometry = new SphereGeometry(0.02, 8, 8);
-        const hitMarkerMaterial = new MeshLambertMaterial({color: 0xff0000, depthTest: false, depthWrite: false});
+        const hitMarkerMaterial = new MeshBasicMaterial({
+            color: 0xff0000,
+            depthTest: false,
+            depthWrite: false
+        });
         this.hitMarker = new Mesh(hitMarkerGeometry, hitMarkerMaterial);
         this.hitMarker.renderOrder = 1_000;
         this.hitMarker.visible = false;
